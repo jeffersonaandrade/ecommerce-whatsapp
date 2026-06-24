@@ -3,24 +3,28 @@ import { siteConfig } from '@/config/site'
 
 export function Footer() {
   return (
-    <footer className="bg-black text-white border-t border-gray-800">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
+    <footer className="border-t border-hairline-dark bg-ink text-canvas">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+        <div className="mb-12 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
-            <h3 className="font-bold text-lg mb-4">{siteConfig.name}</h3>
-            <p className="text-sm text-gray-400">{siteConfig.description}</p>
+            <h3 className="mb-4 text-lg font-bold text-canvas">
+              {siteConfig.name}
+            </h3>
+            <p className="text-sm leading-relaxed text-mute">
+              {siteConfig.description}
+            </p>
           </div>
 
-          {/* Links */}
           <div>
-            <h4 className="font-semibold mb-4 text-sm">Produtos</h4>
+            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-canvas">
+              Produtos
+            </h4>
             <ul className="space-y-2 text-sm">
               {siteConfig.categories.map((category) => (
                 <li key={category}>
                   <Link
-                    href={`/products?category=${category}`}
-                    className="text-gray-400 hover:text-white transition-colors"
+                    href={`/products?category=${encodeURIComponent(category)}`}
+                    className="text-mute transition-colors hover:text-canvas"
                   >
                     {category}
                   </Link>
@@ -29,14 +33,15 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company */}
           <div>
-            <h4 className="font-semibold mb-4 text-sm">Empresa</h4>
+            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-canvas">
+              Empresa
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-mute transition-colors hover:text-canvas"
                 >
                   Sobre
                 </Link>
@@ -44,7 +49,7 @@ export function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-mute transition-colors hover:text-canvas"
                 >
                   Contato
                 </Link>
@@ -52,7 +57,7 @@ export function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-mute transition-colors hover:text-canvas"
                 >
                   FAQ
                 </Link>
@@ -60,14 +65,15 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
           <div>
-            <h4 className="font-semibold mb-4 text-sm">Legal</h4>
+            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-canvas">
+              Legal
+            </h4>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-mute transition-colors hover:text-canvas"
                 >
                   Privacidade
                 </Link>
@@ -75,7 +81,7 @@ export function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="text-mute transition-colors hover:text-canvas"
                 >
                   Termos
                 </Link>
@@ -84,17 +90,16 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-400">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-hairline-dark pt-8 text-sm text-mute sm:flex-row">
           <p>&copy; 2024 {siteConfig.name}. Todos os direitos reservados.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-white transition-colors">
+            <a href="#" className="transition-colors hover:text-canvas">
               Twitter
             </a>
-            <a href="#" className="hover:text-white transition-colors">
+            <a href="#" className="transition-colors hover:text-canvas">
               Instagram
             </a>
-            <a href="#" className="hover:text-white transition-colors">
+            <a href="#" className="transition-colors hover:text-canvas">
               Facebook
             </a>
           </div>
