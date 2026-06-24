@@ -1,134 +1,119 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Product } from '@/types/product'
-import { formatPrice, calculateDiscount } from '@/lib/formatters'
+import { formatPrice } from '@/lib/formatters'
 import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
-import { Button, getButtonClassName } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { getButtonClassName } from '@/components/ui/button'
 
 interface ProductCardProps {
   product: Product
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const hasPromotion = product.promotionalPrice && product.promotionalPrice < product.price
-  const discount = hasPromotion ? calculateDiscount(product.price, product.promotionalPrice!) : 0
+  const hasPromotion =
+    product.promotionalPrice && product.promotionalPrice < product.price
   const displayPrice = hasPromotion ? product.promotionalPrice : product.price
   const hasStock = product.variations.some((v) => v.stock > 0)
 
+  const colorOptions = Array.from(
+    new Set(product.variations.map((v) => v.color).filter(Boolean))
+  )
+
   return (
-    <div className="group">
-      {/* Image Container */}
-      <div className="relative overflow-hidden rounded-lg bg-gray-100 aspect-square mb-4">
+    <article className="group flex flex-col">
+      {/* Image — DS §9.2: 1:1, soft-cloud, flat, subtle hover */}
+      <Link
+        href={`/products/${product.slug}`}
+        className="relative mb-3 block aspect-square overflow-hidden bg-soft-cloud"
+      >
         <Image
           src={product.images[0]}
           alt={product.name}
           fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
+          className="object-cover transition-opacity duration-200 group-hover:opacity-95"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
         />
 
-        {/* Discount Badge */}
-        {hasPromotion && (
-          <div className="absolute top-3 right-3 z-10">
-            <Badge variant="error" className="bg-red-500 text-white">
-              -{discount}%
-            </Badge>
-          </div>
-        )}
-
-        {/* Out of Stock Overlay */}
         {!hasStock && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="text-white font-semibold text-lg">Fora de Estoque</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-ink/50">
+            <span className="text-sm font-semibold uppercase tracking-wide text-canvas">
+              Fora de estoque
+            </span>
           </div>
         )}
-      </div>
+      </Link>
 
-      {/* Content */}
-      <div className="space-y-3">
-        {/* Category and Club */}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="default" className="text-xs">
-            {product.category}
-          </Badge>
-          {product.club && (
-            <Badge variant="default" className="text-xs">
-              {product.club}
-            </Badge>
-          )}
-        </div>
+      {/* Metadata — DS §9.2: clean hierarchy below image */}
+      <div className="flex flex-col gap-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-mute">
+          {product.category}
+          {product.club ? ` · ${product.club}` : ''}
+        </p>
 
-        {/* Product Name */}
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-semibold text-base line-clamp-2 hover:text-gray-600 transition-colors">
+          <h3 className="line-clamp-2 text-base font-semibold leading-snug text-ink transition-colors hover:text-charcoal">
             {product.name}
           </h3>
         </Link>
 
-        {/* Short Description */}
-        <p className="text-sm text-gray-600 line-clamp-2">
-          {product.shortDescription}
-        </p>
-
-        {/* Price */}
-        <div className="space-y-1">
+        {/* Price — DS §9.2: promo in sale red, no decorative badge */}
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           {hasPromotion ? (
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-black">
+            <>
+              <span className="text-lg font-bold text-sale">
                 {formatPrice(displayPrice!)}
               </span>
-              <span className="text-sm text-gray-500 line-through">
+              <span className="text-sm text-mute line-through">
                 {formatPrice(product.price)}
               </span>
-            </div>
+            </>
           ) : (
-            <span className="text-xl font-bold text-black">
+            <span className="text-lg font-bold text-ink">
               {formatPrice(product.price)}
             </span>
           )}
         </div>
 
-        {/* Variations Preview */}
-        {product.variations.some((v) => v.color) && (
-          <div className="flex gap-2">
-            {Array.from(
-              new Set(product.variations.map((v) => v.color).filter(Boolean))
-            ).map((color) => (
-              <div
+        {/* Swatches — discrete, white swatch border preserved */}
+        {colorOptions.length > 0 && (
+          <div className="flex gap-1.5 pt-0.5" aria-label="Cores disponíveis">
+            {colorOptions.map((color) => (
+              <span
                 key={color}
-                className={`w-5 h-5 rounded-full border-2 ${colorSwatchBorderClass(color!)}`}
+                className={`h-4 w-4 shrink-0 rounded-full border ${colorSwatchBorderClass(color!)}`}
                 title={color}
-                style={{
-                  backgroundColor: colorNameToHex(color!),
-                }}
+                style={{ backgroundColor: colorNameToHex(color!) }}
               />
             ))}
           </div>
         )}
 
-        {/* CTA Buttons */}
-        <div className="flex gap-2 pt-2">
+        {/* CTAs — DS §9.1 pill links */}
+        <div className="flex flex-col gap-2 pt-2 sm:flex-row">
           {hasStock ? (
             <Link
               href={`/products/${product.slug}`}
-              className={getButtonClassName('default', 'md', 'flex-1 w-full')}
+              className={getButtonClassName('default', 'sm', 'w-full sm:flex-1')}
             >
               Escolher opções
             </Link>
           ) : (
-            <Button variant="default" size="md" className="flex-1" disabled>
+            <button
+              type="button"
+              disabled
+              className={getButtonClassName('default', 'sm', 'w-full sm:flex-1')}
+            >
               Fora de estoque
-            </Button>
+            </button>
           )}
           <Link
             href={`/products/${product.slug}`}
-            className={getButtonClassName('outline', 'md', 'flex-1 w-full')}
+            className={getButtonClassName('outline', 'sm', 'w-full sm:flex-1')}
           >
             Ver detalhes
           </Link>
         </div>
       </div>
-    </div>
+    </article>
   )
 }
