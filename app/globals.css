@@ -25,9 +25,9 @@
   --color-warning: #ca8a04;
   --color-error: #dc2626;
 
-  /* Typography — DESIGN_SYSTEM.md §4 (applied in layout sprint) */
-  --font-sans: ui-sans-serif, system-ui, sans-serif;
-  --font-display: ui-sans-serif, system-ui, sans-serif;
+  /* Typography — DESIGN_SYSTEM.md §4 */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), ui-sans-serif, system-ui, sans-serif;
 
   /* Radius — DESIGN_SYSTEM.md §7 */
   --radius-sm: 2px;
