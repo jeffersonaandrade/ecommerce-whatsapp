@@ -1,4 +1,4 @@
-import { getProductById } from '@/lib/products'
+import { getProductById } from '@/lib/products-client'
 import { CartItem, Product, ProductVariation } from '@/types/product'
 
 export function resolveProductPrice(product: Product): number {

@@ -2,11 +2,11 @@ import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { resolveProductPrice, resolveCartLines } from '@/lib/cart-utils'
 import type { Product } from '@/types/product'
 
-vi.mock('@/lib/products', () => ({
+vi.mock('@/lib/products-client', () => ({
   getProductById: vi.fn(),
 }))
 
-import { getProductById } from '@/lib/products'
+import { getProductById } from '@/lib/products-client'
 
 const baseProduct: Product = {
   id: '1',

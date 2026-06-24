@@ -4,7 +4,68 @@ Formato baseado em entradas por fase/sessão. Não remover decisões ou versões
 
 ## [Unreleased]
 
-_(Fase 4 — Catálogo Admin em andamento)_
+_(próximas fases — CSV, WhatsApp, Supabase)_
+
+---
+
+## [0.4.0] — 2026-06-24 — Fase 4: Catálogo Admin
+
+### Arquivos criados
+
+- `lib/catalog/product-repository.ts` — interface `ProductRepository`
+- `lib/catalog/json-product-repository.ts` — persistência JSON (server-only)
+- `lib/catalog/catalog-storage.ts` — read/write `storage/catalog.json`
+- `lib/catalog/client-catalog-cache.ts` — cache para carrinho no cliente
+- `lib/catalog/product-utils.ts` — slug, validação, categorias derivadas
+- `lib/catalog/product-utils.test.ts` — testes de utilitários (9 casos)
+- `lib/catalog/actions.ts` — Server Actions create/update/delete
+- `lib/products-client.ts` — `getProductById` no browser
+- `app/api/products/route.ts` — API para hidratar catálogo no carrinho
+- `app/admin/products/[id]/edit/page.tsx` — edição de produto
+- `components/admin/product-form.tsx` — formulário criar/editar
+- `components/admin/image-gallery-field.tsx` — galeria URL + upload preview
+- `components/admin/delete-product-button.tsx`
+- `storage/.gitkeep`
+- `storage/catalog.seed.json` — seed inicial (mock migrado)
+
+### Arquivos alterados
+
+- `lib/products.ts` — fachada server-only via repositório JSON
+- `lib/cart-utils.ts`, `lib/cart-utils.test.ts` — `products-client`
+- `context/cart-context.tsx` — hidrata catálogo via `/api/products`
+- `app/admin/products/page.tsx` — lista todos status, editar/deletar
+- `app/admin/products/new/page.tsx` — formulário funcional
+- `app/admin/categories/page.tsx` — listagem derivada do catálogo
+- `app/admin/page.tsx` — contadores total vs ativos
+- `.gitignore` — `storage/catalog.json`
+
+### Resumo
+
+- `ProductRepository` + `JsonProductRepository` → `storage/catalog.json` (gitignored).
+- CRUD admin: criar, editar, deletar; galeria 1–5 (URL + data URL em dev); variações com SKU único.
+- Status `draft` | `active` | `unavailable` — vitrine só `active`; admin vê todos.
+- Categorias derivadas do catálogo (sem CRUD separado na v4.0).
+
+### Rotas impactadas
+
+- `/admin/products`, `/admin/products/new`, `/admin/products/[id]/edit`
+- `/admin/categories`, `/admin` (stats)
+- `/api/products`
+- `/`, `/products`, `/products/[slug]` (leitura via JSON)
+
+### Comandos executados
+
+- `npm run build`
+- `npm run test`
+
+### Resultado build/test
+
+- Build: OK
+- Testes: 23 passed (vitest)
+
+### Graphify
+
+- Não atualizado — sugerir atualização (`lib/catalog/*`, rotas admin) com autorização do usuário.
 
 ---
 

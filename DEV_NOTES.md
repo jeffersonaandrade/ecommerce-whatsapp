@@ -126,12 +126,13 @@ npm run build  # ✅ Deve passar
 - [x] "Carrinho em breve" desabilitado com título
 - [x] Admin links funcionam
 
-## 🔄 Próxima Etapa (Fase 4 — Catálogo Admin)
+## 🔄 Próxima Etapa (Fase 5 — Importação CSV)
 
-1. Form criar/editar produto em `/admin/products/new`
-2. Galeria 1–5 imagens (preview local), variações, SKU, estoque
-3. Status rascunho/ativo
-4. Persistência via extensão de `lib/products.ts` (mock/localStorage até Supabase)
+1. Parser CSV conforme `docs/CSV_IMPORT_SPEC.md`
+2. Upload em `/admin/import`
+3. Validação e merge no `ProductRepository`
+
+Catálogo Admin (Fase 4) — concluído: `ProductRepository` JSON, CRUD admin, galeria, variações, categorias derivadas.
 
 Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.test.ts`.
 
@@ -151,7 +152,9 @@ Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.t
 
 **Rotas novas:** `/admin/settings`, `/admin/products/new`, `/admin/categories`, `/order-intent/demo` (protótipo).
 
-**Próximo:** Fase 4 — Módulo Catálogo Admin funcional.
+**Próximo:** Fase 5 — Importação CSV.
+
+**Persistência catálogo (Fase 4):** `lib/catalog/*` → `storage/catalog.json` (dev); Supabase na Fase 7.
 
 **Graphify:** não atualizar sem autorização.
 
@@ -169,6 +172,17 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Comandos | `npm run build`, `npm run test` |
 | Build/test | OK · 14 testes |
 | Graphify | Não atualizado |
+
+### 2026-06-24 — Fase 4: Catálogo Admin
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | Ver [CHANGELOG.md](CHANGELOG.md) § 0.4.0 |
+| Resumo | ProductRepository JSON, CRUD admin, galeria, variações, categorias derivadas |
+| Rotas | `/admin/products`, `/admin/products/new`, `/admin/products/[id]/edit`, `/admin/categories`, `/api/products` |
+| Comandos | `npm run build`, `npm run test` |
+| Build/test | OK · 23 testes |
+| Graphify | Não atualizado (sugerir mapa `lib/catalog/*`) |
 
 ## 🛠️ Troubleshooting
 
@@ -210,4 +224,4 @@ curl http://localhost:3000/admin
 ---
 
 **Última atualização:** 2026-06-24
-**Status:** Fase 3 concluída · Fase 4 (Catálogo) em andamento
+**Status:** Fase 4 concluída · Fase 5 (CSV) próxima

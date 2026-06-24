@@ -1,16 +1,18 @@
-/**
- * Products abstraction layer
- *
- * This module abstracts product data access.
- * When backend/DB is integrated, only this file changes.
- * Pages continue to work unchanged.
- */
+import 'server-only'
 
 import { Product } from '@/types/product'
-import { mockProducts } from '@/data/mock-products'
+import { getProductRepository } from '@/lib/catalog/json-product-repository'
+
+function readCatalog(): Product[] {
+  return getProductRepository().getAll()
+}
 
 export function getAllProducts(): Product[] {
-  return mockProducts.filter((p) => p.status === 'active')
+  return readCatalog().filter((p) => p.status === 'active')
+}
+
+export function getAllProductsAdmin(): Product[] {
+  return readCatalog()
 }
 
 export function getFeaturedProducts(limit: number = 6): Product[] {
@@ -18,11 +20,19 @@ export function getFeaturedProducts(limit: number = 6): Product[] {
 }
 
 export function getProductBySlug(slug: string): Product | undefined {
-  return mockProducts.find((p) => p.slug === slug)
+  const product = readCatalog().find((p) => p.slug === slug)
+  if (!product || product.status !== 'active') return undefined
+  return product
 }
 
 export function getProductById(id: string): Product | undefined {
-  return mockProducts.find((p) => p.id === id)
+  const product = readCatalog().find((p) => p.id === id)
+  if (!product || product.status !== 'active') return undefined
+  return product
+}
+
+export function getProductByIdAdmin(id: string): Product | undefined {
+  return readCatalog().find((p) => p.id === id)
 }
 
 export function getProductsByCategory(category: string): Product[] {
@@ -31,10 +41,12 @@ export function getProductsByCategory(category: string): Product[] {
 
 export function getCategories(): string[] {
   const categories = new Set<string>()
-  mockProducts.forEach((p) => {
-    if (p.status === 'active') {
-      categories.add(p.category)
-    }
-  })
+  getAllProducts().forEach((p) => categories.add(p.category))
+  return Array.from(categories).sort()
+}
+
+export function getCategoriesAdmin(): string[] {
+  const categories = new Set<string>()
+  getAllProductsAdmin().forEach((p) => categories.add(p.category))
   return Array.from(categories).sort()
 }

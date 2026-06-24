@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import { loadCartItems, saveCartItems } from '@/lib/cart-storage'
+import { setCatalogCache } from '@/lib/catalog/client-catalog-cache'
 import {
   calculateItemCount,
   calculateSubtotal,
@@ -17,8 +18,8 @@ import {
   findVariation,
   resolveCartLines,
 } from '@/lib/cart-utils'
-import { getProductById } from '@/lib/products'
-import { CartItem } from '@/types/product'
+import { getProductById } from '@/lib/products-client'
+import { CartItem, Product } from '@/types/product'
 
 type CartContextValue = {
   items: CartItem[]
@@ -61,12 +62,32 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isHydrated, setIsHydrated] = useState(false)
 
   useEffect(() => {
-    const stored = sanitizeItems(loadCartItems())
-    setItems(stored)
-    if (stored.length !== loadCartItems().length) {
-      saveCartItems(stored)
+    let cancelled = false
+
+    async function hydrate() {
+      try {
+        const res = await fetch('/api/products')
+        if (res.ok) {
+          const products = (await res.json()) as Product[]
+          if (!cancelled) setCatalogCache(products)
+        }
+      } catch {
+        // catálogo indisponível — carrinho segue com itens já validados
+      }
+
+      if (cancelled) return
+      const stored = sanitizeItems(loadCartItems())
+      setItems(stored)
+      if (stored.length !== loadCartItems().length) {
+        saveCartItems(stored)
+      }
+      setIsHydrated(true)
     }
-    setIsHydrated(true)
+
+    hydrate()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {

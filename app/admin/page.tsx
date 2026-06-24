@@ -1,7 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { getAllProducts } from '@/lib/products'
+import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -45,7 +45,8 @@ function NavCard({
 }
 
 export default function AdminPage() {
-  const allProducts = getAllProducts()
+  const allProducts = getAllProductsAdmin()
+  const activeProducts = getAllProducts()
   const totalProducts = allProducts.length
 
   return (
@@ -67,7 +68,7 @@ export default function AdminPage() {
           </div>
           <div className="bg-white border border-gray-200 rounded-lg p-6">
             <div className="text-3xl font-bold text-green-600 mb-2">
-              {totalProducts}
+              {activeProducts.length}
             </div>
             <p className="text-gray-600">Produtos Ativos</p>
           </div>
