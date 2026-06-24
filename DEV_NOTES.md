@@ -2,9 +2,21 @@
 
 ## 🚀 Status do Projeto
 
-**Versão:** 0.1.1 (MVP - Após Saneamento)
-**Status:** ✅ Fundação Corrigida
-**Data de Conclusão:** 2024-01-15
+**Versão:** 0.4.0 (`package.json` alinhado ao CHANGELOG)
+**Status:** ✅ Fases 1–4 concluídas · Sprint 0 encerrada
+**Última validação:** 2026-06-24
+
+### Estado atual (pós Sprint 0)
+
+| Área | Status |
+|------|--------|
+| Vitrine + PDP | ✅ `lib/products.ts` → `storage/catalog.json` |
+| Carrinho | ✅ Context + localStorage + `/api/products` |
+| Admin catálogo | ✅ CRUD, galeria, variações, categorias derivadas |
+| Domínio / ADRs | ✅ `docs/DOMAIN_MODEL.md`, `ARCHITECTURE.md` |
+| CSV import | ⏳ Spec + template; upload na Fase 5 |
+| Supabase | ⏳ Fase 7 |
+| Graphify | ✅ Atualizado (239 nós · 512 arestas) |
 
 ## ✅ O que foi Implementado (Fase 1)
 
@@ -57,16 +69,20 @@
 
 ## 🔧 Arquitetura Pós-Saneamento
 
-### Camadas de Dados
-\\\
-app/pages/ → lib/products.ts → data/mock-products.ts
-\\\
+### Camadas de Dados (Fase 4)
+
+```
+Admin UI → Server Actions → ProductRepository → storage/catalog.json
+Vitrine  → lib/products.ts (server-only)     → JsonProductRepository
+Carrinho → lib/products-client.ts            → /api/products (cache)
+```
+
+**Seed:** `storage/catalog.seed.json` · **Runtime:** `storage/catalog.json` (gitignored)
 
 **Benefícios:**
-- Páginas independentes de origem de dados
-- Fácil trocar mock por BD/API depois
+- Páginas independentes da origem de dados
+- Troca para Supabase (Fase 7) só no repositório
 - Type-safe em todos os níveis
-- Sem re-importações de mockProducts
 
 ### Componentes Atualizados
 - **ProductCard**: Server Component (sem 'use client')
@@ -92,14 +108,13 @@ app/pages/ → lib/products.ts → data/mock-products.ts
 
 ## 📋 O que ainda NÃO está implementado (por design)
 
-- ❌ Carrinho com persistência
-- ❌ Pagamento real
-- ❌ Banco de dados
-- ❌ Autenticação
-- ❌ Checkout funcional
-- ❌ Sistema de pedidos
-- ❌ Integrações externas
-- ❌ Dashboard complexo
+- ❌ Importação CSV (upload) — Fase 5
+- ❌ Finalização via WhatsApp — Fase 6
+- ❌ Supabase / persistência remota — Fase 7
+- ❌ Pedidos reais (`Order`) — Fase 8
+- ❌ Checkout online — Fase 9 / V2
+- ❌ Pagamento, frete, CPF/CEP no site — fora da V1
+- ❌ Autenticação admin
 - ❌ Email/notificações
 
 ## 🔍 Validação Obrigatória
@@ -156,7 +171,31 @@ Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.t
 
 **Persistência catálogo (Fase 4):** `lib/catalog/*` → `storage/catalog.json` (dev); Supabase na Fase 7.
 
-**Graphify:** não atualizar sem autorização.
+**Graphify:** mapa em `graphify-out/` — última geração Sprint 0 (2026-06-24).
+
+## UI Polish — preparação (Sprint Prep)
+
+Preparação para sprint futura de melhoria visual. **Nenhuma tela foi alterada nesta etapa.**
+
+| Item | Status |
+|------|--------|
+| `framer-motion` | Instalado em `package.json` — uso na sprint de polish (sem imports ativos ainda) |
+| Skill **ui-ux-pro-max** | `.cursor/skills/ui-ux-pro-max/` — referência design/UX para o assistente |
+| [`DESIGN-nike.md`](DESIGN-nike.md) | Referência analítica de direção visual — **sem cópia de marca ou layout Nike** |
+| Plano detalhado | [`docs/UI_POLISH_PLAN.md`](docs/UI_POLISH_PLAN.md) |
+
+### QA Browser Report — triagem 2026-06-24
+
+Relatório browser (Claude) classificado no plano de UI. Resumo:
+
+- **Bug real P1:** imagem Unsplash 404 no produto "Seleção Brasileira Away" — corrigir na sprint bugfix.
+- **Bugs UX P2/P3:** swatch branco invisível, `<Link><Button>`, botão "Coleções" sem ação.
+- **Falsos positivos:** "renderer freeze" (timeout CDP), badge "1 Issue" (Next dev), rota `/admin/products/create`, duplicação em categorias.
+- **By design:** categorias sem CRUD, settings com `fieldset disabled`.
+
+Matriz completa: [`docs/UI_POLISH_PLAN.md` §7](docs/UI_POLISH_PLAN.md).
+
+> Validar freeze e hero manualmente em Chrome antes de tratar como P0.
 
 ## Registro de sessões
 
@@ -184,6 +223,27 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Build/test | OK · 23 testes |
 | Graphify | Não atualizado (sugerir mapa `lib/catalog/*`) |
 
+### 2026-06-24 — Sprint 0: Cleanup
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | `package.json`, `DEV_NOTES.md`, `CHANGELOG.md`, `GRAPHIFY_MAP.md`, `graphify-out/*` |
+| Resumo | Encerramento sprint Fases 3–4: versão 0.4.0, docs sincronizados, Graphify regenerado |
+| Comandos | `npm run build`, `npm run test`, `graphify update .` |
+| Build/test | OK · 23 testes |
+| Graphify | OK · 239 nós · 512 arestas · commit `7c6521d` |
+
+### 2026-06-24 — Sprint Prep: UI Polish Setup
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | `package.json`, `package-lock.json`, `.cursor/skills/ui-ux-pro-max/**`, `DEV_NOTES.md`, `docs/UI_POLISH_PLAN.md` |
+| Resumo | framer-motion + skill ui-ux-pro-max; plano UI polish; triagem QA Browser |
+| UI alterada | **Nenhuma** (components/app intactos) |
+| Comandos | `npm install framer-motion`, `npx uipro-cli init --ai cursor`, `npm run build`, `npm run test` |
+| Build/test | OK · 23 testes |
+| Graphify | Não atualizado |
+
 ## 🛠️ Troubleshooting
 
 ### Build falha com erros de tipos
@@ -203,10 +263,10 @@ npx tsc --noEmit
 
 ## 📝 Notas Importantes
 
-1. **Sem Backend Agora:** Usar lib/products.ts como abstração
-2. **Quando Trocar para BD:**
-   - Editar apenas lib/products.ts
-   - Outras páginas funcionam igual
+1. **Catálogo dev:** `storage/catalog.json` via `ProductRepository`
+2. **Quando trocar para Supabase (Fase 7):**
+   - Implementar `SupabaseProductRepository`
+   - Manter `lib/products.ts` como fachada
 3. **Server Components:** Preferir sempre que possível
 4. **Imagens:** Sempre validar URLs antes de commitar
 5. **Botões:** Nunca deixar estado enganoso (sempre claro se funciona)
@@ -223,5 +283,5 @@ curl http://localhost:3000/admin
 
 ---
 
-**Última atualização:** 2026-06-24
-**Status:** Fase 4 concluída · Fase 5 (CSV) próxima
+**Última atualização:** 2026-06-24 (Sprint Prep UI)
+**Status:** Prep UI concluído · próxima: Fase 5 (CSV) ou sprint bugfix QA / UI polish
