@@ -229,11 +229,13 @@ UI-7   Footer                                      → QA → commit
 | **Sprint Prep** | ✅ `framer-motion`, skill ui-ux-pro-max |
 | **Sprint Bugfix QA** | ✅ Imagem 404, swatch, Link+Button, Coleções |
 | **Sprint Design System** | ✅ [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
-| **UI-1A** | ✅ Design Foundation — tokens + primitivos |
-| **UI-1B → UI-7** | ⏳ Conforme §9 |
+| **UI-1A → UI-6** | ✅ Foundation, Header, Hero v1, Card, PLP, PDP, Cart |
+| **UI-7 → UI-12** | ✅ Footer, tipografia, Landing Hero, Home editorial, Card editorial |
+| **UI-10** | ⏸ Adiado pós QA — ver [`VISUAL_QA_POST_LANDING.md`](VISUAL_QA_POST_LANDING.md) |
+| **Próximo** | CSV Fase 5 (após vitrine aprovada) |
 
-Roadmap funcional (CSV Fase 5) permanece independente.
+Roadmap funcional: CSV → WhatsApp → Supabase (após frontend comercial).
 
 ---
 
-**Última atualização:** 2026-06-24 (roadmap UI-1A/1B revisado)
+**Última atualização:** 2026-06-24 (Visual Gap Closure UI-7–UI-12)

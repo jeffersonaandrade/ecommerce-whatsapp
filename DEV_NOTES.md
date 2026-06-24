@@ -294,7 +294,16 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Efeito cascata | Button/Badge usados em telas existentes — pills e tokens DS aplicados via primitivos |
 | Comandos | `npm run test`, `npm run build` |
 | Build/test | OK · 23 testes |
-| Próximo | UI-1B Header |
+| Próximo | CSV Fase 5 |
+
+### 2026-06-24 — Visual Gap Closure (UI-7 → UI-12)
+
+| Campo | Detalhe |
+|-------|---------|
+| Commits | `8ec154d` Footer · `e9ccc49` Tipografia · `2460433` Landing Hero · `9342240` Home editorial · `12d59c3` ProductCard editorial |
+| QA | [`docs/VISUAL_QA_POST_LANDING.md`](docs/VISUAL_QA_POST_LANDING.md) |
+| Build/test | OK · 23 testes |
+| Próximo | CSV Import (Fase 5) |
 
 ## 🛠️ Troubleshooting
 
@@ -336,4 +345,4 @@ curl http://localhost:3000/admin
 ---
 
 **Última atualização:** 2026-06-24 (Design System foundation)
-**Status:** UI-1A concluída · próximo: **UI-1B** (Header)
+**Status:** Visual Gap Closure concluído (UI-7–UI-12) · próximo: **CSV Fase 5**
