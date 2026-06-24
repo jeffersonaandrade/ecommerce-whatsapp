@@ -7,46 +7,55 @@ export default function Home() {
 
   return (
     <div className="w-full">
-      {/* Hero Section */}
       <SportsHero />
 
-      {/* Featured Products Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
-        <div className="mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-2">Produtos em Destaque</h2>
-          <p className="text-gray-600">Confira nossa seleção de produtos esportivos premium</p>
-        </div>
+      {/* Featured — DS §5 PLP grid; §6 section rhythm py-12 sm:py-16 */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <header className="mb-8 space-y-2 sm:mb-12">
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
+            Seleção curada
+          </p>
+          <h2 className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">
+            Produtos em destaque
+          </h2>
+          <p className="max-w-xl text-mute">
+            Peças esportivas premium escolhidas para performance e autenticidade.
+          </p>
+        </header>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-3">
           {featuredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
 
-      {/* Trust Section */}
-      <section className="bg-gray-50 py-16 sm:py-20">
+      {/* Trust — DS §8 flat; soft-cloud surface, no decorative shadow */}
+      <section className="border-t border-hairline bg-soft-cloud py-12 sm:py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-4xl mb-3">🚚</div>
-              <h3 className="font-semibold text-lg mb-2">Envio Rápido</h3>
-              <p className="text-gray-600 text-sm">
-                Entrega em até 5 dias úteis em todo Brasil
+          <div className="grid grid-cols-1 gap-10 sm:grid-cols-3 sm:gap-8">
+            <div>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-ink">
+                Envio rápido
+              </h3>
+              <p className="text-sm leading-relaxed text-mute">
+                Entrega em até 5 dias úteis em todo o Brasil.
               </p>
             </div>
-            <div className="text-center">
-              <div className="text-4xl mb-3">✅</div>
-              <h3 className="font-semibold text-lg mb-2">Produtos Originais</h3>
-              <p className="text-gray-600 text-sm">
-                100% autênticos com garantia de qualidade
+            <div>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-ink">
+                Produtos originais
+              </h3>
+              <p className="text-sm leading-relaxed text-mute">
+                100% autênticos com garantia de qualidade.
               </p>
             </div>
-            <div className="text-center">
-              <div className="text-4xl mb-3">💬</div>
-              <h3 className="font-semibold text-lg mb-2">Suporte 24/7</h3>
-              <p className="text-gray-600 text-sm">
-                Estamos aqui para ajudar sempre que precisar
+            <div>
+              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-ink">
+                Suporte dedicado
+              </h3>
+              <p className="text-sm leading-relaxed text-mute">
+                Atendimento quando você precisar.
               </p>
             </div>
           </div>
