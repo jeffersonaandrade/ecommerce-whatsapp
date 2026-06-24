@@ -36,8 +36,8 @@ export const mockProducts: Product[] = [
     category: 'Camisas',
     club: 'Seleção Brasileira',
     images: [
-      'https://images.unsplash.com/photo-1539571696357-5a69c006b310?w=500&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1539571696357-5a69c006b310?w=500&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=500&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=500&h=600&fit=crop',
     ],
     variations: [
       { id: 'v5', size: 'P', color: 'Branco', sku: 'BRA-AWAY-P-WHT', stock: 12 },

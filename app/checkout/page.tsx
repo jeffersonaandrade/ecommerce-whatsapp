@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { getButtonClassName } from '@/components/ui/button'
 
 export const metadata: Metadata = {
   title: 'Finalização do pedido',
@@ -27,8 +27,8 @@ export default function CheckoutPage() {
               Adicione produtos no carrinho e use &quot;Finalizar Pedido&quot;
               para enviar sua solicitação à loja pelo WhatsApp.
             </p>
-            <Link href="/cart">
-              <Button>Ir para o carrinho</Button>
+            <Link href="/cart" className={getButtonClassName('default', 'md')}>
+              Ir para o carrinho
             </Link>
           </div>
         </div>
@@ -46,8 +46,8 @@ export default function CheckoutPage() {
       </div>
 
       <div className="mt-8 flex gap-3">
-        <Link href="/products">
-          <Button variant="outline">← Voltar para Produtos</Button>
+        <Link href="/products" className={getButtonClassName('outline', 'md')}>
+          ← Voltar para Produtos
         </Link>
       </div>
     </div>

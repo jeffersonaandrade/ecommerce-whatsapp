@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useCart } from '@/context/cart-context'
 import { formatPrice } from '@/lib/formatters'
 import { resolveCartLines, type CartLine } from '@/lib/cart-utils'
-import { Button } from '@/components/ui/button'
+import { Button, getButtonClassName } from '@/components/ui/button'
 
 function CartLineItem({ line }: { line: CartLine }) {
   const { updateQuantity, removeItem } = useCart()
@@ -106,8 +106,8 @@ export function CartContent() {
         <p className="text-gray-600 mb-8">
           Você não tem produtos no seu carrinho. Comece a explorar!
         </p>
-        <Link href="/products">
-          <Button size="lg">Ir para Produtos</Button>
+        <Link href="/products" className={getButtonClassName('default', 'lg')}>
+          Ir para Produtos
         </Link>
       </div>
     )
@@ -149,10 +149,11 @@ export function CartContent() {
             Finalizar Pedido
           </Button>
 
-          <Link href="/products" className="block">
-            <Button variant="outline" size="lg" className="w-full">
-              Continuar comprando
-            </Button>
+          <Link
+            href="/products"
+            className={getButtonClassName('outline', 'lg', 'w-full block text-center')}
+          >
+            Continuar comprando
           </Link>
 
           <button

@@ -13,3 +13,12 @@ export function colorNameToHex(colorName: string): string {
   }
   return colorMap[colorName] || '#D1D5DB'
 }
+
+const LIGHT_SWATCH_HEX = new Set(['#FFFFFF', '#FFF', '#D1D5DB'])
+
+export function colorSwatchBorderClass(colorName: string): string {
+  const hex = colorNameToHex(colorName).toUpperCase()
+  return LIGHT_SWATCH_HEX.has(hex)
+    ? 'border-gray-400 ring-1 ring-inset ring-gray-300'
+    : 'border-gray-300'
+}

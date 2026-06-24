@@ -173,6 +173,14 @@ Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.t
 
 **Graphify:** mapa em `graphify-out/` — última geração Sprint 0 (2026-06-24).
 
+## Gestão de sprints (a partir de 2026-06-24)
+
+- Trabalhar em **sprints curtas** com objetivo único e critério de aceite claro.
+- **Toda sprint termina com um único commit** (facilita rollback e rastreio).
+- Separar: **Bugfix** (estabilidade) → **Design System** → **UI Polish** (valor visual) → **Features** (CSV, etc.).
+
+Ver [`docs/UI_POLISH_PLAN.md`](docs/UI_POLISH_PLAN.md) e [`docs/SPRINT_BUGFIX_QA_REPORT.md`](docs/SPRINT_BUGFIX_QA_REPORT.md).
+
 ## UI Polish — preparação (Sprint Prep)
 
 Preparação para sprint futura de melhoria visual. **Nenhuma tela foi alterada nesta etapa.**
@@ -244,6 +252,16 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Build/test | OK · 23 testes |
 | Graphify | Não atualizado |
 
+### 2026-06-24 — Sprint Bugfix QA
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | Ver [docs/SPRINT_BUGFIX_QA_REPORT.md](docs/SPRINT_BUGFIX_QA_REPORT.md) |
+| Resumo | Imagem 404, swatch branco, Link+Button, Coleções; investigação freeze |
+| Comandos | `npm run test`, `npm run build` |
+| Build/test | OK · 23 testes |
+| UI structural | Não alterado (apenas fixes pontuais) |
+
 ## 🛠️ Troubleshooting
 
 ### Build falha com erros de tipos
@@ -283,5 +301,5 @@ curl http://localhost:3000/admin
 
 ---
 
-**Última atualização:** 2026-06-24 (Sprint Prep UI)
-**Status:** Prep UI concluído · próxima: Fase 5 (CSV) ou sprint bugfix QA / UI polish
+**Última atualização:** 2026-06-24 (Sprint Bugfix QA)
+**Status:** Bugfix QA concluído · próximo: Browser QA → DESIGN_SYSTEM.md → UI Polish

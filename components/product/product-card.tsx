@@ -2,8 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Product } from '@/types/product'
 import { formatPrice, calculateDiscount } from '@/lib/formatters'
-import { colorNameToHex } from '@/lib/colors'
-import { Button } from '@/components/ui/button'
+import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
+import { Button, getButtonClassName } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 
 interface ProductCardProps {
@@ -97,7 +97,7 @@ export function ProductCard({ product }: ProductCardProps) {
             ).map((color) => (
               <div
                 key={color}
-                className="w-5 h-5 rounded-full border-2 border-gray-300"
+                className={`w-5 h-5 rounded-full border-2 ${colorSwatchBorderClass(color!)}`}
                 title={color}
                 style={{
                   backgroundColor: colorNameToHex(color!),
@@ -110,24 +110,22 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* CTA Buttons */}
         <div className="flex gap-2 pt-2">
           {hasStock ? (
-            <Link href={`/products/${product.slug}`} className="flex-1">
-              <Button variant="default" size="md" className="w-full">
-                Escolher opções
-              </Button>
+            <Link
+              href={`/products/${product.slug}`}
+              className={getButtonClassName('default', 'md', 'flex-1 w-full')}
+            >
+              Escolher opções
             </Link>
           ) : (
             <Button variant="default" size="md" className="flex-1" disabled>
               Fora de estoque
             </Button>
           )}
-          <Link href={`/products/${product.slug}`} className="flex-1">
-            <Button
-              variant="outline"
-              size="md"
-              className="w-full"
-            >
-              Ver detalhes
-            </Button>
+          <Link
+            href={`/products/${product.slug}`}
+            className={getButtonClassName('outline', 'md', 'flex-1 w-full')}
+          >
+            Ver detalhes
           </Link>
         </div>
       </div>

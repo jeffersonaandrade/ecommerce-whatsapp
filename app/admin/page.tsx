@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { getButtonClassName } from '@/components/ui/button'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
 
 export const metadata: Metadata = {
@@ -34,9 +34,15 @@ function NavCard({
       <div className="text-4xl mb-3">{emoji}</div>
       <h2 className="text-lg font-semibold mb-1">{title}</h2>
       <p className="text-gray-600 text-sm mb-4 min-h-10">{description}</p>
-      <Button variant="outline" size="sm" className="w-full" disabled={disabled}>
+      <span
+        className={getButtonClassName(
+          'outline',
+          'sm',
+          `w-full ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`
+        )}
+      >
         {buttonLabel}
-      </Button>
+      </span>
     </div>
   )
 

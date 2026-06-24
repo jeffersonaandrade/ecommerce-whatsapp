@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { getButtonClassName } from '@/components/ui/button'
 
 export const metadata: Metadata = {
   title: 'Importação CSV',
@@ -48,8 +48,12 @@ export default function AdminImportPage() {
         <section className="bg-white border border-gray-200 rounded-lg p-6 space-y-4">
           <h2 className="text-lg font-semibold">Template e documentação</h2>
           <div className="flex flex-col sm:flex-row gap-3">
-            <a href={TEMPLATE_PATH} download>
-              <Button className="w-full sm:w-auto">Baixar template CSV</Button>
+            <a
+              href={TEMPLATE_PATH}
+              download
+              className={getButtonClassName('default', 'md', 'w-full sm:w-auto')}
+            >
+              Baixar template CSV
             </a>
           </div>
           <p className="text-xs text-gray-500">

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { siteConfig } from '@/config/site'
-import { Button } from '@/components/ui/button'
+import { getButtonClassName } from '@/components/ui/button'
 import { CartNavLink } from '@/components/cart/cart-nav-link'
 
 export function Header() {
@@ -31,10 +31,11 @@ export function Header() {
         {/* Right Side */}
         <div className="flex items-center gap-4">
           <CartNavLink />
-          <Link href="/admin">
-            <Button variant="outline" size="sm">
-              Admin
-            </Button>
+          <Link
+            href="/admin"
+            className={getButtonClassName('outline', 'sm')}
+          >
+            Admin
           </Link>
         </div>
       </nav>

@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { getButtonClassName } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 import { getAllProductsAdmin } from '@/lib/products'
@@ -38,10 +38,15 @@ export default function AdminProductsPage() {
               {allProducts.length} produtos no catálogo
             </p>
           </div>
-          <Link href="/admin/products/new">
-            <Button className="bg-white text-black hover:bg-gray-100">
-              + Novo Produto
-            </Button>
+          <Link
+            href="/admin/products/new"
+            className={getButtonClassName(
+              'default',
+              'md',
+              'bg-white text-black hover:bg-gray-100 focus:ring-gray-300'
+            )}
+          >
+            + Novo Produto
           </Link>
         </div>
       </div>
@@ -50,8 +55,8 @@ export default function AdminProductsPage() {
         {allProducts.length === 0 ? (
           <div className="text-center py-16 text-gray-600">
             <p className="mb-4">Nenhum produto cadastrado.</p>
-            <Link href="/admin/products/new">
-              <Button>Criar primeiro produto</Button>
+            <Link href="/admin/products/new" className={getButtonClassName('default', 'md')}>
+              Criar primeiro produto
             </Link>
           </div>
         ) : (

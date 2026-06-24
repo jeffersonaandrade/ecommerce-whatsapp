@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { getButtonClassName } from '@/components/ui/button'
 
 export function SportsHero() {
   return (
@@ -32,17 +32,22 @@ export function SportsHero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
-              <Link href="/products" className="w-full sm:w-auto">
-                <Button
-                  size="lg"
-                  className="w-full bg-white text-black font-semibold hover:bg-gray-50 shadow-lg"
-                >
-                  Explorar Produtos
-                </Button>
+              <Link
+                href="/products"
+                className={getButtonClassName(
+                  'default',
+                  'lg',
+                  'w-full sm:w-auto bg-white text-black font-semibold hover:bg-gray-50 shadow-lg focus:ring-white'
+                )}
+              >
+                Explorar Produtos
               </Link>
-              <button className="w-full sm:w-auto px-6 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/20 transition-colors">
+              <Link
+                href="/products"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/20 transition-colors"
+              >
                 Coleções
-              </button>
+              </Link>
             </div>
 
             {/* Trust Signal */}
