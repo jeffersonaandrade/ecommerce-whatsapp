@@ -1,0 +1,10 @@
+# Docs e assets — extração semântica exige API key; código TS/TSX é local (tree-sitter).
+*.md
+*.mdx
+public/**
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.svg

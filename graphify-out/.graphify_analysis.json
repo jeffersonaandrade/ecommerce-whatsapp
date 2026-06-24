@@ -1,0 +1,254 @@
+{
+  "communities": {
+    "0": [
+      "tsconfig",
+      "tsconfig_compileroptions",
+      "tsconfig_compileroptions_allowjs",
+      "tsconfig_compileroptions_esmoduleinterop",
+      "tsconfig_compileroptions_incremental",
+      "tsconfig_compileroptions_isolatedmodules",
+      "tsconfig_compileroptions_jsx",
+      "tsconfig_compileroptions_lib",
+      "tsconfig_compileroptions_module",
+      "tsconfig_compileroptions_moduleresolution",
+      "tsconfig_compileroptions_noemit",
+      "tsconfig_compileroptions_paths",
+      "tsconfig_compileroptions_plugins",
+      "tsconfig_compileroptions_resolvejsonmodule",
+      "tsconfig_compileroptions_skiplibcheck",
+      "tsconfig_compileroptions_strict",
+      "tsconfig_compileroptions_target",
+      "tsconfig_exclude",
+      "tsconfig_include",
+      "tsconfig_paths"
+    ],
+    "1": [
+      "package",
+      "package_dependencies",
+      "package_dependencies_next",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_devdependencies",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tailwindcss_postcss",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_typescript",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_start",
+      "package_version"
+    ],
+    "2": [
+      "app_page",
+      "app_page_home",
+      "cart_page",
+      "cart_page_cartpage",
+      "cart_page_metadata",
+      "checkout_page",
+      "checkout_page_checkoutpage",
+      "checkout_page_metadata",
+      "commerce_sports_hero",
+      "commerce_sports_hero_sportshero",
+      "ui_button",
+      "ui_button_button",
+      "ui_button_buttonprops"
+    ],
+    "3": [
+      "admin_page",
+      "admin_page_adminpage",
+      "admin_page_metadata",
+      "app_products_page_tsx_products_page",
+      "app_products_page_tsx_products_page_metadata",
+      "data_mock_products",
+      "data_mock_products_categories",
+      "data_mock_products_clubs",
+      "data_mock_products_mockproducts",
+      "products_page_productspage",
+      "products_page_productspageprops"
+    ],
+    "4": [
+      "app_layout",
+      "app_layout_metadata",
+      "app_layout_rootlayout",
+      "app_layout_viewport",
+      "config_site",
+      "config_site_siteconfig",
+      "layout_footer",
+      "layout_footer_footer",
+      "layout_header",
+      "layout_header_header"
+    ],
+    "5": [
+      "lib_formatters",
+      "lib_formatters_calculatediscount",
+      "lib_formatters_formatdate",
+      "lib_formatters_formatprice",
+      "lib_formatters_generateslug",
+      "product_product_card_productcard",
+      "slug_page",
+      "slug_page_generatemetadata",
+      "slug_page_productpage",
+      "slug_page_productpageprops"
+    ],
+    "6": [
+      "app_admin_products_page_tsx_products_page",
+      "app_admin_products_page_tsx_products_page_metadata",
+      "orders_page",
+      "orders_page_adminorderspage",
+      "orders_page_metadata",
+      "products_page_adminproductspage",
+      "ui_badge",
+      "ui_badge_badge",
+      "ui_badge_badgeprops"
+    ],
+    "7": [
+      "product_product_card",
+      "product_product_card_colortohex",
+      "product_product_card_productcardprops",
+      "types_product",
+      "types_product_cart",
+      "types_product_cartitem",
+      "types_product_product",
+      "types_product_productstatus",
+      "types_product_productvariation"
+    ],
+    "8": [
+      "next_config",
+      "next_config_nextconfig"
+    ],
+    "9": [
+      "postcss_config",
+      "postcss_config_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.1,
+    "1": 0.10526315789473684,
+    "2": 0.20512820512820512,
+    "3": 0.21818181818181817,
+    "4": 0.35555555555555557,
+    "5": 0.3111111111111111,
+    "6": 0.2777777777777778,
+    "7": 0.2777777777777778,
+    "8": 1.0,
+    "9": 1.0
+  },
+  "gods": [
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 16
+    },
+    {
+      "id": "ui_button_button",
+      "label": "Button",
+      "degree": 10
+    },
+    {
+      "id": "data_mock_products_mockproducts",
+      "label": "mockProducts",
+      "degree": 6
+    },
+    {
+      "id": "lib_formatters_formatprice",
+      "label": "formatPrice()",
+      "degree": 6
+    },
+    {
+      "id": "product_product_card_productcard",
+      "label": "ProductCard()",
+      "degree": 5
+    },
+    {
+      "id": "ui_badge_badge",
+      "label": "Badge",
+      "degree": 5
+    },
+    {
+      "id": "lib_formatters_calculatediscount",
+      "label": "calculateDiscount()",
+      "degree": 5
+    },
+    {
+      "id": "config_site_siteconfig",
+      "label": "siteConfig",
+      "degree": 4
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 4
+    },
+    {
+      "id": "types_product_product",
+      "label": "Product",
+      "degree": 4
+    }
+  ],
+  "surprises": [
+    {
+      "source": "ProductPage()",
+      "target": "calculateDiscount()",
+      "source_files": [
+        "app/products/[slug]/page.tsx",
+        "lib/formatters.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "ProductPage()",
+      "target": "formatPrice()",
+      "source_files": [
+        "app/products/[slug]/page.tsx",
+        "lib/formatters.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "ProductCardProps",
+      "target": "Product",
+      "source_files": [
+        "components/product/product-card.tsx",
+        "types/product.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "ProductCard()",
+      "target": "calculateDiscount()",
+      "source_files": [
+        "components/product/product-card.tsx",
+        "lib/formatters.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    },
+    {
+      "source": "ProductCard()",
+      "target": "formatPrice()",
+      "source_files": [
+        "components/product/product-card.tsx",
+        "lib/formatters.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories"
+    }
+  ],
+  "tokens": {
+    "input": 0,
+    "output": 0
+  }
+}

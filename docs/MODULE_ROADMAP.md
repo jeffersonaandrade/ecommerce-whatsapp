@@ -1,0 +1,210 @@
+# Roadmap por Módulos — Sports Store
+
+Ordem orientada ao **uso real do lojista**: cadastrar → importar → vender. Não por infraestrutura antecipada.
+
+Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md).
+
+---
+
+## Fases consolidadas
+
+| Fase | Nome | Status | Foco |
+|------|------|--------|------|
+| 1 | Foundation | ✅ Concluída | Next.js, tipos, UI base, mocks |
+| 2 | Cart | ✅ Concluída | Context + localStorage, PDP, testes |
+| 3 | Domínio enxuto | ✅ Esta fase | DOMAIN_MODEL, ARCHITECTURE, skeleton admin |
+| **4** | **Catálogo Admin** | 📅 **Próxima** | Lista, criar, editar, galeria, variações, categorias, status |
+| 5 | CSV Import | 📅 Planejada | Parser, preview, validação, importação |
+| 6 | WhatsApp | 📅 Planejada | Mensagem estruturada, links PDP, config loja |
+| 7 | Supabase | 📅 Planejada | Persistência + `DATABASE_PLAN` |
+| 8 | Pedidos | 📅 V2 | Gestão real (após checkout ou registro manual) |
+| 9 | Checkout Online | 📅 V2 | Gateway, pagamento, entrega no site |
+
+**Critério de valor (~1 semana):** criar produto manual · importar ~80 via CSV · receber solicitações organizadas no WhatsApp.
+
+---
+
+## Fase 4 — Catálogo Admin (próximo valor)
+
+### Objetivo
+
+Permitir operação diária do catálogo sem depender só de mocks ou CSV.
+
+### Entregáveis
+
+```text
+Catálogo
+├── Lista                    ✅ parcial → completar
+├── Criar Produto            📅 form + salvar (mock/localStorage)
+├── Editar Produto           📅
+├── Galeria (1–5, principal) 📅 UPLOAD preview local
+├── Variações + SKU + estoque📅
+├── Importar CSV             (link para Fase 5)
+└── Ativar / Inativar        📅 draft | active
+```
+
+### Dependências
+
+- Fase 3 (domínio documentado)
+- `lib/products.ts` estendido para escrita temporária
+
+### Critérios de pronto
+
+- Admin cria produto com 2+ variações e imagens
+- Produto aparece na vitrine quando `active`
+- Rascunho não aparece na loja
+
+### Riscos
+
+- Persistência mock divergir do schema futuro — mitigar com DOMAIN_MODEL
+- Upload sem storage — preview local até Fase 7
+
+### Fora de escopo
+
+- Parser CSV (Fase 5)
+- Supabase (Fase 7)
+
+---
+
+## Fase 5 — Importação CSV
+
+### Objetivo
+
+Importar dezenas/centenas de produtos conforme [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
+
+### Entregáveis
+
+- Upload de arquivo
+- Parser + validação (`CSV_E001`–`CSV_E007`)
+- Preview antes de confirmar
+- Persistência no mesmo repositório da Fase 4
+
+### Dependências
+
+- Fase 4 (catálogo gravável)
+- Spec CSV V1 existente
+
+### Critérios de pronto
+
+- Template de exemplo importa sem erros
+- `image_urls` com origem `URL`
+
+### Fora de escopo
+
+- Download de imagens para storage (V2+)
+
+---
+
+## Fase 6 — Finalização via WhatsApp
+
+### Objetivo
+
+Transformar carrinho em solicitação estruturada no WhatsApp.
+
+### Entregáveis
+
+- `WhatsappStrategy` em `lib/order-completion/`
+- Botão **Finalizar Pedido** ativo no carrinho
+- Mensagem com SKU, links PDP, total
+- Config: telefone e mensagem padrão (`config/site.ts` → settings)
+- Opcional: evoluir `/order-intent/demo`
+
+### Dependências
+
+- Fase 2 (carrinho)
+- Catálogo com slugs válidos (Fase 4)
+
+### Critérios de pronto
+
+- Cliente abre WhatsApp com mensagem completa
+- Sem Order no banco; sem formulário de pagamento
+
+### Fora de escopo
+
+- Gateway, PIX, pedidos persistidos
+
+---
+
+## Fase 7 — Persistência (Supabase)
+
+### Objetivo
+
+Substituir mock por banco real.
+
+### Entregáveis
+
+- `DATABASE_PLAN.md` + migrations
+- Repositórios em `lib/products.ts` e módulos adjacentes
+- `StoreSettings` persistido
+- Storage para imagens `UPLOAD`
+
+### Dependências
+
+- Catálogo e import já validados em mock (Fases 4–5)
+
+### Fora de escopo
+
+- Checkout online (Fase 9)
+
+---
+
+## Fase 8 — Pedidos
+
+### Objetivo
+
+Registrar e gerenciar pedidos (quando fizer sentido comercial).
+
+### Dependências
+
+- Fase 7 ou registro manual pós-WhatsApp (decisão futura)
+
+---
+
+## Fase 9 — Checkout Online
+
+### Objetivo
+
+`CheckoutStrategy` + gateway + frete no site.
+
+### Dependências
+
+- Entidade `Order` no domínio e banco
+- `StoreSettings.completionMode` = `CHECKOUT` ou `BOTH`
+
+---
+
+## Módulos transversais
+
+### Admin
+
+Evolui nas Fases 4 (catálogo), 6 (settings WhatsApp), 7 (persistência).
+
+### Order Completion
+
+| Versão | Escopo |
+|--------|--------|
+| V1 | WhatsApp + demo mock |
+| V1.5 | `/order-intent/[id]` persistido |
+| V2 | Order + Checkout |
+
+### O que não entra no roadmap
+
+Marketplace, multi-tenant, cashback, afiliados, ERP, app mobile, IA, programa de pontos.
+
+---
+
+## Como o lojista usa o sistema (ordem real)
+
+```text
+1. Cadastrar produto manualmente     → Fase 4
+2. Importar lote via CSV             → Fase 5
+3. Cliente compra pelo site          → Carrinho (feito)
+4. Finalizar via WhatsApp            → Fase 6
+5. Loja negocia pagamento/entrega    → Fora da plataforma (V1)
+```
+
+---
+
+## Produção (pós-Fase 9)
+
+Deploy, SEO, monitoramento, auth admin robusta — conforme necessidade do cliente.

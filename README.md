@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# Sports Store - E-commerce MVP
 
-## Getting Started
+Uma loja esportiva moderna construída com Next.js, TypeScript e Tailwind CSS. Mobile-first, com foco em vender primeiro e depois otimizar.
 
-First, run the development server:
+## 🎯 Objetivo
 
-```bash
+Criar a base inicial de um e-commerce esportivo single-client com:
+- ✅ Estrutura limpa e reaproveitável
+- ✅ Mobile-first design
+- ✅ Dados mockados inicialmente
+- ✅ Preparado para expansão futura
+
+## 🚀 Stack
+
+- **Next.js 16** - Framework React moderno
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Estilização utilitária
+- **App Router** - Roteamento moderno
+- **Node.js 18+** - Runtime
+
+## 📦 Instalação
+
+\\\ash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\\\
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📁 Estrutura do Projeto
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- \pp/\ - Páginas e rotas
+- \components/\ - Componentes React
+- \data/\ - Dados mockados
+- \	ypes/\ - Tipos TypeScript
+- \lib/\ - Funções utilitárias
+- \config/\ - Configuração do site
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🎨 Features
 
-## Learn More
+- ✅ Home com hero section
+- ✅ Listagem de produtos
+- ✅ Página de detalhe
+- ✅ Dashboard admin
+- ✅ Mobile-first design
 
-To learn more about Next.js, take a look at the following resources:
+## 🛑 O que NÃO está no MVP
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- ❌ Pagamento real
+- ❌ Banco de dados
+- ❌ Autenticação
+- ❌ Carrinho persistente
+- ❌ Checkout funcional
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Ferramentas de desenvolvimento
 
-## Deploy on Vercel
+O projeto usa [Graphify](https://github.com/safishamsi/graphify) para mapear a estrutura do código e reduzir leitura repetida de arquivos no assistente de IA.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Guia completo:** [GRAPHIFY_MAP.md](GRAPHIFY_MAP.md)
+- **Regenerar mapa:** `graphify .` (na raiz do repositório; requer `uv tool install graphifyy`)
+- **Relatório:** [graphify-out/GRAPH_REPORT.md](graphify-out/GRAPH_REPORT.md)

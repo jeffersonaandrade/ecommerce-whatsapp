@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# graphify (dev tool — mapa versionável; custos locais não)
+graphify-out/cost.json
