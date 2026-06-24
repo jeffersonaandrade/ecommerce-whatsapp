@@ -19,7 +19,7 @@ export function Header() {
         <div className="hidden md:flex items-center gap-8">
           {siteConfig.navigation.map((item) => (
             <Link
-              key={item.href}
+              key={item.title}
               href={item.href}
               className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
             >
