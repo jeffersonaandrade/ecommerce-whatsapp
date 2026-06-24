@@ -1,23 +1,9 @@
-export type PurchaseIntentLine = {
-  productName: string
-  slug: string
-  productUrl: string
-  size?: string
-  color?: string
-  sku: string
-  quantity: number
-  lineSubtotal: number
-}
+import type { PurchaseIntentLine, PurchaseIntent } from '@/types/purchase-intent'
 
-export type MockPurchaseIntent = {
-  id: string
-  createdAt: string
-  lines: PurchaseIntentLine[]
-  cartTotal: number
-}
+export type { PurchaseIntentLine, PurchaseIntent }
 
 /** Dados fixos para protótipo /order-intent/demo — não é canal de produção. */
-export const mockPurchaseIntent: MockPurchaseIntent = {
+export const mockPurchaseIntent: PurchaseIntent = {
   id: 'demo-intent-001',
   createdAt: '2026-06-24T14:30:00.000Z',
   lines: [

@@ -3,6 +3,10 @@ export const siteConfig = {
   description: 'Sua loja esportiva de confiança',
   currency: 'BRL',
   currencySymbol: 'R$',
+  /** Número WhatsApp da loja (DDI + DDD + número, só dígitos). */
+  whatsappPhone: '5511999999999',
+  /** URL pública da loja para links na mensagem WhatsApp. */
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
   navigation: [
     {
       title: 'Produtos',

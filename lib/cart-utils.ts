@@ -17,6 +17,7 @@ export type CartLine = {
   quantity: number
   name: string
   slug: string
+  sku: string
   image: string
   size?: string
   color?: string
@@ -69,6 +70,7 @@ export function resolveCartLines(items: CartItem[]): CartLine[] {
       quantity,
       name: product.name,
       slug: product.slug,
+      sku: variation.sku,
       image: product.images[0] ?? '',
       size: variation.size,
       color: variation.color,

@@ -6,10 +6,25 @@ import { formatPrice } from '@/lib/formatters'
 import { resolveCartLines } from '@/lib/cart-utils'
 import { Button, getButtonClassName } from '@/components/ui/button'
 import { CartLineItem } from '@/components/cart/cart-line-item'
+import { siteConfig } from '@/config/site'
+import { buildPurchaseIntentFromCart } from '@/lib/purchase-intent/build-purchase-intent'
+import {
+  buildWhatsAppMessage,
+  buildWhatsAppUrl,
+} from '@/lib/purchase-intent/build-whatsapp-message'
 
 export function CartContent() {
   const { items, itemCount, subtotal, clearCart, isHydrated } = useCart()
   const lines = resolveCartLines(items)
+
+  function handleWhatsAppCheckout() {
+    const intent = buildPurchaseIntentFromCart(lines, siteConfig.siteUrl)
+    if (!intent) return
+
+    const message = buildWhatsAppMessage(intent)
+    const url = buildWhatsAppUrl(siteConfig.whatsappPhone, message)
+    window.open(url, '_blank', 'noopener,noreferrer')
+  }
 
   if (!isHydrated) {
     return (
@@ -75,10 +90,9 @@ export function CartContent() {
             <Button
               size="lg"
               className="w-full"
-              disabled
-              title="Finalização via WhatsApp — disponível na Fase 6"
+              onClick={handleWhatsAppCheckout}
             >
-              Finalizar pedido
+              Finalizar via WhatsApp
             </Button>
 
             <Link
