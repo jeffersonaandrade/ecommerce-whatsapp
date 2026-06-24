@@ -1,111 +1,84 @@
+import Image from 'next/image'
 import Link from 'next/link'
+import { siteConfig } from '@/config/site'
 import { getButtonClassName } from '@/components/ui/button'
+
+const HERO_IMAGE =
+  'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=1400&fit=crop'
 
 export function SportsHero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-black via-gray-900 to-black text-white">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full mix-blend-multiply filter blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gray-400 rounded-full mix-blend-multiply filter blur-3xl" />
-      </div>
+    <section className="border-b border-hairline bg-canvas">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
+          {/* Photography — DS §2 photography-first; mobile-first (stacked first) */}
+          <div className="relative aspect-[4/5] w-full overflow-hidden bg-soft-cloud sm:aspect-square lg:aspect-[4/5] lg:order-2">
+            <Image
+              src={HERO_IMAGE}
+              alt="Equipamento esportivo premium"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+            />
+          </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24 lg:py-32">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Content */}
-          <div className="space-y-6 sm:space-y-8">
-            {/* Eyebrow */}
-            <div className="text-sm sm:text-base font-semibold text-gray-300 uppercase tracking-wider">
-              Equipamento Esportivo Premium
-            </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-              Sua Paixão, Nosso Compromisso
-            </h1>
-
-            {/* Subheadline */}
-            <p className="text-lg sm:text-xl text-gray-300 max-w-lg">
-              Camisas oficiais, equipamentos premium e acessórios para apaixonados por esporte.
-              Qualidade, autenticidade e estilo em cada produto.
+          {/* Copy — DS §4 display/h1 hierarchy; §3 ink/mute palette */}
+          <div className="space-y-6 sm:space-y-8 lg:order-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mute sm:text-sm">
+              Equipamento esportivo premium
             </p>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+            <h1 className="max-w-xl text-4xl font-bold leading-[1.1] tracking-tight text-ink sm:text-5xl lg:text-6xl">
+              Vista o jogo.
+              <span className="block text-charcoal">Com autenticidade.</span>
+            </h1>
+
+            <p className="max-w-lg text-base leading-relaxed text-mute sm:text-lg">
+              Camisas oficiais, equipamentos e acessórios selecionados para quem
+              leva esporte a sério — qualidade editorial, catálogo curado.
+            </p>
+
+            {/* CTAs — DS §9.1 pill primary + outline secondary */}
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
               <Link
                 href="/products"
-                className={getButtonClassName(
-                  'default',
-                  'lg',
-                  'w-full sm:w-auto bg-white text-black font-semibold hover:bg-gray-50 shadow-lg focus:ring-white'
-                )}
+                className={getButtonClassName('default', 'lg', 'w-full sm:w-auto')}
               >
                 Explorar Produtos
               </Link>
               <Link
                 href="/products"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 border-2 border-white text-white font-medium rounded-lg hover:bg-white/20 transition-colors"
+                className={getButtonClassName('outline', 'lg', 'w-full sm:w-auto')}
               >
                 Coleções
               </Link>
             </div>
 
-            {/* Trust Signal */}
-            <div className="pt-4 border-t border-gray-700 text-sm text-gray-400">
-              ✓ Produtos 100% Originais • ✓ Envio Rápido • ✓ Garantia de Qualidade
-            </div>
-          </div>
-
-          {/* Visual - Sports Illustration */}
-          <div className="relative hidden lg:block">
-            <div className="relative w-full aspect-square bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center space-y-4 opacity-75">
-                  <div className="text-6xl">⚽</div>
-                  <div className="text-6xl">👟</div>
-                  <div className="text-6xl">🏆</div>
-                  <p className="text-gray-400 text-sm mt-4">
-                    Imagem representativa
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Floating Cards */}
-            <div className="absolute -bottom-6 -left-6 bg-white text-black p-4 rounded-lg shadow-lg max-w-xs">
-              <p className="font-semibold text-sm mb-1">Camisas Oficiais</p>
-              <p className="text-xs text-gray-600">De clubes e seleções</p>
-            </div>
-
-            <div className="absolute -top-6 -right-6 bg-white text-black p-4 rounded-lg shadow-lg max-w-xs">
-              <p className="font-semibold text-sm mb-1">Melhor Preço</p>
-              <p className="text-xs text-gray-600">Promoções exclusivas</p>
+            {/* Trust — DS §8 hairline divider, flat */}
+            <div className="border-t border-hairline pt-4 text-sm text-mute">
+              Produtos originais · Envio rápido · Garantia de qualidade
             </div>
           </div>
         </div>
 
-        {/* Categories Grid */}
-        <div className="mt-16 sm:mt-20 lg:mt-24">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-8 text-center">
-            Categorias Populares
+        {/* Categories — DS §7 pills; §8 flat chips, no blur/backdrop */}
+        <div className="mt-16 sm:mt-20">
+          <h2 className="mb-6 text-center text-sm font-semibold uppercase tracking-[0.15em] text-mute sm:mb-8">
+            Categorias populares
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
-            {[
-              { name: 'Camisas', emoji: '👕' },
-              { name: 'Shorts', emoji: '🩳' },
-              { name: 'Jaquetas', emoji: '🧥' },
-              { name: 'Meias', emoji: '🧦' },
-              { name: 'Acessórios', emoji: '⌚' },
-            ].map((category) => (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
+            {siteConfig.categories.map((category) => (
               <Link
-                key={category.name}
-                href={`/products?category=${category.name}`}
-                className="group"
+                key={category}
+                href={`/products?category=${encodeURIComponent(category)}`}
+                className={getButtonClassName(
+                  'secondary',
+                  'sm',
+                  'w-full justify-center'
+                )}
               >
-                <div className="bg-white/10 backdrop-blur-sm hover:bg-white/20 rounded-lg p-4 text-center transition-colors cursor-pointer">
-                  <div className="text-3xl mb-2">{category.emoji}</div>
-                  <p className="font-medium text-sm">{category.name}</p>
-                </div>
+                {category}
               </Link>
             ))}
           </div>
