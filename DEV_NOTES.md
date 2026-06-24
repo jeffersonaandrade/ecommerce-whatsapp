@@ -282,7 +282,19 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Resumo | Fonte única de tokens (palette, typography, grid, spacing, radius, components, motion, anti-patterns) |
 | UI alterada | **Nenhuma** (`components/**`, `app/**`, `globals.css` intactos) |
 | Comandos | `npm run test`, `npm run build` |
-| Próximo | UI Polish UI-1 conforme DS §12 |
+| Próximo | UI-1B Header conforme DS §9.5 |
+
+### 2026-06-24 — UI-1A: Design Foundation
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | `app/globals.css`, `components/ui/button.tsx`, `badge.tsx`, `input.tsx`, `label.tsx`, `separator.tsx`, docs |
+| Resumo | Tokens @theme (palette §3); Button pill + ink/soft-cloud; Badge semantic variants; Input/Label/Separator novos |
+| Páginas/layout | **Não alterados** (`app/**` páginas, `components/layout/**` intactos) |
+| Efeito cascata | Button/Badge usados em telas existentes — pills e tokens DS aplicados via primitivos |
+| Comandos | `npm run test`, `npm run build` |
+| Build/test | OK · 23 testes |
+| Próximo | UI-1B Header |
 
 ## 🛠️ Troubleshooting
 
@@ -324,4 +336,4 @@ curl http://localhost:3000/admin
 ---
 
 **Última atualização:** 2026-06-24 (Design System foundation)
-**Status:** DS documentado · PDP reload descartado · próximo: UI Polish UI-1
+**Status:** UI-1A concluída · próximo: **UI-1B** (Header)

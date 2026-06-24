@@ -131,17 +131,109 @@ Investigação no código (não só automação). Ver [`QA_REPORT.md`](../QA_REP
 
 ---
 
-## 8. Sprints relacionadas
+## 8. Regra de justificativa (obrigatória)
 
-| Sprint | Escopo |
-|--------|--------|
-| **Sprint Prep (concluída)** | `framer-motion`, skill ui-ux-pro-max, este doc — sem alterar UI |
-| **Sprint Bugfix QA** (sugerida) | Imagem 404, swatch, Link+Button, Coleções |
-| **Sprint Design System** (concluída) | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) — documentação only |
-| **Sprint UI Polish** (futura) | Redesign conforme DS §12 + seções 2–6 deste doc |
+Antes de alterar **qualquer** componente visual, o assistente deve documentar cada mudança com referência ao [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md):
 
-Roadmap funcional (CSV Fase 5) permanece independente; UI polish inicia após DS aprovado.
+```text
+Border radius
+  ANTES: rounded-lg
+  DEPOIS: rounded-full
+  Motivo: DESIGN_SYSTEM.md §9.1 Button — CTAs pill
+
+Shadow
+  ANTES: shadow-xl
+  DEPOIS: border hairline + shadow-sm (se aplicável)
+  Motivo: DESIGN_SYSTEM.md §8 — cards flat; exceção só sticky cart
+```
+
+**Proibido:** mudanças visuais sem citação de seção do DS. Ver também `.cursor/rules/design-system.mdc`.
 
 ---
 
-**Última atualização:** 2026-06-24 (Design System foundation)
+## 9. Sprints de implementação (ordem revisada)
+
+> **Decisão (2026-06-24):** não misturar tokens + Header na mesma sprint. Header tem efeito cascata (nav, carrinho, admin, mobile, sticky) — isolar em sprint própria **após** primitivos prontos.
+
+Cada sprint = **escopo mínimo** + QA rápido + **1 commit local**. Não alterar páginas fora do escopo da sprint.
+
+```text
+UI-1A  Design Foundation (tokens + primitivos)     → QA → commit
+UI-1B  Header                                      → QA → commit
+UI-2   Hero                                        → QA → commit
+UI-3   ProductCard                                 → QA → commit
+UI-4   PLP (grids home + /products)                → QA → commit
+UI-5   PDP (+ product-purchase-panel)              → QA → commit
+UI-6   Carrinho                                    → QA → commit
+UI-7   Footer                                      → QA → commit
+```
+
+### UI-1A — Design Foundation (próxima sprint)
+
+**Escopo permitido:**
+
+| Item | Arquivos |
+|------|----------|
+| Tokens CSS | `app/globals.css` (`@theme`) |
+| Button | `components/ui/button.tsx` |
+| Badge | `components/ui/badge.tsx` |
+| Input | `components/ui/input.tsx` (criar) |
+| Label | `components/ui/label.tsx` (criar) |
+| Separator | `components/ui/separator.tsx` (criar) |
+
+**Fora de escopo UI-1A:**
+
+- ❌ Header, Footer, Hero, ProductCard
+- ❌ Qualquer página (`app/**`)
+- ❌ Layout (`components/layout/**`)
+- ❌ Comportamento (nav, sticky, links, carrinho)
+
+**Critério de aceite:** build + test OK; páginas visualmente **inalteradas** (primitivos existem mas telas ainda usam classes antigas até sprints posteriores).
+
+### UI-1B — Header
+
+**Escopo:** apenas `components/layout/header.tsx` — consome tokens e primitivos de UI-1A.
+
+**Fora de escopo:** Footer, Hero, páginas.
+
+### UI-2 — Hero
+
+**Escopo:** `components/commerce/sports-hero.tsx`
+
+### UI-3 — ProductCard
+
+**Escopo:** `components/product/product-card.tsx`
+
+### UI-4 — PLP
+
+**Escopo:** `app/page.tsx`, `app/products/page.tsx` (grids e ritmo editorial)
+
+### UI-5 — PDP
+
+**Escopo:** `app/products/[slug]/page.tsx`, `components/product/product-purchase-panel.tsx`
+
+### UI-6 — Carrinho
+
+**Escopo:** `components/cart/cart-content.tsx`, `app/cart/page.tsx`
+
+### UI-7 — Footer
+
+**Escopo:** `components/layout/footer.tsx`
+
+---
+
+## 10. Sprints relacionadas (histórico)
+
+| Sprint | Status |
+|--------|--------|
+| **Sprint Prep** | ✅ `framer-motion`, skill ui-ux-pro-max |
+| **Sprint Bugfix QA** | ✅ Imagem 404, swatch, Link+Button, Coleções |
+| **Sprint Design System** | ✅ [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) |
+| **UI-1A** | ✅ Design Foundation — tokens + primitivos |
+| **UI-1B → UI-7** | ⏳ Conforme §9 |
+
+Roadmap funcional (CSV Fase 5) permanece independente.
+
+---
+
+**Última atualização:** 2026-06-24 (roadmap UI-1A/1B revisado)

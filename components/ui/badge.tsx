@@ -1,23 +1,37 @@
 import React from 'react'
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'success' | 'warning' | 'error'
+/** Legacy names kept; DS §9.3 semantic aliases included. */
+export type BadgeVariant =
+  | 'default'
+  | 'category'
+  | 'success'
+  | 'stock-in'
+  | 'warning'
+  | 'error'
+  | 'stock-out'
+  | 'sale'
+
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: BadgeVariant
+}
+
+const variantStyles: Record<BadgeVariant, string> = {
+  default: 'bg-soft-cloud text-charcoal',
+  category: 'bg-soft-cloud text-charcoal',
+  success: 'bg-success/10 text-success',
+  'stock-in': 'bg-success/10 text-success',
+  warning: 'bg-warning/10 text-warning',
+  error: 'bg-error/10 text-error',
+  'stock-out': 'bg-error/10 text-error',
+  sale: 'bg-sale text-canvas',
 }
 
 const Badge = React.forwardRef<HTMLDivElement, BadgeProps>(
   ({ className = '', variant = 'default', ...props }, ref) => {
-    const variants = {
-      default: 'bg-gray-100 text-gray-800',
-      success: 'bg-green-100 text-green-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      error: 'bg-red-100 text-red-800',
-    }
-
     return (
       <div
         ref={ref}
-        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${variants[variant]} ${className}`}
+        className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${variantStyles[variant]} ${className}`}
         {...props}
       />
     )

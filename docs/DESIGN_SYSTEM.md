@@ -75,9 +75,9 @@ Este documento congela regras visuais para que sprints de UI **não inventem** r
 
 Uso previsto: `bg-ink`, `text-mute`, `border-hairline`, etc.
 
-### Estado atual (pré-polish)
+### Estado atual (pós UI-1A)
 
-`app/globals.css` define apenas `--background` / `--foreground` e `font-family: Arial`. Componentes usam utilitários Tailwind genéricos (`gray-*`, `black`, `red-*`).
+Tokens em `app/globals.css` `@theme` (palette §3). Primitivos: `button`, `badge`, `input`, `label`, `separator`. Tipografia Inter/display — **pendente** (layout sprint). Páginas/layout não editados nesta sprint.
 
 ---
 
@@ -275,16 +275,23 @@ Conforme [`UI_POLISH_PLAN.md`](UI_POLISH_PLAN.md) §6:
 
 ## 12. Implementação futura
 
-Ordem de execução (sprints UI Polish):
+Ordem de execução (sprints UI Polish — **revisada 2026-06-24**):
 
 ```text
-UI-1: tokens CSS em globals.css @theme
-      → refatorar button.tsx + badge.tsx
-      → header.tsx + footer.tsx
-UI-2: sports-hero.tsx + product-card.tsx + grids (home, PLP)
-UI-3: PDP + cart + polish final
-      → Browser QA
+UI-1A  globals.css @theme + button + badge + input + label + separator
+       (sem alterar páginas nem layout)
+UI-1B  header.tsx
+UI-2   sports-hero.tsx
+UI-3   product-card.tsx
+UI-4   app/page.tsx + app/products/page.tsx (PLP)
+UI-5   PDP + product-purchase-panel
+UI-6   cart
+UI-7   footer.tsx
 ```
+
+Detalhes por sprint: [`docs/UI_POLISH_PLAN.md` §9](UI_POLISH_PLAN.md#9-sprints-de-implementação-ordem-revisada).
+
+**Regra:** antes de cada alteração visual, justificar com seção do DS (ver [`UI_POLISH_PLAN.md` §8](UI_POLISH_PLAN.md#8-regra-de-justificativa-obrigatória) e `.cursor/rules/design-system.mdc`).
 
 Cada sprint: 1 commit local · consultar seções §3–§11 antes de codar.
 
@@ -308,7 +315,9 @@ flowchart TD
   UIPolishPlan[UI_POLISH_PLAN.md] --> DS
   DS --> GlobalsCSS["globals.css @theme"]
   DS --> Components["components/ui/*"]
-  DS --> Pages["Header Hero Card PDP Cart"]
+  DS --> Primitives["UI-1A: button badge input"]
+  Primitives --> Header["UI-1B: Header"]
+  Header --> Pages["Hero Card PLP PDP Cart Footer"]
   Pages --> BrowserQA[Browser QA]
 ```
 
