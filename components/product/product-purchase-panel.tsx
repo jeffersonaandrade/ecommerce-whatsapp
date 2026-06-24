@@ -1,19 +1,26 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
 import { useState } from 'react'
 import { useCart } from '@/context/cart-context'
-import { formatPrice } from '@/lib/formatters'
 import {
   findDefaultVariation,
   resolveVariationBySelection,
 } from '@/lib/cart-utils'
+import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
 import { Product } from '@/types/product'
 import { Button } from '@/components/ui/button'
 
 interface ProductPurchasePanelProps {
   product: Product
+}
+
+const optionBase =
+  'inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2'
+
+function optionClass(selected: boolean): string {
+  return selected
+    ? `${optionBase} border-ink bg-ink text-canvas`
+    : `${optionBase} border-hairline bg-canvas text-ink hover:border-charcoal`
 }
 
 export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
@@ -49,76 +56,85 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   }
 
   return (
-    <>
-      <div className="space-y-4">
-        {sizes.length > 0 && (
-          <div>
-            <h3 className="font-semibold mb-3">Tamanho</h3>
-            <div className="flex flex-wrap gap-2">
-              {sizes.map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-4 py-2 border rounded-lg transition-colors ${
-                    selectedSize === size
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 hover:border-black'
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
+    <div className="space-y-6 border-t border-hairline pt-6">
+      {sizes.length > 0 && (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold uppercase tracking-wide text-ink">
+            Tamanho
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {sizes.map((size) => (
+              <button
+                key={size}
+                type="button"
+                aria-pressed={selectedSize === size}
+                onClick={() => setSelectedSize(size)}
+                className={optionClass(selectedSize === size)}
+              >
+                {size}
+              </button>
+            ))}
           </div>
-        )}
-
-        {colors.length > 0 && (
-          <div>
-            <h3 className="font-semibold mb-3">Cor</h3>
-            <div className="flex flex-wrap gap-2">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  onClick={() => setSelectedColor(color)}
-                  className={`px-4 py-2 border rounded-lg transition-colors ${
-                    selectedColor === color
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-300 hover:border-black'
-                  }`}
-                >
-                  {color}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex gap-3 pt-6">
-        <Button
-          size="lg"
-          className="flex-1"
-          disabled={!canAdd}
-          onClick={handleAddToCart}
-        >
-          {addedFeedback
-            ? 'Adicionado!'
-            : hasStock
-              ? 'Adicionar ao Carrinho'
-              : 'Fora de estoque'}
-        </Button>
-        <Button size="lg" variant="outline" title="Wishlist em breve" disabled>
-          ♡
-        </Button>
-      </div>
-
-      {canAdd && (
-        <p className="text-sm text-gray-600 pt-2">
-          {selectedVariation!.stock} unidade(s) disponível(is) para esta opção
-        </p>
+        </fieldset>
       )}
-    </>
+
+      {colors.length > 0 && (
+        <fieldset className="space-y-3">
+          <legend className="text-sm font-semibold uppercase tracking-wide text-ink">
+            Cor
+          </legend>
+          <div className="flex flex-wrap gap-2">
+            {colors.map((color) => (
+              <button
+                key={color}
+                type="button"
+                aria-pressed={selectedColor === color}
+                onClick={() => setSelectedColor(color)}
+                className={`${optionClass(selectedColor === color)} gap-2`}
+              >
+                <span
+                  className={`h-3.5 w-3.5 shrink-0 rounded-full border ${colorSwatchBorderClass(color)}`}
+                  style={{ backgroundColor: colorNameToHex(color) }}
+                  aria-hidden
+                />
+                {color}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      )}
+
+      <div className="space-y-3 pt-2">
+        <div className="flex gap-3">
+          <Button
+            size="lg"
+            className="flex-1"
+            disabled={!canAdd}
+            onClick={handleAddToCart}
+          >
+            {addedFeedback
+              ? 'Adicionado!'
+              : hasStock
+                ? 'Adicionar ao Carrinho'
+                : 'Fora de estoque'}
+          </Button>
+          <Button size="lg" variant="outline" title="Wishlist em breve" disabled>
+            ♡
+          </Button>
+        </div>
+
+        {addedFeedback && (
+          <p className="text-sm font-medium text-success" role="status">
+            Produto adicionado ao carrinho.
+          </p>
+        )}
+
+        {canAdd && !addedFeedback && (
+          <p className="text-sm text-mute">
+            {selectedVariation!.stock} unidade(s) disponível(is) para esta opção
+          </p>
+        )}
+      </div>
+    </div>
   )
 }
