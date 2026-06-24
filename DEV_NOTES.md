@@ -178,8 +178,9 @@ Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.t
 - Trabalhar em **sprints curtas** com objetivo único e critério de aceite claro.
 - **Toda sprint termina com um único commit** (facilita rollback e rastreio).
 - Separar: **Bugfix** (estabilidade) → **Design System** → **UI Polish** (valor visual) → **Features** (CSV, etc.).
+- **Toda sprint UI consulta [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md)** — proibido inventar tokens fora das tabelas do DS.
 
-Ver [`docs/UI_POLISH_PLAN.md`](docs/UI_POLISH_PLAN.md) e [`docs/SPRINT_BUGFIX_QA_REPORT.md`](docs/SPRINT_BUGFIX_QA_REPORT.md).
+Ver [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md), [`docs/UI_POLISH_PLAN.md`](docs/UI_POLISH_PLAN.md) e [`docs/SPRINT_BUGFIX_QA_REPORT.md`](docs/SPRINT_BUGFIX_QA_REPORT.md).
 
 ## UI Polish — preparação (Sprint Prep)
 
@@ -273,6 +274,16 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Comandos | `npm run build`, `npx next start -p 3003`, Browser QA |
 | Build | OK |
 
+### 2026-06-24 — Sprint: Design System (documentação)
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | `docs/DESIGN_SYSTEM.md`, `DEV_NOTES.md`, `docs/UI_POLISH_PLAN.md` |
+| Resumo | Fonte única de tokens (palette, typography, grid, spacing, radius, components, motion, anti-patterns) |
+| UI alterada | **Nenhuma** (`components/**`, `app/**`, `globals.css` intactos) |
+| Comandos | `npm run test`, `npm run build` |
+| Próximo | UI Polish UI-1 conforme DS §12 |
+
 ## 🛠️ Troubleshooting
 
 ### Build falha com erros de tipos
@@ -312,5 +323,5 @@ curl http://localhost:3000/admin
 
 ---
 
-**Última atualização:** 2026-06-24 (PDP Reload Investigation)
-**Status:** PDP reload descartado (limitação automação) · próximo: DESIGN_SYSTEM.md
+**Última atualização:** 2026-06-24 (Design System foundation)
+**Status:** DS documentado · PDP reload descartado · próximo: UI Polish UI-1

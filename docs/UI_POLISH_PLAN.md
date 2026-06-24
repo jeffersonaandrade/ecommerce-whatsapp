@@ -4,9 +4,11 @@ Plano da **sprint futura** de melhoria visual. Este documento não autoriza alte
 
 **Referências:**
 
+- **[`docs/DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md)** — **fonte única de tokens**; implementar conforme DS §3–§11
 - [`DESIGN-nike.md`](../DESIGN-nike.md) — análise de padrões (não cópia de marca)
 - [`.cursor/skills/ui-ux-pro-max/SKILL.md`](../.cursor/skills/ui-ux-pro-max/SKILL.md) — checklists UX/indústria
 - [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — não quebrar camadas de dados
+- [`docs/PDP_RELOAD_INVESTIGATION.md`](PDP_RELOAD_INVESTIGATION.md) — reload PDP descartado (limitação automação)
 
 ---
 
@@ -27,6 +29,8 @@ Direção desejada: **e-commerce esportivo premium**, photography-first, editori
 ---
 
 ## 2. Princípios visuais (extraídos de DESIGN-nike.md)
+
+> **Implementação:** tokens e specs detalhados em [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) §2–§8. Não duplicar valores aqui — consultar o DS.
 
 Traduzidos para a Sports Store:
 
@@ -63,6 +67,8 @@ Traduzidos para a Sports Store:
 
 ## 5. Componentes a revisar (sprint futura)
 
+Implementar conforme [`DESIGN_SYSTEM.md` §9](DESIGN_SYSTEM.md#9-components-spec).
+
 | Prioridade | Alvo | Arquivos |
 |------------|------|----------|
 | P0 | Header | `components/layout/header.tsx`, `components/layout/footer.tsx` |
@@ -78,6 +84,8 @@ Tokens compartilhados: `components/ui/button.tsx`, `components/ui/badge.tsx`.
 ---
 
 ## 6. Regras de motion (framer-motion)
+
+Conforme [`DESIGN_SYSTEM.md` §10](DESIGN_SYSTEM.md#10-motion).
 
 - Animações **discretas** (150–250ms, ease padrão).
 - Sempre respeitar `prefers-reduced-motion` via `useReducedMotion()`.
@@ -105,6 +113,7 @@ Investigação no código (não só automação). Ver [`QA_REPORT.md`](../QA_REP
 | 9 | Configurações não interativas | By design | `fieldset disabled` até Fase 6 |
 | — | `<Link><Button>` | Anti-pattern P2 | HTML inválido; corrigir com `asChild` ou Link estilizado |
 | — | "Coleções" sem ação | Gap UX P3 | `<button>` dead no hero |
+| — | Reload PDP "só footer" | **Limitação automação** | Ver [`PDP_RELOAD_INVESTIGATION.md`](PDP_RELOAD_INVESTIGATION.md) — não reproduzido em dev/prod |
 
 ### Bugs a resolver antes/durante polish
 
@@ -128,10 +137,11 @@ Investigação no código (não só automação). Ver [`QA_REPORT.md`](../QA_REP
 |--------|--------|
 | **Sprint Prep (concluída)** | `framer-motion`, skill ui-ux-pro-max, este doc — sem alterar UI |
 | **Sprint Bugfix QA** (sugerida) | Imagem 404, swatch, Link+Button, Coleções |
-| **Sprint UI Polish** (futura) | Redesign conforme seções 2–6 |
+| **Sprint Design System** (concluída) | [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md) — documentação only |
+| **Sprint UI Polish** (futura) | Redesign conforme DS §12 + seções 2–6 deste doc |
 
-Roadmap funcional (CSV Fase 5) permanece independente; UI polish pode correr em paralelo após prep.
+Roadmap funcional (CSV Fase 5) permanece independente; UI polish inicia após DS aprovado.
 
 ---
 
-**Última atualização:** 2026-06-24 (Sprint Prep UI)
+**Última atualização:** 2026-06-24 (Design System foundation)
