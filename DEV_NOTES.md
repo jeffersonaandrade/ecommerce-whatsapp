@@ -14,7 +14,7 @@
 | Carrinho | ✅ Context + localStorage + `/api/products` |
 | Admin catálogo | ✅ CRUD, galeria, variações, categorias derivadas |
 | Domínio / ADRs | ✅ `docs/DOMAIN_MODEL.md`, `ARCHITECTURE.md` |
-| CSV import | ⏳ Spec + template; upload na Fase 5 |
+| CSV import | ✅ Pipeline CSV-1…4; histórico adiado |
 | Supabase | ⏳ Fase 7 |
 | Graphify | ✅ Atualizado (239 nós · 512 arestas) |
 
@@ -141,21 +141,31 @@ npm run build  # ✅ Deve passar
 - [x] "Carrinho em breve" desabilitado com título
 - [x] Admin links funcionam
 
-## 🔄 Próxima Etapa (Fase 5 — Importação CSV)
+## 🔄 Próxima Etapa (Fase 5 — Import Pipeline)
 
-1. Parser CSV conforme `docs/CSV_IMPORT_SPEC.md`
-2. Upload em `/admin/import`
-3. Validação e merge no `ProductRepository`
+**Arquitetura:** [`docs/IMPORT_PIPELINE.md`](docs/IMPORT_PIPELINE.md)  
+**Formato:** [`docs/CSV_IMPORT_SPEC.md`](docs/CSV_IMPORT_SPEC.md)
+
+| Sprint | Entrega |
+|--------|---------|
+| CSV-1 | Tela upload (template, selecionar, próximo) |
+| CSV-2 | Parser + validação (sem salvar) |
+| CSV-3 | Preview (válidos/erros + tabela) |
+| CSV-4 | Importação → `ProductRepository` |
+| CSV-5 | Relatório + histórico |
+
+**Objetivo de produto:** lojista cria catálogo em < 15 min. Import alimenta vitrine, carrinho e WhatsApp (Fase 6).
 
 Catálogo Admin (Fase 4) — concluído: `ProductRepository` JSON, CRUD admin, galeria, variações, categorias derivadas.
 
 Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.test.ts`.
 
-## 📥 Importação CSV (V1 — spec only)
+## 📥 Importação CSV (V1 — spec + pipeline)
 
-- Especificação: [`docs/CSV_IMPORT_SPEC.md`](docs/CSV_IMPORT_SPEC.md) — formato planilha de carga em massa + coluna opcional `image_urls`
+- **Pipeline:** [`docs/IMPORT_PIPELINE.md`](docs/IMPORT_PIPELINE.md) — arquitetura CSV-1…5, módulo Catálogo
+- **Especificação:** [`docs/CSV_IMPORT_SPEC.md`](docs/CSV_IMPORT_SPEC.md) — formato planilha + `image_urls`
 - Template: [`public/templates/importacao-produtos-exemplo.csv`](public/templates/importacao-produtos-exemplo.csv)
-- Admin: `/admin/import` — download do template; **upload não implementado**
+- Admin: `/admin/import` — download do template; **upload/parser não implementados**
 
 ## 🏗️ Arquitetura (Fase 3)
 
@@ -167,7 +177,7 @@ Carrinho (Fase 2) — concluído: Context, localStorage, testes em `lib/cart-*.t
 
 **Rotas novas:** `/admin/settings`, `/admin/products/new`, `/admin/categories`, `/order-intent/demo` (protótipo).
 
-**Próximo:** Fase 5 — Importação CSV.
+**Próximo:** CSV-1 — tela de importação ([`IMPORT_PIPELINE.md`](docs/IMPORT_PIPELINE.md)).
 
 **Persistência catálogo (Fase 4):** `lib/catalog/*` → `storage/catalog.json` (dev); Supabase na Fase 7.
 
@@ -284,6 +294,15 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Comandos | `npm run test`, `npm run build` |
 | Próximo | UI-1B Header conforme DS §9.5 |
 
+### 2026-06-24 — Fase 5 prep: Import Pipeline architecture
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | `docs/IMPORT_PIPELINE.md`, roadmap, ARCHITECTURE, DEV_NOTES |
+| Resumo | Arquitetura CSV-1…5; módulo Catálogo; contrato WhatsApp-ready |
+| Implementação | Documentação only — sem código |
+| Próximo | CSV-1 Tela de importação |
+
 ### 2026-06-24 — UI-1A: Design Foundation
 
 | Campo | Detalhe |
@@ -294,7 +313,7 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Efeito cascata | Button/Badge usados em telas existentes — pills e tokens DS aplicados via primitivos |
 | Comandos | `npm run test`, `npm run build` |
 | Build/test | OK · 23 testes |
-| Próximo | CSV Fase 5 |
+| Próximo | CSV-1 (Import Pipeline) |
 
 ### 2026-06-24 — Visual Gap Closure (UI-7 → UI-12)
 
@@ -303,7 +322,7 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Commits | `8ec154d` Footer · `e9ccc49` Tipografia · `2460433` Landing Hero · `9342240` Home editorial · `12d59c3` ProductCard editorial |
 | QA | [`docs/VISUAL_QA_POST_LANDING.md`](docs/VISUAL_QA_POST_LANDING.md) |
 | Build/test | OK · 23 testes |
-| Próximo | CSV Import (Fase 5) |
+| Próximo | CSV-1 (Import Pipeline) |
 
 ## 🛠️ Troubleshooting
 
@@ -345,4 +364,4 @@ curl http://localhost:3000/admin
 ---
 
 **Última atualização:** 2026-06-24 (Design System foundation)
-**Status:** Visual Gap Closure concluído (UI-7–UI-12) · próximo: **CSV Fase 5**
+**Status:** Fase 5 CSV concluída (CSV-1…4) · Fase 6 WhatsApp no carrinho · histórico adiado

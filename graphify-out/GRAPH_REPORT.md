@@ -1,15 +1,16 @@
-# Graph Report - .  (2026-06-24)
+# Graph Report - ecommerce-sports  (2026-06-24)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 82 files · ~22,449 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 156 nodes · 304 edges · 10 communities (8 shown, 2 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 3 edges (avg confidence: 0.8)
+- 399 nodes · 879 edges · 20 communities (13 shown, 7 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 9 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bbe0007a`
+- Built from commit: `759e9e6e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,35 +24,45 @@
 - [[_COMMUNITY_Community 7|Community 7]]
 - [[_COMMUNITY_Community 8|Community 8]]
 - [[_COMMUNITY_Community 9|Community 9]]
+- [[_COMMUNITY_Community 10|Community 10]]
+- [[_COMMUNITY_Community 11|Community 11]]
+- [[_COMMUNITY_Community 12|Community 12]]
+- [[_COMMUNITY_Community 13|Community 13]]
+- [[_COMMUNITY_Community 14|Community 14]]
+- [[_COMMUNITY_Community 15|Community 15]]
+- [[_COMMUNITY_Community 16|Community 16]]
+- [[_COMMUNITY_Community 17|Community 17]]
+- [[_COMMUNITY_Community 18|Community 18]]
+- [[_COMMUNITY_Community 19|Community 19]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `compilerOptions` - 16 edges
-2. `Button` - 14 edges
-3. `useCart()` - 10 edges
-4. `resolveCartLines()` - 10 edges
-5. `formatPrice()` - 10 edges
-6. `getAllProducts()` - 9 edges
-7. `Product` - 9 edges
-8. `mockProducts` - 7 edges
-9. `scripts` - 6 edges
-10. `CartContent()` - 5 edges
+1. `getButtonClassName()` - 24 edges
+2. `Product` - 23 edges
+3. `Button` - 17 edges
+4. `compilerOptions` - 16 edges
+5. `formatPrice()` - 15 edges
+6. `getAllProducts()` - 15 edges
+7. `DesignSystemGenerator` - 11 edges
+8. `useCart()` - 11 edges
+9. `resolveCartLines()` - 11 edges
+10. `buildImportPreview()` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `AdminProductsPage()` --calls--> `getAllProducts()`  [INFERRED]
+- `AdminProductsPage()` --calls--> `getAllProductsAdmin()`  [INFERRED]
   app/admin/products/page.tsx → lib/products.ts
+- `SportsHeroProps` --references--> `Product`  [EXTRACTED]
+  components/commerce/sports-hero.tsx → types/product.ts
 - `ProductCardProps` --references--> `Product`  [EXTRACTED]
   components/product/product-card.tsx → types/product.ts
 - `ProductPurchasePanelProps` --references--> `Product`  [EXTRACTED]
   components/product/product-purchase-panel.tsx → types/product.ts
-- `AdminPage()` --calls--> `getAllProducts()`  [EXTRACTED]
-  app/admin/page.tsx → lib/products.ts
-- `CartTestClient()` --calls--> `useCart()`  [EXTRACTED]
-  app/dev/cart-test/cart-test-client.tsx → context/cart-context.tsx
+- `NavCard()` --calls--> `getButtonClassName()`  [EXTRACTED]
+  app/admin/page.tsx → components/ui/button.tsx
 
 ## Import Cycles
 - None detected.
 
-## Communities (10 total, 2 thin omitted)
+## Communities (20 total, 7 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
@@ -59,47 +70,67 @@ Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModu
 
 ### Community 1 - "Community 1"
 Cohesion: 0.09
-Nodes (21): dependencies, next, react, react-dom, devDependencies, tailwindcss, @tailwindcss/postcss, @types/node (+13 more)
+Nodes (22): dependencies, framer-motion, next, react, react-dom, devDependencies, tailwindcss, @tailwindcss/postcss (+14 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.18
-Nodes (9): CartContent(), CartLineItem(), CartNavLink(), metadata, metadata, useCart(), metadata, Button (+1 more)
+Cohesion: 0.15
+Nodes (18): CartContent(), CartLineItem(), CartLineItemProps, metadata, useCart(), mockPurchaseIntent, metadata, OrderIntentDemoPage() (+10 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.13
-Nodes (20): AdminPage(), metadata, metadata, Home(), metadata, SportsHero(), categories, clubs (+12 more)
+Cohesion: 0.07
+Nodes (40): AdminPage(), metadata, NavCard(), metadata, barlowCondensed, inter, metadata, viewport (+32 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.36
-Nodes (5): metadata, viewport, siteConfig, Footer(), Header()
+Cohesion: 0.08
+Nodes (39): ProductRepository, confirmImportAction(), parseImportCsvAction(), revalidateCatalog(), CSV_COLUMNS, REQUIRED_HEADERS, Filter, ImportPreviewTable() (+31 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.17
-Nodes (12): colorNameToHex(), calculateDiscount(), formatPrice(), getProductBySlug(), metadata, ProductCard(), ProductCardProps, generateMetadata() (+4 more)
+Cohesion: 0.13
+Nodes (18): findDefaultVariation(), resolveVariationBySelection(), colorNameToHex(), colorSwatchBorderClass(), LIGHT_SWATCH_HEX, calculateDiscount(), getProductBySlug(), metadata (+10 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.13
-Nodes (20): CartTestClient(), CartContext, CartContextValue, CartProvider(), sanitizeItems(), loadCartItems(), saveCartItems(), calculateItemCount() (+12 more)
+Cohesion: 0.14
+Nodes (22): CartTestClient(), getClientCatalogCache(), setCatalogCache(), CartContext, CartContextValue, sanitizeItems(), loadCartItems(), saveCartItems() (+14 more)
+
+### Community 10 - "Community 10"
+Cohesion: 0.09
+Nodes (35): DeleteProductButton(), DeleteProductButtonProps, ImageGalleryField(), ImageGalleryFieldProps, emptyVariation(), ProductForm(), ProductFormProps, productToForm() (+27 more)
+
+### Community 11 - "Community 11"
+Cohesion: 0.21
+Nodes (11): countProductsByCategory(), AdminCategoriesPage(), metadata, EditProductPage(), EditProductPageProps, generateMetadata(), getAllProductsAdmin(), getCategoriesAdmin() (+3 more)
+
+### Community 12 - "Community 12"
+Cohesion: 0.29
+Nodes (8): CATALOG_PATH, ensureStorage(), loadCatalogFromDisk(), persistCatalog(), readFromDisk(), SEED_PATH, STORAGE_DIR, writeToDisk()
+
+### Community 14 - "Community 14"
+Cohesion: 0.09
+Nodes (25): DesignSystemGenerator, _detect_page_type(), format_ascii_box(), format_markdown(), format_master_md(), format_page_override_md(), generate_design_system(), _generate_intelligent_overrides() (+17 more)
+
+### Community 15 - "Community 15"
+Cohesion: 0.15
+Nodes (15): BM25, detect_domain(), _load_csv(), Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, Load CSV and return list of dicts, Core search function using BM25 (+7 more)
 
 ## Knowledge Gaps
-- **57 isolated node(s):** `metadata`, `metadata`, `metadata`, `metadata`, `metadata` (+52 more)
+- **93 isolated node(s):** `metadata`, `metadata`, `metadata`, `metadata`, `EditProductPageProps` (+88 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **2 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Button` connect `Community 2` to `Community 3`, `Community 4`, `Community 5`, `Community 7`?**
-  _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Why does `useCart()` connect `Community 2` to `Community 7`?**
-  _High betweenness centrality (0.017) - this node is a cross-community bridge._
-- **What connects `metadata`, `metadata`, `metadata` to the rest of the system?**
-  _57 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Why does `Product` connect `Community 7` to `Community 3`, `Community 4`, `Community 5`, `Community 10`, `Community 12`?**
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Why does `getButtonClassName()` connect `Community 3` to `Community 2`, `Community 4`?**
+  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `Button` connect `Community 3` to `Community 2`, `Community 4`, `Community 5`, `Community 10`, `Community 11`?**
+  _High betweenness centrality (0.019) - this node is a cross-community bridge._
+- **Are the 2 inferred relationships involving `getButtonClassName()` (e.g. with `AdminProductsPage()` and `ProductsPage()`) actually correct?**
+  _`getButtonClassName()` has 2 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `BM25 ranking algorithm for text search`, `Lowercase, split, remove punctuation, filter short words`, `Build BM25 index from documents` to the rest of the system?**
+  _119 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.09090909090909091 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.1310344827586207 - nodes in this community are weakly interconnected._
-- **Should `Community 7` be split into smaller, more focused modules?**
-  _Cohesion score 0.12643678160919541 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08695652173913043 - nodes in this community are weakly interconnected._

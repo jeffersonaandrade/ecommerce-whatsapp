@@ -11,43 +11,49 @@ Ferramenta de **desenvolvimento** ([Graphify](https://github.com/safishamsi/grap
 | [graphify-out/graph.json](graphify-out/graph.json) | Grafo completo para consultas CLI |
 | [.cursor/rules/graphify.mdc](.cursor/rules/graphify.mdc) | Regra Cursor (`alwaysApply`) para consultar o grafo antes de explorar código |
 
-**Última geração:** 156 nós · 304 arestas · 10 comunidades · extração 99% AST (sem API).
+**Última geração:** 2026-06-24 (Sprint 0) · **239 nós · 512 arestas · 14 comunidades** · extração 99% AST (sem API) · commit `7c6521d`
 
 ## Árvore do projeto (rotas e módulos)
 
 ```
 ecommerce-sports/
-├── app/                          # App Router (Next.js 16)
-│   ├── page.tsx                  # /
-│   ├── layout.tsx
-│   ├── products/
-│   │   ├── page.tsx              # /products
-│   │   └── [slug]/page.tsx       # /products/:slug
-│   ├── cart/page.tsx             # /cart
-│   ├── checkout/page.tsx         # /checkout
+├── app/
+│   ├── page.tsx, layout.tsx
+│   ├── products/                 # /products, /products/[slug]
+│   ├── cart/, checkout/
+│   ├── order-intent/demo/        # protótipo PurchaseIntent
+│   ├── api/products/route.ts     # cache catálogo (carrinho)
 │   └── admin/
-│       ├── page.tsx              # /admin
-│       ├── import/page.tsx       # /admin/import
-│       ├── products/page.tsx
-│       └── orders/page.tsx
+│       ├── page.tsx
+│       ├── products/             # lista, new, [id]/edit
+│       ├── categories/
+│       ├── import/, orders/, settings/
 ├── components/
-│   ├── layout/     header.tsx, footer.tsx
-│   ├── commerce/   sports-hero.tsx
-│   ├── product/    product-card.tsx
-│   └── ui/         button.tsx, badge.tsx
-├── config/site.ts
-├── data/mock-products.ts
-├── lib/formatters.ts             # formatPrice, calculateDiscount
+│   ├── admin/    product-form, image-gallery-field, delete-product-button
+│   ├── cart/, product/, layout/, commerce/, ui/
+├── lib/
+│   ├── products.ts               # fachada server-only
+│   ├── products-client.ts        # carrinho (browser)
+│   ├── catalog/                  # ProductRepository, actions, utils
+│   ├── cart-utils.ts, cart-storage.ts
+│   └── formatters.ts, colors.ts
+├── storage/
+│   ├── catalog.seed.json
+│   └── catalog.json              # gitignored (runtime dev)
+├── data/mock-products.ts         # seed legado
+├── context/cart-context.tsx
 └── types/product.ts
 ```
 
 ### Hubs principais (god nodes)
 
-1. `Button` — componente UI reutilizado em várias páginas
-2. `mockProducts` — fonte de dados mock
-3. `formatPrice()` / `calculateDiscount()` — formatação e desconto
-4. `ProductCard()` — cartão de produto nas listagens
-5. `siteConfig` — configuração global do site
+1. `Product` — tipo central do domínio
+2. `Button` — UI reutilizada
+3. `getAllProducts()` / `getAllProductsAdmin()` — leitura do catálogo
+4. `formatPrice()` — formatação
+5. `resolveCartLines()` / `useCart()` — carrinho
+6. `getProductRepository()` — persistência JSON
+7. `mockProducts` — seed de referência
 
 ## Comandos
 

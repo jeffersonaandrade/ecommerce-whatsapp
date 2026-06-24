@@ -2,7 +2,7 @@
 
 Template e-commerce **single-client**: catálogo (manual + CSV) + carrinho + finalização via WhatsApp na V1.
 
-Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.md`](MODULE_ROADMAP.md), [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
+Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.md`](MODULE_ROADMAP.md), [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md), [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md).
 
 ---
 
@@ -23,7 +23,7 @@ Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.
 |--------|------------------|--------|
 | **Catalog** | Produtos, imagens, variações, categorias | Mock; admin Fase 4 |
 | **Cart** | Carrinho local | ✅ Funcional |
-| **CSV Import** | Carga em massa | Spec + template; parser Fase 5 |
+| **CSV Import** | Carga em massa (módulo Catálogo) | Spec + template; pipeline [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
 | **Order Completion** | Finalização do pedido (estratégias) | Documentado; WhatsApp Fase 6 |
 | **Admin** | Gestão da loja | Visual parcial |
 | **Settings** | Config da loja | Placeholder |

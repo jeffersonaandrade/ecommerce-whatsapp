@@ -13,8 +13,8 @@ Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DOMAIN_MODEL.md`](DOMAIN_M
 | 1 | Foundation | ✅ Concluída | Next.js, tipos, UI base, mocks |
 | 2 | Cart | ✅ Concluída | Context + localStorage, PDP, testes |
 | 3 | Domínio enxuto | ✅ Esta fase | DOMAIN_MODEL, ARCHITECTURE, skeleton admin |
-| **4** | **Catálogo Admin** | 📅 **Próxima** | Lista, criar, editar, galeria, variações, categorias, status |
-| 5 | CSV Import | 📅 Planejada | Parser, preview, validação, importação |
+| **4** | **Catálogo Admin** | ✅ Concluída | CRUD, galeria, variações, categorias |
+| **5** | **Import Pipeline (Catálogo)** | 📅 **Próxima** | CSV-1…5 — ver [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
 | 6 | WhatsApp | 📅 Planejada | Mensagem estruturada, links PDP, config loja |
 | 7 | Supabase | 📅 Planejada | Persistência + `DATABASE_PLAN` |
 | 8 | Pedidos | 📅 V2 | Gestão real (após checkout ou registro manual) |
@@ -24,7 +24,7 @@ Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DOMAIN_MODEL.md`](DOMAIN_M
 
 ---
 
-## Fase 4 — Catálogo Admin (próximo valor)
+## Fase 4 — Catálogo Admin ✅
 
 ### Objetivo
 
@@ -34,13 +34,13 @@ Permitir operação diária do catálogo sem depender só de mocks ou CSV.
 
 ```text
 Catálogo
-├── Lista                    ✅ parcial → completar
-├── Criar Produto            📅 form + salvar (mock/localStorage)
-├── Editar Produto           📅
-├── Galeria (1–5, principal) 📅 UPLOAD preview local
-├── Variações + SKU + estoque📅
-├── Importar CSV             (link para Fase 5)
-└── Ativar / Inativar        📅 draft | active
+├── Lista                    ✅
+├── Criar Produto            ✅
+├── Editar Produto           ✅
+├── Galeria (1–5, principal) ✅ UPLOAD preview local
+├── Variações + SKU + estoque✅
+├── Importar CSV             → link Fase 5 (CSV-1…5)
+└── Ativar / Inativar        ✅ draft | active
 ```
 
 ### Dependências
@@ -66,32 +66,42 @@ Catálogo
 
 ---
 
-## Fase 5 — Importação CSV
+## Fase 5 — Import Pipeline (Catálogo)
 
 ### Objetivo
 
-Importar dezenas/centenas de produtos conforme [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
+Importar dezenas/centenas de produtos em **< 15 minutos** — dor #1 do lojista.
 
-### Entregáveis
+**Arquitetura:** [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md)  
+**Formato CSV:** [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md)
 
-- Upload de arquivo
-- Parser + validação (`CSV_E001`–`CSV_E007`)
-- Preview antes de confirmar
-- Persistência no mesmo repositório da Fase 4
+### Sprints
+
+| Sprint | Entrega |
+|--------|---------|
+| CSV-1 | Tela upload + wizard (template, selecionar, próximo) |
+| CSV-2 | Parser + validação (sem persistir) |
+| CSV-3 | Preview (totais, tabela, erros) |
+| CSV-4 | Importação → `ProductRepository` + rollback |
+| CSV-5 | Relatório + histórico `/admin/import/history` |
 
 ### Dependências
 
-- Fase 4 (catálogo gravável)
-- Spec CSV V1 existente
+- Fase 4 ✅ (`ProductRepository`, `storage/catalog.json`)
+- Spec CSV V1 ✅
 
 ### Critérios de pronto
 
-- Template de exemplo importa sem erros
-- `image_urls` com origem `URL`
+- Template exemplo importa sem erros bloqueantes
+- Preview obrigatório antes de gravar
+- Produtos WhatsApp-ready (slug, SKU, preço, variações, imagens URL)
+- Histórico consultável
 
-### Fora de escopo
+### Fora de escopo Fase 5
 
 - Download de imagens para storage (V2+)
+- Exportação CSV (pós CSV-5, sprint separada)
+- Supabase (Fase 7)
 
 ---
 

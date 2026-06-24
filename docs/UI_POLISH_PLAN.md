@@ -232,7 +232,7 @@ UI-7   Footer                                      → QA → commit
 | **UI-1A → UI-6** | ✅ Foundation, Header, Hero v1, Card, PLP, PDP, Cart |
 | **UI-7 → UI-12** | ✅ Footer, tipografia, Landing Hero, Home editorial, Card editorial |
 | **UI-10** | ⏸ Adiado pós QA — ver [`VISUAL_QA_POST_LANDING.md`](VISUAL_QA_POST_LANDING.md) |
-| **Próximo** | CSV Fase 5 (após vitrine aprovada) |
+| **Próximo** | CSV Fase 5 — [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
 
 Roadmap funcional: CSV → WhatsApp → Supabase (após frontend comercial).
 
