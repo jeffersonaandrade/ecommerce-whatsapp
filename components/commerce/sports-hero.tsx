@@ -1,89 +1,95 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { siteConfig } from '@/config/site'
+import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
+import { Product } from '@/types/product'
 
 const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=1400&fit=crop'
+  'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&h=2000&fit=crop'
 
-export function SportsHero() {
+interface SportsHeroProps {
+  featuredProducts: Product[]
+}
+
+export function SportsHero({ featuredProducts }: SportsHeroProps) {
   return (
-    <section className="border-b border-hairline bg-canvas">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
-        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-12">
-          {/* Photography — DS §2 photography-first; mobile-first (stacked first) */}
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-soft-cloud sm:aspect-square lg:aspect-[4/5] lg:order-2">
-            <Image
-              src={HERO_IMAGE}
-              alt="Equipamento esportivo premium"
-              fill
-              className="object-cover"
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              priority
-            />
-          </div>
+    <section className="w-full">
+      {/* Campaign — DS §2 photography-first; overlay flat for legibility only */}
+      <div className="relative flex min-h-[75vh] flex-col justify-end lg:min-h-[88vh]">
+        <Image
+          src={HERO_IMAGE}
+          alt="Equipamento esportivo premium"
+          fill
+          className="object-cover object-center"
+          sizes="100vw"
+          priority
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/45 to-ink/25"
+          aria-hidden
+        />
 
-          {/* Copy — DS §4 display/h1 hierarchy; §3 ink/mute palette */}
-          <div className="space-y-6 sm:space-y-8 lg:order-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mute sm:text-sm">
-              Equipamento esportivo premium
-            </p>
-
-            <h1 className="max-w-xl text-4xl font-bold leading-[1.1] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-              Vista o jogo.
-              <span className="block text-charcoal">Com autenticidade.</span>
-            </h1>
-
-            <p className="max-w-lg text-base leading-relaxed text-mute sm:text-lg">
-              Camisas oficiais, equipamentos e acessórios selecionados para quem
-              leva esporte a sério — qualidade editorial, catálogo curado.
-            </p>
-
-            {/* CTAs — DS §9.1 pill primary + outline secondary */}
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:gap-4">
-              <Link
-                href="/products"
-                className={getButtonClassName('default', 'lg', 'w-full sm:w-auto')}
-              >
-                Explorar Produtos
-              </Link>
-              <Link
-                href="/products"
-                className={getButtonClassName('outline', 'lg', 'w-full sm:w-auto')}
-              >
-                Coleções
-              </Link>
-            </div>
-
-            {/* Trust — DS §8 hairline divider, flat */}
-            <div className="border-t border-hairline pt-4 text-sm text-mute">
-              Produtos originais · Envio rápido · Garantia de qualidade
-            </div>
-          </div>
-        </div>
-
-        {/* Categories — DS §7 pills; §8 flat chips, no blur/backdrop */}
-        <div className="mt-16 sm:mt-20">
-          <h2 className="mb-6 text-center text-sm font-semibold uppercase tracking-[0.15em] text-mute sm:mb-8">
-            Categorias populares
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
-            {siteConfig.categories.map((category) => (
-              <Link
-                key={category}
-                href={`/products?category=${encodeURIComponent(category)}`}
-                className={getButtonClassName(
-                  'secondary',
-                  'sm',
-                  'w-full justify-center'
-                )}
-              >
-                {category}
-              </Link>
-            ))}
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-10 pt-24 sm:px-6 sm:pb-14 lg:px-8 lg:pb-16">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-canvas/80 sm:text-sm">
+            Sports Store
+          </p>
+          <h1 className="max-w-3xl font-display text-4xl font-bold uppercase leading-[0.95] tracking-tight text-canvas sm:text-5xl lg:text-6xl xl:text-7xl">
+            Vista o jogo
+            <span className="block text-canvas/90">Com autenticidade</span>
+          </h1>
+          <p className="mt-4 max-w-lg text-base leading-relaxed text-canvas/85 sm:text-lg">
+            Equipamento esportivo premium selecionado para quem leva performance a
+            sério.
+          </p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <Link
+              href="/products"
+              className={getButtonClassName('default', 'lg', 'w-full sm:w-auto')}
+            >
+              Explorar produtos
+            </Link>
+            <Link
+              href="/products"
+              className={getButtonClassName(
+                'outline',
+                'lg',
+                'w-full border-canvas/60 text-canvas hover:bg-canvas/10 sm:w-auto'
+              )}
+            >
+              Coleções
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* Featured strip — hero conversa com a vitrine */}
+      {featuredProducts.length > 0 && (
+        <div className="border-b border-hairline bg-canvas">
+          <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
+            <div className="mb-6 flex items-end justify-between gap-4 sm:mb-8">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
+                  Curadoria
+                </p>
+                <h2 className="mt-1 font-display text-2xl font-bold uppercase tracking-tight text-ink sm:text-3xl">
+                  Favoritos da semana
+                </h2>
+              </div>
+              <Link
+                href="/products"
+                className="hidden text-sm font-medium text-mute transition-colors hover:text-ink sm:inline"
+              >
+                Ver catálogo →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+              {featuredProducts.slice(0, 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
