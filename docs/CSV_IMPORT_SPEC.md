@@ -5,7 +5,8 @@ Não utilizamos formato CSV proprietário — apenas uma coluna opcional estendi
 
 Referência Nuvemshop: [Como preencher a planilha de carga em massa](https://atendimento.nuvemshop.com.br/pt_BR/importar-e-exportar-produtos/como-preencher-os-campos-da-planilha-de-carga-em-massa)
 
-**Status V1:** documentação + template para download. **Upload/parser/preview não implementados.**
+**Status V1:** documentação + template. **Upload/parser/preview não implementados.**  
+**Arquitetura:** [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) — sprints CSV-1…5.
 
 Template de exemplo: [`public/templates/importacao-produtos-exemplo.csv`](../public/templates/importacao-produtos-exemplo.csv)  
 URL pública: `/templates/importacao-produtos-exemplo.csv`  

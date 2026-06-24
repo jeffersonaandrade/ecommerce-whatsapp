@@ -1,0 +1,33 @@
+export const CSV_COLUMNS = {
+  slug: 'Identificador URL',
+  name: 'Nome (Português)',
+  categories: 'Categorias',
+  price: 'Preço',
+  promotionalPrice: 'Preço promocional',
+  stock: 'Estoque',
+  sku: 'SKU',
+  description: 'Descrição (Português)',
+  tags: 'Tags',
+  brand: 'Marca',
+  weight: 'Peso (kg)',
+  height: 'Altura (cm)',
+  width: 'Largura (cm)',
+  length: 'Comprimento (cm)',
+  variationName1: 'Nome da variação 1',
+  variationValue1: 'Valor da variação 1',
+  variationName2: 'Nome da variação 2',
+  variationValue2: 'Valor da variação 2',
+  variationName3: 'Nome da variação 3',
+  variationValue3: 'Valor da variação 3',
+  imageUrls: 'image_urls',
+} as const
+
+export const REQUIRED_HEADERS = [
+  CSV_COLUMNS.slug,
+  CSV_COLUMNS.name,
+  CSV_COLUMNS.categories,
+  CSV_COLUMNS.price,
+  CSV_COLUMNS.stock,
+  CSV_COLUMNS.sku,
+  CSV_COLUMNS.description,
+] as const
