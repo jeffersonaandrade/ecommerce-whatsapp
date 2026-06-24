@@ -262,6 +262,17 @@ Ao finalizar cada fase/tarefa, atualizar **CHANGELOG.md** e esta seção (não a
 | Build/test | OK · 23 testes |
 | UI structural | Não alterado (apenas fixes pontuais) |
 
+### 2026-06-24 — Micro Sprint: PDP Reload Investigation
+
+| Campo | Detalhe |
+|-------|---------|
+| Arquivos | `docs/PDP_RELOAD_INVESTIGATION.md`, `DEV_NOTES.md` |
+| Resumo | Teste reload F5 em dev + `next start` + Browser QA; veredito **LIMITAÇÃO AUTOMAÇÃO** |
+| URL | `/products/camisa-sao-paulo-2024` |
+| Código alterado | **Nenhum** (investigação only) |
+| Comandos | `npm run build`, `npx next start -p 3003`, Browser QA |
+| Build | OK |
+
 ## 🛠️ Troubleshooting
 
 ### Build falha com erros de tipos
@@ -301,5 +312,5 @@ curl http://localhost:3000/admin
 
 ---
 
-**Última atualização:** 2026-06-24 (Sprint Bugfix QA)
-**Status:** Bugfix QA concluído · próximo: Browser QA → DESIGN_SYSTEM.md → UI Polish
+**Última atualização:** 2026-06-24 (PDP Reload Investigation)
+**Status:** PDP reload descartado (limitação automação) · próximo: DESIGN_SYSTEM.md
