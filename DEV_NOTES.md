@@ -364,4 +364,4 @@ curl http://localhost:3000/admin
 ---
 
 **Última atualização:** 2026-06-24 (Design System foundation)
-**Status:** Fase 5 CSV concluída (CSV-1…4) · Fase 6 WhatsApp no carrinho · histórico adiado
+**Status:** Go Live Sprint 1–3 concluídas · StoreSettings + Branding + SEO dinâmico
