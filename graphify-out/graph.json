@@ -30,6 +30,45 @@
       "norm_label": "supabase"
     },
     {
+      "label": "playwright",
+      "file_type": "code",
+      "source_file": ".cursor/mcp.json",
+      "source_location": "L1",
+      "metadata": {
+        "mcp_kind": "mcp_server"
+      },
+      "_origin": "ast",
+      "id": "cursor_mcp_mcp_server_playwright",
+      "community": 26,
+      "norm_label": "playwright"
+    },
+    {
+      "label": "npx",
+      "file_type": "code",
+      "source_file": ".cursor/mcp.json",
+      "source_location": "L1",
+      "metadata": {
+        "mcp_kind": "mcp_command"
+      },
+      "_origin": "ast",
+      "id": "mcp_command_npx",
+      "community": 26,
+      "norm_label": "npx"
+    },
+    {
+      "label": "@playwright/mcp",
+      "file_type": "code",
+      "source_file": ".cursor/mcp.json",
+      "source_location": "L1",
+      "metadata": {
+        "mcp_kind": "mcp_package"
+      },
+      "_origin": "ast",
+      "id": "mcp_package_playwright_mcp",
+      "community": 26,
+      "norm_label": "@playwright/mcp"
+    },
+    {
       "label": "core.py",
       "file_type": "code",
       "source_file": ".cursor/skills/ui-ux-pro-max/scripts/core.py",
@@ -662,7 +701,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "import_page",
-      "community": 3,
+      "community": 4,
       "norm_label": "page.tsx"
     },
     {
@@ -672,7 +711,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "import_page_metadata",
-      "community": 3,
+      "community": 4,
       "norm_label": "metadata"
     },
     {
@@ -682,7 +721,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "import_page_adminimportpage",
-      "community": 3,
+      "community": 4,
       "norm_label": "adminimportpage()"
     },
     {
@@ -792,7 +831,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "edit_page",
-      "community": 3,
+      "community": 21,
       "norm_label": "page.tsx"
     },
     {
@@ -802,7 +841,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "edit_page_editproductpageprops",
-      "community": 3,
+      "community": 21,
       "norm_label": "editproductpageprops"
     },
     {
@@ -812,7 +851,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "edit_page_generatemetadata",
-      "community": 3,
+      "community": 21,
       "norm_label": "generatemetadata()"
     },
     {
@@ -822,7 +861,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "edit_page_editproductpage",
-      "community": 3,
+      "community": 21,
       "norm_label": "editproductpage()"
     },
     {
@@ -832,7 +871,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "new_page",
-      "community": 3,
+      "community": 21,
       "norm_label": "page.tsx"
     },
     {
@@ -842,7 +881,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "new_page_metadata",
-      "community": 3,
+      "community": 21,
       "norm_label": "metadata"
     },
     {
@@ -852,7 +891,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "new_page_adminnewproductpage",
-      "community": 3,
+      "community": 21,
       "norm_label": "adminnewproductpage()"
     },
     {
@@ -1332,7 +1371,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "app_page_generatemetadata",
-      "community": 3,
+      "community": 5,
       "norm_label": "generatemetadata()"
     },
     {
@@ -1432,7 +1471,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "products_page_generatemetadata",
-      "community": 3,
+      "community": 5,
       "norm_label": "generatemetadata()"
     },
     {
@@ -1532,7 +1571,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "admin_delete_product_button",
-      "community": 3,
+      "community": 2,
       "norm_label": "delete-product-button.tsx"
     },
     {
@@ -1542,7 +1581,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "admin_delete_product_button_deleteproductbuttonprops",
-      "community": 3,
+      "community": 2,
       "norm_label": "deleteproductbuttonprops"
     },
     {
@@ -1552,7 +1591,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "admin_delete_product_button_deleteproductbutton",
-      "community": 3,
+      "community": 2,
       "norm_label": "deleteproductbutton()"
     },
     {
@@ -1582,7 +1621,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "admin_image_gallery_field",
-      "community": 10,
+      "community": 21,
       "norm_label": "image-gallery-field.tsx"
     },
     {
@@ -1592,7 +1631,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "admin_image_gallery_field_allowed_types",
-      "community": 10,
+      "community": 21,
       "norm_label": "allowed_types"
     },
     {
@@ -1602,7 +1641,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "admin_image_gallery_field_imagegalleryfieldprops",
-      "community": 10,
+      "community": 21,
       "norm_label": "imagegalleryfieldprops"
     },
     {
@@ -1612,7 +1651,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "admin_image_gallery_field_imagegalleryfield",
-      "community": 10,
+      "community": 21,
       "norm_label": "imagegalleryfield()"
     },
     {
@@ -1702,7 +1741,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "admin_product_form",
-      "community": 10,
+      "community": 21,
       "norm_label": "product-form.tsx"
     },
     {
@@ -1712,7 +1751,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "admin_product_form_variationrow",
-      "community": 10,
+      "community": 21,
       "norm_label": "variationrow"
     },
     {
@@ -1722,7 +1761,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "admin_product_form_productformprops",
-      "community": 10,
+      "community": 21,
       "norm_label": "productformprops"
     },
     {
@@ -1732,7 +1771,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "admin_product_form_emptyvariation",
-      "community": 3,
+      "community": 21,
       "norm_label": "emptyvariation()"
     },
     {
@@ -1742,7 +1781,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "admin_product_form_producttoform",
-      "community": 3,
+      "community": 21,
       "norm_label": "producttoform()"
     },
     {
@@ -1752,7 +1791,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "admin_product_form_productform",
-      "community": 3,
+      "community": 21,
       "norm_label": "productform()"
     },
     {
@@ -2052,7 +2091,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "layout_header",
-      "community": 5,
+      "community": 3,
       "norm_label": "header.tsx"
     },
     {
@@ -2062,7 +2101,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "layout_header_header",
-      "community": 5,
+      "community": 3,
       "norm_label": "header()"
     },
     {
@@ -2472,7 +2511,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "config_site",
-      "community": 5,
+      "community": 3,
       "norm_label": "site.ts"
     },
     {
@@ -2482,7 +2521,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "config_site_siteconfig",
-      "community": 5,
+      "community": 3,
       "norm_label": "siteconfig"
     },
     {
@@ -2802,7 +2841,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "auth_require_admin_requireadmin",
-      "community": 13,
+      "community": 2,
       "norm_label": "requireadmin()"
     },
     {
@@ -2992,7 +3031,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "catalog_actions_auth_test",
-      "community": 10,
+      "community": 2,
       "norm_label": "actions-auth.test.ts"
     },
     {
@@ -3002,7 +3041,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "catalog_actions_auth_test_mockrequireadmin",
-      "community": 10,
+      "community": 2,
       "norm_label": "{ mockrequireadmin }"
     },
     {
@@ -3012,7 +3051,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "catalog_actions",
-      "community": 10,
+      "community": 2,
       "norm_label": "actions.ts"
     },
     {
@@ -3022,7 +3061,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "catalog_actions_productformpayload",
-      "community": 10,
+      "community": 21,
       "norm_label": "productformpayload"
     },
     {
@@ -3032,7 +3071,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "catalog_actions_toproductinput",
-      "community": 10,
+      "community": 2,
       "norm_label": "toproductinput()"
     },
     {
@@ -3042,7 +3081,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "catalog_actions_revalidatecatalog",
-      "community": 10,
+      "community": 2,
       "norm_label": "revalidatecatalog()"
     },
     {
@@ -3052,7 +3091,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "catalog_actions_createproductaction",
-      "community": 10,
+      "community": 2,
       "norm_label": "createproductaction()"
     },
     {
@@ -3062,7 +3101,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "catalog_actions_updateproductaction",
-      "community": 10,
+      "community": 2,
       "norm_label": "updateproductaction()"
     },
     {
@@ -3072,7 +3111,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "catalog_actions_deleteproductaction",
-      "community": 10,
+      "community": 2,
       "norm_label": "deleteproductaction()"
     },
     {
@@ -3082,7 +3121,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "catalog_actions_product_image_mime",
-      "community": 10,
+      "community": 2,
       "norm_label": "product_image_mime"
     },
     {
@@ -3092,7 +3131,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "catalog_actions_mimetoext",
-      "community": 10,
+      "community": 2,
       "norm_label": "mimetoext()"
     },
     {
@@ -3102,7 +3141,7 @@
       "source_location": "L136",
       "_origin": "ast",
       "id": "catalog_actions_uploadproductimageaction",
-      "community": 10,
+      "community": 2,
       "norm_label": "uploadproductimageaction()"
     },
     {
@@ -3252,7 +3291,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "catalog_get_product_repository_getproductrepository",
-      "community": 10,
+      "community": 2,
       "norm_label": "getproductrepository()"
     },
     {
@@ -3282,7 +3321,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "import_actions_parseimportcsvaction",
-      "community": 4,
+      "community": 2,
       "norm_label": "parseimportcsvaction()"
     },
     {
@@ -3852,7 +3891,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "catalog_product_image_storage_test",
-      "community": 10,
+      "community": 2,
       "norm_label": "product-image-storage.test.ts"
     },
     {
@@ -3862,7 +3901,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "catalog_product_image_storage",
-      "community": 10,
+      "community": 2,
       "norm_label": "product-image-storage.ts"
     },
     {
@@ -3872,7 +3911,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "catalog_product_image_storage_content_types",
-      "community": 10,
+      "community": 2,
       "norm_label": "content_types"
     },
     {
@@ -3882,7 +3921,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "catalog_product_image_storage_buildproductimagefilename",
-      "community": 10,
+      "community": 2,
       "norm_label": "buildproductimagefilename()"
     },
     {
@@ -3892,7 +3931,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "catalog_product_image_storage_writeproductimage",
-      "community": 10,
+      "community": 2,
       "norm_label": "writeproductimage()"
     },
     {
@@ -4022,7 +4061,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "catalog_product_utils_validateproductinput",
-      "community": 10,
+      "community": 2,
       "norm_label": "validateproductinput()"
     },
     {
@@ -4122,7 +4161,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "catalog_supabase_product_repository_fetchallproducts",
-      "community": 2,
+      "community": 10,
       "norm_label": "fetchallproducts()"
     },
     {
@@ -4302,7 +4341,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "lib_formatters_generateslug",
-      "community": 10,
+      "community": 2,
       "norm_label": "generateslug()"
     },
     {
@@ -4412,7 +4451,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "lib_products_getproductbyidadmin",
-      "community": 3,
+      "community": 21,
       "norm_label": "getproductbyidadmin()"
     },
     {
@@ -4442,7 +4481,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "lib_products_getcategoriesadmin",
-      "community": 3,
+      "community": 21,
       "norm_label": "getcategoriesadmin()"
     },
     {
@@ -4582,7 +4621,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "store_actions_getstoresettingsaction",
-      "community": 13,
+      "community": 5,
       "norm_label": "getstoresettingsaction()"
     },
     {
@@ -5322,7 +5361,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "supabase_env_getproductspublicurl",
-      "community": 10,
+      "community": 2,
       "norm_label": "getproductspublicurl()"
     },
     {
@@ -5714,6 +5753,116 @@
       "id": "postcss_config_config",
       "community": 9,
       "norm_label": "config"
+    },
+    {
+      "label": "e2e-qa-playwright.mjs",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright",
+      "community": 28,
+      "norm_label": "e2e-qa-playwright.mjs"
+    },
+    {
+      "label": "root",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_root",
+      "community": 28,
+      "norm_label": "root"
+    },
+    {
+      "label": "loadEnv()",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_loadenv",
+      "community": 28,
+      "norm_label": "loadenv()"
+    },
+    {
+      "label": "statBaseline()",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_statbaseline",
+      "community": 28,
+      "norm_label": "statbaseline()"
+    },
+    {
+      "label": "env",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_env",
+      "community": 28,
+      "norm_label": "env"
+    },
+    {
+      "label": "results",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_results",
+      "community": 28,
+      "norm_label": "results"
+    },
+    {
+      "label": "png",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_png",
+      "community": 28,
+      "norm_label": "png"
+    },
+    {
+      "label": "csv",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_csv",
+      "community": 28,
+      "norm_label": "csv"
+    },
+    {
+      "label": "login()",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L50",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_login",
+      "community": 28,
+      "norm_label": "login()"
+    },
+    {
+      "label": "fillProductForm()",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L58",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_fillproductform",
+      "community": 28,
+      "norm_label": "fillproductform()"
+    },
+    {
+      "label": "addProductImage()",
+      "file_type": "code",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L73",
+      "_origin": "ast",
+      "id": "scripts_e2e_qa_playwright_addproductimage",
+      "community": 28,
+      "norm_label": "addproductimage()"
     },
     {
       "label": "generate-seed-sql.mjs",
@@ -6545,7 +6694,39 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "cursor_mcp",
+      "target": "cursor_mcp_mcp_server_playwright"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".cursor/mcp.json",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "cursor_mcp",
       "target": "cursor_mcp_mcp_server_supabase"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".cursor/mcp.json",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "command",
+      "source": "cursor_mcp_mcp_server_playwright",
+      "target": "mcp_command_npx"
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".cursor/mcp.json",
+      "source_location": "L1",
+      "weight": 1.0,
+      "context": "package",
+      "source": "cursor_mcp_mcp_server_playwright",
+      "target": "mcp_package_playwright_mcp"
     },
     {
       "relation": "contains",
@@ -11032,9 +11213,9 @@
       "source_file": "components/admin/image-gallery-field.tsx",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "admin_image_gallery_field",
-      "target": "admin_image_gallery_field_allowed_types",
-      "confidence_score": 1.0
+      "target": "admin_image_gallery_field_allowed_types"
     },
     {
       "relation": "contains",
@@ -11063,9 +11244,9 @@
       "source_file": "components/admin/image-gallery-field.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "admin_image_gallery_field",
-      "target": "catalog_actions",
-      "confidence_score": 1.0
+      "target": "catalog_actions"
     },
     {
       "relation": "imports",
@@ -11074,9 +11255,9 @@
       "source_file": "components/admin/image-gallery-field.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "admin_image_gallery_field",
-      "target": "catalog_actions_uploadproductimageaction",
-      "confidence_score": 1.0
+      "target": "catalog_actions_uploadproductimageaction"
     },
     {
       "relation": "imports_from",
@@ -11470,9 +11651,9 @@
       "source_file": "components/admin/product-form.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "admin_product_form",
-      "target": "auth_mode",
-      "confidence_score": 1.0
+      "target": "auth_mode"
     },
     {
       "relation": "imports",
@@ -11481,9 +11662,9 @@
       "source_file": "components/admin/product-form.tsx",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "admin_product_form",
-      "target": "auth_mode_issupabaseauthmode",
-      "confidence_score": 1.0
+      "target": "auth_mode_issupabaseauthmode"
     },
     {
       "relation": "imports_from",
@@ -14350,9 +14531,9 @@
       "source_file": "lib/auth/require-admin.test.ts",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin_test",
-      "target": "auth_require_admin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin"
     },
     {
       "relation": "imports",
@@ -14361,9 +14542,9 @@
       "source_file": "lib/auth/require-admin.test.ts",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin_test",
-      "target": "auth_require_admin_requireadmin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_requireadmin"
     },
     {
       "relation": "contains",
@@ -14371,9 +14552,9 @@
       "source_file": "lib/auth/require-admin.test.ts",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin_test",
-      "target": "auth_require_admin_test_adminuser",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_test_adminuser"
     },
     {
       "relation": "contains",
@@ -14381,9 +14562,9 @@
       "source_file": "lib/auth/require-admin.test.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin_test",
-      "target": "auth_require_admin_test_mockgetuser_mockcreateclient_mockgetdataprovider",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_test_mockgetuser_mockcreateclient_mockgetdataprovider"
     },
     {
       "relation": "contains",
@@ -14391,9 +14572,9 @@
       "source_file": "lib/auth/require-admin.ts",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin",
-      "target": "auth_require_admin_requireadmin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_requireadmin"
     },
     {
       "relation": "contains",
@@ -14401,9 +14582,9 @@
       "source_file": "lib/auth/require-admin.ts",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin",
-      "target": "auth_require_admin_requireadminresult",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_requireadminresult"
     },
     {
       "relation": "imports_from",
@@ -14412,9 +14593,9 @@
       "source_file": "lib/auth/require-admin.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin",
-      "target": "data_provider",
-      "confidence_score": 1.0
+      "target": "data_provider"
     },
     {
       "relation": "imports",
@@ -14423,9 +14604,9 @@
       "source_file": "lib/auth/require-admin.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin",
-      "target": "data_provider_getdataprovider",
-      "confidence_score": 1.0
+      "target": "data_provider_getdataprovider"
     },
     {
       "relation": "imports_from",
@@ -14434,9 +14615,9 @@
       "source_file": "lib/auth/require-admin.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin",
-      "target": "supabase_server",
-      "confidence_score": 1.0
+      "target": "supabase_server"
     },
     {
       "relation": "imports",
@@ -14445,9 +14626,9 @@
       "source_file": "lib/auth/require-admin.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "auth_require_admin",
-      "target": "supabase_server_createserversupabaseclient",
-      "confidence_score": 1.0
+      "target": "supabase_server_createserversupabaseclient"
     },
     {
       "relation": "imports_from",
@@ -14456,9 +14637,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "auth_require_admin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin"
     },
     {
       "relation": "imports_from",
@@ -14467,9 +14648,9 @@
       "source_file": "lib/catalog/import/actions.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "import_actions",
-      "target": "auth_require_admin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin"
     },
     {
       "relation": "imports_from",
@@ -14478,9 +14659,9 @@
       "source_file": "lib/store/actions.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "store_actions",
-      "target": "auth_require_admin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin"
     },
     {
       "relation": "calls",
@@ -14511,9 +14692,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "auth_require_admin_requireadmin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_requireadmin"
     },
     {
       "relation": "calls",
@@ -14566,9 +14747,9 @@
       "source_file": "lib/catalog/import/actions.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "import_actions",
-      "target": "auth_require_admin_requireadmin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_requireadmin"
     },
     {
       "relation": "calls",
@@ -14599,9 +14780,9 @@
       "source_file": "lib/store/actions.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "store_actions",
-      "target": "auth_require_admin_requireadmin",
-      "confidence_score": 1.0
+      "target": "auth_require_admin_requireadmin"
     },
     {
       "relation": "calls",
@@ -15146,9 +15327,9 @@
       "source_file": "lib/catalog/actions-auth.test.ts",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions_auth_test",
-      "target": "catalog_actions",
-      "confidence_score": 1.0
+      "target": "catalog_actions"
     },
     {
       "relation": "contains",
@@ -15156,9 +15337,9 @@
       "source_file": "lib/catalog/actions-auth.test.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions_auth_test",
-      "target": "catalog_actions_auth_test_mockrequireadmin",
-      "confidence_score": 1.0
+      "target": "catalog_actions_auth_test_mockrequireadmin"
     },
     {
       "relation": "imports",
@@ -15167,9 +15348,9 @@
       "source_file": "lib/catalog/actions-auth.test.ts",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions_auth_test",
-      "target": "catalog_actions_createproductaction",
-      "confidence_score": 1.0
+      "target": "catalog_actions_createproductaction"
     },
     {
       "relation": "contains",
@@ -15197,9 +15378,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "catalog_actions_mimetoext",
-      "confidence_score": 1.0
+      "target": "catalog_actions_mimetoext"
     },
     {
       "relation": "contains",
@@ -15207,9 +15388,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "catalog_actions_product_image_mime",
-      "confidence_score": 1.0
+      "target": "catalog_actions_product_image_mime"
     },
     {
       "relation": "contains",
@@ -15257,9 +15438,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "catalog_actions_uploadproductimageaction",
-      "confidence_score": 1.0
+      "target": "catalog_actions_uploadproductimageaction"
     },
     {
       "relation": "imports_from",
@@ -15301,9 +15482,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "catalog_product_image_storage",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage"
     },
     {
       "relation": "imports",
@@ -15312,9 +15493,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "catalog_product_image_storage_buildproductimagefilename",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage_buildproductimagefilename"
     },
     {
       "relation": "imports",
@@ -15323,9 +15504,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "catalog_product_image_storage_writeproductimage",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage_writeproductimage"
     },
     {
       "relation": "imports_from",
@@ -15378,9 +15559,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "data_provider",
-      "confidence_score": 1.0
+      "target": "data_provider"
     },
     {
       "relation": "imports",
@@ -15389,9 +15570,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "data_provider_getdataprovider",
-      "confidence_score": 1.0
+      "target": "data_provider_getdataprovider"
     },
     {
       "relation": "imports_from",
@@ -15400,9 +15581,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "supabase_env",
-      "confidence_score": 1.0
+      "target": "supabase_env"
     },
     {
       "relation": "imports",
@@ -15411,9 +15592,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions",
-      "target": "supabase_env_getproductspublicurl",
-      "confidence_score": 1.0
+      "target": "supabase_env_getproductspublicurl"
     },
     {
       "relation": "imports_from",
@@ -15554,9 +15735,9 @@
       "source_file": "lib/catalog/actions.ts",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_actions_uploadproductimageaction",
-      "target": "catalog_actions_mimetoext",
-      "confidence_score": 1.0
+      "target": "catalog_actions_mimetoext"
     },
     {
       "relation": "calls",
@@ -17958,9 +18139,9 @@
       "source_file": "lib/catalog/product-image-storage.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage_test",
-      "target": "catalog_product_image_storage",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage"
     },
     {
       "relation": "imports",
@@ -17969,9 +18150,9 @@
       "source_file": "lib/catalog/product-image-storage.test.ts",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage_test",
-      "target": "catalog_product_image_storage_buildproductimagefilename",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage_buildproductimagefilename"
     },
     {
       "relation": "contains",
@@ -17979,9 +18160,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "catalog_product_image_storage_buildproductimagefilename",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage_buildproductimagefilename"
     },
     {
       "relation": "contains",
@@ -17989,9 +18170,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "catalog_product_image_storage_content_types",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage_content_types"
     },
     {
       "relation": "contains",
@@ -17999,9 +18180,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "catalog_product_image_storage_writeproductimage",
-      "confidence_score": 1.0
+      "target": "catalog_product_image_storage_writeproductimage"
     },
     {
       "relation": "imports_from",
@@ -18010,9 +18191,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "data_provider",
-      "confidence_score": 1.0
+      "target": "data_provider"
     },
     {
       "relation": "imports",
@@ -18021,9 +18202,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "data_provider_getdataprovider",
-      "confidence_score": 1.0
+      "target": "data_provider_getdataprovider"
     },
     {
       "relation": "imports_from",
@@ -18032,9 +18213,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "lib_formatters",
-      "confidence_score": 1.0
+      "target": "lib_formatters"
     },
     {
       "relation": "imports",
@@ -18043,9 +18224,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "lib_formatters_generateslug",
-      "confidence_score": 1.0
+      "target": "lib_formatters_generateslug"
     },
     {
       "relation": "imports_from",
@@ -18054,9 +18235,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "supabase_admin",
-      "confidence_score": 1.0
+      "target": "supabase_admin"
     },
     {
       "relation": "imports",
@@ -18065,9 +18246,9 @@
       "source_file": "lib/catalog/product-image-storage.ts",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "catalog_product_image_storage",
-      "target": "supabase_admin_createadminclient",
-      "confidence_score": 1.0
+      "target": "supabase_admin_createadminclient"
     },
     {
       "relation": "calls",
@@ -18938,9 +19119,9 @@
       "source_file": "lib/data/provider.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "data_provider",
-      "target": "supabase_env",
-      "confidence_score": 1.0
+      "target": "supabase_env"
     },
     {
       "relation": "imports",
@@ -18949,9 +19130,9 @@
       "source_file": "lib/data/provider.ts",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "data_provider",
-      "target": "supabase_env_haspublicsupabasekey",
-      "confidence_score": 1.0
+      "target": "supabase_env_haspublicsupabasekey"
     },
     {
       "relation": "imports_from",
@@ -21821,9 +22002,9 @@
       "source_file": "lib/supabase/env.ts",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "supabase_env",
-      "target": "supabase_env_getproductspublicurl",
-      "confidence_score": 1.0
+      "target": "supabase_env_getproductspublicurl"
     },
     {
       "relation": "contains",
@@ -21861,9 +22042,9 @@
       "source_file": "lib/supabase/env.ts",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "supabase_env",
-      "target": "supabase_env_haspublicsupabasekey",
-      "confidence_score": 1.0
+      "target": "supabase_env_haspublicsupabasekey"
     },
     {
       "relation": "contains",
@@ -21871,9 +22052,9 @@
       "source_file": "lib/supabase/env.ts",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "supabase_env",
-      "target": "supabase_env_readpublicsupabasekey",
-      "confidence_score": 1.0
+      "target": "supabase_env_readpublicsupabasekey"
     },
     {
       "relation": "imports_from",
@@ -21904,9 +22085,9 @@
       "source_file": "lib/supabase/env.ts",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "supabase_env_getproductspublicurl",
-      "target": "supabase_env_getsupabaseurl",
-      "confidence_score": 1.0
+      "target": "supabase_env_getsupabaseurl"
     },
     {
       "relation": "imports",
@@ -21937,9 +22118,9 @@
       "source_file": "lib/supabase/env.ts",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "supabase_env_getsupabaseanonkey",
-      "target": "supabase_env_readpublicsupabasekey",
-      "confidence_score": 1.0
+      "target": "supabase_env_readpublicsupabasekey"
     },
     {
       "relation": "calls",
@@ -21948,9 +22129,9 @@
       "source_file": "lib/supabase/env.ts",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "supabase_env_haspublicsupabasekey",
-      "target": "supabase_env_readpublicsupabasekey",
-      "confidence_score": 1.0
+      "target": "supabase_env_readpublicsupabasekey"
     },
     {
       "relation": "imports",
@@ -22010,9 +22191,9 @@
       "source_file": "next.config.ts",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "next_config",
-      "target": "next_config_getsupabaseproductsremotepattern",
-      "confidence_score": 1.0
+      "target": "next_config_getsupabaseproductsremotepattern"
     },
     {
       "relation": "contains",
@@ -22030,9 +22211,9 @@
       "source_file": "next.config.ts",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "next_config",
-      "target": "next_config_supabaseproductspattern",
-      "confidence_score": 1.0
+      "target": "next_config_supabaseproductspattern"
     },
     {
       "relation": "contains",
@@ -22130,9 +22311,9 @@
       "source_file": "package.json",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "package_scripts",
-      "target": "package_scripts_migrate_supabase",
-      "confidence_score": 1.0
+      "target": "package_scripts_migrate_supabase"
     },
     {
       "relation": "contains",
@@ -22317,12 +22498,112 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_addproductimage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_csv",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_env",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_fillproductform",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_loadenv",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_login",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_png",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_results",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_root",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/e2e-qa-playwright.mjs",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "scripts_e2e_qa_playwright",
+      "target": "scripts_e2e_qa_playwright_statbaseline",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "scripts/generate-seed-sql.mjs",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_generate_seed_sql",
-      "target": "scripts_generate_seed_sql_arr",
-      "confidence_score": 1.0
+      "target": "scripts_generate_seed_sql_arr"
     },
     {
       "relation": "contains",
@@ -22330,9 +22611,9 @@
       "source_file": "scripts/generate-seed-sql.mjs",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_generate_seed_sql",
-      "target": "scripts_generate_seed_sql_esc",
-      "confidence_score": 1.0
+      "target": "scripts_generate_seed_sql_esc"
     },
     {
       "relation": "contains",
@@ -22340,9 +22621,9 @@
       "source_file": "scripts/generate-seed-sql.mjs",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_generate_seed_sql",
-      "target": "scripts_generate_seed_sql_outpath",
-      "confidence_score": 1.0
+      "target": "scripts_generate_seed_sql_outpath"
     },
     {
       "relation": "contains",
@@ -22350,9 +22631,9 @@
       "source_file": "scripts/generate-seed-sql.mjs",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_generate_seed_sql",
-      "target": "scripts_generate_seed_sql_products",
-      "confidence_score": 1.0
+      "target": "scripts_generate_seed_sql_products"
     },
     {
       "relation": "contains",
@@ -22360,9 +22641,9 @@
       "source_file": "scripts/generate-seed-sql.mjs",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_generate_seed_sql",
-      "target": "scripts_generate_seed_sql_root",
-      "confidence_score": 1.0
+      "target": "scripts_generate_seed_sql_root"
     },
     {
       "relation": "contains",
@@ -22370,9 +22651,9 @@
       "source_file": "scripts/generate-seed-sql.mjs",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_generate_seed_sql",
-      "target": "scripts_generate_seed_sql_settings",
-      "confidence_score": 1.0
+      "target": "scripts_generate_seed_sql_settings"
     },
     {
       "relation": "contains",
@@ -22688,9 +22969,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_admin",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_admin"
     },
     {
       "relation": "contains",
@@ -22698,9 +22979,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L296",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_baselineafter",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_baselineafter"
     },
     {
       "relation": "contains",
@@ -22708,9 +22989,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_baselinebefore",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_baselinebefore"
     },
     {
       "relation": "contains",
@@ -22718,9 +22999,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_baselinechanged",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_baselinechanged"
     },
     {
       "relation": "contains",
@@ -22728,9 +23009,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_env",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_env"
     },
     {
       "relation": "contains",
@@ -22738,9 +23019,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_fail",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_fail"
     },
     {
       "relation": "contains",
@@ -22748,9 +23029,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_loadenv",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_loadenv"
     },
     {
       "relation": "contains",
@@ -22758,9 +23039,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_pass",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_pass"
     },
     {
       "relation": "contains",
@@ -22768,9 +23049,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_results",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_results"
     },
     {
       "relation": "contains",
@@ -22778,9 +23059,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_root",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_root"
     },
     {
       "relation": "contains",
@@ -22788,9 +23069,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_statbaseline",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_statbaseline"
     },
     {
       "relation": "contains",
@@ -22798,9 +23079,9 @@
       "source_file": "scripts/smoke-supabase-local.mjs",
       "source_location": "L297",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_smoke_supabase_local",
-      "target": "scripts_smoke_supabase_local_touched",
-      "confidence_score": 1.0
+      "target": "scripts_smoke_supabase_local_touched"
     },
     {
       "relation": "contains",
@@ -22808,9 +23089,9 @@
       "source_file": "scripts/verify-product-crud.mjs",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_verify_product_crud",
-      "target": "scripts_verify_product_crud_env",
-      "confidence_score": 1.0
+      "target": "scripts_verify_product_crud_env"
     },
     {
       "relation": "contains",
@@ -22818,9 +23099,9 @@
       "source_file": "scripts/verify-product-crud.mjs",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_verify_product_crud",
-      "target": "scripts_verify_product_crud_root",
-      "confidence_score": 1.0
+      "target": "scripts_verify_product_crud_root"
     },
     {
       "relation": "contains",
@@ -22828,9 +23109,9 @@
       "source_file": "scripts/verify-product-crud.mjs",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scripts_verify_product_crud",
-      "target": "scripts_verify_product_crud_supabase",
-      "confidence_score": 1.0
+      "target": "scripts_verify_product_crud_supabase"
     },
     {
       "relation": "contains",
@@ -23114,5 +23395,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "14905a234d50b9055621013d4f9edb80a86ce16e"
+  "built_at_commit": "16b796abeb61967bd69ae517c3552c834b6461eb"
 }

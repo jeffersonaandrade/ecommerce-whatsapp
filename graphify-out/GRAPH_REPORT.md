@@ -1,16 +1,16 @@
 # Graph Report - ecommerce-sports  (2026-06-25)
 
 ## Corpus Check
-- 148 files · ~36,691 words
+- 152 files · ~37,707 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 652 nodes · 1553 edges · 28 communities (19 shown, 9 thin omitted)
+- 666 nodes · 1566 edges · 29 communities (21 shown, 8 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `14905a23`
+- Built from commit: `16b796ab`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -41,6 +41,7 @@
 - [[_COMMUNITY_Community 24|Community 24]]
 - [[_COMMUNITY_Community 25|Community 25]]
 - [[_COMMUNITY_Community 26|Community 26]]
+- [[_COMMUNITY_Community 28|Community 28]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `getStoreSettings()` - 34 edges
@@ -59,17 +60,17 @@
   app/admin/settings/page.tsx → lib/store/settings-repository.ts
 - `generateMetadata()` --calls--> `buildPageMetadata()`  [INFERRED]
   app/products/page.tsx → lib/store/build-metadata.ts
-- `generateMetadata()` --calls--> `getStoreSettings()`  [INFERRED]
-  app/products/page.tsx → lib/store/settings-repository.ts
 - `SportsHeroProps` --references--> `Product`  [EXTRACTED]
   components/commerce/sports-hero.tsx → types/product.ts
 - `ProductCardProps` --references--> `Product`  [EXTRACTED]
   components/product/product-card.tsx → types/product.ts
+- `ProductPurchasePanelProps` --references--> `Product`  [EXTRACTED]
+  components/product/product-purchase-panel.tsx → types/product.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (28 total, 9 thin omitted)
+## Communities (29 total, 8 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
@@ -80,28 +81,28 @@ Cohesion: 0.07
 Nodes (27): dependencies, framer-motion, next, react, react-dom, sharp, @supabase/ssr, @supabase/supabase-js (+19 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.11
-Nodes (33): Icon(), size, RequireAdminResult, { mockGetUser, mockCreateClient, mockGetDataProvider }, fetchAllProducts(), assertSupabaseEnv(), DataProvider, getDataProvider() (+25 more)
+Cohesion: 0.07
+Nodes (52): DeleteProductButton(), DeleteProductButtonProps, Icon(), size, requireAdmin(), RequireAdminResult, { mockGetUser, mockCreateClient, mockGetDataProvider }, { mockRequireAdmin } (+44 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.05
-Nodes (57): DeleteProductButton(), DeleteProductButtonProps, AdminPage(), metadata, NavCard(), emptyVariation(), ProductForm(), productToForm() (+49 more)
+Cohesion: 0.07
+Nodes (44): AdminPage(), metadata, NavCard(), Home(), CartNavLink(), countProductsByCategory(), AdminCategoriesPage(), metadata (+36 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.09
-Nodes (43): confirmImportAction(), parseImportCsvAction(), revalidateCatalog(), checkImageUrlHead(), checkProductImageUrls(), CSV_COLUMNS, REQUIRED_HEADERS, analyzeCSV() (+35 more)
+Cohesion: 0.08
+Nodes (43): confirmImportAction(), revalidateCatalog(), checkImageUrlHead(), checkProductImageUrls(), CSV_COLUMNS, REQUIRED_HEADERS, analyzeCSV(), CsvTestReport (+35 more)
 
 ### Community 5 - "Community 5"
-Cohesion: 0.13
-Nodes (23): barlowCondensed, generateMetadata(), inter, RootLayout(), viewport, CartPage(), metadata, siteConfig (+15 more)
+Cohesion: 0.12
+Nodes (24): barlowCondensed, generateMetadata(), inter, RootLayout(), viewport, generateMetadata(), CartPage(), metadata (+16 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.06
 Nodes (51): CartContent(), CartContentProps, CartLineItem(), CartLineItemProps, CartTestClient(), getClientCatalogCache(), setCatalogCache(), CartContext (+43 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.06
-Nodes (60): ALLOWED_TYPES, ImageGalleryField(), ImageGalleryFieldProps, ProductFormProps, VariationRow, { mockRequireAdmin }, createProductAction(), deleteProductAction() (+52 more)
+Cohesion: 0.10
+Nodes (39): CATALOG_PATH, ensureStorage(), loadCatalogFromDisk(), persistCatalog(), readFromDisk(), SEED_PATH, STORAGE_DIR, writeToDisk() (+31 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.18
@@ -113,7 +114,7 @@ Nodes (11): brandingDir, catalogPath, catalogSeed, copyDir(), copyFile(), deploy
 
 ### Community 13 - "Community 13"
 Cohesion: 0.09
-Nodes (44): requireAdmin(), AppearancePreview(), AppearancePreviewProps, AdminSettingsPage(), metadata, StoreSettingsForm(), StoreSettingsFormProps, getStoreSettingsAction() (+36 more)
+Nodes (42): AppearancePreview(), AppearancePreviewProps, AdminSettingsPage(), metadata, StoreSettingsForm(), StoreSettingsFormProps, revalidateStore(), updateStoreSettingsAction() (+34 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.06
@@ -128,8 +129,8 @@ Cohesion: 0.27
 Nodes (11): brandingDir, loadJson(), main(), mimeFor(), productToRow(), requireEnv(), root, storageDir (+3 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.24
-Nodes (5): NotFound(), CartTestPage(), StatusPage(), StatusPageProps, metadata
+Cohesion: 0.09
+Nodes (21): ALLOWED_TYPES, ImageGalleryField(), ImageGalleryFieldProps, emptyVariation(), ProductForm(), ProductFormProps, productToForm(), VariationRow (+13 more)
 
 ### Community 24 - "Community 24"
 Cohesion: 0.29
@@ -139,24 +140,32 @@ Nodes (4): outPath, products, root, settings
 Cohesion: 0.50
 Nodes (3): env, root, supabase
 
+### Community 26 - "Community 26"
+Cohesion: 0.40
+Nodes (4): playwright, supabase, npx, @playwright/mcp
+
+### Community 28 - "Community 28"
+Cohesion: 0.18
+Nodes (5): csv, env, png, results, root
+
 ## Knowledge Gaps
-- **152 isolated node(s):** `supabase`, `supabase`, `metadata`, `metadata`, `metadata` (+147 more)
+- **159 isolated node(s):** `supabase`, `npx`, `@playwright/mcp`, `supabase`, `metadata` (+154 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `getButtonClassName()` connect `Community 3` to `Community 4`, `Community 5`, `Community 7`, `Community 11`, `Community 13`, `Community 21`?**
-  _High betweenness centrality (0.050) - this node is a cross-community bridge._
-- **Why does `Product` connect `Community 10` to `Community 3`, `Community 4`, `Community 7`?**
+- **Why does `getButtonClassName()` connect `Community 3` to `Community 4`, `Community 7`, `Community 11`, `Community 13`, `Community 21`?**
   _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `Product` connect `Community 10` to `Community 3`, `Community 4`, `Community 21`, `Community 7`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
 - **Why does `getStoreSettings()` connect `Community 5` to `Community 2`, `Community 3`, `Community 13`, `Community 7`?**
-  _High betweenness centrality (0.040) - this node is a cross-community bridge._
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `getButtonClassName()` (e.g. with `AdminProductsPage()` and `ProductsPage()`) actually correct?**
   _`getButtonClassName()` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `supabase`, `BM25 ranking algorithm for text search`, `Lowercase, split, remove punctuation, filter short words` to the rest of the system?**
-  _178 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `supabase`, `npx`, `@playwright/mcp` to the rest of the system?**
+  _185 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.1 - nodes in this community are weakly interconnected._
 - **Should `Community 1` be split into smaller, more focused modules?**

@@ -700,8 +700,8 @@
     "semantic_hash": ""
   },
   ".cursor/mcp.json": {
-    "mtime": 1782415405.818746,
-    "ast_hash": "1d392f490c808cbd680c0284a03b2d76",
+    "mtime": 1782426379.8199375,
+    "ast_hash": "bded9285d46559f8d30e795c8dca882a",
     "semantic_hash": ""
   },
   "lib/auth/require-admin.test.ts": {
@@ -747,6 +747,26 @@
   "test/mocks/server-only.ts": {
     "mtime": 1782422956.2503045,
     "ast_hash": "9a634a6530940643495d8b5b2ac27a62",
+    "semantic_hash": ""
+  },
+  "scripts/e2e-qa-playwright.mjs": {
+    "mtime": 1782427241.1978345,
+    "ast_hash": "075788621774a12f74323d1214b84f80",
+    "semantic_hash": ""
+  },
+  "test-data/e2e/filesystem-baseline.json": {
+    "mtime": 1782426429.4157407,
+    "ast_hash": "77a26efad8d66f24f974843e7c073921",
+    "semantic_hash": ""
+  },
+  "test-data/e2e/playwright-results.json": {
+    "mtime": 1782427316.7354417,
+    "ast_hash": "d9ceaffa4e5981b4bc8be9004eecb601",
+    "semantic_hash": ""
+  },
+  "test-data/e2e/settings-backup.json": {
+    "mtime": 1782426447.242061,
+    "ast_hash": "3832711883fa6c6746fb0ee7383f52fd",
     "semantic_hash": ""
   }
 }

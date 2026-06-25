@@ -130,9 +130,9 @@ Sem aprovação explícita, **não implementar**:
 |------|-------------|
 | Testes | **60 passed** / 12 files (`vitest run`) |
 | Build | OK (`next build`, Next.js 16.2.9) |
-| Último commit | `14905a2` — feat(catalog): async supabase pages and product image upload |
-| Branch | `master` — **4 commits** à frente de `origin/master` (sem push) |
-| Graphify | **652 nós · 1553 arestas · 28 comunidades** (`graphify-out/`, commit `14905a2`) |
+| Último commit | `16b796a` — test(qa): Playwright E2E report Supabase MVP |
+| Branch | `master` — commits locais à frente de `origin/master` (sem push) |
+| Graphify | **666 nós · 1566 arestas · 29 comunidades** (`graphify-out/`, sync 2026-06-26) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
 
 ### Persistência atual (filesystem)
@@ -153,7 +153,8 @@ Sem aprovação explícita, **não implementar**:
 - `docs/GO_LIVE_CHECKLIST.md` — checkboxes operacionais Supabase/Netlify pendentes
 - `CHANGELOG.md`
 - `docs/HANDOFF.md` (este documento)
-- `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` — evidência QA browser Supabase
+- [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md) — evidência QA E2E Supabase (fonte atual)
+- `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` — superseded pelo E2E Playwright
 - `graphify-out/` (mapa vivo)
 
 ### Documentos candidatos a `docs/archive/`
@@ -333,8 +334,8 @@ Sem aprovação explícita, **não implementar**:
 ## 6. Mensagem comercial (validada)
 
 > A vitrine (PLP, PDP, carrinho, WhatsApp) funciona no link público e em local com Supabase.  
-> O admin **completo** opera em local com `DATA_PROVIDER=supabase` (auth, CRUD, settings).  
-> **Produção Netlify** ainda depende de env vars Supabase + smoke manual (uploads, CSV) — ver §9.
+> O admin **completo** foi validado localmente com Supabase (E2E-1…E2E-9 PASS — ver [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md)).  
+> **Produção Netlify** aguarda env vars Supabase + smoke §9.4 — ver [`docs/HANDOFF.md`](HANDOFF.md) §9.
 
 ---
 
@@ -367,7 +368,17 @@ graphify update . # após mudanças estruturais
 
 ## 9. Validação de pendências
 
-**Atualizado:** 2026-06-25 · Fontes: commits locais, [`QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](../QA_SUPABASE_ADMIN_BROWSER_REPORT.md), [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md)
+**Atualizado:** 2026-06-26 · Fontes: commit `16b796a`, [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md), [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md)
+
+### Resumo
+
+| Ambiente | Status | Observação |
+|----------|--------|------------|
+| **Local Supabase** | ✅ **Aprovado** | E2E-1…E2E-9 PASS — ver §9.3 |
+| **Netlify + Supabase** | ❌ **Pendente** | Env vars + redeploy + smoke §9.4 |
+| **Produção 1º cliente** | ❌ **Pendente** | Sprint 3 — após Netlify §9.4 |
+
+> **Não iniciar novas features agora.** Banner Manager, Categorias CRUD e Menus são **Sprint 4+** — não bloqueiam deploy MVP.
 
 ### 9.1 Código e testes (repo)
 
@@ -376,45 +387,79 @@ graphify update . # após mudanças estruturais
 | Auth P0 (`requireAdmin`, middleware, RLS doc) | ✅ | commit `1eb4d43` |
 | Alerta `?error=unauthorized` persistente | ✅ | commit `299c7f7` |
 | Repositórios async + páginas `await` | ✅ | commit `14905a2` |
-| Upload imagem produto (Storage) | 🟡 | implementado; QA browser pendente |
+| Upload imagem produto (Storage) | ✅ | E2E-4 PASS — [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md) |
+| QA E2E Playwright (E2E-1…E2E-9) | ✅ | commit `16b796a` |
 | Testes | ✅ | `60 passed` / 12 files |
 | Build | ✅ | `npm run build` OK |
 
 ### 9.2 Supabase Dashboard (operador — manual)
 
-- [ ] **Auth → Providers → Email:** desabilitar **Enable sign ups**
+- [x] **Auth → Providers → Email:** desabilitar **Enable sign ups**
 - [x] Admin com `app_metadata.role=admin` (usuários seed configurados)
-- [ ] Rotacionar `service_role` → atualizar `.env.local` + Netlify production
+- [x] Rotacionar `service_role` → `.env.local` atualizado
+- [ ] Rotacionar/copiar `service_role` → **Netlify production** (na subida — §9.4)
 - [x] SQL RLS + Storage admin (aplicado — ver `DATABASE_PLAN.md`)
 - [x] Usuário QA temp `qa-no-admin-temp@test.local` removido
 
-### 9.3 QA browser (local Supabase)
+### 9.3 QA E2E local Supabase
 
-| Fluxo | Status |
-|-------|--------|
-| Login/logout/proteção admin | ✅ PASS |
-| Alerta unauthorized na tela de login | ✅ PASS (commit `299c7f7`) |
-| Settings persistentes | ✅ PASS (parcial) |
-| CRUD produto | ✅ PASS |
-| Upload logo/hero/imagem arquivo | ❌ não testado |
-| Import CSV browser | ❌ não testado |
-| WhatsApp `#TEMP-...` | ❌ não validado |
-| Deploy Netlify + Supabase | ❌ bloqueado até §9.2 + smoke §9.4 |
+**Relatório:** [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md) · **Resultado:** APROVADO COM RESSALVAS (local)
 
-### 9.4 Produção Netlify
+| ID | Fluxo | Status |
+|----|--------|--------|
+| E2E-1 | Login/logout/proteção admin | ✅ PASS |
+| E2E-2 | Settings persistentes (incl. Sobre) | ✅ PASS |
+| E2E-3 | Upload logo + hero + `/api/branding/*` 200 | ✅ PASS |
+| E2E-4 | CRUD produto + upload Storage | ✅ PASS |
+| E2E-5 | Bloqueio data URL | ✅ PASS |
+| E2E-6 | Import CSV browser | ✅ PASS |
+| E2E-7 | Carrinho + WhatsApp `#TEMP-YYYYMMDD-NNNN` | ✅ PASS |
+| E2E-8 | Regressão desktop + mobile | ✅ PASS |
+| E2E-9 | Filesystem `storage/*` não tocado | ✅ PASS |
 
-- [ ] Salvar settings em https://loja-whats.netlify.app
-- [ ] CSV import persiste e aparece na vitrine
+Substitui o QA parcial em `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` (uploads/CSV/WhatsApp não testados naquela sessão).
+
+### 9.4 Produção Netlify (pendente)
+
+Pré-requisito: env vars Supabase em https://app.netlify.com → site **loja-whats** → **Environment variables**:
+
+| Variável | Valor |
+|----------|--------|
+| `DATA_PROVIDER` | `supabase` |
+| `NEXT_PUBLIC_DATA_PROVIDER` | `supabase` |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | service role (server only) |
+
+Após configurar envs → **Trigger deploy** → smoke em https://loja-whats.netlify.app:
+
+- [ ] Login admin (Supabase Auth)
+- [ ] Salvar settings persiste após redeploy
+- [ ] CRUD produto persiste
+- [ ] Import CSV persiste e aparece na vitrine
 - [ ] Upload logo/hero persiste após redeploy
-- [ ] CRUD produtos persiste
+- [ ] Pedido WhatsApp `#TEMP-...` em produção
 
-### 9.5 Próximo passo recomendado
+### 9.5 Checklist final — deploy MVP
 
-1. Dashboard Supabase (signup OFF + rotacionar `service_role`)
-2. Smoke manual: uploads logo/hero/produto + CSV + mensagem WhatsApp
-3. Deploy Netlify com `DATA_PROVIDER=supabase` + envs atualizadas
-4. Onboarding 1º cliente (Sprint 3 operacional)
+Ordem objetiva (sem novas features):
+
+1. [x] Signup OFF no Supabase Dashboard
+2. [x] Rotacionar `service_role` (local)
+3. [ ] Configurar envs Supabase na Netlify + redeploy
+4. [ ] Smoke §9.4 em https://loja-whats.netlify.app
+5. [ ] Validar em produção: settings, CRUD, CSV, uploads, WhatsApp
+6. [ ] Onboarding 1º cliente (Sprint 3)
+
+### 9.6 Sprint 4+ (fora do escopo do deploy)
+
+Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
+
+- Banner Manager (múltiplos banners)
+- Categorias CRUD (admin hoje é somente leitura)
+- Menus administráveis
+- Admin shell / histórico CSV / pedidos persistidos
 
 ---
 
-*Próxima revisão deste handoff: após onboarding 1º cliente em produção com Supabase.*
+*Próxima revisão deste handoff: após smoke Netlify §9.4 ou onboarding 1º cliente.*
