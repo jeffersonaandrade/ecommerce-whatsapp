@@ -8,6 +8,32 @@ _(Fase 7 — Supabase / Auth)_
 
 ---
 
+## [1.0.1-demo] — 2026-06-25 — Demo cliente (login visual + Netlify)
+
+### Resumo
+
+Login demonstrativo com fluxo **Entrar** no header, flag visual `demo-admin-session`, fallback de branding, prebuild Netlify e mapa Graphify atualizado. Sem auth real nem proteção de rotas.
+
+### Entregas
+
+- `AdminAccessButton` — Entrar / Admin + Sair (hydration-safe)
+- `/admin/login` — credenciais demo, redirect para `/admin`
+- `resolveExistingBrandingPath` — evita logo/hero quebrados quando arquivo ausente
+- `deploy/netlify/` + `build:netlify` + `netlify.toml`
+- Docs: login demo, deploy Netlify, limitações serverless
+
+### Comandos
+
+- `npm run test` — 48 passed
+- `npm run build:netlify` — OK
+- `graphify update .` — OK
+
+### Tag
+
+- `v1.0.1-demo` (local)
+
+---
+
 ## [1.0.0-demo] — 2026-06-24 — Demo Polish (Template Freeze)
 
 ### Resumo

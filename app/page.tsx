@@ -6,6 +6,7 @@ import { NewsletterBlock } from '@/components/commerce/newsletter-block'
 import { ProductCard } from '@/components/product/product-card'
 import { getAllProducts, getFeaturedProducts } from '@/lib/products'
 import { getStoreSettings } from '@/lib/store/settings-repository'
+import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 import type { Metadata } from 'next'
 
@@ -27,7 +28,7 @@ export default function Home() {
         featuredProducts={heroFeatured}
         content={{
           storeName: settings.storeName,
-          heroImagePath: settings.heroImagePath,
+          heroImagePath: resolveExistingBrandingPath(settings.heroImagePath),
           heroHeadline: settings.heroHeadline,
           heroHeadlineLine2: settings.heroHeadlineLine2,
           heroSubheadline: settings.heroSubheadline,

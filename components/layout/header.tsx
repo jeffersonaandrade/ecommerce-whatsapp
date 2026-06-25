@@ -1,13 +1,15 @@
 import Link from 'next/link'
 import { siteConfig } from '@/config/site'
-import { getButtonClassName } from '@/components/ui/button'
+import { AdminAccessButton } from '@/components/admin/admin-access-button'
 import { CartNavLink } from '@/components/cart/cart-nav-link'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { brandingAssetUrl } from '@/lib/store/branding-url'
+import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
 
 export async function Header() {
   const settings = getStoreSettings()
-  const logoUrl = brandingAssetUrl(settings.logoPath, settings.updatedAt)
+  const logoPath = resolveExistingBrandingPath(settings.logoPath)
+  const logoUrl = brandingAssetUrl(logoPath, settings.updatedAt)
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-hairline bg-canvas">
@@ -47,9 +49,7 @@ export async function Header() {
 
         <div className="flex items-center gap-3 sm:gap-4">
           <CartNavLink />
-          <Link href="/admin" className={getButtonClassName('outline', 'sm')}>
-            Admin
-          </Link>
+          <AdminAccessButton />
         </div>
       </nav>
     </header>

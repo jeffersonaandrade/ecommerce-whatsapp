@@ -11,7 +11,9 @@ Ferramenta de **desenvolvimento** ([Graphify](https://github.com/safishamsi/grap
 | [graphify-out/graph.json](graphify-out/graph.json) | Grafo completo para consultas CLI |
 | [.cursor/rules/graphify.mdc](.cursor/rules/graphify.mdc) | Regra Cursor (`alwaysApply`) para consultar o grafo antes de explorar código |
 
-**Última geração:** 2026-06-24 (Sprint 0) · **239 nós · 512 arestas · 14 comunidades** · extração 99% AST (sem API) · commit `7c6521d`
+**Última geração:** 2026-06-25 (v1.0.1-demo) · **542 nós · 1250 arestas · 20 comunidades** · extração AST (sem API)
+
+Novos hubs: `lib/admin/demo-session`, `AdminAccessButton`, `/admin/login`, `resolveExistingBrandingPath`.
 
 ## Árvore do projeto (rotas e módulos)
 
@@ -27,15 +29,16 @@ ecommerce-sports/
 │       ├── page.tsx
 │       ├── products/             # lista, new, [id]/edit
 │       ├── categories/
-│       ├── import/, orders/, settings/
+│       ├── import/, orders/, settings/, login/
 ├── components/
-│   ├── admin/    product-form, image-gallery-field, delete-product-button
+│   ├── admin/    AdminAccessButton, admin-login-form, demo-logout-button, product-form
 │   ├── cart/, product/, layout/, commerce/, ui/
 ├── lib/
 │   ├── products.ts               # fachada server-only
 │   ├── products-client.ts        # carrinho (browser)
 │   ├── catalog/                  # ProductRepository, actions, utils
 │   ├── cart-utils.ts, cart-storage.ts
+│   ├── admin/demo-session.ts
 │   └── formatters.ts, colors.ts
 ├── storage/
 │   ├── catalog.seed.json

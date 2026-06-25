@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:netlify": "node scripts/prepare-netlify-build.mjs && npm run build",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest"

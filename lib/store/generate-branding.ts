@@ -69,3 +69,11 @@ export function readBrandingFile(filename: string): Buffer | null {
   if (!fs.existsSync(filePath)) return null
   return fs.readFileSync(filePath)
 }
+
+/** Returns filename only when the asset exists on disk (avoids broken img/API 404). */
+export function resolveExistingBrandingPath(
+  filename: string | null | undefined
+): string | null {
+  if (!filename) return null
+  return readBrandingFile(filename) ? filename : null
+}

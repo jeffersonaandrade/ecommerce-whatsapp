@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { DemoLogoutButton } from '@/components/admin/demo-logout-button'
 import { getButtonClassName } from '@/components/ui/button'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
 
@@ -59,8 +60,21 @@ export default function AdminPage() {
     <div className="w-full">
       <div className="bg-gray-900 text-white py-8 sm:py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl sm:text-4xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-400 mt-2">Gerencie sua loja esportiva</p>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold sm:text-4xl">Admin Dashboard</h1>
+              <p className="mt-2 text-gray-400">Gerencie sua loja esportiva</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="text-sm text-gray-400 transition-colors hover:text-white"
+              >
+                ← Voltar ao site
+              </Link>
+              <DemoLogoutButton />
+            </div>
+          </div>
         </div>
       </div>
 
