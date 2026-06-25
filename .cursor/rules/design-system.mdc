@@ -1,0 +1,41 @@
+---
+description: Justificar mudanças visuais com base no DESIGN_SYSTEM.md
+alwaysApply: true
+---
+
+# Design System — regra de alteração visual
+
+Antes de modificar **qualquer** arquivo visual (`components/**`, `app/**`, `globals.css`), consulte [`docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md).
+
+## Obrigatório
+
+1. **Citar a seção do DS** que fundamenta cada mudança (ex.: §7 Radius, §9.1 Button).
+2. **Documentar ANTES → DEPOIS → Motivo** para propriedades alteradas (radius, shadow, color, spacing, typography).
+3. **Respeitar a ordem de sprints** em [`docs/UI_POLISH_PLAN.md`](../../docs/UI_POLISH_PLAN.md) §9 — não pular para Header/páginas antes de UI-1A concluída.
+
+## Exemplo de justificativa
+
+```text
+Border radius
+  ANTES: rounded-lg
+  DEPOIS: rounded-full
+  Motivo: DESIGN_SYSTEM.md §9.1 — CTAs pill
+
+Shadow
+  ANTES: shadow-xl
+  DEPOIS: border-hairline (sem shadow)
+  Motivo: DESIGN_SYSTEM.md §8 — cards flat
+```
+
+## Proibido
+
+- Inventar tokens fora das tabelas do DS (§3–§8).
+- Misturar UI-1A (primitivos) com Header, layout ou páginas na mesma entrega.
+- Mudanças visuais sem referência explícita ao DS.
+
+## Referências
+
+- [`docs/DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md) — tokens e specs
+- [`docs/UI_POLISH_PLAN.md`](../../docs/UI_POLISH_PLAN.md) — ordem UI-1A → UI-7
+- [`DESIGN-nike.md`](../../DESIGN-nike.md) — princípios (não copiar marca)
+- [`.cursor/skills/ui-ux-pro-max/`](../../.cursor/skills/ui-ux-pro-max/) — checklists a11y/UX
