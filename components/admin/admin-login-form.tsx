@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getButtonClassName } from '@/components/ui/button'
@@ -16,15 +16,13 @@ export function AdminLoginForm() {
   const searchParams = useSearchParams()
   const supabaseAuth = isSupabaseAuthMode()
   const [toast, setToast] = useState<string | null>(null)
+  const [hideUnauthorizedAlert, setHideUnauthorizedAlert] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    if (searchParams.get('error') === 'unauthorized') {
-      setToast('Acesso negado. Esta conta não tem permissão de administrador.')
-    }
-  }, [searchParams])
+  const showUnauthorizedAlert =
+    searchParams.get('error') === 'unauthorized' && !hideUnauthorizedAlert
 
   function fillDemoCredentials() {
     if (supabaseAuth) return
@@ -34,6 +32,7 @@ export function AdminLoginForm() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
+    setHideUnauthorizedAlert(true)
     setLoading(true)
 
     if (supabaseAuth) {
@@ -92,6 +91,15 @@ export function AdminLoginForm() {
           <p className="mt-2 text-sm text-mute">
             {supabaseAuth ? 'Acesso administrativo' : 'Ambiente de demonstração'}
           </p>
+
+          {showUnauthorizedAlert && (
+            <div
+              role="alert"
+              className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+            >
+              Acesso negado. Sua conta não tem permissão de administrador.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <label className="block text-sm font-medium text-ink">
