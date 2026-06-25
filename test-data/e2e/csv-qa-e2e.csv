@@ -1,0 +1,3 @@
+Identificador URL,Nome (Português),Categorias,Preço,Preço promocional,Estoque,SKU,Descrição (Português),Tags,Marca,Peso (kg),Altura (cm),Largura (cm),Comprimento (cm),Nome da variação 1,Valor da variação 1,Nome da variação 2,Valor da variação 2,Nome da variação 3,Valor da variação 3,image_urls
+qa-e2e-import-1,QA-E2E Importado,Camisas,89.90,79.90,5,QA-E2E-IMP-M,Produto importado E2E.,e2e,QA,0.2,5,28,22,Tamanho,M,Cor,Azul,,,https://cdn.exemplo.com/qa-e2e-import-azul-frente.jpg
+qa-e2e-import-1,QA-E2E Importado,Camisas,89.90,79.90,3,QA-E2E-IMP-G,Produto importado E2E.,e2e,QA,0.2,5,28,22,Tamanho,G,Cor,Azul,,,https://cdn.exemplo.com/qa-e2e-import-azul-frente.jpg

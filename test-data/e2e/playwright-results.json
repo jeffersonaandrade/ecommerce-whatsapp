@@ -1,0 +1,15 @@
+{
+  "E2E-4": "PASS",
+  "E2E-5": "PASS",
+  "E2E-6": "PASS",
+  "E2E-7": "PASS",
+  "E2E-7_detail": {
+    "hasTemp": true,
+    "hasProduct": true,
+    "hasSku": true,
+    "hasTotal": true,
+    "hasLink": true
+  },
+  "E2E-8": "PASS",
+  "E2E-9": "PASS"
+}
