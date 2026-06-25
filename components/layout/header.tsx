@@ -7,8 +7,8 @@ import { brandingAssetUrl } from '@/lib/store/branding-url'
 import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
 
 export async function Header() {
-  const settings = getStoreSettings()
-  const logoPath = resolveExistingBrandingPath(settings.logoPath)
+  const settings = await getStoreSettings()
+  const logoPath = await resolveExistingBrandingPath(settings.logoPath)
   const logoUrl = brandingAssetUrl(logoPath, settings.updatedAt)
 
   return (

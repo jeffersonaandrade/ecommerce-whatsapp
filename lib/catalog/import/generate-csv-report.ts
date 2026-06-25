@@ -42,10 +42,10 @@ interface CsvTestReport {
 function mockRepository(initialProducts: Product[] = []): ProductRepository {
   const products = [...initialProducts]
   return {
-    getAll: () => products,
-    getById: (id) => products.find((p) => p.id === id),
-    getBySlug: (slug) => products.find((p) => p.slug === slug),
-    create(input) {
+    getAll: async () => products,
+    getById: async (id) => products.find((p) => p.id === id),
+    getBySlug: async (slug) => products.find((p) => p.slug === slug),
+    create: async (input) => {
       const product: Product = {
         id: `id-${Date.now()}-${Math.random()}`,
         name: input.name,
@@ -66,7 +66,7 @@ function mockRepository(initialProducts: Product[] = []): ProductRepository {
       products.push(product)
       return product
     },
-    update(id, input) {
+    update: async (id, input) => {
       const index = products.findIndex((p) => p.id === id)
       if (index === -1) throw new Error('not found')
       products[index] = {
@@ -91,17 +91,17 @@ function mockRepository(initialProducts: Product[] = []): ProductRepository {
       }
       return products[index]
     },
-    delete(id) {
+    delete: async (id) => {
       const index = products.findIndex((p) => p.id === id)
       if (index !== -1) products.splice(index, 1)
     },
-    saveAll(next) {
+    saveAll: async (next) => {
       products.splice(0, products.length, ...next)
     },
   }
 }
 
-function analyzeCSV(csvPath: string): CsvTestReport {
+async function analyzeCSV(csvPath: string): Promise<CsvTestReport> {
   const fileName = path.basename(csvPath)
   const csvContent = fs.readFileSync(csvPath, 'utf-8')
 
@@ -111,8 +111,8 @@ function analyzeCSV(csvPath: string): CsvTestReport {
 
   let importResult
   try {
-    importResult = applyImport(valid, repo)
-  } catch (error) {
+    importResult = await applyImport(valid, repo)
+  } catch {
     importResult = { created: 0, updated: 0, skipped: 0 }
   }
 
@@ -167,7 +167,7 @@ function analyzeCSV(csvPath: string): CsvTestReport {
   }
 }
 
-export function generateCsvTestReport() {
+export async function generateCsvTestReport() {
   const testDir = path.join(process.cwd(), 'test-data')
   const templatePath = path.join(
     process.cwd(),
@@ -201,7 +201,7 @@ Generated: ${new Date().toISOString()}
   for (const { path: filePath, label } of files) {
     if (!fs.existsSync(filePath)) continue
 
-    const analysis = analyzeCSV(filePath)
+    const analysis = await analyzeCSV(filePath)
     report += `\n### ${label} (${analysis.fileName})\n\n`
     report += `**Statistics:**\n`
     report += `- Total Rows: ${analysis.totalRows}\n`

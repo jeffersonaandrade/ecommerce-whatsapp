@@ -27,15 +27,15 @@ export const viewport: Viewport = {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return buildRootMetadata(getStoreSettings())
+  return buildRootMetadata(await getStoreSettings())
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const settings = getStoreSettings()
+  const settings = await getStoreSettings()
 
   return (
     <html

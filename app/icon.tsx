@@ -6,8 +6,8 @@ export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
 export default async function Icon() {
-  const settings = getStoreSettings()
-  const buffer = settings.logoPath ? readBrandingFile('favicon-32.png') : null
+  const settings = await getStoreSettings()
+  const buffer = settings.logoPath ? await readBrandingFile('favicon-32.png') : null
 
   if (buffer) {
     return new Response(new Uint8Array(buffer), {

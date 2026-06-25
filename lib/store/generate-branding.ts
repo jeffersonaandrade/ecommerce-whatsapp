@@ -1,10 +1,14 @@
 import 'server-only'
 
-import fs from 'fs'
-import path from 'path'
-import sharp from 'sharp'
+import sharp, { type Sharp } from 'sharp'
 import { OG_IMAGE_FILENAME, resolveBrandingFilename } from './branding-url'
-import { getBrandingDir } from './settings-storage'
+import {
+  brandingFileExists,
+  readBrandingFileBuffer,
+  writeBrandingFile,
+} from './branding-storage'
+import { getDataProvider } from '@/lib/data/provider'
+import { getBrandingPublicUrl } from '@/lib/supabase/env'
 
 export type GeneratedBranding = {
   logoPath: string
@@ -13,18 +17,24 @@ export type GeneratedBranding = {
 
 const FAVICON_SIZES = [16, 32, 180, 192, 512] as const
 
+async function writeProcessedImage(
+  image: Sharp,
+  filename: string,
+  processor: () => Promise<Buffer>
+): Promise<void> {
+  const buffer = await processor()
+  await writeBrandingFile(filename, buffer)
+}
+
 export async function generateBrandingFromLogo(
   fileBuffer: Buffer
 ): Promise<GeneratedBranding> {
-  const dir = getBrandingDir()
   const image = sharp(fileBuffer).rotate()
-
   const logoPath = 'logo.webp'
-  await image
-    .clone()
-    .resize(512, 512, { fit: 'cover', position: 'centre' })
-    .webp({ quality: 90 })
-    .toFile(path.join(dir, logoPath))
+
+  await writeProcessedImage(image, logoPath, () =>
+    image.clone().resize(512, 512, { fit: 'cover', position: 'centre' }).webp({ quality: 90 }).toBuffer()
+  )
 
   for (const size of FAVICON_SIZES) {
     const name =
@@ -35,45 +45,50 @@ export async function generateBrandingFromLogo(
           : size === 512
             ? 'android-512.png'
             : `favicon-${size}.png`
-    await image
-      .clone()
-      .resize(size, size, { fit: 'cover', position: 'centre' })
-      .png()
-      .toFile(path.join(dir, name))
+    await writeProcessedImage(image, name, () =>
+      image.clone().resize(size, size, { fit: 'cover', position: 'centre' }).png().toBuffer()
+    )
   }
 
   const ogImagePath = OG_IMAGE_FILENAME
-  await image
-    .clone()
-    .resize(1200, 630, { fit: 'cover', position: 'centre' })
-    .jpeg({ quality: 85 })
-    .toFile(path.join(dir, ogImagePath))
+  await writeProcessedImage(image, ogImagePath, () =>
+    image.clone().resize(1200, 630, { fit: 'cover', position: 'centre' }).jpeg({ quality: 85 }).toBuffer()
+  )
 
   return { logoPath, ogImagePath }
 }
 
 export async function saveHeroImage(fileBuffer: Buffer): Promise<string> {
-  const dir = getBrandingDir()
   const heroPath = 'hero.webp'
-  await sharp(fileBuffer)
+  const buffer = await sharp(fileBuffer)
     .rotate()
     .resize(1920, 1080, { fit: 'cover', position: 'centre' })
     .webp({ quality: 85 })
-    .toFile(path.join(dir, heroPath))
+    .toBuffer()
+  await writeBrandingFile(heroPath, buffer)
   return heroPath
 }
 
-export function readBrandingFile(filename: string): Buffer | null {
+export async function readBrandingFile(filename: string): Promise<Buffer | null> {
   const safe = resolveBrandingFilename(filename)
-  const filePath = path.join(getBrandingDir(), safe)
-  if (!fs.existsSync(filePath)) return null
-  return fs.readFileSync(filePath)
+  return readBrandingFileBuffer(safe)
 }
 
-/** Returns filename only when the asset exists on disk (avoids broken img/API 404). */
-export function resolveExistingBrandingPath(
+export async function resolveExistingBrandingPath(
   filename: string | null | undefined
-): string | null {
+): Promise<string | null> {
   if (!filename) return null
-  return readBrandingFile(filename) ? filename : null
+  const safe = resolveBrandingFilename(filename)
+
+  if (getDataProvider() === 'supabase') {
+    const buffer = await readBrandingFileBuffer(safe)
+    return buffer ? filename : null
+  }
+
+  return brandingFileExists(safe) ? filename : null
+}
+
+export function getBrandingAssetPublicUrl(filename: string): string | null {
+  if (getDataProvider() !== 'supabase') return null
+  return getBrandingPublicUrl(filename)
 }

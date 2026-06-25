@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description: 'Seu carrinho de compras',
 }
 
-export default function CartPage() {
-  const settings = getStoreSettings()
+export default async function CartPage() {
+  const settings = await getStoreSettings()
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">

@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: 'Cadastro manual de produto',
 }
 
-export default function AdminNewProductPage() {
-  const categories = getCategoriesAdmin()
+export default async function AdminNewProductPage() {
+  const categories = await getCategoriesAdmin()
 
   return (
     <div className="w-full">

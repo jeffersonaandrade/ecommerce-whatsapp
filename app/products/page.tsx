@@ -8,7 +8,7 @@ import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getStoreSettings()
+  const settings = await getStoreSettings()
   return buildPageMetadata(
     settings,
     'Produtos',
@@ -25,8 +25,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const { category } = await searchParams
 
   const filteredProducts = category
-    ? getProductsByCategory(category)
-    : getAllProducts()
+    ? await getProductsByCategory(category)
+    : await getAllProducts()
 
   return (
     <div className="w-full">

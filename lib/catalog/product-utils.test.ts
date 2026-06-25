@@ -87,4 +87,14 @@ describe('validateProductInput', () => {
     const errors = validateProductInput({ ...validInput, images: [] }, [])
     expect(errors.some((e) => e.field === 'images')).toBe(true)
   })
+
+  it('rejeita imagens base64/data URL', () => {
+    const errors = validateProductInput(
+      { ...validInput, images: ['data:image/png;base64,abc123'] },
+      []
+    )
+    expect(errors.some((e) => e.field === 'images' && e.message.includes('base64'))).toBe(
+      true
+    )
+  })
 })

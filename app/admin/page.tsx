@@ -51,9 +51,9 @@ function NavCard({
   return <Link href={href}>{inner}</Link>
 }
 
-export default function AdminPage() {
-  const allProducts = getAllProductsAdmin()
-  const activeProducts = getAllProducts()
+export default async function AdminPage() {
+  const allProducts = await getAllProductsAdmin()
+  const activeProducts = await getAllProducts()
   const totalProducts = allProducts.length
 
   return (

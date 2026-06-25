@@ -13,7 +13,7 @@ function socialHref(platform: 'instagram' | 'facebook', value: string): string |
 }
 
 export async function Footer() {
-  const settings = getStoreSettings()
+  const settings = await getStoreSettings()
   const instagramUrl = socialHref('instagram', settings.instagram)
   const facebookUrl = socialHref('facebook', settings.facebook)
 

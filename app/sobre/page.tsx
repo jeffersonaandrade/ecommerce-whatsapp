@@ -5,7 +5,7 @@ import {
 } from '@/components/layout/institutional-page'
 
 export async function generateMetadata() {
-  const settings = getStoreSettings()
+  const settings = await getStoreSettings()
   return buildInstitutionalMetadata(
     settings.storeName,
     'Sobre',
@@ -13,8 +13,8 @@ export async function generateMetadata() {
   )
 }
 
-export default function SobrePage() {
-  const settings = getStoreSettings()
+export default async function SobrePage() {
+  const settings = await getStoreSettings()
 
   return (
     <InstitutionalPage title={`Sobre ${settings.storeName}`}>

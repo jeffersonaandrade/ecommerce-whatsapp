@@ -25,8 +25,8 @@ function statusVariant(
   return 'default'
 }
 
-export default function AdminProductsPage() {
-  const allProducts = getAllProductsAdmin()
+export default async function AdminProductsPage() {
+  const allProducts = await getAllProductsAdmin()
 
   return (
     <div className="w-full">

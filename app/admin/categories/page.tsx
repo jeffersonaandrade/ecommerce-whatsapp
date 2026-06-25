@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: 'Categorias derivadas do catálogo',
 }
 
-export default function AdminCategoriesPage() {
-  const products = getAllProductsAdmin()
+export default async function AdminCategoriesPage() {
+  const products = await getAllProductsAdmin()
   const categories = countProductsByCategory(products)
 
   return (

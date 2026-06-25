@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: 'Identidade da loja, WhatsApp e aparência',
 }
 
-export default function AdminSettingsPage() {
-  const settings = getStoreSettings()
+export default async function AdminSettingsPage() {
+  const settings = await getStoreSettings()
 
   return (
     <div className="w-full">

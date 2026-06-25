@@ -1,52 +1,50 @@
-import 'server-only'
-
 import { Product } from '@/types/product'
-import { getProductRepository } from '@/lib/catalog/json-product-repository'
+import { getProductRepository } from '@/lib/catalog/get-product-repository'
 
-function readCatalog(): Product[] {
+async function loadCatalog(): Promise<Product[]> {
   return getProductRepository().getAll()
 }
 
-export function getAllProducts(): Product[] {
-  return readCatalog().filter((p) => p.status === 'active')
+export async function getAllProducts(): Promise<Product[]> {
+  return (await loadCatalog()).filter((p) => p.status === 'active')
 }
 
-export function getAllProductsAdmin(): Product[] {
-  return readCatalog()
+export async function getAllProductsAdmin(): Promise<Product[]> {
+  return loadCatalog()
 }
 
-export function getFeaturedProducts(limit: number = 6): Product[] {
-  return getAllProducts().slice(0, limit)
+export async function getFeaturedProducts(limit: number = 6): Promise<Product[]> {
+  return (await getAllProducts()).slice(0, limit)
 }
 
-export function getProductBySlug(slug: string): Product | undefined {
-  const product = readCatalog().find((p) => p.slug === slug)
+export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  const product = await getProductRepository().getBySlug(slug)
   if (!product || product.status !== 'active') return undefined
   return product
 }
 
-export function getProductById(id: string): Product | undefined {
-  const product = readCatalog().find((p) => p.id === id)
+export async function getProductById(id: string): Promise<Product | undefined> {
+  const product = await getProductRepository().getById(id)
   if (!product || product.status !== 'active') return undefined
   return product
 }
 
-export function getProductByIdAdmin(id: string): Product | undefined {
-  return readCatalog().find((p) => p.id === id)
+export async function getProductByIdAdmin(id: string): Promise<Product | undefined> {
+  return getProductRepository().getById(id)
 }
 
-export function getProductsByCategory(category: string): Product[] {
-  return getAllProducts().filter((p) => p.category === category)
+export async function getProductsByCategory(category: string): Promise<Product[]> {
+  return (await getAllProducts()).filter((p) => p.category === category)
 }
 
-export function getCategories(): string[] {
+export async function getCategories(): Promise<string[]> {
   const categories = new Set<string>()
-  getAllProducts().forEach((p) => categories.add(p.category))
+  ;(await getAllProducts()).forEach((p) => categories.add(p.category))
   return Array.from(categories).sort()
 }
 
-export function getCategoriesAdmin(): string[] {
+export async function getCategoriesAdmin(): Promise<string[]> {
   const categories = new Set<string>()
-  getAllProductsAdmin().forEach((p) => categories.add(p.category))
+  ;(await getAllProductsAdmin()).forEach((p) => categories.add(p.category))
   return Array.from(categories).sort()
 }

@@ -6,6 +6,7 @@ const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const deployDir = path.join(root, 'deploy', 'netlify')
 const storageDir = path.join(root, 'storage')
 const brandingDir = path.join(storageDir, 'branding')
+const useSupabase = process.env.DATA_PROVIDER === 'supabase'
 
 function copyFile(src, dest) {
   fs.mkdirSync(path.dirname(dest), { recursive: true })
@@ -21,6 +22,11 @@ function copyDir(srcDir, destDir) {
     if (entry.isDirectory()) copyDir(src, dest)
     else copyFile(src, dest)
   }
+}
+
+if (useSupabase) {
+  console.log('Netlify prebuild: DATA_PROVIDER=supabase — skipping JSON seed copy')
+  process.exit(0)
 }
 
 fs.mkdirSync(storageDir, { recursive: true })

@@ -13,7 +13,7 @@ export async function generateMetadata({
   params,
 }: EditProductPageProps): Promise<Metadata> {
   const { id } = await params
-  const product = getProductByIdAdmin(id)
+  const product = await getProductByIdAdmin(id)
   return {
     title: product ? `Editar — ${product.name}` : 'Produto não encontrado',
   }
@@ -25,11 +25,11 @@ export default async function EditProductPage({
 }: EditProductPageProps) {
   const { id } = await params
   const { created } = await searchParams
-  const product = getProductByIdAdmin(id)
+  const product = await getProductByIdAdmin(id)
 
   if (!product) notFound()
 
-  const categories = getCategoriesAdmin()
+  const categories = await getCategoriesAdmin()
 
   return (
     <div className="w-full">

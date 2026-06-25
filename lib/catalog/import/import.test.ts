@@ -92,13 +92,13 @@ same-slug,Nome B,Camisas,100,,5,SKU-B,Desc`)
 })
 
 describe('applyImport', () => {
-  it('cria produtos no repositório em memória', () => {
+  it('cria produtos no repositório em memória', async () => {
     const products: Product[] = []
     const repo: ProductRepository = {
-      getAll: () => products,
-      getById: (id) => products.find((p) => p.id === id),
-      getBySlug: (slug) => products.find((p) => p.slug === slug),
-      create(input) {
+      getAll: async () => products,
+      getById: async (id) => products.find((p) => p.id === id),
+      getBySlug: async (slug) => products.find((p) => p.slug === slug),
+      create: async (input) => {
         const product: Product = {
           id: String(products.length + 1),
           name: input.name,
@@ -119,7 +119,7 @@ describe('applyImport', () => {
         products.push(product)
         return product
       },
-      update(id, input) {
+      update: async (id, input) => {
         const index = products.findIndex((p) => p.id === id)
         if (index === -1) throw new Error('not found')
         products[index] = {
@@ -132,11 +132,11 @@ describe('applyImport', () => {
         }
         return products[index]
       },
-      delete(id) {
+      delete: async (id) => {
         const index = products.findIndex((p) => p.id === id)
         if (index !== -1) products.splice(index, 1)
       },
-      saveAll(next) {
+      saveAll: async (next) => {
         products.splice(0, products.length, ...next)
       },
     }
@@ -144,7 +144,7 @@ describe('applyImport', () => {
     const csv = fs.readFileSync(TEMPLATE_PATH, 'utf-8')
     const preview = buildImportPreview(csv, 'template.csv')
     const valid = getValidProducts(preview)
-    const result = applyImport(valid, repo)
+    const result = await applyImport(valid, repo)
 
     expect(result.created).toBe(1)
     expect(result.durationMs).toBeGreaterThanOrEqual(0)

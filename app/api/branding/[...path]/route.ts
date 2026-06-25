@@ -16,7 +16,7 @@ export async function GET(
   const { path: segments } = await params
   const filename = segments.join('/')
   const resolved = resolveBrandingFilename(filename)
-  const buffer = readBrandingFile(resolved)
+  const buffer = await readBrandingFile(resolved)
 
   if (!buffer) {
     return new Response('Not found', { status: 404 })

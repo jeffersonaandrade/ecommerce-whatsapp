@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { deleteProductAction } from '@/lib/catalog/actions'
 
 type DeleteProductButtonProps = {
@@ -12,6 +13,7 @@ export function DeleteProductButton({
   productId,
   productName,
 }: DeleteProductButtonProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   return (
@@ -26,7 +28,15 @@ export function DeleteProductButton({
         ) {
           return
         }
-        startTransition(() => deleteProductAction(productId))
+        startTransition(async () => {
+          const result = await deleteProductAction(productId)
+          if (result.ok) {
+            router.push('/admin/products')
+            router.refresh()
+          } else {
+            window.alert(result.error)
+          }
+        })
       }}
       className="text-red-600 hover:text-red-800 text-sm font-medium disabled:opacity-50"
     >

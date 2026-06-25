@@ -11,16 +11,17 @@ import { buildPageMetadata } from '@/lib/store/build-metadata'
 import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = getStoreSettings()
+  const settings = await getStoreSettings()
   return buildPageMetadata(settings, settings.storeName, settings.description, '/')
 }
 
-export default function Home() {
-  const settings = getStoreSettings()
-  const allProducts = getAllProducts()
-  const heroFeatured = getFeaturedProducts(4)
-  const featuredProducts = getFeaturedProducts(6)
+export default async function Home() {
+  const settings = await getStoreSettings()
+  const allProducts = await getAllProducts()
+  const heroFeatured = await getFeaturedProducts(4)
+  const featuredProducts = await getFeaturedProducts(6)
   const bestSellers = allProducts.slice(2, 6)
+  const heroImagePath = await resolveExistingBrandingPath(settings.heroImagePath)
 
   return (
     <div className="w-full">
@@ -28,7 +29,7 @@ export default function Home() {
         featuredProducts={heroFeatured}
         content={{
           storeName: settings.storeName,
-          heroImagePath: resolveExistingBrandingPath(settings.heroImagePath),
+          heroImagePath,
           heroHeadline: settings.heroHeadline,
           heroHeadlineLine2: settings.heroHeadlineLine2,
           heroSubheadline: settings.heroSubheadline,

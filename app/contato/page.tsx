@@ -12,7 +12,7 @@ function socialHref(platform: 'instagram', value: string): string | null {
 }
 
 export async function generateMetadata() {
-  const settings = getStoreSettings()
+  const settings = await getStoreSettings()
   return buildInstitutionalMetadata(
     settings.storeName,
     'Contato',
@@ -20,8 +20,8 @@ export async function generateMetadata() {
   )
 }
 
-export default function ContatoPage() {
-  const settings = getStoreSettings()
+export default async function ContatoPage() {
+  const settings = await getStoreSettings()
   const instagramUrl = socialHref('instagram', settings.instagram)
   const whatsappUrl = settings.whatsappPhone
     ? `https://wa.me/${settings.whatsappPhone.replace(/\D/g, '')}`

@@ -72,6 +72,12 @@ export function validateProductInput(
   if (images.length === 0) {
     errors.push({ field: 'images', message: 'Adicione ao menos uma imagem' })
   }
+  if (images.some((url) => url.startsWith('data:'))) {
+    errors.push({
+      field: 'images',
+      message: 'Use URL ou upload — imagens base64 não são permitidas.',
+    })
+  }
   if (images.length > 5) {
     errors.push({ field: 'images', message: 'Máximo de 5 imagens' })
   }

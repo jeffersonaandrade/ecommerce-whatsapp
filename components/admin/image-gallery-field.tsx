@@ -1,42 +1,81 @@
 'use client'
 
 import Image from 'next/image'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { uploadProductImageAction } from '@/lib/catalog/actions'
 
 const MAX_IMAGES = 5
+const MAX_BYTES = 5 * 1024 * 1024
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 type ImageGalleryFieldProps = {
   images: string[]
   onChange: (images: string[]) => void
   error?: string
+  productSlug?: string
+  uploadEnabled?: boolean
 }
 
 export function ImageGalleryField({
   images,
   onChange,
   error,
+  productSlug = '',
+  uploadEnabled = false,
 }: ImageGalleryFieldProps) {
   const fileRef = useRef<HTMLInputElement>(null)
   const urlRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
 
   function addUrl() {
     const value = urlRef.current?.value.trim()
     if (!value || images.length >= MAX_IMAGES) return
+
+    if (value.startsWith('data:')) {
+      setUploadError('URLs base64 não são permitidas. Use upload ou URL https.')
+      return
+    }
+
+    setUploadError(null)
     onChange([...images, value])
     if (urlRef.current) urlRef.current.value = ''
   }
 
-  function handleFile(file: File) {
+  async function handleFile(file: File) {
     if (images.length >= MAX_IMAGES) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      const result = reader.result
-      if (typeof result === 'string') {
-        onChange([...images, result])
-      }
+
+    setUploadError(null)
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setUploadError('Formato aceito: PNG, JPG ou WebP.')
+      return
     }
-    reader.readAsDataURL(file)
+
+    if (file.size > MAX_BYTES) {
+      setUploadError('Imagem deve ter no máximo 5 MB.')
+      return
+    }
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.set('image', file)
+      formData.set('productSlug', productSlug)
+
+      const result = await uploadProductImageAction(formData)
+      if (!result.ok) {
+        setUploadError(result.error)
+        return
+      }
+
+      onChange([...images, result.url])
+    } catch {
+      setUploadError('Falha ao enviar imagem. Tente novamente.')
+    } finally {
+      setUploading(false)
+    }
   }
 
   function removeAt(index: number) {
@@ -61,31 +100,45 @@ export function ImageGalleryField({
         >
           Adicionar URL
         </Button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0]
-            if (file) handleFile(file)
-            e.target.value = ''
-          }}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => fileRef.current?.click()}
-          disabled={images.length >= MAX_IMAGES}
-        >
-          Upload preview
-        </Button>
+        {uploadEnabled ? (
+          <>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) void handleFile(file)
+                e.target.value = ''
+              }}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileRef.current?.click()}
+              disabled={images.length >= MAX_IMAGES || uploading}
+            >
+              {uploading ? 'Enviando...' : 'Enviar imagem'}
+            </Button>
+          </>
+        ) : null}
       </div>
+
+      {!uploadEnabled ? (
+        <p className="text-xs text-gray-500">
+          Upload de arquivo requer Supabase. Use URL externa.
+        </p>
+      ) : null}
 
       <p className="text-xs text-gray-500">
         {images.length}/{MAX_IMAGES} imagens — a primeira é a principal
       </p>
+
+      {(uploadError || error) && (
+        <p className="text-sm text-red-600">{uploadError ?? error}</p>
+      )}
 
       {images.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -118,8 +171,6 @@ export function ImageGalleryField({
           ))}
         </div>
       )}
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   )
 }

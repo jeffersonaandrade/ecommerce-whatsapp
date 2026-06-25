@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Product, ProductStatus } from '@/types/product'
 import { Button } from '@/components/ui/button'
 import { ImageGalleryField } from '@/components/admin/image-gallery-field'
+import { isSupabaseAuthMode } from '@/lib/auth/mode'
 import {
   createProductAction,
   updateProductAction,
@@ -267,7 +268,15 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Galeria de imagens</h2>
-        <ImageGalleryField images={images} onChange={setImages} />
+        <p className="text-sm text-gray-500">
+          Ao menos 1 imagem (máximo 5). Use URL externa ou envie arquivo (Supabase).
+        </p>
+        <ImageGalleryField
+          images={images}
+          onChange={setImages}
+          productSlug={slug}
+          uploadEnabled={isSupabaseAuthMode()}
+        />
       </section>
 
       <section className="space-y-4">

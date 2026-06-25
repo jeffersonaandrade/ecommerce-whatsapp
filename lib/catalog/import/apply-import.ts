@@ -1,8 +1,7 @@
-import { Product } from '@/types/product'
+import { ParsedProduct, ImportApplyResult } from './types'
 import { ProductInput, ProductRepository, VariationInput } from '@/lib/catalog/product-repository'
 import { deriveShortDescription } from '@/lib/catalog/product-utils'
-import { ParsedProduct } from './types'
-import { ImportApplyResult } from './types'
+import { Product } from '@/types/product'
 
 function stripHtml(html: string): string {
   return html
@@ -52,7 +51,10 @@ function mergeVariations(
   incoming: ProductInput
 ): ProductInput {
   const bySku = new Map<string, VariationInput>(
-    existing.variations.map((v) => [v.sku, { id: v.id, sku: v.sku, stock: v.stock, size: v.size, color: v.color }])
+    existing.variations.map((v) => [
+      v.sku,
+      { id: v.id, sku: v.sku, stock: v.stock, size: v.size, color: v.color },
+    ])
   )
 
   for (const variation of incoming.variations) {
@@ -76,12 +78,12 @@ function mergeVariations(
   }
 }
 
-export function applyImport(
+export async function applyImport(
   products: ParsedProduct[],
   repo: ProductRepository
-): ImportApplyResult {
+): Promise<ImportApplyResult> {
   const started = performance.now()
-  const snapshot = structuredClone(repo.getAll())
+  const snapshot = structuredClone(await repo.getAll())
   let created = 0
   let updated = 0
   let skipped = 0
@@ -94,19 +96,19 @@ export function applyImport(
       }
 
       const input = toProductInput(parsed)
-      const existing = repo.getBySlug(parsed.slug)
+      const existing = await repo.getBySlug(parsed.slug)
 
       if (existing) {
         const merged = mergeVariations(existing, input)
-        repo.update(existing.id, merged)
+        await repo.update(existing.id, merged)
         updated++
       } else {
-        repo.create(input)
+        await repo.create(input)
         created++
       }
     }
   } catch (error) {
-    repo.saveAll(snapshot)
+    await repo.saveAll(snapshot)
     throw error
   }
 
