@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { getButtonClassName } from '@/components/ui/button'
+import { PasswordInput } from '@/components/ui/password-input'
 import {
   DEMO_ADMIN_CREDENTIALS,
   setDemoAdminFlag,
@@ -117,14 +118,13 @@ export function AdminLoginForm() {
             </label>
             <label className="block text-sm font-medium text-ink">
               Senha
-              <input
-                type="password"
+              <PasswordInput
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
-                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                wrapperClassName="mt-1"
                 placeholder="••••••••"
               />
             </label>
