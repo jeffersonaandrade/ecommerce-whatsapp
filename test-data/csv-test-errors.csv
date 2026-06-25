@@ -1,0 +1,11 @@
+Identificador URL,Nome (Português),Categorias,Preço,Preço promocional,Estoque,SKU,Descrição (Português),image_urls
+,Produto Sem Slug,Camisas,100,,5,SKU-ERR-001,CSV_E006 - slug vazio
+prod-err-1,Produto Com HTTP,Camisas,100,,5,SKU-ERR-002,CSV_E003 - HTTP URL,http://example.com/image.jpg
+prod-err-2,Produto Promo Alta,Camisas,100,150,5,SKU-ERR-003,CSV_E004 - promo >= preço
+prod-err-3,Produto Estoque Negativo,Camisas,100,,-5,SKU-ERR-004,CSV_E005 - estoque negativo
+prod-err-4,Produto URLs Excesso,Camisas,100,,5,SKU-ERR-005,CSV_E003 - 6 URLs,https://cdn.exemplo.com/1.jpg|https://cdn.exemplo.com/2.jpg|https://cdn.exemplo.com/3.jpg|https://cdn.exemplo.com/4.jpg|https://cdn.exemplo.com/5.jpg|https://cdn.exemplo.com/6.jpg
+prod-err-5,Produto IMG Inválida,Camisas,100,,5,SKU-ERR-006,CSV_E003 - extensão inválida,https://example.com/image.txt
+prod-dup,Produto DUP 1,Camisas,100,,5,SKU-DUPLICATE,CSV_E002 - SKU duplicado
+prod-dup-2,Produto DUP 2,Camisas,100,,5,SKU-DUPLICATE,CSV_E002 - SKU duplicado (mesma linha de arquivo)
+conflito-1,Produto Conflito Nome A,Camisas,100,,5,SKU-CONF-A,CSV_E001 - conflito
+conflito-1,Produto Conflito Nome B,Camisas,100,,5,SKU-CONF-B,CSV_E001 - conflito (mudou o nome)
