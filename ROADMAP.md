@@ -43,8 +43,10 @@ Template single-client: catálogo + carrinho + WhatsApp na V1. Checkout online n
 
 ### Fase 7: Supabase
 
-- Persistência + `DATABASE_PLAN`
-- Storage de imagens
+- ✅ Persistência + [`DATABASE_PLAN.md`](docs/DATABASE_PLAN.md)
+- ✅ Storage de imagens (branding)
+- ✅ Auth admin + middleware
+- Migração produção: `DATA_PROVIDER=supabase` na Netlify
 
 ### Fase 8: Pedidos
 
@@ -62,7 +64,7 @@ Template single-client: catálogo + carrinho + WhatsApp na V1. Checkout online n
 | Domínio documentado | Concluído |
 | Catálogo operacional | Próximo |
 | CSV + WhatsApp | Planejado |
-| Supabase | Após catálogo |
+| Supabase | Implementado (ativar por env) |
 
 ## Fora do escopo
 

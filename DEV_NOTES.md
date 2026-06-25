@@ -16,7 +16,7 @@
 | Domínio / ADRs | ✅ `docs/DOMAIN_MODEL.md`, `ARCHITECTURE.md` |
 | CSV import | ✅ Pipeline CSV-1…4; histórico adiado |
 | Supabase | ⏳ Fase 7 |
-| Graphify | ✅ Atualizado (239 nós · 512 arestas) |
+| Graphify | ✅ Atualizado (652 nós · 1553 arestas) — 2026-06-25 |
 
 ## ✅ O que foi Implementado (Fase 1)
 

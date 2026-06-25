@@ -11,9 +11,9 @@ Ferramenta de **desenvolvimento** ([Graphify](https://github.com/safishamsi/grap
 | [graphify-out/graph.json](graphify-out/graph.json) | Grafo completo para consultas CLI |
 | [.cursor/rules/graphify.mdc](.cursor/rules/graphify.mdc) | Regra Cursor (`alwaysApply`) para consultar o grafo antes de explorar código |
 
-**Última geração:** 2026-06-25 (v1.0.1-demo) · **542 nós · 1250 arestas · 20 comunidades** · extração AST (sem API)
+**Última geração:** 2026-06-25 (pós Supabase + upload) · **652 nós · 1553 arestas · 28 comunidades** · extração AST (sem API)
 
-Novos hubs: `lib/admin/demo-session`, `AdminAccessButton`, `/admin/login`, `resolveExistingBrandingPath`.
+Novos hubs: `requireAdmin`, `product-image-storage`, `uploadProductImageAction`, `getProductRepository`.
 
 ## Árvore do projeto (rotas e módulos)
 

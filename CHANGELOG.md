@@ -4,7 +4,60 @@ Formato baseado em entradas por fase/sessão. Não remover decisões ou versões
 
 ## [Unreleased]
 
-_(Fase 7 — Supabase / Auth)_
+### Auth + catálogo Supabase — 2026-06-25
+
+#### fix(auth): alerta unauthorized persistente
+
+- `components/admin/admin-login-form.tsx` — banner `role="alert"` para `?error=unauthorized`
+
+#### feat(catalog): páginas async + upload imagem produto
+
+- Páginas públicas/admin migradas para `await` nos repositórios async
+- `lib/catalog/product-image-storage.ts` + `uploadProductImageAction`
+- `components/admin/image-gallery-field.tsx` — upload real para Supabase Storage
+- Bloqueio de URLs `data:` novas em `product-utils.ts`
+- `next.config.ts` — `remotePatterns` Supabase products
+- Scripts: `migrate-json-to-supabase.mjs`, `smoke-supabase-local.mjs`, `verify-product-crud.mjs`, `generate-seed-sql.mjs`
+
+#### Comandos
+
+- `npm run test` — 60 passed
+- `npm run build` — OK
+- `graphify update .` — 652 nós · 1553 arestas
+
+---
+
+### Sprint Supabase (HANDOFF) — Sprints 1–3 — 2026-06-24
+
+**Objetivo:** Infra Supabase + migração JSON + checklist 1º cliente. `DATA_PROVIDER=json` permanece default local.
+
+#### Sprint 1 — Foundation
+
+- `docs/DATABASE_PLAN.md` — ER, SQL copy-paste, RLS, Storage, env vars, checklist provisionamento
+- `@supabase/supabase-js` + `@supabase/ssr`
+- `lib/supabase/*`, `lib/data/provider.ts` — factory `json` | `supabase`
+- `getProductRepository()` / `getStoreSettingsRepository()` — interfaces async
+- Repositórios Supabase (read + write) + mappers
+- `.env.local.example`
+
+#### Sprint 2 — Migração
+
+- Branding → Supabase Storage (`lib/store/branding-storage.ts`)
+- Auth Supabase + `middleware.ts` (protege `/admin/*` quando `DATA_PROVIDER=supabase`)
+- `scripts/migrate-json-to-supabase.mjs`
+- `prepare-netlify-build.mjs` — skip seed JSON quando `DATA_PROVIDER=supabase`
+- Páginas/APIs migradas para `await` nos repositórios async
+
+#### Sprint 3 — Go-live
+
+- Checklist provisionamento em `DATABASE_PLAN.md` + `GO_LIVE_CHECKLIST.md`
+- Onboarding 1º cliente documentado
+
+#### Comandos
+
+- `npm run test` — 50 passed
+- `npm run build` — OK
+- `graphify update .` — OK
 
 ---
 

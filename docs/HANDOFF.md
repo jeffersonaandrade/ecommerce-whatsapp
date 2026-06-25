@@ -29,7 +29,7 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **Persistência admin** | 🟡 | JSON local OK; Netlify demo falha (500). Supabase resolve em produção |
 | **SEO** | ✅ | `buildPageMetadata`, canonical PLP/Home/PDP, OG, robots PDP |
 | **Deploy Netlify** | 🟡 | Vitrine OK; **admin que grava disco falha** (500) |
-| **Testes** | ✅ | **50 passed** (9 arquivos) — executado 2026-06-26 |
+| **Testes** | ✅ | **60 passed** (12 arquivos) — executado 2026-06-25 |
 | **Build** | ✅ | `npm run build` OK — 23 rotas |
 
 ### Itens explicitamente ❌ não implementados
@@ -128,11 +128,11 @@ Sem aprovação explícita, **não implementar**:
 
 | Item | Valor atual |
 |------|-------------|
-| Testes | **50 passed** / 9 files (`vitest run`) |
+| Testes | **60 passed** / 12 files (`vitest run`) |
 | Build | OK (`next build`, Next.js 16.2.9) |
-| Último commit | `4809e35` — chore(repo): remove manual test artifacts (2026-06-25) |
-| Branch | `master` sync com `origin/master` |
-| Graphify | **542 nós · 1250 arestas · 20 comunidades** (`graphify-out/`) |
+| Último commit | `14905a2` — feat(catalog): async supabase pages and product image upload |
+| Branch | `master` — **4 commits** à frente de `origin/master` (sem push) |
+| Graphify | **652 nós · 1553 arestas · 28 comunidades** (`graphify-out/`, commit `14905a2`) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
 
 ### Persistência atual (filesystem)
@@ -146,13 +146,14 @@ Sem aprovação explícita, **não implementar**:
 
 ### Documentos a manter (núcleo)
 
-- `docs/ARCHITECTURE.md` — **precisa atualização** (diz “Mock”, “Settings placeholder”)
+- `docs/ARCHITECTURE.md` — atualizado (Supabase + `DATA_PROVIDER`)
 - `docs/DOMAIN_MODEL.md` — **precisa atualização** (Category/Banner futuros)
 - `docs/DESIGN_SYSTEM.md`
 - `docs/CSV_IMPORT_SPEC.md` + `docs/IMPORT_PIPELINE.md` (operacional)
-- `docs/GO_LIVE_CHECKLIST.md` — **precisa atualização** (checkboxes desatualizados)
+- `docs/GO_LIVE_CHECKLIST.md` — checkboxes operacionais Supabase/Netlify pendentes
 - `CHANGELOG.md`
 - `docs/HANDOFF.md` (este documento)
+- `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` — evidência QA browser Supabase
 - `graphify-out/` (mapa vivo)
 
 ### Documentos candidatos a `docs/archive/`
@@ -168,10 +169,10 @@ Sem aprovação explícita, **não implementar**:
 
 ### Documentos desatualizados (corrigir ou consolidar)
 
-- `ROADMAP.md` — ainda diz “Fase 4 próxima” (Fases 4–6 já no código)
+- `ROADMAP.md` — Fase 7 parcialmente marcada ✅; migração Netlify pendente
 - `docs/MODULE_ROADMAP.md` — diz Fases 4–6 ✅ mas Go Live “em andamento” sem sync
 - `PROJECT_SCOPE.md` — versão 0.2.0, lista placeholders já implementados
-- `docs/ARCHITECTURE.md` — tabela de módulos desatualizada
+- `docs/ARCHITECTURE.md` — ~~tabela de módulos desatualizada~~ corrigido 2026-06-25
 
 ---
 
@@ -271,7 +272,7 @@ Sem aprovação explícita, **não implementar**:
 - [x] `migrate-json-to-supabase.mjs`
 - [x] `middleware.ts` + login Supabase Auth
 - [x] `prepare-netlify-build.mjs` com skip JSON em supabase
-- [x] 50 testes verdes
+- [x] 60 testes verdes
 
 **Aceite (produção — operador):**
 - [ ] Salvar settings funciona em https://loja-whats.netlify.app
@@ -331,16 +332,16 @@ Sem aprovação explícita, **não implementar**:
 
 ## 6. Mensagem comercial (validada)
 
-> A loja online (vitrine, carrinho, WhatsApp) funciona no link público.  
-> O painel admin completo em produção depende da **Fase 7 (banco de dados)**.  
-> Hoje o admin opera integralmente em **instalação local ou VPS com disco**.
+> A vitrine (PLP, PDP, carrinho, WhatsApp) funciona no link público e em local com Supabase.  
+> O admin **completo** opera em local com `DATA_PROVIDER=supabase` (auth, CRUD, settings).  
+> **Produção Netlify** ainda depende de env vars Supabase + smoke manual (uploads, CSV) — ver §9.
 
 ---
 
 ## 7. Comandos de verificação
 
 ```bash
-npm run test      # 50 passed
+npm run test      # 60 passed
 npm run build     # produção local
 npm run build:netlify  # simula prebuild deploy
 npm run start     # admin gravável localmente
@@ -354,13 +355,65 @@ graphify update . # após mudanças estruturais
 | Documento | Código real |
 |-----------|-------------|
 | ROADMAP: Fase 4 “próxima” | Fases 4–6 implementadas |
-| ARCHITECTURE: Catalog “Mock” | `JsonProductRepository` operacional |
-| ARCHITECTURE: Settings “Placeholder” | Admin settings funcional |
-| GO_LIVE: checkboxes abertos Sprints 1–3 | Features largamente implementadas |
+| ARCHITECTURE: Catalog “Mock” | Repositórios JSON + Supabase via factory |
+| ARCHITECTURE: Settings “Placeholder” | Admin settings funcional (JSON ou Supabase) |
+| GO_LIVE: checkboxes abertos Sprints 1–3 | Código pronto; aceite operacional pendente (§9) |
 | MODULE_ROADMAP: CSV-5 histórico | Rota `/admin/import/history` não existe |
 | CHANGELOG 1.0.1-demo vs package 1.0.0 | Versões desalinhadas |
 
 **Regra:** em conflito, **código prevalece**.
+
+---
+
+## 9. Validação de pendências
+
+**Atualizado:** 2026-06-25 · Fontes: commits locais, [`QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](../QA_SUPABASE_ADMIN_BROWSER_REPORT.md), [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md)
+
+### 9.1 Código e testes (repo)
+
+| Item | Status | Evidência |
+|------|--------|-----------|
+| Auth P0 (`requireAdmin`, middleware, RLS doc) | ✅ | commit `1eb4d43` |
+| Alerta `?error=unauthorized` persistente | ✅ | commit `299c7f7` |
+| Repositórios async + páginas `await` | ✅ | commit `14905a2` |
+| Upload imagem produto (Storage) | 🟡 | implementado; QA browser pendente |
+| Testes | ✅ | `60 passed` / 12 files |
+| Build | ✅ | `npm run build` OK |
+
+### 9.2 Supabase Dashboard (operador — manual)
+
+- [ ] **Auth → Providers → Email:** desabilitar **Enable sign ups**
+- [x] Admin com `app_metadata.role=admin` (usuários seed configurados)
+- [ ] Rotacionar `service_role` → atualizar `.env.local` + Netlify production
+- [x] SQL RLS + Storage admin (aplicado — ver `DATABASE_PLAN.md`)
+- [x] Usuário QA temp `qa-no-admin-temp@test.local` removido
+
+### 9.3 QA browser (local Supabase)
+
+| Fluxo | Status |
+|-------|--------|
+| Login/logout/proteção admin | ✅ PASS |
+| Alerta unauthorized na tela de login | ✅ PASS (commit `299c7f7`) |
+| Settings persistentes | ✅ PASS (parcial) |
+| CRUD produto | ✅ PASS |
+| Upload logo/hero/imagem arquivo | ❌ não testado |
+| Import CSV browser | ❌ não testado |
+| WhatsApp `#TEMP-...` | ❌ não validado |
+| Deploy Netlify + Supabase | ❌ bloqueado até §9.2 + smoke §9.4 |
+
+### 9.4 Produção Netlify
+
+- [ ] Salvar settings em https://loja-whats.netlify.app
+- [ ] CSV import persiste e aparece na vitrine
+- [ ] Upload logo/hero persiste após redeploy
+- [ ] CRUD produtos persiste
+
+### 9.5 Próximo passo recomendado
+
+1. Dashboard Supabase (signup OFF + rotacionar `service_role`)
+2. Smoke manual: uploads logo/hero/produto + CSV + mensagem WhatsApp
+3. Deploy Netlify com `DATA_PROVIDER=supabase` + envs atualizadas
+4. Onboarding 1º cliente (Sprint 3 operacional)
 
 ---
 

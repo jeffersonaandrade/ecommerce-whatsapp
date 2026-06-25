@@ -13,7 +13,7 @@ Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.
 | Tipo | Loja por cliente, não SaaS |
 | V1 comercial | Cadastrar produtos · importar CSV · vender via WhatsApp |
 | V1 técnica | Next.js 16, TypeScript, Tailwind, mock + localStorage |
-| Persistência | Fase 7 (Supabase) — depois do catálogo operacional |
+| Persistência | Supabase (Sprint HANDOFF) — `DATA_PROVIDER=json|supabase`; ver [`DATABASE_PLAN.md`](DATABASE_PLAN.md) |
 
 ---
 
@@ -100,23 +100,19 @@ Fase 3: skeleton de navegação. Fase 4: catálogo funcional.
 
 ## O que é mock hoje
 
-- Produtos (`mock-products`)
 - Pedidos admin (sem domínio `Order`)
 - Checkout (placeholder)
-- Settings (sem persistência)
-- Import (download template apenas)
+- Categorias admin (somente leitura — derivadas do catálogo)
 
----
+## Persistência (implementado)
 
-## O que será persistido (futuro)
+| Provider | Uso | Implementação |
+|----------|-----|---------------|
+| `json` (default) | Dev local, demo Netlify | `JsonProductRepository`, `JsonSettingsRepository`, `storage/` |
+| `supabase` | Produção por cliente | `SupabaseProductRepository`, `SupabaseSettingsRepository`, Storage |
 
-| Fase | O quê |
-|------|-------|
-| 4–6 | Catálogo em mock/localStorage até Fase 7 |
-| 7 | Produtos, imagens, settings, import jobs → Supabase |
-| 8–9 | Orders, payments, shipments |
-
-`DATABASE_PLAN.md` será criado na **Fase 7**, quando o catálogo real estabilizar requisitos.
+Factory: [`lib/data/provider.ts`](../lib/data/provider.ts) via env `DATA_PROVIDER`.  
+Schema e SQL: [`DATABASE_PLAN.md`](DATABASE_PLAN.md).
 
 ---
 
@@ -132,11 +128,9 @@ Fase 3: skeleton de navegação. Fase 4: catálogo funcional.
 
 ## Decisões adiadas
 
-- Supabase, ORM, migrations
-- Parser CSV runtime
-- Auth admin
+- Parser CSV runtime adicional
 - Entidade `Order`, gateway, frete no site
-- `graphify update` (só com autorização)
+- CMS (banners, categorias CRUD, menus) — Sprint 4+
 
 ---
 
