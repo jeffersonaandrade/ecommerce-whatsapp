@@ -7,7 +7,7 @@ import { brandingAssetUrl } from '@/lib/store/branding-url'
 
 export async function Header() {
   const settings = getStoreSettings()
-  const logoUrl = brandingAssetUrl(settings.logoPath)
+  const logoUrl = brandingAssetUrl(settings.logoPath, settings.updatedAt)
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-hairline bg-canvas">
@@ -21,7 +21,10 @@ export async function Header() {
               className="h-8 w-8 rounded-sm object-cover"
             />
           ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-ink text-sm font-bold text-canvas">
+            <div
+              className="flex h-8 w-8 items-center justify-center rounded-sm text-sm font-bold text-canvas"
+              style={{ backgroundColor: settings.primaryColor }}
+            >
               {settings.storeName.charAt(0).toUpperCase()}
             </div>
           )}

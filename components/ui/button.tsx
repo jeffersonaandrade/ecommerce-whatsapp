@@ -16,8 +16,10 @@ export function getButtonClassName(
     'inline-flex items-center justify-center font-medium rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ink disabled:opacity-50 disabled:cursor-not-allowed'
 
   const variants = {
-    default: 'bg-ink text-canvas hover:bg-charcoal',
-    secondary: 'bg-soft-cloud text-ink hover:bg-hairline',
+    default:
+      'bg-[var(--color-store-primary,#111111)] text-canvas hover:opacity-90',
+    secondary:
+      'bg-[var(--color-store-secondary,#f5f5f5)] text-ink hover:opacity-90',
     outline:
       'border border-hairline text-ink bg-transparent hover:bg-soft-cloud',
   }

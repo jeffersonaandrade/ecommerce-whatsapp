@@ -3,6 +3,7 @@ import 'server-only'
 import fs from 'fs'
 import path from 'path'
 import { StoreSettings } from '@/types/store-settings'
+import { createDefaultStoreSettings } from './settings-defaults'
 
 const STORAGE_DIR = path.join(process.cwd(), 'storage')
 const SETTINGS_PATH = path.join(STORAGE_DIR, 'store-settings.json')
@@ -11,18 +12,7 @@ const BRANDING_DIR = path.join(STORAGE_DIR, 'branding')
 
 let memoryCache: StoreSettings | null = null
 
-const DEFAULT_SETTINGS: StoreSettings = {
-  storeName: 'Sports Store',
-  description: 'Sua loja esportiva de confiança',
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
-  whatsappPhone: '5511999999999',
-  whatsappMessagePrefix: '',
-  email: '',
-  instagram: '',
-  facebook: '',
-  logoPath: null,
-  ogImagePath: null,
-}
+const DEFAULT_SETTINGS = createDefaultStoreSettings()
 
 function ensureStorage(): void {
   if (!fs.existsSync(STORAGE_DIR)) {

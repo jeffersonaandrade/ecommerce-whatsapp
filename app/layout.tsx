@@ -35,10 +35,18 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const settings = getStoreSettings()
+
   return (
     <html
       lang="pt-BR"
       className={`${inter.variable} ${barlowCondensed.variable} h-full scroll-smooth antialiased`}
+      style={
+        {
+          '--color-store-primary': settings.primaryColor,
+          '--color-store-secondary': settings.secondaryColor,
+        } as React.CSSProperties
+      }
     >
       <body className="flex min-h-screen flex-col bg-canvas font-sans text-ink">
         <CartProvider>
