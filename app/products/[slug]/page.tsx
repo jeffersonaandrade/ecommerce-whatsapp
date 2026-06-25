@@ -17,7 +17,7 @@ export async function generateMetadata({
   const product = getProductBySlug(slug)
   const settings = getStoreSettings()
   const canonical = `${settings.siteUrl}/products/${slug}`
-  const ogFallback = brandingAssetUrl(settings.ogImagePath)
+  const ogFallback = brandingAssetUrl(settings.ogImagePath, settings.updatedAt)
   const productImage = product?.images[0]
 
   if (!product) {

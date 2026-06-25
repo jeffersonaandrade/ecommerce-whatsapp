@@ -1,4 +1,6 @@
 import { readBrandingFile } from '@/lib/store/generate-branding'
+import { resolveBrandingFilename } from '@/lib/store/branding-url'
+import { BRANDING_CACHE_CONTROL } from '@/lib/store/build-metadata'
 
 const MIME: Record<string, string> = {
   '.webp': 'image/webp',
@@ -13,19 +15,20 @@ export async function GET(
 ) {
   const { path: segments } = await params
   const filename = segments.join('/')
-  const buffer = readBrandingFile(filename)
+  const resolved = resolveBrandingFilename(filename)
+  const buffer = readBrandingFile(resolved)
 
   if (!buffer) {
     return new Response('Not found', { status: 404 })
   }
 
-  const ext = filename.slice(filename.lastIndexOf('.')).toLowerCase()
+  const ext = resolved.slice(resolved.lastIndexOf('.')).toLowerCase()
   const contentType = MIME[ext] ?? 'application/octet-stream'
 
   return new Response(new Uint8Array(buffer), {
     headers: {
       'Content-Type': contentType,
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control': BRANDING_CACHE_CONTROL,
     },
   })
 }

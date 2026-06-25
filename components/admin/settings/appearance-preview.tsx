@@ -1,16 +1,17 @@
 'use client'
 
 import { StoreSettings } from '@/types/store-settings'
-import { brandingAssetUrl } from '@/lib/store/branding-url'
+import { BRANDING_ICON_FILES, brandingAssetUrl } from '@/lib/store/branding-url'
 
 type AppearancePreviewProps = {
   settings: StoreSettings
 }
 
 export function AppearancePreview({ settings }: AppearancePreviewProps) {
-  const logoUrl = brandingAssetUrl(settings.logoPath)
-  const ogUrl = brandingAssetUrl(settings.ogImagePath)
-  const faviconUrl = brandingAssetUrl('favicon-32.png')
+  const v = settings.updatedAt
+  const logoUrl = brandingAssetUrl(settings.logoPath, v)
+  const ogUrl = brandingAssetUrl(settings.ogImagePath, v)
+  const faviconUrl = brandingAssetUrl(BRANDING_ICON_FILES.favicon32, v)
 
   return (
     <div className="space-y-4 rounded-lg border border-hairline bg-soft-cloud p-4">

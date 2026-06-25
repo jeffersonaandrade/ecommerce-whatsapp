@@ -1,10 +1,61 @@
 import type { Metadata } from 'next'
 import { StoreSettings } from '@/types/store-settings'
-import { brandingAssetUrl } from './branding-url'
+import {
+  BRANDING_ICON_FILES,
+  brandingAssetUrl,
+  brandingAssetUrlVersioned,
+} from './branding-url'
+
+const BRANDING_CACHE_CONTROL = 'public, max-age=60, must-revalidate'
+
+export { BRANDING_CACHE_CONTROL }
+
+function versionedIcons(updatedAt: string): NonNullable<Metadata['icons']> {
+  const v = updatedAt
+  return {
+    icon: [
+      {
+        url: brandingAssetUrlVersioned(BRANDING_ICON_FILES.favicon32, v),
+        sizes: '32x32',
+        type: 'image/png',
+      },
+      {
+        url: brandingAssetUrlVersioned(BRANDING_ICON_FILES.favicon16, v),
+        sizes: '16x16',
+        type: 'image/png',
+      },
+    ],
+    apple: [
+      {
+        url: brandingAssetUrlVersioned(BRANDING_ICON_FILES.appleTouch, v),
+        sizes: '180x180',
+        type: 'image/png',
+      },
+    ],
+    other: [
+      {
+        rel: 'icon',
+        url: brandingAssetUrlVersioned(BRANDING_ICON_FILES.android192, v),
+        sizes: '192x192',
+        type: 'image/png',
+      },
+      {
+        rel: 'icon',
+        url: brandingAssetUrlVersioned(BRANDING_ICON_FILES.android512, v),
+        sizes: '512x512',
+        type: 'image/png',
+      },
+    ],
+  }
+}
+
+function absoluteOgUrl(settings: StoreSettings): string | undefined {
+  const ogPath = brandingAssetUrl(settings.ogImagePath, settings.updatedAt)
+  return ogPath ? `${settings.siteUrl}${ogPath}` : undefined
+}
 
 export function buildRootMetadata(settings: StoreSettings): Metadata {
-  const ogUrl = brandingAssetUrl(settings.ogImagePath)
-  const absoluteOg = ogUrl ? `${settings.siteUrl}${ogUrl}` : undefined
+  const absoluteOg = absoluteOgUrl(settings)
 
   return {
     metadataBase: new URL(settings.siteUrl),
@@ -28,13 +79,7 @@ export function buildRootMetadata(settings: StoreSettings): Metadata {
       description: settings.description,
       images: absoluteOg ? [absoluteOg] : [],
     },
-    icons: {
-      icon: [
-        { url: '/api/branding/favicon-32.png', sizes: '32x32', type: 'image/png' },
-        { url: '/api/branding/favicon-16.png', sizes: '16x16', type: 'image/png' },
-      ],
-      apple: [{ url: '/api/branding/apple-touch-icon.png', sizes: '180x180' }],
-    },
+    icons: versionedIcons(settings.updatedAt),
   }
 }
 
@@ -45,8 +90,7 @@ export function buildPageMetadata(
   path = ''
 ): Metadata {
   const canonical = `${settings.siteUrl}${path}`
-  const ogUrl = brandingAssetUrl(settings.ogImagePath)
-  const absoluteOg = ogUrl ? `${settings.siteUrl}${ogUrl}` : undefined
+  const absoluteOg = absoluteOgUrl(settings)
 
   return {
     title,
