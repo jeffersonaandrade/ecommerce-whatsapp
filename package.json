@@ -8,9 +8,12 @@
     "build:netlify": "node scripts/prepare-netlify-build.mjs && npm run build",
     "start": "next start",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "migrate:supabase": "node scripts/migrate-json-to-supabase.mjs"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.2",
     "framer-motion": "^12.41.0",
     "next": "16.2.9",
     "react": "19.2.4",

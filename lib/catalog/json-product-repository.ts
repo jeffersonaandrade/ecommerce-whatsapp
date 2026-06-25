@@ -38,26 +38,26 @@ function buildProduct(input: ProductInput, existing: Product[]): Product {
 }
 
 export const jsonProductRepository: ProductRepository = {
-  getAll(): Product[] {
+  async getAll(): Promise<Product[]> {
     return loadCatalogFromDisk()
   },
 
-  getById(id: string): Product | undefined {
+  async getById(id: string): Promise<Product | undefined> {
     return loadCatalogFromDisk().find((p) => p.id === id)
   },
 
-  getBySlug(slug: string): Product | undefined {
+  async getBySlug(slug: string): Promise<Product | undefined> {
     return loadCatalogFromDisk().find((p) => p.slug === slug)
   },
 
-  create(input: ProductInput): Product {
+  async create(input: ProductInput): Promise<Product> {
     const products = loadCatalogFromDisk()
     const product = buildProduct(input, products)
     persistCatalog([...products, product])
     return product
   },
 
-  update(id: string, input: ProductInput): Product {
+  async update(id: string, input: ProductInput): Promise<Product> {
     const products = loadCatalogFromDisk()
     const index = products.findIndex((p) => p.id === id)
     if (index === -1) throw new Error('Produto não encontrado')
@@ -86,16 +86,12 @@ export const jsonProductRepository: ProductRepository = {
     return updated
   },
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     const products = loadCatalogFromDisk()
     persistCatalog(products.filter((p) => p.id !== id))
   },
 
-  saveAll(products: Product[]): void {
+  async saveAll(products: Product[]): Promise<void> {
     persistCatalog(products)
   },
-}
-
-export function getProductRepository(): ProductRepository {
-  return jsonProductRepository
 }

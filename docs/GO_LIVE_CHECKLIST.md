@@ -41,7 +41,7 @@ Após Sprint 1 + 2:
 
 - Theme engine completo / page builder
 - Histórico CSV
-- Supabase (Fase 7)
+- CMS (banners, categorias CRUD, menus) — Sprint 4+
 - Bloquear import por falha HEAD
 
 ---
@@ -70,7 +70,57 @@ Checklist pré-demo ao cliente:
 - Rotas `/admin/*` **não estão protegidas** nesta V1 — `/admin` permanece acessível diretamente.
 - “Sair” no dashboard ou header limpa a flag visual; dashboard redireciona para `/admin/login`.
 - Banner/branding via Admin na demo estática exige **rebuild/deploy** para refletir na Home pública.
-- Supabase / auth real → versão futura.
+- Supabase / auth real → ativo com `DATA_PROVIDER=supabase` (ver abaixo)
+
+## Deploy Netlify — Supabase (produção)
+
+Quando `DATA_PROVIDER=supabase`, o prebuild **não** copia seed JSON — dados vêm do Postgres/Storage.
+
+| Variável | Valor |
+|----------|-------|
+| `DATA_PROVIDER` | `supabase` |
+| `NEXT_PUBLIC_DATA_PROVIDER` | `supabase` |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role (server only) |
+
+**Provisionamento:** ver [`DATABASE_PLAN.md`](DATABASE_PLAN.md) — SQL, buckets, admin user, `node scripts/migrate-json-to-supabase.mjs`.
+
+## Segurança Admin (obrigatório antes de produção real)
+
+Checklist manual no **Supabase Dashboard** — não substituível por código:
+
+- [ ] **Auth → Providers → Email:** desabilitar **Enable sign ups** (signup público OFF)
+- [ ] **Auth → Users:** único admin criado manualmente (Add user)
+- [ ] Editar admin → **Raw App Meta Data:** `{ "role": "admin" }` (nunca em `user_metadata`)
+- [ ] **Settings → API:** rotacionar `service_role` se exposta; atualizar env local + Netlify production
+- [ ] Executar SQL de migração RLS em [`DATABASE_PLAN.md`](DATABASE_PLAN.md) §2 (`is_store_admin()` + policies)
+- [ ] Executar SQL Storage admin em [`DATABASE_PLAN.md`](DATABASE_PLAN.md) §3
+- [ ] Confirmar envs separados dev/staging/prod quando possível
+
+**Camadas no app** (com `DATA_PROVIDER=supabase`):
+
+| Camada | Comportamento |
+|--------|---------------|
+| Middleware | `/admin/*` exige JWT + `app_metadata.role === 'admin'` |
+| Server actions | `requireAdmin()` antes de mutations (catálogo, import, settings, uploads) |
+| RLS Postgres/Storage | `is_store_admin()` bloqueia PostgREST direto com JWT não-admin |
+
+**Modo JSON (`DATA_PROVIDER=json`):** sem auth real — **apenas dev/demo local**. Nunca deploy com dados reais neste modo.
+
+**Smoke segurança:**
+
+- [ ] Login admin com role → CRUD OK
+- [ ] Usuário autenticado sem role → redirect `/admin/login?error=unauthorized`
+- [ ] Server action sem sessão → `{ ok: false, error: 'Não autenticado' }`
+
+**Smoke produção:**
+
+- [ ] Login admin (email/senha Supabase)
+- [ ] Salvar settings persiste após redeploy
+- [ ] CRUD produto + import CSV
+- [ ] Upload logo → favicon/OG
+- [ ] Pedido WhatsApp `#TEMP-...`
 
 ## Deploy Netlify (demo cliente)
 

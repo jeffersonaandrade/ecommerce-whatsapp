@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getProductRepository } from '@/lib/catalog/json-product-repository'
+import { requireAdmin } from '@/lib/auth/require-admin'
+import { getProductRepository } from '@/lib/catalog/get-product-repository'
 import { applyImport } from './apply-import'
 import { checkProductImageUrls } from './check-image-urls'
 import {
@@ -22,6 +23,11 @@ function revalidateCatalog() {
 export async function parseImportCsvAction(
   formData: FormData
 ): Promise<{ ok: true; preview: ImportPreview } | { ok: false; error: string }> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
+
   const file = formData.get('file')
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, error: 'Selecione um arquivo CSV válido.' }
@@ -33,7 +39,8 @@ export async function parseImportCsvAction(
 
   const text = await file.text()
   const repo = getProductRepository()
-  const preview = buildImportPreview(text, file.name, repo.getAll())
+  const catalog = await repo.getAll()
+  const preview = buildImportPreview(text, file.name, catalog)
 
   for (const product of preview.products) {
     const imageIssues = await checkProductImageUrls(product.images, product.slug)
@@ -48,12 +55,18 @@ export async function parseImportCsvAction(
 export async function confirmImportAction(
   products: ParsedProduct[]
 ): Promise<{ ok: true; result: ImportApplyResult } | { ok: false; error: string }> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
+
   if (!products.length) {
     return { ok: false, error: 'Nenhum produto válido para importar.' }
   }
 
   const repo = getProductRepository()
-  const catalogIssues = validateCatalogSkus(products, repo.getAll())
+  const catalog = await repo.getAll()
+  const catalogIssues = validateCatalogSkus(products, catalog)
   const blocking = catalogIssues.filter((i) => i.severity === 'error')
   if (blocking.length > 0) {
     return { ok: false, error: blocking[0].message }
@@ -61,7 +74,7 @@ export async function confirmImportAction(
 
   try {
     const started = performance.now()
-    const result = applyImport(products, repo)
+    const result = await applyImport(products, repo)
     revalidateCatalog()
     return {
       ok: true,

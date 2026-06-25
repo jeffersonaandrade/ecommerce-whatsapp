@@ -18,11 +18,11 @@ export type ProductInput = Omit<
 }
 
 export interface ProductRepository {
-  getAll(): Product[]
-  getById(id: string): Product | undefined
-  getBySlug(slug: string): Product | undefined
-  create(input: ProductInput): Product
-  update(id: string, input: ProductInput): Product
-  delete(id: string): void
-  saveAll(products: Product[]): void
+  getAll(): Promise<Product[]>
+  getById(id: string): Promise<Product | undefined>
+  getBySlug(slug: string): Promise<Product | undefined>
+  create(input: ProductInput): Promise<Product>
+  update(id: string, input: ProductInput): Promise<Product>
+  delete(id: string): Promise<void>
+  saveAll(products: Product[]): Promise<void>
 }

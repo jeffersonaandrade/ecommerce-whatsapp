@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { requireAdmin } from '@/lib/auth/require-admin'
 import { StoreSettingsInput } from '@/types/store-settings'
 import { isValidHexColor } from './settings-defaults'
 import { generateBrandingFromLogo, saveHeroImage } from './generate-branding'
@@ -19,6 +20,11 @@ function revalidateStore() {
 export async function updateStoreSettingsAction(
   input: StoreSettingsInput
 ): Promise<{ ok: true; updatedAt: string } | { ok: false; error: string }> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
+
   if (input.whatsappPhone && input.whatsappPhone.replace(/\D/g, '').length < 10) {
     return { ok: false, error: 'Telefone WhatsApp inválido.' }
   }
@@ -36,7 +42,7 @@ export async function updateStoreSettingsAction(
     return { ok: false, error: 'Cor secundária inválida. Use formato #RRGGBB.' }
   }
 
-  const next = updateStoreSettings(input)
+  const next = await updateStoreSettings(input)
   revalidateStore()
   return { ok: true, updatedAt: next.updatedAt }
 }
@@ -44,6 +50,11 @@ export async function updateStoreSettingsAction(
 export async function uploadStoreLogoAction(
   formData: FormData
 ): Promise<{ ok: true; updatedAt: string } | { ok: false; error: string }> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
+
   const file = formData.get('logo')
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, error: 'Selecione uma imagem válida.' }
@@ -61,7 +72,7 @@ export async function uploadStoreLogoAction(
   try {
     const buffer = Buffer.from(await file.arrayBuffer())
     const branding = await generateBrandingFromLogo(buffer)
-    const next = updateStoreSettings({
+    const next = await updateStoreSettings({
       logoPath: branding.logoPath,
       ogImagePath: branding.ogImagePath,
     })
@@ -75,6 +86,11 @@ export async function uploadStoreLogoAction(
 export async function uploadHeroImageAction(
   formData: FormData
 ): Promise<{ ok: true; updatedAt: string } | { ok: false; error: string }> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
+
   const file = formData.get('hero')
   if (!(file instanceof File) || file.size === 0) {
     return { ok: false, error: 'Selecione uma imagem válida.' }
@@ -92,7 +108,7 @@ export async function uploadHeroImageAction(
   try {
     const buffer = Buffer.from(await file.arrayBuffer())
     const heroPath = await saveHeroImage(buffer)
-    const next = updateStoreSettings({ heroImagePath: heroPath })
+    const next = await updateStoreSettings({ heroImagePath: heroPath })
     revalidateStore()
     return { ok: true, updatedAt: next.updatedAt }
   } catch {
@@ -101,5 +117,5 @@ export async function uploadHeroImageAction(
 }
 
 export async function getStoreSettingsAction() {
-  return getStoreSettings()
+  return await getStoreSettings()
 }
