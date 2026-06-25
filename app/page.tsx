@@ -5,6 +5,14 @@ import { HomeBenefits } from '@/components/commerce/home-benefits'
 import { NewsletterBlock } from '@/components/commerce/newsletter-block'
 import { ProductCard } from '@/components/product/product-card'
 import { getAllProducts, getFeaturedProducts } from '@/lib/products'
+import { getStoreSettings } from '@/lib/store/settings-repository'
+import { buildPageMetadata } from '@/lib/store/build-metadata'
+import type { Metadata } from 'next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = getStoreSettings()
+  return buildPageMetadata(settings, settings.storeName, settings.description, '/')
+}
 
 export default function Home() {
   const allProducts = getAllProducts()

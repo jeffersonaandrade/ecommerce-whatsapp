@@ -1,8 +1,10 @@
 import { Metadata } from 'next'
-import Image from 'next/image'
 import { getProductBySlug } from '@/lib/products'
 import { formatPrice } from '@/lib/formatters'
 import { ProductPurchasePanel } from '@/components/product/product-purchase-panel'
+import { ProductImage } from '@/components/product/product-image'
+import { getStoreSettings } from '@/lib/store/settings-repository'
+import { brandingAssetUrl } from '@/lib/store/branding-url'
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -13,10 +15,38 @@ export async function generateMetadata({
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
   const product = getProductBySlug(slug)
+  const settings = getStoreSettings()
+  const canonical = `${settings.siteUrl}/products/${slug}`
+  const ogFallback = brandingAssetUrl(settings.ogImagePath)
+  const productImage = product?.images[0]
+
+  if (!product) {
+    return { title: 'Produto não encontrado' }
+  }
 
   return {
-    title: product?.name || 'Produto não encontrado',
-    description: product?.shortDescription || '',
+    title: product.name,
+    description: product.shortDescription,
+    alternates: { canonical },
+    openGraph: {
+      title: product.name,
+      description: product.shortDescription,
+      url: canonical,
+      siteName: settings.storeName,
+      type: 'website',
+      images: productImage
+        ? [{ url: productImage, alt: product.name }]
+        : ogFallback
+          ? [{ url: `${settings.siteUrl}${ogFallback}`, alt: settings.storeName }]
+          : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.name,
+      description: product.shortDescription,
+      images: productImage ? [productImage] : ogFallback ? [`${settings.siteUrl}${ogFallback}`] : [],
+    },
+    robots: { index: true, follow: true },
   }
 }
 
@@ -48,12 +78,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
           {/* Gallery — DS §9.2: 1:1, soft-cloud, flat */}
           <div className="space-y-3">
             <div className="relative aspect-square overflow-hidden bg-soft-cloud">
-              <Image
-                src={product.images[0]}
+              <ProductImage
+                src={product.images[0] ?? ''}
                 alt={product.name}
                 fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
               />
             </div>
@@ -64,12 +92,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     key={idx}
                     className="relative aspect-square overflow-hidden bg-soft-cloud"
                   >
-                    <Image
+                    <ProductImage
                       src={image}
                       alt={`${product.name} ${idx + 1}`}
                       fill
-                      className="object-cover opacity-90"
-                      sizes="25vw"
                     />
                   </div>
                 ))}

@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Barlow_Condensed } from 'next/font/google'
-import { siteConfig } from '@/config/site'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { CartProvider } from '@/context/cart-context'
+import { getStoreSettings } from '@/lib/store/settings-repository'
+import { buildRootMetadata } from '@/lib/store/build-metadata'
 import './globals.css'
 
 const inter = Inter({
@@ -25,12 +26,8 @@ export const viewport: Viewport = {
   maximumScale: 5,
 }
 
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
+export async function generateMetadata(): Promise<Metadata> {
+  return buildRootMetadata(getStoreSettings())
 }
 
 export default function RootLayout({

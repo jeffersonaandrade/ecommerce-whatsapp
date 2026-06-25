@@ -4,10 +4,17 @@ import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
 import { siteConfig } from '@/config/site'
 import { getAllProducts, getProductsByCategory } from '@/lib/products'
+import { getStoreSettings } from '@/lib/store/settings-repository'
+import { buildPageMetadata } from '@/lib/store/build-metadata'
 
-export const metadata: Metadata = {
-  title: 'Produtos',
-  description: 'Confira nossa seleção completa de produtos esportivos',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = getStoreSettings()
+  return buildPageMetadata(
+    settings,
+    'Produtos',
+    'Confira nossa seleção completa de produtos esportivos',
+    '/products'
+  )
 }
 
 interface ProductsPageProps {
