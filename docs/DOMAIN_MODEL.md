@@ -91,9 +91,9 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 
 | V1 | Depois |
 |----|--------|
-| string em `Product.category` | tabela `categories`, hierarquia (`Camisas > Seleções`) |
+| string em `Product.category` — **derivadas dos produtos** (sem CRUD) | tabela `categories`, hierarquia (`Camisas > Seleções`); CRUD para criar, editar, ordenar e ocultar |
 
-Admin: `/admin/categories` (placeholder Fase 3; gestão na Fase 4+).
+Admin: `/admin/categories` — listagem derivada do catálogo (Fase 4). **Futuro:** gestão completa de categorias.
 
 ---
 
@@ -196,6 +196,8 @@ Fora do escopo V1: Stripe, PIX, Mercado Pago, cálculo de frete no site.
 
 Persistência V1: `storage/store-settings.json` + assets em `storage/branding/`. Admin: `/admin/settings`.
 
+**Anti–page-builder (V1):** o admin permite trocar **conteúdo e identidade** (logo, cores, banner, textos institucionais, contato). Layout estrutural permanece fixo — sem drag-and-drop, blocos livres ou edição de CSS.
+
 | Campo | Uso |
 |-------|-----|
 | `storeName` | Header, title, footer |
@@ -203,10 +205,15 @@ Persistência V1: `storage/store-settings.json` + assets em `storage/branding/`.
 | `siteUrl` | Links PDP no WhatsApp, canonical (SEO) |
 | `whatsappPhone` | wa.me |
 | `whatsappMessagePrefix` | Prefixo opcional da mensagem |
-| `email`, `instagram`, `facebook` | Footer / contato |
-| `logoPath`, `ogImagePath` | Branding gerado da logo (sharp) |
+| `email`, `instagram`, `facebook`, `phone` | Footer / contato |
+| `logoPath`, `ogImagePath` | Branding; favicon/OG gerados da logo (sharp) |
+| `primaryColor`, `secondaryColor` | Botões primários e superfícies (CSS vars) |
+| `heroImagePath`, `heroHeadline`, `heroHeadlineLine2`, `heroSubheadline`, `heroCtaLabel`, `heroCtaHref` | Hero da home |
+| `aboutText` | `/sobre` |
+| `address`, `cityState`, `businessHours` | `/contato` |
+| `exchangePolicyText` | `/politica-de-trocas` |
 
-**Fora de escopo V1:** `primaryColor` / theme engine · `completionMode` editável (WhatsApp fixo).
+**Fora de escopo V1:** theme engine completo · page builder · `completionMode` editável (WhatsApp fixo).
 
 Supabase Storage na Fase 7.
 

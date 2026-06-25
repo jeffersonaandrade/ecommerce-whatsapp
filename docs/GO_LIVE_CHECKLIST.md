@@ -39,7 +39,21 @@ Após Sprint 1 + 2:
 
 ## Fora de escopo V1
 
-- Cores customizadas (theme engine)
+- Theme engine completo / page builder
 - Histórico CSV
 - Supabase (Fase 7)
 - Bloquear import por falha HEAD
+
+---
+
+## Demo Polish (v1.0.0-demo)
+
+Checklist pré-demo ao cliente:
+
+- [ ] Admin `/admin/settings` — cores primária/secundária
+- [ ] Conteúdo da Loja — hero (textos + banner), institucional
+- [ ] Páginas `/sobre`, `/contato`, `/politica-de-trocas` refletem settings
+- [ ] Telas de erro 404, 500, `/maintenance` (503)
+- [ ] `/admin/login` — toast ao clicar Entrar (sem auth real)
+- [ ] Fluxo comercial CSV → WhatsApp `#TEMP-...`
+- [ ] `npm run test` + `npm run build` verdes

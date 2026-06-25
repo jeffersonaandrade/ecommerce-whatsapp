@@ -4,7 +4,69 @@ Formato baseado em entradas por fase/sessão. Não remover decisões ou versões
 
 ## [Unreleased]
 
-_(próximas fases — CSV, WhatsApp, Supabase)_
+_(Fase 7 — Supabase / Auth)_
+
+---
+
+## [1.0.0-demo] — 2026-06-24 — Demo Polish (Template Freeze)
+
+### Resumo
+
+Polish pré-demo: cores configuráveis, conteúdo da loja (hero + institucional), páginas de erro, login admin com toast placeholder. Sem page builder — layout fixo, conteúdo dinâmico.
+
+### Entregas
+
+- `StoreSettings`: `primaryColor`, `secondaryColor`, campos hero e institucionais
+- Admin `/admin/settings` — seções Cores e Conteúdo da Loja + upload banner hero
+- Páginas `/sobre`, `/contato`, `/politica-de-trocas`
+- `StatusPage` — 404, 500, `/maintenance`
+- `/admin/login` — toast *"Autenticação será disponibilizada na próxima versão."*
+- Docs: categorias derivadas (CRUD futuro), anti–page-builder em `DOMAIN_MODEL.md`
+
+### Comandos
+
+- `npm run test` — 39 passed
+- `npm run build` — OK
+- `graphify update .` — OK
+
+### Tag
+
+- `v1.0.0-demo` (local, após commits)
+
+---
+
+## Sprint 0 — Cleanup — 2026-06-24
+
+Encerramento administrativo da sprint anterior (Fases 3–4). Sem alteração de código de produto ou UI.
+
+### Arquivos alterados
+
+- `package.json` — versão alinhada a `0.4.0` (CHANGELOG)
+- `DEV_NOTES.md` — estado atual sincronizado, registro Sprint 0
+- `CHANGELOG.md` — esta entrada
+- `GRAPHIFY_MAP.md` — árvore e métricas atualizadas
+- `graphify-out/GRAPH_REPORT.md`, `graphify-out/graph.json`, `graphify-out/graph.html` — regenerados
+
+### Resumo
+
+- Versão do projeto corrigida (`0.1.0` → `0.4.0`).
+- Documentação de desenvolvimento alinhada ao estado real pós Fase 4.
+- Mapa Graphify atualizado (`lib/catalog/*`, rotas admin, API `/api/products`).
+
+### Comandos executados
+
+- `npm run build`
+- `npm run test`
+- `graphify update .`
+
+### Resultado build/test
+
+- Build: OK
+- Testes: 23 passed (vitest)
+
+### Graphify
+
+- Atualizado: **239 nós · 512 arestas · 14 comunidades** (commit `7c6521d`)
 
 ---
 
