@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  DEMO_ADMIN_SESSION_EVENT,
   DEMO_ADMIN_SESSION_KEY,
   clearDemoAdminFlag,
   hasDemoAdminSession,
@@ -24,10 +25,13 @@ function createLocalStorageMock() {
 }
 
 describe('demo-session', () => {
+  const dispatchEvent = vi.fn()
+
   beforeEach(() => {
-    vi.stubGlobal('window', {} as Window)
     vi.stubGlobal('localStorage', createLocalStorageMock())
     localStorage.clear()
+    dispatchEvent.mockClear()
+    vi.stubGlobal('window', { dispatchEvent } as unknown as Window)
   })
 
   it('setDemoAdminFlag grava flag no localStorage', () => {
@@ -45,5 +49,17 @@ describe('demo-session', () => {
     expect(hasDemoAdminSession()).toBe(false)
     setDemoAdminFlag()
     expect(hasDemoAdminSession()).toBe(true)
+  })
+
+  it('setDemoAdminFlag dispara evento de mudança', () => {
+    setDemoAdminFlag()
+    expect(dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: DEMO_ADMIN_SESSION_EVENT }))
+  })
+
+  it('clearDemoAdminFlag dispara evento de mudança', () => {
+    setDemoAdminFlag()
+    dispatchEvent.mockClear()
+    clearDemoAdminFlag()
+    expect(dispatchEvent).toHaveBeenCalledWith(expect.objectContaining({ type: DEMO_ADMIN_SESSION_EVENT }))
   })
 })

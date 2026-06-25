@@ -66,6 +66,7 @@ Checklist pré-demo ao cliente:
 - Header público mostra **Entrar** (deslogado) para iniciar o fluxo demo.
 - Com flag `demo-admin-session`, header mostra **Admin** + **Sair** (estado visual apenas).
 - `localStorage` (`demo-admin-session`) = **estado visual de demonstração, sem proteção de rotas**.
+- Header e dashboard sincronizam via evento `demo-admin-session-change` após login/logout (visual only).
 - Rotas `/admin/*` **não estão protegidas** nesta V1 — `/admin` permanece acessível diretamente.
 - “Sair” no dashboard ou header limpa a flag visual; dashboard redireciona para `/admin/login`.
 - Banner/branding via Admin na demo estática exige **rebuild/deploy** para refletir na Home pública.

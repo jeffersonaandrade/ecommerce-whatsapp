@@ -1,24 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { getButtonClassName } from '@/components/ui/button'
-import {
-  clearDemoAdminFlag,
-  hasDemoAdminSession,
-} from '@/lib/admin/demo-session'
+import { useDemoAdminSession } from '@/lib/admin/use-demo-admin-session'
 
 export function AdminAccessButton() {
-  const [isDemoLoggedIn, setIsDemoLoggedIn] = useState(false)
-
-  useEffect(() => {
-    setIsDemoLoggedIn(hasDemoAdminSession())
-  }, [])
-
-  function handleLogout() {
-    clearDemoAdminFlag()
-    setIsDemoLoggedIn(false)
-  }
+  const { isDemoLoggedIn, logout } = useDemoAdminSession()
 
   if (isDemoLoggedIn) {
     return (
@@ -28,7 +15,7 @@ export function AdminAccessButton() {
         </Link>
         <button
           type="button"
-          onClick={handleLogout}
+          onClick={logout}
           className="text-sm font-medium text-mute transition-colors hover:text-ink"
         >
           Sair

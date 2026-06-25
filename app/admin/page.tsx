@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { DemoLogoutButton } from '@/components/admin/demo-logout-button'
+import { DemoAdminToolbar } from '@/components/admin/demo-admin-toolbar'
 import { getButtonClassName } from '@/components/ui/button'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
 
@@ -72,7 +72,7 @@ export default function AdminPage() {
               >
                 ← Voltar ao site
               </Link>
-              <DemoLogoutButton />
+              <DemoAdminToolbar />
             </div>
           </div>
         </div>
