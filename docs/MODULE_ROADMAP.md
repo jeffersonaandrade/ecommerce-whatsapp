@@ -14,8 +14,9 @@ Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DOMAIN_MODEL.md`](DOMAIN_M
 | 2 | Cart | ✅ Concluída | Context + localStorage, PDP, testes |
 | 3 | Domínio enxuto | ✅ Esta fase | DOMAIN_MODEL, ARCHITECTURE, skeleton admin |
 | **4** | **Catálogo Admin** | ✅ Concluída | CRUD, galeria, variações, categorias |
-| **5** | **Import Pipeline (Catálogo)** | 📅 **Próxima** | CSV-1…5 — ver [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
-| 6 | WhatsApp | 📅 Planejada | Mensagem estruturada, links PDP, config loja |
+| **5** | **Import Pipeline** | ✅ Concluída | CSV-1…4 — [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
+| **6** | **WhatsApp + Purchase Intent** | ✅ Concluída | Mensagem estruturada, `#TEMP-...` |
+| **6.5** | **Go Live** | 📅 **Em andamento** | [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md) — 3 sprints |
 | 7 | Supabase | 📅 Planejada | Persistência + `DATABASE_PLAN` |
 | 8 | Pedidos | 📅 V2 | Gestão real (após checkout ou registro manual) |
 | 9 | Checkout Online | 📅 V2 | Gateway, pagamento, entrega no site |

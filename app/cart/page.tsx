@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { CartContent } from '@/components/cart/cart-content'
+import { getStoreSettings } from '@/lib/store/settings-repository'
 
 export const metadata: Metadata = {
   title: 'Carrinho',
@@ -7,6 +8,8 @@ export const metadata: Metadata = {
 }
 
 export default function CartPage() {
+  const settings = getStoreSettings()
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
       <header className="mb-8 space-y-2 sm:mb-10">
@@ -17,7 +20,11 @@ export default function CartPage() {
           Seu carrinho
         </h1>
       </header>
-      <CartContent />
+      <CartContent
+        siteUrl={settings.siteUrl}
+        whatsappPhone={settings.whatsappPhone}
+        whatsappMessagePrefix={settings.whatsappMessagePrefix}
+      />
     </div>
   )
 }

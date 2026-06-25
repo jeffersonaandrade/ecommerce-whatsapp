@@ -45,3 +45,5 @@ graphify-out/cost.json
 
 # catalog dev storage (seed committed separately)
 /storage/catalog.json
+/storage/store-settings.json
+/storage/branding/

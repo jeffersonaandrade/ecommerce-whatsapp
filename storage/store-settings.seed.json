@@ -1,0 +1,12 @@
+{
+  "storeName": "Sports Store",
+  "description": "Sua loja esportiva de confiança",
+  "siteUrl": "http://localhost:3000",
+  "whatsappPhone": "5511999999999",
+  "whatsappMessagePrefix": "",
+  "email": "",
+  "instagram": "",
+  "facebook": "",
+  "logoPath": null,
+  "ogImagePath": null
+}

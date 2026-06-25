@@ -6,23 +6,32 @@ import { formatPrice } from '@/lib/formatters'
 import { resolveCartLines } from '@/lib/cart-utils'
 import { Button, getButtonClassName } from '@/components/ui/button'
 import { CartLineItem } from '@/components/cart/cart-line-item'
-import { siteConfig } from '@/config/site'
 import { buildPurchaseIntentFromCart } from '@/lib/purchase-intent/build-purchase-intent'
 import {
   buildWhatsAppMessage,
   buildWhatsAppUrl,
 } from '@/lib/purchase-intent/build-whatsapp-message'
 
-export function CartContent() {
+type CartContentProps = {
+  siteUrl: string
+  whatsappPhone: string
+  whatsappMessagePrefix?: string
+}
+
+export function CartContent({
+  siteUrl,
+  whatsappPhone,
+  whatsappMessagePrefix = '',
+}: CartContentProps) {
   const { items, itemCount, subtotal, clearCart, isHydrated } = useCart()
   const lines = resolveCartLines(items)
 
   function handleWhatsAppCheckout() {
-    const intent = buildPurchaseIntentFromCart(lines, siteConfig.siteUrl)
+    const intent = buildPurchaseIntentFromCart(lines, siteUrl)
     if (!intent) return
 
-    const message = buildWhatsAppMessage(intent)
-    const url = buildWhatsAppUrl(siteConfig.whatsappPhone, message)
+    const message = buildWhatsAppMessage(intent, whatsappMessagePrefix)
+    const url = buildWhatsAppUrl(whatsappPhone, message)
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 

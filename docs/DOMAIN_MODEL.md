@@ -192,16 +192,23 @@ Fora do escopo V1: Stripe, PIX, Mercado Pago, cálculo de frete no site.
 
 ## StoreSettings
 
-**Responsabilidade:** configuração da loja (singleton).
+**Responsabilidade:** identidade e configuração da loja (singleton).
+
+Persistência V1: `storage/store-settings.json` + assets em `storage/branding/`. Admin: `/admin/settings`.
 
 | Campo | Uso |
 |-------|-----|
-| `completionMode` | `WHATSAPP` \| `CHECKOUT` \| `BOTH` |
-| `whatsappPhone` | Número da loja (ex. `5581999999999`) |
-| `whatsappMessageTemplate` | Prefixo da mensagem |
-| `completionButtonLabel` | Texto do botão (ex. "Finalizar Pedido") |
+| `storeName` | Header, title, footer |
+| `description` | Footer, meta description |
+| `siteUrl` | Links PDP no WhatsApp, canonical (SEO) |
+| `whatsappPhone` | wa.me |
+| `whatsappMessagePrefix` | Prefixo opcional da mensagem |
+| `email`, `instagram`, `facebook` | Footer / contato |
+| `logoPath`, `ogImagePath` | Branding gerado da logo (sharp) |
 
-**V1:** documentado; persistência na Fase 7. Valores futuros em [`config/site.ts`](../config/site.ts).
+**Fora de escopo V1:** `primaryColor` / theme engine · `completionMode` editável (WhatsApp fixo).
+
+Supabase Storage na Fase 7.
 
 ---
 
@@ -229,7 +236,7 @@ Detalhes do fluxo WhatsApp: seção **Order Completion** em [`ARCHITECTURE.md`](
 | `club?: string` | `Brand` (opcional FK) |
 | Sem `PurchaseIntent` | tipo/conceito na Fase 6 |
 | Sem `Import*` | tipos na Fase 5 |
-| Sem `StoreSettings` | tipo na Fase 6/7 |
+| Sem `StoreSettings` | ✅ `types/store-settings.ts` + JSON local |
 
 **Não alterar `types/product.ts` na Fase 3** — evolução incremental nas fases de implementação.
 
