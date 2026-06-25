@@ -130,7 +130,7 @@ Sem aprovação explícita, **não implementar**:
 |------|-------------|
 | Testes | **60 passed** / 12 files (`vitest run`) |
 | Build | OK (`next build`, Next.js 16.2.9) |
-| Último commit | `16b796a` — test(qa): Playwright E2E report Supabase MVP |
+| Último commit | `76f5431` — feat(admin): show-password toggle on login |
 | Branch | `master` — commits locais à frente de `origin/master` (sem push) |
 | Graphify | **666 nós · 1566 arestas · 29 comunidades** (`graphify-out/`, sync 2026-06-26) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
@@ -334,8 +334,8 @@ Sem aprovação explícita, **não implementar**:
 ## 6. Mensagem comercial (validada)
 
 > A vitrine (PLP, PDP, carrinho, WhatsApp) funciona no link público e em local com Supabase.  
-> O admin **completo** foi validado localmente com Supabase (E2E-1…E2E-9 PASS — ver [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md)).  
-> **Produção Netlify** aguarda env vars Supabase + smoke §9.4 — ver [`docs/HANDOFF.md`](HANDOFF.md) §9.
+> O admin **completo** validado localmente (E2E) e em **produção Netlify** com Supabase — ver [`docs/HANDOFF.md`](HANDOFF.md) §9.4.  
+> **Próximo marco:** onboarding 1º cliente (Sprint 3).
 
 ---
 
@@ -368,15 +368,15 @@ graphify update . # após mudanças estruturais
 
 ## 9. Validação de pendências
 
-**Atualizado:** 2026-06-26 · Fontes: commit `16b796a`, [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md), [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md)
+**Atualizado:** 2026-06-26 · Fontes: commits `76f5431`, `16b796a`, [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://loja-whats.netlify.app
 
 ### Resumo
 
 | Ambiente | Status | Observação |
 |----------|--------|------------|
 | **Local Supabase** | ✅ **Aprovado** | E2E-1…E2E-9 PASS — ver §9.3 |
-| **Netlify + Supabase** | ❌ **Pendente** | Env vars + redeploy + smoke §9.4 |
-| **Produção 1º cliente** | ❌ **Pendente** | Sprint 3 — após Netlify §9.4 |
+| **Netlify + Supabase** | ✅ **Aprovado** | Env vars + smoke §9.4 PASS (2026-06-26) |
+| **Produção 1º cliente** | ❌ **Pendente** | Sprint 3 — onboarding operacional |
 
 > **Não iniciar novas features agora.** Banner Manager, Categorias CRUD e Menus são **Sprint 4+** — não bloqueiam deploy MVP.
 
@@ -391,13 +391,14 @@ graphify update . # após mudanças estruturais
 | QA E2E Playwright (E2E-1…E2E-9) | ✅ | commit `16b796a` |
 | Testes | ✅ | `60 passed` / 12 files |
 | Build | ✅ | `npm run build` OK |
+| Toggle mostrar senha no login | ✅ | commit `76f5431` |
 
 ### 9.2 Supabase Dashboard (operador — manual)
 
 - [x] **Auth → Providers → Email:** desabilitar **Enable sign ups**
 - [x] Admin com `app_metadata.role=admin` (usuários seed configurados)
 - [x] Rotacionar `service_role` → `.env.local` atualizado
-- [ ] Rotacionar/copiar `service_role` → **Netlify production** (na subida — §9.4)
+- [x] Rotacionar/copiar `service_role` → **Netlify production**
 - [x] SQL RLS + Storage admin (aplicado — ver `DATABASE_PLAN.md`)
 - [x] Usuário QA temp `qa-no-admin-temp@test.local` removido
 
@@ -419,37 +420,42 @@ graphify update . # após mudanças estruturais
 
 Substitui o QA parcial em `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` (uploads/CSV/WhatsApp não testados naquela sessão).
 
-### 9.4 Produção Netlify (pendente)
+### 9.4 Produção Netlify
 
-Pré-requisito: env vars Supabase em https://app.netlify.com → site **loja-whats** → **Environment variables**:
+**URL:** https://loja-whats.netlify.app · **Smoke:** 2026-06-26 (Playwright headless)
 
-| Variável | Valor |
+| Variável | Status |
 |----------|--------|
-| `DATA_PROVIDER` | `supabase` |
-| `NEXT_PUBLIC_DATA_PROVIDER` | `supabase` |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | service role (server only) |
+| `DATA_PROVIDER=supabase` | ✅ confirmado no build |
+| `NEXT_PUBLIC_DATA_PROVIDER` | ✅ |
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ (não exposta no client) |
 
-Após configurar envs → **Trigger deploy** → smoke em https://loja-whats.netlify.app:
+| Fluxo | Status |
+|-------|--------|
+| Login admin (Supabase Auth) | ✅ PASS |
+| Toggle mostrar/ocultar senha (`76f5431`) | ✅ PASS |
+| Logout + proteção `/admin/settings` | ✅ PASS |
+| Salvar settings | ✅ PASS |
+| CRUD produto | ✅ PASS |
+| Import CSV → vitrine | ✅ PASS |
+| Upload logo → `/api/branding/favicon-32.png` 200 | ✅ PASS |
+| WhatsApp `#TEMP-...` em produção | ✅ PASS |
 
-- [ ] Login admin (Supabase Auth)
-- [ ] Salvar settings persiste após redeploy
-- [ ] CRUD produto persiste
-- [ ] Import CSV persiste e aparece na vitrine
-- [ ] Upload logo/hero persiste após redeploy
-- [ ] Pedido WhatsApp `#TEMP-...` em produção
+**Pendente manual:** settings persistem após **redeploy** Netlify (trigger deploy → recarregar settings).
 
 ### 9.5 Checklist final — deploy MVP
 
 Ordem objetiva (sem novas features):
 
 1. [x] Signup OFF no Supabase Dashboard
-2. [x] Rotacionar `service_role` (local)
-3. [ ] Configurar envs Supabase na Netlify + redeploy
-4. [ ] Smoke §9.4 em https://loja-whats.netlify.app
-5. [ ] Validar em produção: settings, CRUD, CSV, uploads, WhatsApp
+2. [x] Rotacionar `service_role` (local + Netlify)
+3. [x] Configurar envs Supabase na Netlify + redeploy
+4. [x] Smoke §9.4 em https://loja-whats.netlify.app
+5. [x] Validar em produção: login, toggle senha, CRUD, CSV, uploads, WhatsApp
 6. [ ] Onboarding 1º cliente (Sprint 3)
+7. [ ] (Futuro) Restaurar identidade padrão — plano separado, sem reset de catálogo
 
 ### 9.6 Sprint 4+ (fora do escopo do deploy)
 
@@ -462,4 +468,4 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 
 ---
 
-*Próxima revisão deste handoff: após smoke Netlify §9.4 ou onboarding 1º cliente.*
+*Próxima revisão deste handoff: após onboarding 1º cliente em produção.*
