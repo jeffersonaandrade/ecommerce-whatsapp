@@ -57,12 +57,12 @@ export async function Footer() {
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="text-mute transition-colors hover:text-canvas">
+                <Link href="/sobre" className="text-mute transition-colors hover:text-canvas">
                   Sobre
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-mute transition-colors hover:text-canvas">
+                <Link href="/contato" className="text-mute transition-colors hover:text-canvas">
                   Contato
                 </Link>
               </li>
@@ -75,13 +75,11 @@ export async function Footer() {
             </h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="#" className="text-mute transition-colors hover:text-canvas">
-                  Privacidade
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-mute transition-colors hover:text-canvas">
-                  Termos
+                <Link
+                  href="/politica-de-trocas"
+                  className="text-mute transition-colors hover:text-canvas"
+                >
+                  Política de trocas
                 </Link>
               </li>
             </ul>

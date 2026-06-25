@@ -3,6 +3,7 @@ import 'server-only'
 import fs from 'fs'
 import path from 'path'
 import sharp from 'sharp'
+import { OG_IMAGE_FILENAME, resolveBrandingFilename } from './branding-url'
 import { getBrandingDir } from './settings-storage'
 
 export type GeneratedBranding = {
@@ -41,7 +42,7 @@ export async function generateBrandingFromLogo(
       .toFile(path.join(dir, name))
   }
 
-  const ogImagePath = 'og-default.jpg'
+  const ogImagePath = OG_IMAGE_FILENAME
   await image
     .clone()
     .resize(1200, 630, { fit: 'cover', position: 'centre' })
@@ -51,8 +52,19 @@ export async function generateBrandingFromLogo(
   return { logoPath, ogImagePath }
 }
 
+export async function saveHeroImage(fileBuffer: Buffer): Promise<string> {
+  const dir = getBrandingDir()
+  const heroPath = 'hero.webp'
+  await sharp(fileBuffer)
+    .rotate()
+    .resize(1920, 1080, { fit: 'cover', position: 'centre' })
+    .webp({ quality: 85 })
+    .toFile(path.join(dir, heroPath))
+  return heroPath
+}
+
 export function readBrandingFile(filename: string): Buffer | null {
-  const safe = path.basename(filename)
+  const safe = resolveBrandingFilename(filename)
   const filePath = path.join(getBrandingDir(), safe)
   if (!fs.existsSync(filePath)) return null
   return fs.readFileSync(filePath)

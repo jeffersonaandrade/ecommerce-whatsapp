@@ -6,7 +6,9 @@ import { getButtonClassName } from '@/components/ui/button'
 import {
   updateStoreSettingsAction,
   uploadStoreLogoAction,
+  uploadHeroImageAction,
 } from '@/lib/store/actions'
+import { brandingAssetUrl } from '@/lib/store/branding-url'
 import { AppearancePreview } from './appearance-preview'
 
 type StoreSettingsFormProps = {
@@ -36,6 +38,19 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         email: String(data.get('email') ?? ''),
         instagram: String(data.get('instagram') ?? ''),
         facebook: String(data.get('facebook') ?? ''),
+        phone: String(data.get('phone') ?? ''),
+        primaryColor: String(data.get('primaryColor') ?? ''),
+        secondaryColor: String(data.get('secondaryColor') ?? ''),
+        heroHeadline: String(data.get('heroHeadline') ?? ''),
+        heroHeadlineLine2: String(data.get('heroHeadlineLine2') ?? ''),
+        heroSubheadline: String(data.get('heroSubheadline') ?? ''),
+        heroCtaLabel: String(data.get('heroCtaLabel') ?? ''),
+        heroCtaHref: String(data.get('heroCtaHref') ?? ''),
+        aboutText: String(data.get('aboutText') ?? ''),
+        address: String(data.get('address') ?? ''),
+        cityState: String(data.get('cityState') ?? ''),
+        businessHours: String(data.get('businessHours') ?? ''),
+        exchangePolicyText: String(data.get('exchangePolicyText') ?? ''),
       })
 
       if (!result.ok) {
@@ -53,6 +68,20 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         email: String(data.get('email') ?? ''),
         instagram: String(data.get('instagram') ?? ''),
         facebook: String(data.get('facebook') ?? ''),
+        phone: String(data.get('phone') ?? ''),
+        primaryColor: String(data.get('primaryColor') ?? ''),
+        secondaryColor: String(data.get('secondaryColor') ?? ''),
+        heroHeadline: String(data.get('heroHeadline') ?? ''),
+        heroHeadlineLine2: String(data.get('heroHeadlineLine2') ?? ''),
+        heroSubheadline: String(data.get('heroSubheadline') ?? ''),
+        heroCtaLabel: String(data.get('heroCtaLabel') ?? ''),
+        heroCtaHref: String(data.get('heroCtaHref') ?? ''),
+        aboutText: String(data.get('aboutText') ?? ''),
+        address: String(data.get('address') ?? ''),
+        cityState: String(data.get('cityState') ?? ''),
+        businessHours: String(data.get('businessHours') ?? ''),
+        exchangePolicyText: String(data.get('exchangePolicyText') ?? ''),
+        updatedAt: result.updatedAt,
       })
       setSuccess('Configurações salvas.')
     })
@@ -78,11 +107,40 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         ...settings,
         logoPath: 'logo.webp',
         ogImagePath: 'og-default.jpg',
+        updatedAt: result.updatedAt,
       })
       setSuccess('Logo processada. Favicon e OG gerados.')
       e.target.value = ''
     })
   }
+
+  function handleHeroUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    startTransition(async () => {
+      setError(null)
+      setSuccess(null)
+      const formData = new FormData()
+      formData.set('hero', file)
+      const result = await uploadHeroImageAction(formData)
+
+      if (!result.ok) {
+        setError(result.error)
+        return
+      }
+
+      setSettings({
+        ...settings,
+        heroImagePath: 'hero.webp',
+        updatedAt: result.updatedAt,
+      })
+      setSuccess('Imagem do hero atualizada.')
+      e.target.value = ''
+    })
+  }
+
+  const heroPreviewUrl = brandingAssetUrl(settings.heroImagePath, settings.updatedAt)
 
   return (
     <div className="space-y-8">
@@ -130,6 +188,15 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
                 />
               </label>
               <label className="block text-sm font-medium text-ink">
+                Telefone da loja
+                <input
+                  name="phone"
+                  defaultValue={settings.phone}
+                  placeholder="(11) 99999-9999"
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm font-medium text-ink">
                 Instagram
                 <input
                   name="instagram"
@@ -138,15 +205,173 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
                   className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
                 />
               </label>
-              <label className="block text-sm font-medium text-ink">
-                Facebook
+            </div>
+            <label className="block text-sm font-medium text-ink">
+              Facebook
+              <input
+                name="facebook"
+                defaultValue={settings.facebook}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
+          <h2 className="text-lg font-semibold text-ink">Cores</h2>
+          <p className="text-sm text-mute">
+            Cor primária nos botões principais; secundária em superfícies de apoio.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-ink">
+              Cor primária
+              <div className="mt-1 flex items-center gap-3">
                 <input
-                  name="facebook"
-                  defaultValue={settings.facebook}
+                  type="color"
+                  name="primaryColorPicker"
+                  defaultValue={settings.primaryColor}
+                  onChange={(e) => {
+                    const input = e.currentTarget.form?.elements.namedItem(
+                      'primaryColor'
+                    ) as HTMLInputElement | null
+                    if (input) input.value = e.target.value
+                  }}
+                  className="h-10 w-14 cursor-pointer rounded border border-hairline"
+                />
+                <input
+                  name="primaryColor"
+                  defaultValue={settings.primaryColor}
+                  pattern="^#[0-9A-Fa-f]{6}$"
+                  className="flex-1 rounded-lg border border-hairline px-3 py-2 text-sm font-mono"
+                />
+              </div>
+            </label>
+            <label className="block text-sm font-medium text-ink">
+              Cor secundária
+              <div className="mt-1 flex items-center gap-3">
+                <input
+                  type="color"
+                  name="secondaryColorPicker"
+                  defaultValue={settings.secondaryColor}
+                  onChange={(e) => {
+                    const input = e.currentTarget.form?.elements.namedItem(
+                      'secondaryColor'
+                    ) as HTMLInputElement | null
+                    if (input) input.value = e.target.value
+                  }}
+                  className="h-10 w-14 cursor-pointer rounded border border-hairline"
+                />
+                <input
+                  name="secondaryColor"
+                  defaultValue={settings.secondaryColor}
+                  pattern="^#[0-9A-Fa-f]{6}$"
+                  className="flex-1 rounded-lg border border-hairline px-3 py-2 text-sm font-mono"
+                />
+              </div>
+            </label>
+          </div>
+        </section>
+
+        <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
+          <h2 className="text-lg font-semibold text-ink">Conteúdo da Loja</h2>
+          <p className="text-sm text-mute">
+            Textos e imagem do hero e páginas institucionais. Layout fixo — apenas conteúdo.
+          </p>
+
+          <div className="space-y-3 rounded-lg border border-hairline bg-soft-cloud/50 p-4">
+            <h3 className="text-sm font-semibold text-ink">Hero (home)</h3>
+            <label className="block text-sm font-medium text-ink">
+              Headline (linha 1)
+              <input
+                name="heroHeadline"
+                defaultValue={settings.heroHeadline}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm font-medium text-ink">
+              Headline (linha 2)
+              <input
+                name="heroHeadlineLine2"
+                defaultValue={settings.heroHeadlineLine2}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm font-medium text-ink">
+              Subtítulo
+              <textarea
+                name="heroSubheadline"
+                defaultValue={settings.heroSubheadline}
+                rows={2}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm font-medium text-ink">
+                CTA — texto
+                <input
+                  name="heroCtaLabel"
+                  defaultValue={settings.heroCtaLabel}
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm font-medium text-ink">
+                CTA — link
+                <input
+                  name="heroCtaHref"
+                  defaultValue={settings.heroCtaHref}
+                  placeholder="/products"
                   className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
                 />
               </label>
             </div>
+          </div>
+
+          <div className="space-y-3 rounded-lg border border-hairline bg-soft-cloud/50 p-4">
+            <h3 className="text-sm font-semibold text-ink">Páginas institucionais</h3>
+            <label className="block text-sm font-medium text-ink">
+              Sobre (/sobre)
+              <textarea
+                name="aboutText"
+                defaultValue={settings.aboutText}
+                rows={4}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm font-medium text-ink">
+                Endereço
+                <input
+                  name="address"
+                  defaultValue={settings.address}
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm font-medium text-ink">
+                Cidade / Estado
+                <input
+                  name="cityState"
+                  defaultValue={settings.cityState}
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+            </div>
+            <label className="block text-sm font-medium text-ink">
+              Horário de atendimento
+              <input
+                name="businessHours"
+                defaultValue={settings.businessHours}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
+            <label className="block text-sm font-medium text-ink">
+              Política de trocas (/politica-de-trocas)
+              <textarea
+                name="exchangePolicyText"
+                defaultValue={settings.exchangePolicyText}
+                rows={4}
+                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+              />
+            </label>
           </div>
         </section>
 
@@ -209,6 +434,28 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
           className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
         />
         <AppearancePreview settings={settings} />
+      </section>
+
+      <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
+        <h2 className="text-lg font-semibold text-ink">Banner do hero</h2>
+        <p className="text-sm text-mute">
+          Imagem de fundo da home (1920×1080 recomendado). Sem upload, usa imagem padrão.
+        </p>
+        {heroPreviewUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={heroPreviewUrl}
+            alt="Preview do hero"
+            className="h-32 w-full rounded-lg object-cover"
+          />
+        )}
+        <input
+          type="file"
+          accept="image/png,image/jpeg,image/webp"
+          onChange={handleHeroUpload}
+          disabled={isPending}
+          className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
+        />
       </section>
     </div>
   )

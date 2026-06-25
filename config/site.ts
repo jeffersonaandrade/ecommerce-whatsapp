@@ -8,11 +8,15 @@ export const siteConfig = {
     },
     {
       title: 'Sobre',
-      href: '#',
+      href: '/sobre',
     },
     {
       title: 'Contato',
-      href: '#',
+      href: '/contato',
+    },
+    {
+      title: 'Política de trocas',
+      href: '/politica-de-trocas',
     },
   ],
   categories: [

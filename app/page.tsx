@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function Home() {
+  const settings = getStoreSettings()
   const allProducts = getAllProducts()
   const heroFeatured = getFeaturedProducts(4)
   const featuredProducts = getFeaturedProducts(6)
@@ -22,7 +23,19 @@ export default function Home() {
 
   return (
     <div className="w-full">
-      <SportsHero featuredProducts={heroFeatured} />
+      <SportsHero
+        featuredProducts={heroFeatured}
+        content={{
+          storeName: settings.storeName,
+          heroImagePath: settings.heroImagePath,
+          heroHeadline: settings.heroHeadline,
+          heroHeadlineLine2: settings.heroHeadlineLine2,
+          heroSubheadline: settings.heroSubheadline,
+          heroCtaLabel: settings.heroCtaLabel,
+          heroCtaHref: settings.heroCtaHref,
+          updatedAt: settings.updatedAt,
+        }}
+      />
 
       <HomeCategories />
 
