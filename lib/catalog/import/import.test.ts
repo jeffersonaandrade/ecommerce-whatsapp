@@ -147,6 +147,7 @@ describe('applyImport', () => {
     const result = applyImport(valid, repo)
 
     expect(result.created).toBe(1)
+    expect(result.durationMs).toBeGreaterThanOrEqual(0)
     expect(products).toHaveLength(1)
     expect(products[0].variations).toHaveLength(2)
   })

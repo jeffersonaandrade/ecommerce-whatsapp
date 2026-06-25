@@ -221,6 +221,9 @@ export function ImportWizard() {
       {step === 'result' && result && (
         <section className="space-y-6 rounded-lg border border-hairline bg-canvas p-6">
           <h2 className="text-lg font-semibold text-ink">Importação concluída</h2>
+          <p className="text-sm text-mute">
+            Concluído em {(result.durationMs / 1000).toFixed(1)} segundos
+          </p>
           <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="rounded-lg bg-soft-cloud p-4">
               <dt className="text-xs uppercase tracking-wide text-mute">Novos</dt>

@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/context/cart-context'
 import { formatPrice } from '@/lib/formatters'
 import type { CartLine } from '@/lib/cart-utils'
+import { ProductImage } from '@/components/product/product-image'
 
 const qtyButtonClass =
   'inline-flex h-11 w-11 items-center justify-center text-ink transition-colors hover:bg-soft-cloud disabled:opacity-40 disabled:cursor-not-allowed'
@@ -25,15 +25,7 @@ export function CartLineItem({ line }: CartLineItemProps) {
         href={`/products/${line.slug}`}
         className="relative h-24 w-24 shrink-0 overflow-hidden bg-soft-cloud sm:h-28 sm:w-28"
       >
-        {line.image && (
-          <Image
-            src={line.image}
-            alt={line.name}
-            fill
-            className="object-cover"
-            sizes="112px"
-          />
-        )}
+        <ProductImage src={line.image} alt={line.name} fill />
       </Link>
 
       <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

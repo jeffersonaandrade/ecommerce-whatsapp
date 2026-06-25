@@ -80,6 +80,7 @@ export function applyImport(
   products: ParsedProduct[],
   repo: ProductRepository
 ): ImportApplyResult {
+  const started = performance.now()
   const snapshot = structuredClone(repo.getAll())
   let created = 0
   let updated = 0
@@ -109,5 +110,5 @@ export function applyImport(
     throw error
   }
 
-  return { created, updated, skipped }
+  return { created, updated, skipped, durationMs: Math.round(performance.now() - started) }
 }

@@ -4,7 +4,7 @@ export type { PurchaseIntentLine, PurchaseIntent }
 
 /** Dados fixos para protótipo /order-intent/demo — não é canal de produção. */
 export const mockPurchaseIntent: PurchaseIntent = {
-  id: 'demo-intent-001',
+  id: 'TEMP-20260624-0001',
   createdAt: '2026-06-24T14:30:00.000Z',
   lines: [
     {

@@ -8,6 +8,7 @@ export type CsvErrorCode =
   | 'CSV_E005'
   | 'CSV_E006'
   | 'CSV_E007'
+  | 'CSV_W008'
 
 export type ImportIssue = {
   code: CsvErrorCode
@@ -57,6 +58,7 @@ export type ImportApplyResult = {
   created: number
   updated: number
   skipped: number
+  durationMs: number
 }
 
 export type ImportProductInput = ProductInput & { slug: string }

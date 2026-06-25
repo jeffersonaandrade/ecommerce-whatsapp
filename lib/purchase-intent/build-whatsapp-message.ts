@@ -1,11 +1,17 @@
 import { formatPrice } from '@/lib/formatters'
 import { PurchaseIntent } from '@/types/purchase-intent'
 
-export function buildWhatsAppMessage(intent: PurchaseIntent): string {
-  const lines: string[] = [
-    'Olá! Gostaria de solicitar este pedido.',
-    '',
-  ]
+export function buildWhatsAppMessage(
+  intent: PurchaseIntent,
+  prefix = ''
+): string {
+  const lines: string[] = []
+
+  if (prefix.trim()) {
+    lines.push(prefix.trim(), '')
+  }
+
+  lines.push('Olá! Gostaria de solicitar este pedido.', '', `Pedido #${intent.id}`, '')
 
   for (const line of intent.lines) {
     const parts = [

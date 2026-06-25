@@ -1,10 +1,13 @@
 import { calculateSubtotal, type CartLine } from '@/lib/cart-utils'
 import { PurchaseIntent, PurchaseIntentLine } from '@/types/purchase-intent'
 
-function createIntentId(): string {
-  const stamp = Date.now().toString(36)
-  const random = Math.random().toString(36).slice(2, 8)
-  return `intent-${stamp}-${random}`
+function createOrderReference(): string {
+  const now = new Date()
+  const date = now.toISOString().slice(0, 10).replace(/-/g, '')
+  const seq = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, '0')
+  return `TEMP-${date}-${seq}`
 }
 
 export function buildPurchaseIntentFromCart(
@@ -26,7 +29,7 @@ export function buildPurchaseIntentFromCart(
   }))
 
   return {
-    id: createIntentId(),
+    id: createOrderReference(),
     createdAt: new Date().toISOString(),
     lines: intentLines,
     cartTotal: calculateSubtotal(lines),

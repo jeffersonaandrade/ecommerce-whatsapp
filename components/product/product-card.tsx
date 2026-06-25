@@ -1,8 +1,8 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { Product } from '@/types/product'
 import { formatPrice } from '@/lib/formatters'
 import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
+import { ProductImage } from '@/components/product/product-image'
 
 interface ProductCardProps {
   product: Product
@@ -26,12 +26,11 @@ export function ProductCard({ product }: ProductCardProps) {
         href={`/products/${product.slug}`}
         className="relative mb-4 block aspect-square overflow-hidden bg-soft-cloud"
       >
-        <Image
-          src={product.images[0]}
+        <ProductImage
+          src={product.images[0] ?? ''}
           alt={product.name}
           fill
-          className="object-cover transition-opacity duration-200 group-hover:opacity-95"
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          className="transition-opacity duration-200 group-hover:opacity-95"
         />
         {!hasStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-ink/50">

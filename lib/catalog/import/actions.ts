@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { getProductRepository } from '@/lib/catalog/json-product-repository'
 import { applyImport } from './apply-import'
+import { checkProductImageUrls } from './check-image-urls'
 import {
   buildImportPreview,
   validateCatalogSkus,
@@ -34,6 +35,13 @@ export async function parseImportCsvAction(
   const repo = getProductRepository()
   const preview = buildImportPreview(text, file.name, repo.getAll())
 
+  for (const product of preview.products) {
+    const imageIssues = await checkProductImageUrls(product.images, product.slug)
+    preview.issues.push(...imageIssues)
+  }
+
+  preview.stats.warningCount = preview.issues.filter((i) => i.severity === 'warning').length
+
   return { ok: true, preview }
 }
 
@@ -52,9 +60,16 @@ export async function confirmImportAction(
   }
 
   try {
+    const started = performance.now()
     const result = applyImport(products, repo)
     revalidateCatalog()
-    return { ok: true, result }
+    return {
+      ok: true,
+      result: {
+        ...result,
+        durationMs: result.durationMs || Math.round(performance.now() - started),
+      },
+    }
   } catch {
     return { ok: false, error: 'Falha ao salvar catálogo. Nenhuma alteração foi aplicada.' }
   }

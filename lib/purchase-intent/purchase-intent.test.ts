@@ -40,6 +40,8 @@ describe('buildWhatsAppMessage', () => {
     const intent = buildPurchaseIntentFromCart(sampleLines, 'https://loja.exemplo.com')!
     const message = buildWhatsAppMessage(intent)
 
+    expect(message).toContain('Pedido #')
+    expect(message).toContain('TEMP-')
     expect(message).toContain('Olá! Gostaria de solicitar este pedido.')
     expect(message).toContain('Camisa Flamengo 2024')
     expect(message).toContain('Tamanho: G')

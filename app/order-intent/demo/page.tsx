@@ -27,7 +27,7 @@ export default function OrderIntentDemoPage() {
           Solicitação de compra
         </h1>
         <p className="text-sm text-gray-600 mt-2">
-          Referência: {intent.id} · {createdLabel}
+          Pedido #{intent.id} · {createdLabel}
         </p>
       </header>
 
