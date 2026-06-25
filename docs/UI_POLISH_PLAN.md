@@ -98,7 +98,7 @@ Conforme [`DESIGN_SYSTEM.md` §10](DESIGN_SYSTEM.md#10-motion).
 
 ## 7. QA Browser Report — triagem (2026-06-24)
 
-Investigação no código (não só automação). Ver [`QA_REPORT.md`](../QA_REPORT.md) e relatório browser do Claude.
+Investigação no código (não só automação). Ver [`QA_REPORT.md`](QA_REPORT.md) e relatório browser do Claude.
 
 | # | Achado | Veredito | Ação |
 |---|--------|----------|------|

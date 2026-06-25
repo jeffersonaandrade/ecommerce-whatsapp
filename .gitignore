@@ -44,6 +44,14 @@ next-env.d.ts
 graphify-out/cost.json
 graphify-out/cache/
 
+# IDE / agent local
+.claude/
+
+# Manual investigation scripts (raiz)
+/simulate-hero-upload.js
+/test-csv-validation.js
+/test-hero.jpg
+
 # catalog dev storage (seed committed separately)
 /storage/catalog.json
 /storage/store-settings.json
