@@ -14,22 +14,22 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 
 | Área | Status | Evidência / observação |
 |------|--------|------------------------|
-| **Home** | ✅ | `app/page.tsx` — hero, categorias, destaques, banner editorial |
-| **PLP** | ✅ | `app/products/page.tsx` — filtros, paginação, metadata |
+| **Home** | ✅ | `app/page.tsx` — hero, chips mobile, categorias desktop, destaques deduplicados (Fase 0 `25ef567`) |
+| **PLP** | ✅ | `app/products/page.tsx` — filtros dinâmicos do catálogo, metadata |
 | **PDP** | ✅ | `app/products/[slug]/page.tsx` — variações, metadata, canonical |
 | **Carrinho** | ✅ | `context/cart-context.tsx` + localStorage + testes |
 | **WhatsApp** | ✅ | `buildWhatsAppMessage` + `#TEMP-YYYYMMDD-NNNN` + testes |
 | **CRUD Produtos** | ✅ | Admin create/edit/delete + `JsonProductRepository` |
-| **Categorias** | 🟡 | Admin **somente leitura** (derivadas); filtros da vitrine usam `config/site.ts` estático |
+| **Categorias** | 🟡 | Header desktop + chips mobile + PLP usam `getCategories()`; admin **somente leitura** (derivadas); footer ainda usa `siteConfig` estático |
 | **Importação CSV** | ✅ | Wizard completo (`/admin/import`); **sem** histórico (CSV-5) |
 | **Branding** | ✅ | Logo → favicon/OG (sharp); API `/api/branding/*` |
-| **Hero configurável** | 🟡 | 1 hero em `StoreSettings`; `EditorialBanner` **hardcoded** |
+| **Hero configurável** | ✅ | 1 hero em `StoreSettings`; grid de produtos removido do hero (Fase 0) |
 | **Institucional** | ✅ | `/sobre`, `/contato`, `/politica-de-trocas` via settings |
 | **Login Admin** | ✅ | Demo JSON (`localStorage`) **ou** Supabase Auth + `requireAdmin()` + middleware com `app_metadata.role=admin` |
-| **Persistência admin** | 🟡 | JSON local OK; Netlify demo falha (500). Supabase resolve em produção |
+| **Persistência admin** | ✅ | Supabase em produção Netlify; JSON local para dev |
 | **SEO** | ✅ | `buildPageMetadata`, canonical PLP/Home/PDP, OG, robots PDP |
-| **Deploy Netlify** | 🟡 | Vitrine OK; **admin que grava disco falha** (500) |
-| **Testes** | ✅ | **60 passed** (12 arquivos) — executado 2026-06-25 |
+| **Deploy Netlify** | ✅ | Produção Supabase integrada; smoke §9.4 + Fase 0 §9.7 PASS (2026-06-26) |
+| **Testes** | ✅ | **69 passed** (17 arquivos) — executado 2026-06-26 |
 | **Build** | ✅ | `npm run build` OK — 23 rotas |
 
 ### Itens explicitamente ❌ não implementados
@@ -128,10 +128,10 @@ Sem aprovação explícita, **não implementar**:
 
 | Item | Valor atual |
 |------|-------------|
-| Testes | **60 passed** / 12 files (`vitest run`) |
+| Testes | **69 passed** / 17 files (`vitest run`) |
 | Build | OK (`next build`, Next.js 16.2.9) |
-| Último commit | `76f5431` — feat(admin): show-password toggle on login |
-| Branch | `master` — commits locais à frente de `origin/master` (sem push) |
+| Último commit | `25ef567` — feat(storefront): improve category navigation and home merchandising |
+| Branch | `master` — sincronizado com `origin/master` |
 | Graphify | **666 nós · 1566 arestas · 29 comunidades** (`graphify-out/`, sync 2026-06-26) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
 
@@ -179,36 +179,22 @@ Sem aprovação explícita, **não implementar**:
 
 ## 4. Produção (Netlify)
 
-**URL:** https://loja-whats.netlify.app (HTTP 200 — verificado 2026-06-26)
+**URL:** https://loja-whats.netlify.app (HTTP 200 — verificado 2026-06-26)  
+**Provider:** `DATA_PROVIDER=supabase` · **Último deploy validado:** commit `25ef567d1bd4b5c64f90f10615c72b509ed7a18e`
 
 ### Funciona normalmente
 
-- Vitrine (produtos do prebuild/seed)
+- Vitrine (Supabase Postgres)
 - PLP, PDP, carrinho (localStorage)
 - WhatsApp checkout (`#TEMP-...`)
-- Login demo (flag browser)
-- Leitura admin (listar produtos, ver settings)
-- Branding servido via `/api/branding/*` (assets do build)
+- Login admin Supabase Auth + CRUD/settings/import/uploads
+- Branding servido via `/api/branding/*` (Supabase Storage)
+- Navegação por categorias (header desktop, chips mobile, filtros PLP)
 
-### Depende de filesystem (não funciona em serverless)
+### Modo JSON local (dev)
 
-- Salvar settings (`persistStoreSettings` → `fs.writeFileSync`)
-- Import CSV confirm (`persistCatalog`)
-- CRUD produtos (create/update/delete)
-- Upload logo / hero (`storage/branding/`)
-
-**Comportamento observado:** salvar settings → **HTTP 500** (não falha silenciosa).
-
-### Obrigatório migrar para Supabase
-
-| Domínio | Tabela / bucket sugerido |
-|---------|--------------------------|
-| Produtos + variações | Postgres |
-| Store settings | Postgres (singleton) |
-| Categorias (futuro CRUD) | Postgres |
-| Menus / banners (futuro) | Postgres |
-| Imagens upload | Supabase Storage |
-| Auth admin | Supabase Auth |
+- `DATA_PROVIDER=json` — filesystem em `storage/`; admin demo sem auth real
+- Não reflete produção Netlify
 
 ---
 
@@ -456,6 +442,47 @@ Substitui o QA parcial em `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` (uploads/CSV/Wha
 
 Evidência: `test-data/e2e/prod-persistence-report.json`
 
+### 9.7 Fase 0 storefront — deploy validado (2026-06-26)
+
+**Commit:** `25ef567d1bd4b5c64f90f10615c72b509ed7a18e`  
+**Repo:** https://github.com/jeffersonaandrade/ecommerce-whatsapp.git  
+**Produção:** https://loja-whats.netlify.app  
+**Deploy Netlify:** ✅ PASS (automático pós-push)
+
+#### Entregas Fase 0
+
+- Categorias no header desktop (Camisas, Shorts, Meias, Jaquetas, Acessórios + Ver tudo)
+- Chips horizontais mobile logo após hero
+- Hero sem grid de produtos embutido
+- Home sem newsletter “em breve” e sem `EditorialBanner`
+- Seções Destaques / Veja também sem repetir produtos
+- Filtro vitrine oculta resíduos QA (`isStorefrontTestResidue`)
+- Botão admin **+ Novo Produto** com contraste legível
+
+#### Smoke produção (Playwright headless)
+
+| Rota / fluxo | Status |
+|--------------|--------|
+| `/` | ✅ PASS — chips/categorias, sem “Curadoria”, sem produtos QA |
+| `/products` | ✅ PASS — filtros dinâmicos |
+| `/products?category=Shorts` | ✅ PASS |
+| `/admin/login` | ✅ PASS |
+| Login admin | ✅ PASS |
+| `/admin/products` — botão + Novo Produto legível | ✅ PASS |
+
+Script auxiliar local (não versionado): `scripts/smoke-f0-prod.mjs`
+
+#### SQL Supabase — limpeza QA (reversível)
+
+Executado via MCP Supabase (2026-06-26):
+
+| id | name | status após UPDATE |
+|----|------|-------------------|
+| `7` | Camisa Premium QA | `draft` |
+| `9` | QA-E2E Importado | `draft` |
+
+Operação reversível: `UPDATE ... SET status = 'active'` se necessário.
+
 ### 9.5 Checklist final — deploy MVP
 
 Ordem objetiva (sem novas features):
@@ -467,6 +494,16 @@ Ordem objetiva (sem novas features):
 5. [x] Validar em produção: login, toggle senha, CRUD, CSV, uploads, WhatsApp
 6. [ ] Onboarding 1º cliente (Sprint 3)
 7. [x] Restaurar aparência padrão (admin `/admin/settings`) — preset versionado, preserva storeName/contatos, sem reset de catálogo
+8. [x] Fase 0 storefront — navegação por categorias + home merchandising (`25ef567`)
+
+#### Pendências reais (pós-Fase 0)
+
+- [ ] Onboarding 1º cliente (Sprint 3)
+- [ ] Auditoria/reorganização pós-V1 (docs, scripts, código morto) — plano aprovado, execução pendente
+- [ ] Avaliar versionar script smoke produção (genérico + `package.json`) — **não** commitar `smoke-f0-prod.mjs` ainda
+- [ ] Manter signup público **OFF** no Supabase Dashboard
+- [ ] Revisar rotação periódica de `service_role` (já rotacionada em go-live; repetir antes de 2º cliente se necessário)
+- [ ] Sync `README.md`, `ROADMAP.md`, `MODULE_ROADMAP.md` (desatualizados vs estado Supabase)
 
 ### 9.6 Sprint 4+ (fora do escopo do deploy)
 
@@ -479,4 +516,4 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 
 ---
 
-*Próxima revisão deste handoff: após onboarding 1º cliente em produção.*
+*Próxima revisão deste handoff: após auditoria pós-V1 (Fase 1+) ou onboarding 1º cliente.*
