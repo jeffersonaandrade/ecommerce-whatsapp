@@ -22,9 +22,29 @@ export function slugifyUnique(
 }
 
 export function deriveShortDescription(long: string, max = 120): string {
-  const trimmed = long.trim()
+  const trimmed = stripHtml(long)
   if (trimmed.length <= max) return trimmed
   return `${trimmed.slice(0, max - 3).trimEnd()}...`
+}
+
+export function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+export function deriveShortFromHtml(html: string, max = 160): string {
+  const text = stripHtml(html)
+  if (text.length <= max) return text
+  const cut = text.lastIndexOf(' ', max)
+  const end = cut >= 120 ? cut : max
+  return `${text.slice(0, end).trimEnd()}...`
 }
 
 export function assignVariationIds(

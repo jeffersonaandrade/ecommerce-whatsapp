@@ -2,9 +2,12 @@ import { Metadata } from 'next'
 import { getProductBySlug } from '@/lib/products'
 import { formatPrice } from '@/lib/formatters'
 import { ProductPurchasePanel } from '@/components/product/product-purchase-panel'
-import { ProductImage } from '@/components/product/product-image'
+import { ProductGallery } from '@/components/product/product-gallery'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { brandingAssetUrl } from '@/lib/store/branding-url'
+import { getStorefrontCategories } from '@/lib/categories'
+import { resolveCategoryDisplayName } from '@/lib/catalog/category-utils'
+import { stripHtml } from '@/lib/catalog/product-utils'
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -26,11 +29,11 @@ export async function generateMetadata({
 
   return {
     title: product.name,
-    description: product.shortDescription,
+    description: stripHtml(product.shortDescription),
     alternates: { canonical },
     openGraph: {
       title: product.name,
-      description: product.shortDescription,
+      description: stripHtml(product.shortDescription),
       url: canonical,
       siteName: settings.storeName,
       type: 'website',
@@ -43,7 +46,7 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title: product.name,
-      description: product.shortDescription,
+      description: stripHtml(product.shortDescription),
       images: productImage ? [productImage] : ogFallback ? [`${settings.siteUrl}${ogFallback}`] : [],
     },
     robots: { index: true, follow: true },
@@ -52,7 +55,10 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const product = await getProductBySlug(slug)
+  const [product, categories] = await Promise.all([
+    getProductBySlug(slug),
+    getStorefrontCategories(),
+  ])
 
   if (!product) {
     return (
@@ -69,45 +75,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
     product.promotionalPrice && product.promotionalPrice < product.price
   const displayPrice = hasPromotion ? product.promotionalPrice : product.price
   const inStock = product.variations.some((v) => v.stock > 0)
+  const categoryLabel = resolveCategoryDisplayName(product.category, categories)
+  const shortDescription = stripHtml(product.shortDescription)
+  const longDescription = stripHtml(product.longDescription)
 
   return (
     <div className="w-full">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* DS §5 PDP: 1 col mobile, 2 col desktop; gap-8 lg:gap-12 */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12">
-          {/* Gallery — DS §9.2: 1:1, soft-cloud, flat */}
-          <div className="space-y-3">
-            <div className="relative aspect-square overflow-hidden bg-soft-cloud">
-              <ProductImage
-                src={product.images[0] ?? ''}
-                alt={product.name}
-                fill
-                priority
-              />
-            </div>
-            {product.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {product.images.map((image, idx) => (
-                  <div
-                    key={idx}
-                    className="relative aspect-square overflow-hidden bg-soft-cloud"
-                  >
-                    <ProductImage
-                      src={image}
-                      alt={`${product.name} ${idx + 1}`}
-                      fill
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductGallery images={product.images} alt={product.name} />
 
           {/* Purchase column — editorial hierarchy */}
           <div className="space-y-6 lg:sticky lg:top-20 lg:self-start">
             <div className="space-y-3">
               <p className="text-xs font-medium uppercase tracking-wide text-mute">
-                {product.category}
+                {categoryLabel}
                 {product.club ? ` · ${product.club}` : ''}
               </p>
 
@@ -116,7 +99,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </h1>
 
               <p className="text-base leading-relaxed text-mute">
-                {product.shortDescription}
+                {shortDescription}
               </p>
             </div>
 
@@ -149,24 +132,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="border-t border-hairline pt-6">
               <h2 className="mb-3 text-lg font-semibold text-ink">Descrição</h2>
               <p className="leading-relaxed text-charcoal">
-                {product.longDescription}
+                {longDescription}
               </p>
-            </div>
-
-            {/* Meta — DS §8 flat surface */}
-            <div className="space-y-2 border border-hairline bg-soft-cloud p-4 text-sm">
-              <div className="flex justify-between gap-4">
-                <span className="text-mute">SKU</span>
-                <span className="font-medium text-ink">
-                  {product.variations[0].sku}
-                </span>
-              </div>
-              <div className="flex justify-between gap-4">
-                <span className="text-mute">Status</span>
-                <span className="font-medium capitalize text-ink">
-                  {product.status}
-                </span>
-              </div>
             </div>
           </div>
         </div>

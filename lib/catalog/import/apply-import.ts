@@ -1,28 +1,7 @@
 import { ParsedProduct, ImportApplyResult } from './types'
 import { ProductInput, ProductRepository, VariationInput } from '@/lib/catalog/product-repository'
-import { deriveShortDescription } from '@/lib/catalog/product-utils'
+import { deriveShortDescription, deriveShortFromHtml, stripHtml } from '@/lib/catalog/product-utils'
 import { Product, ProductStatus } from '@/types/product'
-
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function deriveShortFromHtml(html: string): string {
-  const text = stripHtml(html)
-  const max = 160
-  if (text.length <= max) return text
-  const cut = text.lastIndexOf(' ', max)
-  const end = cut >= 120 ? cut : max
-  return `${text.slice(0, end).trimEnd()}...`
-}
 
 type ApplyImportOptions = {
   policy: 'active' | 'draft'
@@ -42,11 +21,11 @@ function resolveStatus(
 
 function toProductInput(parsed: ParsedProduct, options: ApplyImportOptions): ProductInput {
   const existing = options.existingBySlug.get(parsed.slug)
-  const longDescription = parsed.longDescription.trim()
+  const longDescription = stripHtml(parsed.longDescription.trim())
   return {
     slug: parsed.slug,
     name: parsed.name,
-    shortDescription: deriveShortFromHtml(longDescription) || deriveShortDescription(longDescription),
+    shortDescription: deriveShortFromHtml(parsed.longDescription) || deriveShortDescription(longDescription),
     longDescription,
     price: parsed.price,
     promotionalPrice: parsed.promotionalPrice,

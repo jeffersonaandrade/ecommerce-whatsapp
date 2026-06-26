@@ -53,11 +53,33 @@ export function isKnownCategoryValue(value: string, categories: Category[]): boo
   )
 }
 
-/** Resolve nome legado ou slug para o slug canônico da categoria, ou null se desconhecida. */
 export function resolveCategoryToSlug(value: string, categories: Category[]): string | null {
   const trimmed = value.trim()
   if (!trimmed || !isKnownCategoryValue(trimmed, categories)) return null
   return resolveProductCategorySelectValue(trimmed, categories)
+}
+
+/** Rótulo legível para product.category (slug ou nome legado). */
+export function resolveCategoryDisplayName(
+  productCategory: string,
+  categories: Category[]
+): string {
+  const trimmed = productCategory.trim()
+  if (!trimmed) return ''
+
+  const match = categories.find(
+    (c) =>
+      c.slug === trimmed ||
+      normalizeCategorySlug(c.slug) === normalizeCategorySlug(trimmed) ||
+      c.name.trim().toLowerCase() === trimmed.toLowerCase() ||
+      generateCategorySlug(trimmed) === normalizeCategorySlug(c.slug)
+  )
+  if (match) return match.name
+
+  return trimmed
+    .split('-')
+    .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1) : part))
+    .join(' ')
 }
 
 export function isStorefrontCategoryEntity(category: Pick<Category, 'name' | 'slug' | 'visible'>): boolean {

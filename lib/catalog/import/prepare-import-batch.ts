@@ -1,4 +1,4 @@
-import { deriveShortDescription } from '@/lib/catalog/product-utils'
+import { deriveShortDescription, deriveShortFromHtml, stripHtml } from '@/lib/catalog/product-utils'
 import { canonicalImportSlug } from './canonical-import-slug'
 import type { ParsedProduct } from './types'
 import type { Product, ProductStatus, ProductVariation } from '@/types/product'
@@ -61,14 +61,16 @@ function buildProduct(
   options: PrepareImportBatchOptions,
   idFactory: () => string
 ): Product {
-  const longDescription = parsed.longDescription.trim()
+  const longDescription = stripHtml(parsed.longDescription.trim())
 
   return {
     id: existing?.id ?? idFactory(),
     slug,
     name: parsed.name.trim(),
     shortDescription:
-      deriveShortDescription(longDescription) || parsed.name.trim().slice(0, 120),
+      deriveShortFromHtml(parsed.longDescription) ||
+      deriveShortDescription(longDescription) ||
+      parsed.name.trim().slice(0, 120),
     longDescription,
     price: parsed.price,
     promotionalPrice: parsed.promotionalPrice,

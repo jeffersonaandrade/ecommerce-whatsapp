@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import { Product } from '@/types/product'
 import {
   deriveShortDescription,
+  deriveShortFromHtml,
   slugifyUnique,
+  stripHtml,
   validateProductInput,
 } from './product-utils'
 import { ProductInput } from './product-repository'
@@ -50,11 +52,31 @@ describe('deriveShortDescription', () => {
     expect(deriveShortDescription('Texto curto')).toBe('Texto curto')
   })
 
+  it('remove HTML antes de truncar', () => {
+    expect(deriveShortDescription('<p>Camisa PSG</p>')).toBe('Camisa PSG')
+  })
+
   it('trunca descrições longas', () => {
     const long = 'a'.repeat(150)
     const result = deriveShortDescription(long, 120)
     expect(result.length).toBeLessThanOrEqual(120)
     expect(result.endsWith('...')).toBe(true)
+  })
+})
+
+describe('stripHtml', () => {
+  it('remove tags simples do CSV de importação', () => {
+    expect(stripHtml('<p>Camisa Flamengo 26/27 - Marrom</p>')).toBe(
+      'Camisa Flamengo 26/27 - Marrom'
+    )
+  })
+})
+
+describe('deriveShortFromHtml', () => {
+  it('gera resumo legível a partir de HTML', () => {
+    expect(deriveShortFromHtml('<p>Camisa Celtic Manga Longa</p>')).toBe(
+      'Camisa Celtic Manga Longa'
+    )
   })
 })
 
