@@ -49,6 +49,9 @@ describe('generateBrandingFromLogo', () => {
     const logoWebp = written.get('logo.webp')
     expect(logoWebp).toBeDefined()
 
+    const logoMeta = await sharp(logoWebp!).metadata()
+    expect(logoMeta.width).toBeGreaterThan(logoMeta.height ?? 0)
+
     const { data: containData, info: containInfo } = await sharp(logoWebp!)
       .raw()
       .toBuffer({ resolveWithObject: true })

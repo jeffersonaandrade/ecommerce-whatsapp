@@ -16,11 +16,32 @@ export type GeneratedBranding = {
 }
 
 const FAVICON_SIZES = [16, 32, 180, 192, 512] as const
-const LOGO_OUTPUT_SIZE = 512
+const LOGO_MAX_WIDTH = 512
+const LOGO_MAX_HEIGHT = 128
 
 /** Preserva logos horizontais (ex.: faixa com texto) sem crop agressivo. */
 function resizeContainedSquare(image: Sharp, size: number, background: Color) {
   return image.clone().resize(size, size, { fit: 'contain', background })
+}
+
+/** Remove letterboxing e gera asset retangular para o header (não canvas quadrado). */
+async function buildHeaderLogoWebp(image: Sharp): Promise<Buffer> {
+  const logoBackground: Color = { r: 0, g: 0, b: 0, alpha: 0 }
+  let prepared = image.clone().rotate()
+
+  try {
+    prepared = prepared.trim({ threshold: 15 })
+  } catch {
+    // Mantém original se trim falhar (ex.: imagem uniforme).
+  }
+
+  return prepared
+    .resize(LOGO_MAX_WIDTH, LOGO_MAX_HEIGHT, {
+      fit: 'inside',
+      background: logoBackground,
+    })
+    .webp({ quality: 90 })
+    .toBuffer()
 }
 
 async function writeProcessedImage(
@@ -38,13 +59,7 @@ export async function generateBrandingFromLogo(
   const image = sharp(fileBuffer).rotate()
   const logoPath = 'logo.webp'
 
-  const logoBackground: Color = { r: 0, g: 0, b: 0, alpha: 0 }
-
-  await writeProcessedImage(image, logoPath, () =>
-    resizeContainedSquare(image, LOGO_OUTPUT_SIZE, logoBackground)
-      .webp({ quality: 90 })
-      .toBuffer()
-  )
+  await writeProcessedImage(image, logoPath, () => buildHeaderLogoWebp(image))
 
   const faviconBackground: Color = { r: 0, g: 0, b: 0, alpha: 1 }
 

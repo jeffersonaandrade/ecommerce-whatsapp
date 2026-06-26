@@ -22,7 +22,7 @@ export function AppearancePreview({ settings }: AppearancePreviewProps) {
         <div className="flex items-center gap-2 border-b border-hairline pb-3">
           {logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="" className="h-8 max-w-[120px] rounded-sm object-contain" />
+            <img src={logoUrl} alt="" className="h-8 w-auto max-w-[120px] rounded-sm object-contain" />
           ) : (
             <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-ink text-xs font-bold text-canvas">
               {settings.storeName.charAt(0).toUpperCase()}
