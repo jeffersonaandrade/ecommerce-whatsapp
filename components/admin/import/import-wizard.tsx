@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Alert } from '@/components/ui/alert'
 import { getButtonClassName } from '@/components/ui/button'
+import { ImportLoadingIndicator } from '@/components/ui/import-loading-indicator'
 import {
   confirmImportAction,
   parseImportCsvAction,
@@ -38,6 +39,7 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
   const [result, setResult] = useState<ImportApplyResult | null>(null)
   const [batchId, setBatchId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [pendingAction, setPendingAction] = useState<'parse' | 'confirm' | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -54,34 +56,50 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
 
     startTransition(async () => {
       setError(null)
-      const formData = new FormData()
-      formData.set('file', file)
-      const response = await parseImportCsvAction(formData)
+      setPendingAction('parse')
 
-      if (!response.ok) {
-        setError(response.error)
-        return
+      try {
+        const formData = new FormData()
+        formData.set('file', file)
+        const response = await parseImportCsvAction(formData)
+
+        if (!response.ok) {
+          setError(response.error)
+          return
+        }
+
+        setPreview(response.preview)
+        setStep('preview')
+      } catch {
+        setError('Não foi possível analisar o CSV. Tente novamente.')
+      } finally {
+        setPendingAction(null)
       }
-
-      setPreview(response.preview)
-      setStep('preview')
     })
   }
 
   function handleConfirm(validProducts: ParsedProduct[]) {
     startTransition(async () => {
       setError(null)
-      const response = await confirmImportAction(validProducts)
+      setPendingAction('confirm')
 
-      if (!response.ok) {
-        setError(response.error)
-        return
+      try {
+        const response = await confirmImportAction(validProducts)
+
+        if (!response.ok) {
+          setError(response.error)
+          return
+        }
+
+        setResult(response.result)
+        setBatchId(response.batchId)
+        setStep('result')
+        router.push(`/admin/products?batch=${response.batchId}`)
+      } catch {
+        setError('Falha ao importar. Nenhuma alteração foi aplicada.')
+      } finally {
+        setPendingAction(null)
       }
-
-      setResult(response.result)
-      setBatchId(response.batchId)
-      setStep('result')
-      router.push(`/admin/products?batch=${response.batchId}`)
     })
   }
 
@@ -96,9 +114,15 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
 
   const validProducts = preview ? getValidProducts(preview) : []
   const canImport = preview && !hasBlockingErrors(preview) && validProducts.length > 0
+  const loadingLabel = pendingAction === 'confirm' ? 'Importando' : 'Analisando'
 
   return (
-    <div className="space-y-8">
+    <div className="relative min-h-[280px] space-y-8">
+      {isPending && pendingAction && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-canvas/80 backdrop-blur-[1px]">
+          <ImportLoadingIndicator label={loadingLabel} />
+        </div>
+      )}
       <nav className="flex flex-wrap gap-2 text-sm">
         {(['upload', 'preview', 'result'] as WizardStep[]).map((item, index) => {
           const labels = ['1. Arquivo', '2. Preview', '3. Resultado']
@@ -178,7 +202,7 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
             disabled={!file || isPending}
             className={getButtonClassName('default', 'md', 'w-full sm:w-auto')}
           >
-            {isPending ? 'Analisando...' : 'Próximo'}
+            Próximo
           </button>
         </section>
       )}
@@ -242,7 +266,7 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
               }
               className={getButtonClassName('default', 'md', 'w-full sm:w-auto')}
             >
-              {isPending ? 'Importando...' : 'Confirmar importação'}
+              Confirmar importação
             </button>
           </div>
         </section>

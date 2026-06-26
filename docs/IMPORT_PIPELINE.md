@@ -17,7 +17,8 @@ Upload (CSV-1) → Parser (CSV-2) → Preview (CSV-3) → Importação (CSV-4) �
 | Agrupamento | `Identificador URL` (slug) — uma linha por variação |
 | Parser | `lib/catalog/import/*` — testável, sem lógica na page |
 | Persistência | `ProductRepository` — create/update por slug, rollback em falha |
-| Imagens V1 | Validar `image_urls` HTTPS; **não baixar** |
+| Imagens V1 | Validar `image_urls` localmente (HTTPS, host público, extensão); **sem HEAD/rede** |
+| Limites parse | CSV até 2 MB, até 500 produtos, até 5 URLs por produto |
 | WhatsApp-ready | slug, SKU, preço, variações, imagens URL |
 
 ## Validação (critérios bloqueantes)

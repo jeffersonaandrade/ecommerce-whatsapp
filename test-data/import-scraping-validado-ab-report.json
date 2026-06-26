@@ -1,0 +1,132 @@
+{
+  "generatedAt": "2026-06-26T21:24:38.043Z",
+  "source": "A_VALIDADO + B_VALIDADO (validacao=correto)",
+  "excluded": "C_VALIDADO.csv",
+  "validatedProducts": 94,
+  "importableProducts": 91,
+  "importRows": 384,
+  "blockedProducts": [
+    {
+      "slug": "kit-infantil-borussia-dortmund-25-26",
+      "reason": "Preços legacy não batem com tamanhos scraped"
+    },
+    {
+      "slug": "kit-infantil-benfica-25-26",
+      "reason": "Preços legacy não batem com tamanhos scraped"
+    },
+    {
+      "slug": "kit-infantil-selecao-alemanha-2026-nolev",
+      "reason": "Preços legacy não batem com tamanhos scraped"
+    }
+  ],
+  "sharedScrapedUrlGroups": [
+    {
+      "url": "https://www.clubsimports.com/produtos/camisa-psg-manga-longa-jogador-26-27/",
+      "slugs": [
+        "camisa-psg-26-27-jogador-manga-longa--preto-11vod",
+        "camisa-psg-26-27-jogador-manga-longa--azul-alu26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/short-flamengo-treino-26-27-marrom/",
+      "slugs": [
+        "short-flamengo-treino-26-27-bege-9nzsj",
+        "short-flamengo-treino-26-27-marrom-cfbse"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-treino-boca-juniors-25-26/",
+      "slugs": [
+        "conjunto-de-treino-boca-juniors-25-26-i5d19",
+        "conjunto-de-treino-boca-juniors-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-de-treino-arsenal-25-26/",
+      "slugs": [
+        "conjunto-de-treino-arsenal-25-26-yt5bo",
+        "conjunto-de-treino-arsenal-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-de-treino-barcelona-25-26/",
+      "slugs": [
+        "conjunto-de-treino-barcelona-25-264",
+        "conjunto-de-treino-barcelona-25-263",
+        "conjunto-de-treino-barcelona-25-262",
+        "conjunto-de-treino-barcelona-25-261",
+        "conjunto-de-treino-barcelona-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-de-treino-real-madrid-25-26/",
+      "slugs": [
+        "conjunto-de-treino-real-madrid-25-264",
+        "conjunto-de-treino-real-madrid-25-263",
+        "conjunto-de-treino-real-madrid-25-262",
+        "conjunto-de-treino-real-madrid-25-261",
+        "conjunto-de-treino-real-madrid-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-de-treino-flamengo-25-26/",
+      "slugs": [
+        "conjunto-de-treino-flamengo-25-265",
+        "conjunto-de-treino-flamengo-25-264",
+        "conjunto-de-treino-flamengo-25-263",
+        "conjunto-de-treino-flamengo-25-262",
+        "conjunto-de-treino-flamengo-25-261",
+        "conjunto-de-treino-flamengo-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/moletom-psg-25-26/",
+      "slugs": [
+        "moletom-psg-25-26-preto1",
+        "moletom-psg-25-26-preto"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-de-viagem-real-madrid-25-26/",
+      "slugs": [
+        "conjunto-de-viagem-real-madrid-25-261",
+        "conjunto-de-viagem-real-madrid-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/conjunto-de-treino-cruzeiro-25-26/",
+      "slugs": [
+        "conjunto-de-treino-cruzeiro-25-261",
+        "conjunto-de-treino-cruzeiro-25-26"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/camisa-flamengo-treino-feminina-26-27-marrom/",
+      "slugs": [
+        "camisa-flamengo-treino-26-27-feminina-adidas-bege-vw9lm",
+        "camisa-flamengo-treino-26-27-feminina-adidas-marrom-1m8y7"
+      ]
+    },
+    {
+      "url": "https://www.clubsimports.com/produtos/camisa-liverpool-manga-longa-25-26/",
+      "slugs": [
+        "camisa-liverpool-manga-longa-25-26-verde-g6pzu",
+        "camisa-liverpool-away-manga-longa-25-26-branca",
+        "camisa-liverpool-manga-longa-25-26-vermelha"
+      ]
+    }
+  ],
+  "localImages": {
+    "note": "Pasta scraping_poc/images espelha URLs HTTPS do CSV (mesmo conteúdo, formato local).",
+    "productsWithLocalFolder": 94,
+    "productsWithoutLocalFolder": 0,
+    "missingLocalExamples": []
+  },
+  "importPreview": {
+    "validProducts": 91,
+    "blockingErrors": 0,
+    "warnings": 0,
+    "canImport": true,
+    "errorSamples": []
+  }
+}
