@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { StoreSettings } from '@/types/store-settings'
 import { getButtonClassName } from '@/components/ui/button'
 import {
   updateStoreSettingsAction,
   uploadStoreLogoAction,
   uploadHeroImageAction,
+  restoreDefaultStorefrontAction,
+  getStoreSettingsAction,
 } from '@/lib/store/actions'
 import { brandingAssetUrl } from '@/lib/store/branding-url'
 import { AppearancePreview } from './appearance-preview'
@@ -16,10 +19,12 @@ type StoreSettingsFormProps = {
 }
 
 export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
+  const router = useRouter()
   const [settings, setSettings] = useState(initial)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [restoreConfirm, setRestoreConfirm] = useState('')
 
   function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -141,6 +146,24 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
   }
 
   const heroPreviewUrl = brandingAssetUrl(settings.heroImagePath, settings.updatedAt)
+
+  function handleRestoreDefault() {
+    if (restoreConfirm !== 'RESTAURAR') return
+    startTransition(async () => {
+      setError(null)
+      setSuccess(null)
+      const result = await restoreDefaultStorefrontAction()
+      if (!result.ok) {
+        setError(result.error)
+        return
+      }
+      const refreshed = await getStoreSettingsAction()
+      setSettings(refreshed)
+      setRestoreConfirm('')
+      setSuccess('Aparência padrão restaurada. Nome da loja e contatos operacionais foram preservados.')
+      router.refresh()
+    })
+  }
 
   return (
     <div className="space-y-8">
@@ -456,6 +479,36 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
           disabled={isPending}
           className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
         />
+      </section>
+
+      <section className="space-y-4 rounded-lg border border-red-200 bg-red-50/50 p-6">
+        <h2 className="text-lg font-semibold text-ink">Restaurar aparência padrão</h2>
+        <p className="text-sm text-mute">
+          Restaura cores, descrição, hero, logo, favicons, OG e textos institucionais para o
+          preset premium inicial.{' '}
+          <strong className="text-ink">
+            Não altera produtos, nome da loja, WhatsApp, siteUrl nem demais contatos.
+          </strong>
+        </p>
+        <label className="block text-sm font-medium text-ink">
+          Digite RESTAURAR para confirmar
+          <input
+            type="text"
+            value={restoreConfirm}
+            onChange={(e) => setRestoreConfirm(e.target.value)}
+            autoComplete="off"
+            placeholder="RESTAURAR"
+            className="mt-1 w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={isPending || restoreConfirm !== 'RESTAURAR'}
+          onClick={handleRestoreDefault}
+          className={getButtonClassName('outline', 'md')}
+        >
+          {isPending ? 'Restaurando...' : 'Restaurar aparência padrão'}
+        </button>
       </section>
     </div>
   )

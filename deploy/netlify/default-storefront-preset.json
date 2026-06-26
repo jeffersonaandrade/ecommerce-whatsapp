@@ -1,0 +1,16 @@
+{
+  "description": "Sua loja esportiva de confiança",
+  "primaryColor": "#111111",
+  "secondaryColor": "#f5f5f5",
+  "heroHeadline": "Vista o jogo",
+  "heroHeadlineLine2": "Com autenticidade",
+  "heroSubheadline": "Equipamento esportivo premium selecionado para quem leva performance a sério.",
+  "heroCtaLabel": "Explorar produtos",
+  "heroCtaHref": "/products",
+  "heroImagePath": "hero.webp",
+  "aboutText": "Somos uma loja especializada em artigos esportivos, focada em qualidade, autenticidade e atendimento próximo ao cliente.",
+  "address": "",
+  "cityState": "",
+  "businessHours": "Seg–Sex, 9h–18h",
+  "exchangePolicyText": "Trocas em até 7 dias para produtos sem uso, com etiqueta e nota fiscal. Entre em contato pelo WhatsApp ou e-mail da loja."
+}

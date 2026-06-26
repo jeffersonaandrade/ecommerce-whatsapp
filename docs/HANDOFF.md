@@ -443,7 +443,18 @@ Substitui o QA parcial em `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` (uploads/CSV/Wha
 | Upload logo → `/api/branding/favicon-32.png` 200 | ✅ PASS |
 | WhatsApp `#TEMP-...` em produção | ✅ PASS |
 
-**Pendente manual:** settings persistem após **redeploy** Netlify (trigger deploy → recarregar settings).
+**Pendente manual:** ~~settings persistem após **redeploy** Netlify~~ — **PASS** (2026-06-25)
+
+| Teste persistência pós-redeploy | Status |
+|---------------------------------|--------|
+| Commit vazio `d6abcc9` dispara redeploy | ✅ |
+| Settings (descrição) persistem após deploy | ✅ |
+| Home `/` após redeploy | ✅ |
+| `/products` após redeploy | ✅ |
+| Favicon `/api/branding/favicon-32.png` | ✅ 200 |
+| Login admin após redeploy | ✅ |
+
+Evidência: `test-data/e2e/prod-persistence-report.json`
 
 ### 9.5 Checklist final — deploy MVP
 
@@ -455,7 +466,7 @@ Ordem objetiva (sem novas features):
 4. [x] Smoke §9.4 em https://loja-whats.netlify.app
 5. [x] Validar em produção: login, toggle senha, CRUD, CSV, uploads, WhatsApp
 6. [ ] Onboarding 1º cliente (Sprint 3)
-7. [ ] (Futuro) Restaurar identidade padrão — plano separado, sem reset de catálogo
+7. [x] Restaurar aparência padrão (admin `/admin/settings`) — preset versionado, preserva storeName/contatos, sem reset de catálogo
 
 ### 9.6 Sprint 4+ (fora do escopo do deploy)
 

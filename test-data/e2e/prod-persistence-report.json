@@ -1,0 +1,35 @@
+{
+  "testedAt": "2026-06-25T23:39:26.765Z",
+  "before": {
+    "storeName": "QA-Loja Browser Teste",
+    "whatsappPhone": "5521980283529",
+    "phone": "(21)980283529",
+    "description": "Sua loja esportiva de confiança",
+    "faviconStatus": 200
+  },
+  "changed": {
+    "description": "Persist redeploy 2026-06-25T23:38:19.554Z"
+  },
+  "afterSave": {
+    "storeName": "QA-Loja Browser Teste",
+    "whatsappPhone": "5521980283529",
+    "phone": "(21)980283529",
+    "description": "Persist redeploy 2026-06-25T23:38:19.554Z",
+    "faviconStatus": 200
+  },
+  "afterRedeploy": {
+    "storeName": "QA-Loja Browser Teste",
+    "whatsappPhone": "5521980283529",
+    "phone": "(21)980283529",
+    "description": "Persist redeploy 2026-06-25T23:38:19.554Z",
+    "faviconStatus": 200
+  },
+  "results": {
+    "saveConfirmed": true,
+    "settingsPersisted": true,
+    "vitrineHomeOk": true,
+    "vitrineProductsOk": true,
+    "loginOk": true
+  },
+  "overall": "PASS"
+}

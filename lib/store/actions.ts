@@ -6,6 +6,11 @@ import { StoreSettingsInput } from '@/types/store-settings'
 import { isValidHexColor } from './settings-defaults'
 import { generateBrandingFromLogo, saveHeroImage } from './generate-branding'
 import { getStoreSettings, updateStoreSettings } from './settings-repository'
+import {
+  readDefaultStorefrontHeroBuffer,
+  readDefaultStorefrontLogoSourceBuffer,
+} from './default-storefront-preset'
+import { buildRestoreStorefrontPatch } from './restore-default-storefront'
 
 function revalidateStore() {
   revalidatePath('/', 'layout')
@@ -118,4 +123,28 @@ export async function uploadHeroImageAction(
 
 export async function getStoreSettingsAction() {
   return await getStoreSettings()
+}
+
+export async function restoreDefaultStorefrontAction(): Promise<
+  { ok: true; updatedAt: string } | { ok: false; error: string }
+> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
+
+  try {
+    const current = await getStoreSettings()
+    const heroBuffer = readDefaultStorefrontHeroBuffer()
+    const logoBuffer = readDefaultStorefrontLogoSourceBuffer()
+
+    await saveHeroImage(heroBuffer)
+    const branding = await generateBrandingFromLogo(logoBuffer)
+    const patch = buildRestoreStorefrontPatch(current, branding)
+    const next = await updateStoreSettings(patch)
+    revalidateStore()
+    return { ok: true, updatedAt: next.updatedAt }
+  } catch {
+    return { ok: false, error: 'Falha ao restaurar aparência padrão. Tente novamente.' }
+  }
 }
