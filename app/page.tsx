@@ -3,9 +3,10 @@ import { CategoryChips } from '@/components/commerce/category-chips'
 import { HomeCategories } from '@/components/commerce/home-categories'
 import { HomeBenefits } from '@/components/commerce/home-benefits'
 import { ProductCard } from '@/components/product/product-card'
-import { getAllProducts, getCategories } from '@/lib/products'
+import { getAllProducts } from '@/lib/products'
 import { pickHomeProductSections } from '@/lib/products-home-sections'
-import { resolveStorefrontCategories } from '@/lib/catalog/storefront-categories'
+import { getStorefrontCategories } from '@/lib/categories'
+import { resolveStorefrontCategoryList } from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
@@ -20,7 +21,7 @@ export default async function Home() {
   const settings = await getStoreSettings()
   const allProducts = await getAllProducts()
   const { featured, seeAlso } = pickHomeProductSections(allProducts, 6, 4)
-  const categories = resolveStorefrontCategories(await getCategories())
+  const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
   const heroImagePath = await resolveExistingBrandingPath(settings.heroImagePath)
 
   return (

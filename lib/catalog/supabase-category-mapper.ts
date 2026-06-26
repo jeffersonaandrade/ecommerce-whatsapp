@@ -1,0 +1,48 @@
+import { Category, CategoryInput } from '@/types/category'
+import { generateCategorySlug, normalizeCategorySlug } from './category-utils'
+
+export type CategoryRow = {
+  id: string
+  name: string
+  slug: string
+  description: string
+  sort_order: number
+  visible: boolean
+  created_at: string
+  updated_at: string
+}
+
+export function rowToCategory(row: CategoryRow): Category {
+  return {
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    description: row.description ?? '',
+    sortOrder: row.sort_order,
+    visible: row.visible,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }
+}
+
+export function categoryInputToRow(
+  input: CategoryInput,
+  existing?: Pick<Category, 'id' | 'createdAt' | 'updatedAt'>
+): Omit<CategoryRow, 'created_at' | 'updated_at'> & {
+  created_at?: string
+  updated_at?: string
+} {
+  const name = input.name.trim()
+  const slug = normalizeCategorySlug(input.slug?.trim() || generateCategorySlug(name))
+  return {
+    id: existing?.id ?? crypto.randomUUID(),
+    name,
+    slug,
+    description: input.description?.trim() ?? '',
+    sort_order: input.sortOrder ?? 0,
+    visible: input.visible ?? true,
+    ...(existing
+      ? { created_at: existing.createdAt, updated_at: new Date().toISOString() }
+      : {}),
+  }
+}

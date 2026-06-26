@@ -2,12 +2,14 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
+import { getCategoryRepository } from '@/lib/catalog/get-category-repository'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
 import { applyImport } from './apply-import'
 import { checkProductImageUrls } from './check-image-urls'
 import {
   buildImportPreview,
   validateCatalogSkus,
+  validateImportProductCategories,
 } from './validate-import'
 import { ImportApplyResult, ImportPreview, ParsedProduct } from './types'
 
@@ -39,8 +41,12 @@ export async function parseImportCsvAction(
 
   const text = await file.text()
   const repo = getProductRepository()
-  const catalog = await repo.getAll()
-  const preview = buildImportPreview(text, file.name, catalog)
+  const categoryRepo = getCategoryRepository()
+  const [catalog, categories] = await Promise.all([
+    repo.getAll(),
+    categoryRepo.getAll(),
+  ])
+  const preview = buildImportPreview(text, file.name, catalog, categories)
 
   for (const product of preview.products) {
     const imageIssues = await checkProductImageUrls(product.images, product.slug)
@@ -65,16 +71,23 @@ export async function confirmImportAction(
   }
 
   const repo = getProductRepository()
-  const catalog = await repo.getAll()
-  const catalogIssues = validateCatalogSkus(products, catalog)
-  const blocking = catalogIssues.filter((i) => i.severity === 'error')
+  const categoryRepo = getCategoryRepository()
+  const [catalog, categories] = await Promise.all([
+    repo.getAll(),
+    categoryRepo.getAll(),
+  ])
+
+  const normalizedProducts = structuredClone(products)
+  const categoryIssues = validateImportProductCategories(normalizedProducts, categories)
+  const catalogIssues = validateCatalogSkus(normalizedProducts, catalog)
+  const blocking = [...categoryIssues, ...catalogIssues].filter((i) => i.severity === 'error')
   if (blocking.length > 0) {
     return { ok: false, error: blocking[0].message }
   }
 
   try {
     const started = performance.now()
-    const result = await applyImport(products, repo)
+    const result = await applyImport(normalizedProducts, repo)
     revalidateCatalog()
     return {
       ok: true,

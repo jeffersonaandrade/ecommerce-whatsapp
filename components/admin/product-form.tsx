@@ -3,9 +3,15 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Product, ProductStatus } from '@/types/product'
+import { Category } from '@/types/category'
 import { Button } from '@/components/ui/button'
 import { ImageGalleryField } from '@/components/admin/image-gallery-field'
 import { isSupabaseAuthMode } from '@/lib/auth/mode'
+import {
+  defaultCategorySlug,
+  isKnownCategoryValue,
+  resolveProductCategorySelectValue,
+} from '@/lib/catalog/category-utils'
 import {
   createProductAction,
   updateProductAction,
@@ -23,7 +29,7 @@ type VariationRow = {
 type ProductFormProps = {
   mode: 'create' | 'edit'
   product?: Product
-  categories: string[]
+  categories: Category[]
 }
 
 const emptyVariation = (): VariationRow => ({
@@ -33,7 +39,7 @@ const emptyVariation = (): VariationRow => ({
   stock: '0',
 })
 
-function productToForm(product: Product) {
+function productToForm(product: Product, categories: Category[]) {
   return {
     name: product.name,
     slug: product.slug,
@@ -43,7 +49,7 @@ function productToForm(product: Product) {
     promotionalPrice: product.promotionalPrice
       ? String(product.promotionalPrice)
       : '',
-    category: product.category,
+    category: resolveProductCategorySelectValue(product.category, categories),
     club: product.club ?? '',
     status: product.status,
     images: [...product.images],
@@ -61,7 +67,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const initial = product
-    ? productToForm(product)
+    ? productToForm(product, categories)
     : {
         name: '',
         slug: '',
@@ -69,7 +75,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
         longDescription: '',
         price: '',
         promotionalPrice: '',
-        category: categories[0] ?? '',
+        category: defaultCategorySlug(categories),
         club: '',
         status: 'draft' as ProductStatus,
         images: [] as string[],
@@ -183,18 +189,28 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
           </label>
           <label className="block space-y-1">
             <span className="text-sm font-medium text-gray-700">Categoria *</span>
-            <input
+            <select
               required
-              list="category-suggestions"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-            />
-            <datalist id="category-suggestions">
-              {categories.map((c) => (
-                <option key={c} value={c} />
-              ))}
-            </datalist>
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white"
+            >
+              {mode === 'edit' &&
+                category &&
+                !isKnownCategoryValue(category, categories) && (
+                  <option value={category}>{category} (legado)</option>
+                )}
+              {categories.length === 0 ? (
+                <option value="">Cadastre uma categoria no admin</option>
+              ) : (
+                categories.map((c) => (
+                  <option key={c.id} value={c.slug}>
+                    {c.name}
+                    {!c.visible ? ' (oculta)' : ''}
+                  </option>
+                ))
+              )}
+            </select>
           </label>
           <label className="block space-y-1">
             <span className="text-sm font-medium text-gray-700">Clube / Marca</span>

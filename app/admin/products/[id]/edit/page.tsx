@@ -2,7 +2,8 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ProductForm } from '@/components/admin/product-form'
-import { getCategoriesAdmin, getProductByIdAdmin } from '@/lib/products'
+import { getAllCategoriesAdmin } from '@/lib/categories'
+import { getProductByIdAdmin } from '@/lib/products'
 
 interface EditProductPageProps {
   params: Promise<{ id: string }>
@@ -29,7 +30,7 @@ export default async function EditProductPage({
 
   if (!product) notFound()
 
-  const categories = await getCategoriesAdmin()
+  const categories = await getAllCategoriesAdmin()
 
   return (
     <div className="w-full">

@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ProductForm } from '@/components/admin/product-form'
-import { getCategoriesAdmin } from '@/lib/products'
+import { getAllCategoriesAdmin } from '@/lib/categories'
 
 export const metadata: Metadata = {
   title: 'Novo Produto',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminNewProductPage() {
-  const categories = await getCategoriesAdmin()
+  const categories = await getAllCategoriesAdmin()
 
   return (
     <div className="w-full">

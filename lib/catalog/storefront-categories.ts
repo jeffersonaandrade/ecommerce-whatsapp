@@ -1,4 +1,6 @@
 import { siteConfig } from '@/config/site'
+import { Category } from '@/types/category'
+import { generateCategorySlug, sortCategories } from './category-utils'
 
 /** Categorias ocultas na vitrine (resíduos de teste/QA). */
 const HIDDEN_CATEGORY_PATTERN = /^qa$/i
@@ -25,6 +27,7 @@ export function isStorefrontTestResidue(product: {
   return false
 }
 
+/** @deprecated Prefer getStorefrontCategories() — fallback string-only para compat. */
 export function resolveStorefrontCategories(catalogCategories: string[]): string[] {
   const fromCatalog = catalogCategories
     .map((c) => c.trim())
@@ -37,6 +40,47 @@ export function resolveStorefrontCategories(catalogCategories: string[]): string
   return [...siteConfig.categories]
 }
 
-export function categoryProductsHref(category: string): string {
-  return `/products?category=${encodeURIComponent(category)}`
+export function resolveStorefrontCategoryList(categories: Category[]): Category[] {
+  const visible = categories.filter(
+    (c) => c.visible && isStorefrontCategory(c.name) && isStorefrontCategory(c.slug)
+  )
+  if (visible.length > 0) return sortCategories(visible)
+
+  const fallback = siteConfig.categories.map((name, index) => ({
+    id: `fallback-${generateCategorySlug(name)}`,
+    name,
+    slug: generateCategorySlug(name),
+    description: '',
+    sortOrder: (index + 1) * 10,
+    visible: true,
+    createdAt: '',
+    updatedAt: '',
+  }))
+  return sortCategories(fallback)
+}
+
+export function categoryProductsHref(slug: string): string {
+  return `/products?category=${encodeURIComponent(slug)}`
+}
+
+export function isCategoryFilterActive(
+  filterParam: string | undefined,
+  category: Category
+): boolean {
+  if (!filterParam) return false
+  const normalizedFilter = filterParam.trim().toLowerCase()
+  return (
+    category.slug.toLowerCase() === normalizedFilter ||
+    category.name.trim().toLowerCase() === normalizedFilter ||
+    generateCategorySlug(filterParam) === category.slug
+  )
+}
+
+export function resolveCategoryHeading(
+  filterParam: string | undefined,
+  categories: Category[]
+): string {
+  if (!filterParam) return 'Todos os produtos'
+  const match = categories.find((c) => isCategoryFilterActive(filterParam, c))
+  return match?.name ?? filterParam
 }

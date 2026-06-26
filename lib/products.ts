@@ -1,6 +1,8 @@
 import { Product } from '@/types/product'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
+import { productMatchesCategoryFilter } from '@/lib/catalog/category-utils'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
+import { getStorefrontCategories } from '@/lib/categories'
 
 async function loadCatalog(): Promise<Product[]> {
   return getProductRepository().getAll()
@@ -38,8 +40,11 @@ export async function getProductByIdAdmin(id: string): Promise<Product | undefin
   return getProductRepository().getById(id)
 }
 
-export async function getProductsByCategory(category: string): Promise<Product[]> {
-  return (await getAllProducts()).filter((p) => p.category === category)
+export async function getProductsByCategory(categoryParam: string): Promise<Product[]> {
+  const categories = await getStorefrontCategories()
+  return (await getAllProducts()).filter((p) =>
+    productMatchesCategoryFilter(p.category, categoryParam, categories)
+  )
 }
 
 export async function getCategories(): Promise<string[]> {

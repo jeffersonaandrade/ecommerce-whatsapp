@@ -10,6 +10,8 @@
 ```text
 store_settings (singleton id = 'default')
 
+categories (V1.1 — CRUD admin; products.category ainda string/slug legado)
+
 products ──< product_variations
    │
    └── images: text[] (URLs externas ou paths Storage)
@@ -19,7 +21,9 @@ Storage buckets (não relacional):
   products/   — uploads admin (Sprint 2+)
 ```
 
-**Fora deste plano (Sprint 4+):** `categories`, `banners`, `nav_items`
+**Fora deste plano (Sprint 4+):** `banners`, `nav_items`
+
+**Aplicado em produção (2026-06-26):** tabela `categories` — migrations MCP `create_categories_table_v1_1`, `create_categories_rls_v1_1`. Seed: 5 categorias. **`products.category` ainda não normalizado para slug** (aguarda código + migration dedicada).
 
 ---
 
@@ -29,6 +33,7 @@ Storage buckets (não relacional):
 |-------------------|-------------------|
 | `storage/catalog.json` | `products` + `product_variations` |
 | `storage/store-settings.json` | `store_settings` (row `default`) |
+| `storage/categories.json` (V1.1 código) | `categories` |
 | `storage/branding/*` | bucket `branding` |
 
 ---
@@ -104,6 +109,96 @@ CREATE TABLE IF NOT EXISTS public.store_settings (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 ```
+
+### 1b. Tabela `categories` (V1.1 — aplicada 2026-06-26)
+
+Migration MCP: `create_categories_table_v1_1` + `create_categories_rls_v1_1`.
+
+```sql
+CREATE TABLE IF NOT EXISTS public.categories (
+  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  name text NOT NULL,
+  slug text NOT NULL,
+  description text NOT NULL DEFAULT '',
+  sort_order integer NOT NULL DEFAULT 0,
+  visible boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT categories_name_not_empty CHECK (char_length(trim(name)) > 0),
+  CONSTRAINT categories_slug_not_empty CHECK (char_length(trim(slug)) > 0),
+  CONSTRAINT categories_slug_unique UNIQUE (slug),
+  CONSTRAINT categories_slug_format CHECK (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$')
+);
+
+CREATE INDEX IF NOT EXISTS categories_visible_sort_idx
+  ON public.categories (visible, sort_order, name);
+
+CREATE INDEX IF NOT EXISTS categories_slug_idx
+  ON public.categories (slug);
+
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS categories_set_updated_at ON public.categories;
+CREATE TRIGGER categories_set_updated_at
+  BEFORE UPDATE ON public.categories
+  FOR EACH ROW
+  EXECUTE FUNCTION public.set_updated_at();
+
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "categories_public_read"
+  ON public.categories FOR SELECT
+  TO anon, authenticated
+  USING (visible = true);
+
+CREATE POLICY "categories_admin_select"
+  ON public.categories FOR SELECT
+  TO authenticated
+  USING (public.is_store_admin());
+
+CREATE POLICY "categories_admin_insert"
+  ON public.categories FOR INSERT
+  TO authenticated
+  WITH CHECK (public.is_store_admin());
+
+CREATE POLICY "categories_admin_update"
+  ON public.categories FOR UPDATE
+  TO authenticated
+  USING (public.is_store_admin())
+  WITH CHECK (public.is_store_admin());
+
+CREATE POLICY "categories_admin_delete"
+  ON public.categories FOR DELETE
+  TO authenticated
+  USING (public.is_store_admin());
+
+GRANT SELECT ON TABLE public.categories TO anon, authenticated;
+GRANT INSERT, UPDATE, DELETE ON TABLE public.categories TO authenticated;
+```
+
+**Seed inicial (idempotente):**
+
+```sql
+INSERT INTO public.categories (name, slug, sort_order, visible)
+VALUES
+  ('Acessórios', 'acessorios', 10, true),
+  ('Camisas',    'camisas',    20, true),
+  ('Jaquetas',   'jaquetas',   30, true),
+  ('Meias',      'meias',      40, true),
+  ('Shorts',     'shorts',     50, true)
+ON CONFLICT (slug) DO NOTHING;
+```
+
+> **Pendente:** `UPDATE products SET category = slug` — só após repositories + admin UI + vitrine por slug.
 
 ### 2. RLS
 
@@ -363,4 +458,4 @@ Lê `storage/catalog.json` (ou `catalog.seed.json`) + `storage/store-settings.js
 
 ---
 
-*Última atualização: Sprint Supabase (HANDOFF) — 2026-06-24*
+*Última atualização: categories V1.1 schema (MCP) — 2026-06-26*

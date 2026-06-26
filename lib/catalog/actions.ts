@@ -9,6 +9,7 @@ import {
   buildProductImageFilename,
   writeProductImage,
 } from './product-image-storage'
+import { getCategoryRepository } from './get-category-repository'
 import { getProductRepository } from './get-product-repository'
 import { ProductInput } from './product-repository'
 import { validateProductInput } from './product-utils'
@@ -69,7 +70,8 @@ export async function createProductAction(
     const repo = getProductRepository()
     const input = toProductInput(payload)
     const catalog = await repo.getAll()
-    const errors = validateProductInput(input, catalog)
+    const categories = await getCategoryRepository().getAll()
+    const errors = validateProductInput(input, catalog, undefined, categories)
     if (errors.length > 0) {
       return { ok: false, errors: errors.map((e) => e.message) }
     }
@@ -95,7 +97,8 @@ export async function updateProductAction(
   const repo = getProductRepository()
   const input = toProductInput(payload)
   const catalog = await repo.getAll()
-  const errors = validateProductInput(input, catalog, id)
+  const categories = await getCategoryRepository().getAll()
+  const errors = validateProductInput(input, catalog, id, categories)
   if (errors.length > 0) {
     return { ok: false, errors: errors.map((e) => e.message) }
   }

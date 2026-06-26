@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { categoryProductsHref } from '@/lib/catalog/storefront-categories'
 import { getButtonClassName } from '@/components/ui/button'
+import { Category } from '@/types/category'
 
 type HomeCategoriesProps = {
-  categories: string[]
+  categories: Category[]
 }
 
 export function HomeCategories({ categories }: HomeCategoriesProps) {
@@ -23,15 +24,15 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-5">
           {categories.map((category) => (
             <Link
-              key={category}
-              href={categoryProductsHref(category)}
+              key={category.id}
+              href={categoryProductsHref(category.slug)}
               className={getButtonClassName(
                 'secondary',
                 'sm',
                 'w-full justify-center'
               )}
             >
-              {category}
+              {category.name}
             </Link>
           ))}
           <Link

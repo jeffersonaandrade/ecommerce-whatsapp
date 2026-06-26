@@ -1,4 +1,6 @@
+import { resolveCategoryToSlug } from '@/lib/catalog/category-utils'
 import { Product } from '@/types/product'
+import { Category } from '@/types/category'
 import { CSV_COLUMNS, REQUIRED_HEADERS } from './columns'
 import {
   findConflictingProductRows,
@@ -163,6 +165,41 @@ function validateDuplicateSkus(rows: CsvRow[]): ImportIssue[] {
   return issues
 }
 
+export function validateImportProductCategories(
+  products: ParsedProduct[],
+  categories: Category[]
+): ImportIssue[] {
+  const issues: ImportIssue[] = []
+
+  for (const product of products) {
+    const raw = product.category.trim()
+    if (!raw) {
+      issues.push({
+        code: 'CSV_E008',
+        severity: 'error',
+        slug: product.slug,
+        message: 'Categoria ausente. Cadastre em Admin > Categorias e informe slug ou nome no CSV.',
+      })
+      continue
+    }
+
+    const slug = resolveCategoryToSlug(raw, categories)
+    if (!slug) {
+      issues.push({
+        code: 'CSV_E008',
+        severity: 'error',
+        slug: product.slug,
+        message: `Categoria inválida ou inexistente: "${raw}". Use slug ou nome cadastrado em Categorias.`,
+      })
+      continue
+    }
+
+    product.category = slug
+  }
+
+  return issues
+}
+
 export function validateCatalogSkus(
   products: ParsedProduct[],
   catalog: Product[]
@@ -212,7 +249,8 @@ function productHasBlockingIssues(product: ParsedProduct, issues: ImportIssue[])
 export function buildImportPreview(
   csvText: string,
   fileName: string,
-  catalog: Product[] = []
+  catalog: Product[] = [],
+  categories: Category[] = []
 ): ImportPreview {
   const issues: ImportIssue[] = []
 
@@ -274,6 +312,7 @@ export function buildImportPreview(
   issues.push(...validateDuplicateSkus(matrix))
 
   const products = groupRowsBySlug(matrix)
+  issues.push(...validateImportProductCategories(products, categories))
   issues.push(...validateCatalogSkus(products, catalog))
 
   const errorCount = issues.filter((i) => i.severity === 'error').length

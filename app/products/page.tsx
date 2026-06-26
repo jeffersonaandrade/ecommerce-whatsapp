@@ -2,10 +2,13 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
-import { getAllProducts, getCategories, getProductsByCategory } from '@/lib/products'
+import { getAllProducts, getProductsByCategory } from '@/lib/products'
+import { getStorefrontCategories } from '@/lib/categories'
 import {
   categoryProductsHref,
-  resolveStorefrontCategories,
+  isCategoryFilterActive,
+  resolveCategoryHeading,
+  resolveStorefrontCategoryList,
 } from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
@@ -26,29 +29,29 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const { category } = await searchParams
-  const categories = resolveStorefrontCategories(await getCategories())
+  const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
 
   const filteredProducts = category
     ? await getProductsByCategory(category)
     : await getAllProducts()
 
+  const heading = resolveCategoryHeading(category, categories)
+
   return (
     <div className="w-full">
-      {/* Page header — DS §8 flat canvas + hairline; §4 editorial hierarchy */}
       <div className="border-b border-hairline bg-canvas">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
           <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
             Catálogo
           </p>
           <h1 className="mt-2 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            {category ?? 'Todos os produtos'}
+            {heading}
           </h1>
           <p className="mt-2 text-mute">
             {filteredProducts.length}{' '}
             {filteredProducts.length === 1 ? 'produto' : 'produtos'} disponíveis
           </p>
 
-          {/* Filters — DS §7 pill chips */}
           <nav
             className="mt-6 flex flex-wrap gap-2"
             aria-label="Filtrar por categoria"
@@ -64,21 +67,20 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </Link>
             {categories.map((cat) => (
               <Link
-                key={cat}
-                href={categoryProductsHref(cat)}
+                key={cat.id}
+                href={categoryProductsHref(cat.slug)}
                 className={getButtonClassName(
-                  category === cat ? 'default' : 'secondary',
+                  isCategoryFilterActive(category, cat) ? 'default' : 'secondary',
                   'sm'
                 )}
               >
-                {cat}
+                {cat.name}
               </Link>
             ))}
           </nav>
         </div>
       </div>
 
-      {/* Product grid — DS §5: 2 / 3 / 4 cols; gap-4 mobile, gap-6 desktop */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">

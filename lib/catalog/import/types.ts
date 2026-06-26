@@ -8,6 +8,7 @@ export type CsvErrorCode =
   | 'CSV_E005'
   | 'CSV_E006'
   | 'CSV_E007'
+  | 'CSV_E008'
   | 'CSV_W008'
 
 export type ImportIssue = {

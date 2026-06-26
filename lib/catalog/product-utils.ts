@@ -1,5 +1,7 @@
 import { generateSlug } from '@/lib/formatters'
 import { Product, ProductVariation, ProductStatus } from '@/types/product'
+import { Category } from '@/types/category'
+import { isKnownCategoryValue } from './category-utils'
 import { ProductInput } from './product-repository'
 
 export type ProductValidationError = { field: string; message: string }
@@ -41,7 +43,8 @@ export function assignVariationIds(
 export function validateProductInput(
   input: ProductInput,
   allProducts: Product[],
-  excludeId?: string
+  excludeId?: string,
+  categories?: Category[]
 ): ProductValidationError[] {
   const errors: ProductValidationError[] = []
 
@@ -50,6 +53,8 @@ export function validateProductInput(
   }
   if (!input.category.trim()) {
     errors.push({ field: 'category', message: 'Categoria é obrigatória' })
+  } else if (categories && categories.length > 0 && !isKnownCategoryValue(input.category, categories)) {
+    errors.push({ field: 'category', message: 'Selecione uma categoria válida' })
   }
   if (!input.longDescription.trim()) {
     errors.push({ field: 'longDescription', message: 'Descrição é obrigatória' })
