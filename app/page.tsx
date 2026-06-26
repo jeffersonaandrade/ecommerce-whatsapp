@@ -1,10 +1,11 @@
 import { SportsHero } from '@/components/commerce/sports-hero'
+import { CategoryChips } from '@/components/commerce/category-chips'
 import { HomeCategories } from '@/components/commerce/home-categories'
-import { EditorialBanner } from '@/components/commerce/editorial-banner'
 import { HomeBenefits } from '@/components/commerce/home-benefits'
-import { NewsletterBlock } from '@/components/commerce/newsletter-block'
 import { ProductCard } from '@/components/product/product-card'
-import { getAllProducts, getFeaturedProducts } from '@/lib/products'
+import { getAllProducts, getCategories } from '@/lib/products'
+import { pickHomeProductSections } from '@/lib/products-home-sections'
+import { resolveStorefrontCategories } from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
@@ -18,15 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   const settings = await getStoreSettings()
   const allProducts = await getAllProducts()
-  const heroFeatured = await getFeaturedProducts(4)
-  const featuredProducts = await getFeaturedProducts(6)
-  const bestSellers = allProducts.slice(2, 6)
+  const { featured, seeAlso } = pickHomeProductSections(allProducts, 6, 4)
+  const categories = resolveStorefrontCategories(await getCategories())
   const heroImagePath = await resolveExistingBrandingPath(settings.heroImagePath)
 
   return (
     <div className="w-full">
       <SportsHero
-        featuredProducts={heroFeatured}
         content={{
           storeName: settings.storeName,
           heroImagePath,
@@ -39,51 +38,53 @@ export default async function Home() {
         }}
       />
 
-      <HomeCategories />
+      <CategoryChips categories={categories} />
+      <HomeCategories categories={categories} />
 
-      <section className="py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <header className="mb-8 space-y-2 sm:mb-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
-              Seleção curada
-            </p>
-            <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-ink sm:text-3xl">
-              Produtos em destaque
-            </h2>
-            <p className="max-w-xl text-mute">
-              Peças esportivas premium escolhidas para performance e autenticidade.
-            </p>
-          </header>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 md:gap-8 lg:grid-cols-3">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+      {featured.length > 0 && (
+        <section className="py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <header className="mb-8 space-y-2 sm:mb-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
+                Destaques
+              </p>
+              <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-ink sm:text-3xl">
+                Produtos em destaque
+              </h2>
+              <p className="max-w-xl text-mute">
+                Confira os produtos mais relevantes da loja.
+              </p>
+            </header>
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-3 md:gap-8 lg:grid-cols-3">
+              {featured.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <EditorialBanner />
-
-      <section className="border-t border-hairline bg-canvas py-12 sm:py-16 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <header className="mb-8 space-y-2 sm:mb-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
-              Mais procurados
-            </p>
-            <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-ink sm:text-3xl">
-              Mais vendidos
-            </h2>
-          </header>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
-            {bestSellers.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+      {seeAlso.length > 0 && (
+        <section className="border-t border-hairline bg-canvas py-12 sm:py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <header className="mb-8 space-y-2 sm:mb-12">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-mute">
+                Explore mais
+              </p>
+              <h2 className="font-display text-2xl font-bold uppercase tracking-tight text-ink sm:text-3xl">
+                Veja também
+              </h2>
+            </header>
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
+              {seeAlso.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <HomeBenefits />
-      <NewsletterBlock />
     </div>
   )
 }

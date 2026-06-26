@@ -41,9 +41,9 @@ export default async function AdminProductsPage() {
           <Link
             href="/admin/products/new"
             className={getButtonClassName(
-              'default',
+              'secondary',
               'md',
-              'bg-white text-black hover:bg-gray-100 focus:ring-gray-300'
+              '!text-ink bg-white hover:bg-gray-100 focus:ring-gray-300'
             )}
           >
             + Novo Produto
@@ -55,7 +55,7 @@ export default async function AdminProductsPage() {
         {allProducts.length === 0 ? (
           <div className="text-center py-16 text-gray-600">
             <p className="mb-4">Nenhum produto cadastrado.</p>
-            <Link href="/admin/products/new" className={getButtonClassName('default', 'md')}>
+            <Link href="/admin/products/new" className={getButtonClassName('secondary', 'md', '!text-ink')}>
               Criar primeiro produto
             </Link>
           </div>

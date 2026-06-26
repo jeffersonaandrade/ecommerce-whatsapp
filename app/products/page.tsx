@@ -2,8 +2,11 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
-import { siteConfig } from '@/config/site'
-import { getAllProducts, getProductsByCategory } from '@/lib/products'
+import { getAllProducts, getCategories, getProductsByCategory } from '@/lib/products'
+import {
+  categoryProductsHref,
+  resolveStorefrontCategories,
+} from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 
@@ -23,6 +26,7 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const { category } = await searchParams
+  const categories = resolveStorefrontCategories(await getCategories())
 
   const filteredProducts = category
     ? await getProductsByCategory(category)
@@ -58,10 +62,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             >
               Todos
             </Link>
-            {siteConfig.categories.map((cat) => (
+            {categories.map((cat) => (
               <Link
                 key={cat}
-                href={`/products?category=${encodeURIComponent(cat)}`}
+                href={categoryProductsHref(cat)}
                 className={getButtonClassName(
                   category === cat ? 'default' : 'secondary',
                   'sm'
