@@ -4,8 +4,10 @@ import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getCategoryRepository } from '@/lib/catalog/get-category-repository'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
+import { getDataProvider } from '@/lib/data/provider'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { applyImport } from './apply-import'
+import { applySupabaseImport } from './supabase-import'
 import {
   countUniqueImageUrls,
   formatImportSizeLimit,
@@ -104,7 +106,9 @@ export async function parseImportCsvAction(
 }
 
 export async function confirmImportAction(
-  products: ParsedProduct[]
+  products: ParsedProduct[],
+  filename = 'import.csv',
+  warningCount = 0
 ): Promise<{ ok: true; result: ImportApplyResult; batchId: string } | { ok: false; error: string }> {
   try {
     const auth = await requireAdmin()
@@ -141,10 +145,21 @@ export async function confirmImportAction(
 
     const batchId = crypto.randomUUID()
     const policy = settings.importStatusPolicy ?? 'draft'
-    const existingBySlug = new Map(catalog.map((p) => [p.slug, p]))
-
     const started = performance.now()
-    const result = await applyImport(normalizedProducts, repo, { policy, batchId, existingBySlug })
+    const result =
+      getDataProvider() === 'supabase'
+        ? await applySupabaseImport(normalizedProducts, {
+            batchId,
+            filename,
+            policy,
+            warningCount,
+            catalog,
+          })
+        : await applyImport(normalizedProducts, repo, {
+            policy,
+            batchId,
+            existingBySlug: new Map(catalog.map((p) => [p.slug, p])),
+          })
     revalidateCatalog()
 
     console.info('[import:confirm]', {
@@ -163,8 +178,19 @@ export async function confirmImportAction(
         durationMs: result.durationMs || Math.round(performance.now() - started),
       },
     }
-  } catch {
-    console.error('[import:confirm] unexpected failure')
-    return { ok: false, error: 'Falha ao salvar catálogo. Nenhuma alteração foi aplicada.' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error'
+    console.error('[import:confirm] unexpected failure', { message })
+    return {
+      ok: false,
+      error:
+        message.includes('transactional import failed') ||
+        message.includes('duplicate') ||
+        message.includes('sku already') ||
+        message.includes('slug already') ||
+        message.includes('maximum 500')
+          ? `Importação não concluída: ${message.replace(/^transactional import failed: /, '')}`
+          : 'Falha ao salvar catálogo. Nenhuma alteração foi aplicada.',
+    }
   }
 }

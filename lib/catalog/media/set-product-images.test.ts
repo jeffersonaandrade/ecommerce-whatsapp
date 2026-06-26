@@ -35,14 +35,14 @@ describe('setProductImages repository contract', () => {
     expect(updated.name).toBe('Produto')
   })
 
-  it('supabase update mock não chama variations', async () => {
-    const update = vi.fn().mockResolvedValue({ error: null })
-    const supabase = {
-      from: vi.fn(() => ({ update: vi.fn(() => ({ eq: update })) })),
-    }
+  it('supabase update mock não chama variations', () => {
+    const eq = vi.fn().mockResolvedValue({ error: null })
+    const update = vi.fn((_payload: { images: string[] }) => ({ eq }))
+    const from = vi.fn((_table: string) => ({ update }))
 
-    await supabase.from('products').update({ images: ['url'] }).eq('id', '1')
-    expect(supabase.from).toHaveBeenCalledWith('products')
-    expect(update).toHaveBeenCalled()
+    from('products').update({ images: ['url'] }).eq('id', '1')
+    expect(from).toHaveBeenCalledWith('products')
+    expect(update).toHaveBeenCalledWith({ images: ['url'] })
+    expect(eq).toHaveBeenCalledWith('id', '1')
   })
 })

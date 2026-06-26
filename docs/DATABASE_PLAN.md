@@ -65,6 +65,7 @@ Aplicar novas migrations via **MCP Supabase** (`apply_migration`). Após aplicar
 | `20260626183757` | `add_get_product_status_counts_rpc` | RPC `get_product_status_counts()` — tabs admin produtos |
 | `20260626190619` | `sprint3_media_storefront` | `categories.image_path`, tabela `banner_slides` + RLS |
 | `20260626190630` | `sprint4a_benefit_items` | `benefit_items`, `benefits_eyebrow/title` em settings + seed |
+| `20260626221601` | `transactional_product_import` | RPC `apply_product_import_batch(jsonb)` — import CSV transacional |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
 

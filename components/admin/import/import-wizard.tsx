@@ -84,7 +84,11 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
       setPendingAction('confirm')
 
       try {
-        const response = await confirmImportAction(validProducts)
+        const response = await confirmImportAction(
+          validProducts,
+          preview?.fileName ?? 'import.csv',
+          preview?.stats.warningCount ?? 0
+        )
 
         if (!response.ok) {
           setError(response.error)

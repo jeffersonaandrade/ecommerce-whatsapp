@@ -84,6 +84,7 @@ function buildProduct(input: ProductInput, existing: Product[]): Product {
     images: input.images.filter(Boolean).slice(0, 5),
     variations: assignVariationIds(input.variations),
     status: input.status,
+    importBatchId: input.importBatchId,
   }
 }
 
@@ -155,6 +156,7 @@ export const supabaseProductRepository: ProductRepository = {
       images: input.images.filter(Boolean).slice(0, 5),
       variations: assignVariationIds(input.variations, products[index].variations),
       status: input.status,
+      importBatchId: input.importBatchId ?? products[index].importBatchId,
     }
     await persistProduct(updated)
     return updated

@@ -9,6 +9,7 @@ import {
   rowProductFields,
 } from './map-rows'
 import { validateProductImageUrlsLocal } from './check-image-urls'
+import { canonicalImportSlug } from './canonical-import-slug'
 import { csvToRecords } from './parse-csv'
 import {
   CsvRow,
@@ -198,16 +199,27 @@ export function validateCatalogSkus(
   catalog: Product[]
 ): ImportIssue[] {
   const issues: ImportIssue[] = []
-  const catalogSkus = new Map<string, { productSlug: string; productId: string }>()
+  const catalogSkus = new Map<
+    string,
+    { productSlug: string; productId: string; canonicalSlug: string }
+  >()
 
   for (const product of catalog) {
+    const canonicalSlug = canonicalImportSlug(product.slug)
     for (const variation of product.variations) {
-      catalogSkus.set(variation.sku, { productSlug: product.slug, productId: product.id })
+      catalogSkus.set(variation.sku, {
+        productSlug: product.slug,
+        productId: product.id,
+        canonicalSlug,
+      })
     }
   }
 
   for (const parsed of products) {
-    const existing = catalog.find((p) => p.slug === parsed.slug)
+    const parsedCanonical = canonicalImportSlug(parsed.slug)
+    const existing = catalog.find(
+      (product) => canonicalImportSlug(product.slug) === parsedCanonical
+    )
 
     for (const variation of parsed.variations) {
       const owner = catalogSkus.get(variation.sku)
@@ -217,7 +229,7 @@ export function validateCatalogSkus(
         continue
       }
 
-      if (!existing || owner.productSlug !== parsed.slug) {
+      if (!existing || owner.canonicalSlug !== parsedCanonical) {
         issues.push({
           code: 'CSV_E002',
           severity: 'error',
@@ -323,12 +335,16 @@ export function buildImportPreview(
   issues.push(...validateImportProductCategories(products, categories))
   issues.push(...validateCatalogSkus(products, catalog))
 
-  const existingSlugs = new Set(catalog.map((p) => p.slug))
+  const existingCanonicalSlugs = new Set(catalog.map((p) => canonicalImportSlug(p.slug)))
   const errorCount = issues.filter((i) => i.severity === 'error').length
   const warningCount = issues.filter((i) => i.severity === 'warning').length
   const validProducts = products.filter((p) => !productHasBlockingIssues(p, issues)).length
-  const newProducts = products.filter((p) => !existingSlugs.has(p.slug)).length
-  const updateProducts = products.filter((p) => existingSlugs.has(p.slug)).length
+  const newProducts = products.filter(
+    (p) => !existingCanonicalSlugs.has(canonicalImportSlug(p.slug))
+  ).length
+  const updateProducts = products.filter((p) =>
+    existingCanonicalSlugs.has(canonicalImportSlug(p.slug))
+  ).length
 
   return {
     fileName,
