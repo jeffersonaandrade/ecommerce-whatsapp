@@ -20,26 +20,31 @@ export async function writeBannerImage(
   return filename
 }
 
-export async function deleteBannerImages(slideId: string): Promise<void> {
-  const files = [bannerFilename(slideId, 'desktop'), bannerFilename(slideId, 'mobile')]
+export async function deleteBannerImage(
+  slideId: string,
+  side: BannerImageSide
+): Promise<void> {
+  const file = bannerFilename(slideId, side)
 
   if (getDataProvider() === 'supabase') {
     const supabase = createAdminClient()
-    await supabase.storage.from('branding').remove(files)
+    await supabase.storage.from('branding').remove([file])
     return
   }
 
   try {
     const fs = await import('fs')
     const { getBrandingDir } = await import('@/lib/store/settings-storage')
-    const dir = getBrandingDir()
-    for (const f of files) {
-      const fp = path.join(dir, f)
-      if (fs.existsSync(fp)) fs.unlinkSync(fp)
-    }
+    const filePath = path.join(getBrandingDir(), file)
+    if (fs.existsSync(filePath)) fs.unlinkSync(filePath)
   } catch {
     // ignore
   }
+}
+
+export async function deleteBannerImages(slideId: string): Promise<void> {
+  await deleteBannerImage(slideId, 'desktop')
+  await deleteBannerImage(slideId, 'mobile')
 }
 
 export type { BannerImageSide } from './banner-image-url'

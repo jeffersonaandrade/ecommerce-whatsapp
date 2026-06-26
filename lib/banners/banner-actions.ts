@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { BannerSlideCreateInput, BannerSlideInput } from '@/types/banner-slide'
 import { getBannerRepository } from './get-banner-repository'
-import { writeBannerImage, deleteBannerImages, BannerImageSide } from './banner-storage'
+import { writeBannerImage, deleteBannerImages, deleteBannerImage, BannerImageSide } from './banner-storage'
 import { assertBannerDesktopPath, validateBannerImageFile } from './banner-validation'
 
 function revalidateBanners() {
@@ -193,6 +193,19 @@ export async function uploadBannerMobileAction(
 export async function removeBannerMobileAction(
   id: string
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  return removeBannerImageAction(id, 'mobile')
+}
+
+export async function removeBannerDesktopAction(
+  id: string
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  return removeBannerImageAction(id, 'desktop')
+}
+
+async function removeBannerImageAction(
+  id: string,
+  side: BannerImageSide
+): Promise<{ ok: true } | { ok: false; error: string }> {
   const auth = await requireAdmin()
   if (!auth.ok) return { ok: false, error: auth.error }
 
@@ -201,11 +214,16 @@ export async function removeBannerMobileAction(
     const slide = await repo.getById(id)
     if (!slide) return { ok: false, error: 'Slide não encontrado.' }
 
-    if (slide.mobileImagePath) {
-      const supabase = (await import('@/lib/supabase/admin')).createAdminClient()
-      await supabase.storage.from('branding').remove([slide.mobileImagePath])
+    const pathField = side === 'desktop' ? slide.desktopImagePath : slide.mobileImagePath
+    if (pathField) {
+      await deleteBannerImage(id, side)
     }
-    await repo.update(id, { mobileImagePath: null })
+
+    const update =
+      side === 'desktop'
+        ? { desktopImagePath: null }
+        : { mobileImagePath: null }
+    await repo.update(id, update)
     revalidateBanners()
     return { ok: true }
   } catch (err) {

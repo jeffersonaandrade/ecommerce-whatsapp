@@ -10,6 +10,7 @@ import {
   deleteBannerSlideAction,
   uploadBannerDesktopAction,
   uploadBannerMobileAction,
+  removeBannerDesktopAction,
   removeBannerMobileAction,
 } from '@/lib/banners/banner-actions'
 import { bannerImageUrl } from '@/lib/banners/banner-image-url'
@@ -35,6 +36,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
   const [imageSuccess, setImageSuccess] = useState<string | null>(null)
   const [desktopFile, setDesktopFile] = useState<File | null>(null)
   const [mobileFile, setMobileFile] = useState<File | null>(null)
+  const [hasDesktop, setHasDesktop] = useState(!!slide?.desktopImagePath)
   const [hasMobile, setHasMobile] = useState(!!slide?.mobileImagePath)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
 
@@ -99,6 +101,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
           : await uploadBannerMobileAction(slide.id, formData)
 
       if (result.ok) {
+        if (side === 'desktop') setHasDesktop(true)
         if (side === 'mobile') setHasMobile(true)
         setImageSuccess(`Imagem ${side === 'desktop' ? 'desktop' : 'mobile'} enviada.`)
         router.refresh()
@@ -108,14 +111,18 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
     })
   }
 
-  function handleRemoveMobile() {
+  function handleRemoveImage(side: 'desktop' | 'mobile') {
     if (!slide) return
     setImageError(null)
     startImageTransition(async () => {
-      const result = await removeBannerMobileAction(slide.id)
+      const result =
+        side === 'desktop'
+          ? await removeBannerDesktopAction(slide.id)
+          : await removeBannerMobileAction(slide.id)
       if (result.ok) {
-        setHasMobile(false)
-        setImageSuccess('Imagem mobile removida.')
+        if (side === 'desktop') setHasDesktop(false)
+        if (side === 'mobile') setHasMobile(false)
+        setImageSuccess(`Imagem ${side === 'desktop' ? 'desktop' : 'mobile'} removida.`)
         router.refresh()
       } else {
         setImageError(result.error)
@@ -260,7 +267,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
               <p className="text-sm font-medium text-ink">Desktop (obrigatório)</p>
-              {slide.desktopImagePath && (
+              {hasDesktop && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={bannerImageUrl(slide.id, 'desktop', slide.updatedAt)}
@@ -275,17 +282,39 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
                 onChange={(e) => setDesktopFile(e.target.files?.[0] ?? null)}
                 className="block w-full text-sm text-mute file:mr-3 file:rounded-full file:border-0 file:bg-soft-cloud file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-ink"
               />
-              <Button
-                type="button"
-                disabled={isImagePending || !desktopFile}
-                onClick={() => desktopFile && handleImageUpload('desktop', desktopFile)}
-              >
-                {isImagePending ? 'Enviando...' : 'Enviar desktop'}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  disabled={isImagePending || !desktopFile}
+                  onClick={() => desktopFile && handleImageUpload('desktop', desktopFile)}
+                >
+                  {isImagePending ? 'Enviando...' : 'Enviar desktop'}
+                </Button>
+                {hasDesktop && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={isImagePending}
+                    onClick={() => handleRemoveImage('desktop')}
+                  >
+                    Remover
+                  </Button>
+                )}
+              </div>
+              {!hasDesktop && (
+                <p className="text-xs text-mute">
+                  Sem imagem desktop, o slide não aparece na vitrine.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
               <p className="text-sm font-medium text-ink">Mobile (opcional)</p>
+              {!hasMobile && (
+                <p className="text-xs text-amber-800">
+                  Sem imagem mobile — no celular este slide usa a versão desktop.
+                </p>
+              )}
               {hasMobile && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -314,7 +343,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
                     type="button"
                     variant="outline"
                     disabled={isImagePending}
-                    onClick={handleRemoveMobile}
+                    onClick={() => handleRemoveImage('mobile')}
                   >
                     Remover
                   </Button>

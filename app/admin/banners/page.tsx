@@ -48,6 +48,7 @@ export default async function AdminBannersPage() {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-mute">Slide</th>
                   <th className="px-4 py-3 text-left font-medium text-mute">Título</th>
+                  <th className="px-4 py-3 text-left font-medium text-mute">Imagem</th>
                   <th className="px-4 py-3 text-center font-medium text-mute">Ordem</th>
                   <th className="px-4 py-3 text-center font-medium text-mute">Ativo</th>
                   <th className="px-4 py-3 text-right font-medium text-mute">Ações</th>
@@ -71,6 +72,20 @@ export default async function AdminBannersPage() {
                     <td className="px-4 py-3">
                       <p className="font-medium text-ink">{slide.title ?? <span className="text-mute italic">Sem título</span>}</p>
                       {slide.subtitle && <p className="text-xs text-mute">{slide.subtitle}</p>}
+                    </td>
+                    <td className="px-4 py-3">
+                      {slide.mobileImagePath ? (
+                        <span className="inline-flex rounded-full bg-soft-cloud px-2.5 py-0.5 text-xs font-medium text-ink">
+                          Desktop + mobile
+                        </span>
+                      ) : (
+                        <span
+                          className="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800"
+                          title="No celular, a vitrine usa a imagem desktop deste slide"
+                        >
+                          Só desktop
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">
