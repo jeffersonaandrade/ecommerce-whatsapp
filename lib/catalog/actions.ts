@@ -12,7 +12,9 @@ import {
 import { getCategoryRepository } from './get-category-repository'
 import { getProductRepository } from './get-product-repository'
 import { ProductInput } from './product-repository'
-import { validateProductInput } from './product-utils'
+import { validateProductInput, type ProductValidationError } from './product-utils'
+
+export type ProductActionError = ProductValidationError
 
 export type ProductFormPayload = {
   name: string
@@ -60,10 +62,10 @@ function revalidateCatalog() {
 
 export async function createProductAction(
   payload: ProductFormPayload
-): Promise<{ ok: true; id: string } | { ok: false; errors: string[] }> {
+): Promise<{ ok: true; id: string } | { ok: false; errors: ProductActionError[] }> {
   const auth = await requireAdmin()
   if (!auth.ok) {
-    return { ok: false, errors: [auth.error] }
+    return { ok: false, errors: [{ field: 'form', message: auth.error }] }
   }
 
   try {
@@ -73,7 +75,7 @@ export async function createProductAction(
     const categories = await getCategoryRepository().getAll()
     const errors = validateProductInput(input, catalog, undefined, categories)
     if (errors.length > 0) {
-      return { ok: false, errors: errors.map((e) => e.message) }
+      return { ok: false, errors }
     }
 
     const product = await repo.create(input)
@@ -81,17 +83,17 @@ export async function createProductAction(
     return { ok: true, id: product.id }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Falha ao criar produto'
-    return { ok: false, errors: [message] }
+    return { ok: false, errors: [{ field: 'form', message }] }
   }
 }
 
 export async function updateProductAction(
   id: string,
   payload: ProductFormPayload
-): Promise<{ ok: true } | { ok: false; errors: string[] }> {
+): Promise<{ ok: true } | { ok: false; errors: ProductActionError[] }> {
   const auth = await requireAdmin()
   if (!auth.ok) {
-    return { ok: false, errors: [auth.error] }
+    return { ok: false, errors: [{ field: 'form', message: auth.error }] }
   }
 
   const repo = getProductRepository()
@@ -100,7 +102,7 @@ export async function updateProductAction(
   const categories = await getCategoryRepository().getAll()
   const errors = validateProductInput(input, catalog, id, categories)
   if (errors.length > 0) {
-    return { ok: false, errors: errors.map((e) => e.message) }
+    return { ok: false, errors }
   }
 
   await repo.update(id, input)

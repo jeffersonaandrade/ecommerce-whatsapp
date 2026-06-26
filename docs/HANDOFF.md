@@ -19,8 +19,8 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **PDP** | ✅ | `app/products/[slug]/page.tsx` — variações, metadata, canonical |
 | **Carrinho** | ✅ | `context/cart-context.tsx` + localStorage + testes |
 | **WhatsApp** | ✅ | `buildWhatsAppMessage` + `#TEMP-YYYYMMDD-NNNN` + testes |
-| **CRUD Produtos** | ✅ | Admin create/edit/delete + `JsonProductRepository` |
-| **Categorias** | 🟡 | Header desktop + chips mobile + PLP usam `getCategories()`; admin **somente leitura** (derivadas); footer ainda usa `siteConfig` estático |
+| **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; redirect pós-create → edit `?created=1`; banner de visibilidade na loja |
+| **Categorias** | ✅ | CRUD v1.1 (`/admin/categories`); PLP/home com slugs; select no produto; CSV `CSV_E008` |
 | **Importação CSV** | ✅ | Wizard completo (`/admin/import`); **sem** histórico (CSV-5) |
 | **Branding** | ✅ | Logo → favicon/OG (sharp); API `/api/branding/*` |
 | **Hero configurável** | ✅ | 1 hero em `StoreSettings`; grid de produtos removido do hero (Fase 0) |
@@ -29,13 +29,12 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **Persistência admin** | ✅ | Supabase em produção Netlify; JSON local para dev |
 | **SEO** | ✅ | `buildPageMetadata`, canonical PLP/Home/PDP, OG, robots PDP |
 | **Deploy Netlify** | ✅ | Produção Supabase integrada; smoke §9.4 + Fase 0 §9.7 PASS (2026-06-26) |
-| **Testes** | ✅ | **69 passed** (17 arquivos) — executado 2026-06-26 |
+| **Testes** | ✅ | **115 passed** (25 arquivos) — executado 2026-06-26 |
 | **Build** | ✅ | `npm run build` OK — 23 rotas |
 
 ### Itens explicitamente ❌ não implementados
 
 - Banner Manager (múltiplos banners)
-- Categorias CRUD
 - Menus administráveis
 - Admin shell (`app/admin/layout.tsx` + sidebar)
 - Histórico import CSV (`/admin/import/history`)
@@ -128,9 +127,9 @@ Sem aprovação explícita, **não implementar**:
 
 | Item | Valor atual |
 |------|-------------|
-| Testes | **69 passed** / 17 files (`vitest run`) |
-| Build | OK (`next build`, Next.js 16.2.9) |
-| Último commit | `25ef567` — feat(storefront): improve category navigation and home merchandising |
+| Testes | **115 passed** / 25 files (`vitest run`) |
+| Build | OK (`npm run build:netlify`) |
+| Último commit | `feat(catalog)` categorias v1.1 + `fix(admin)` UX cadastro produto (pendente push) |
 | Branch | `master` — sincronizado com `origin/master` |
 | Graphify | **666 nós · 1566 arestas · 29 comunidades** (`graphify-out/`, sync 2026-06-26) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
@@ -309,7 +308,7 @@ Sem aprovação explícita, **não implementar**:
 
 **Ordem sugerida:**
 1. **Banner Manager** — tabela `banners` + Storage desktop/mobile
-2. **Categorias CRUD** — tabela `categories`; migrar `Product.category` string
+2. **Ativar produto na loja** — Status `Ativo` + Salvar no edit (sem tela separada de publicação); banner de visibilidade no formulário
 3. **Menus admin** — tabela `nav_items`; header/footer dinâmicos
 4. **Admin shell** — sidebar, rotas Conteúdo/Config (quando fizer sentido)
 
@@ -401,7 +400,7 @@ graphify update . # após mudanças estruturais
 | E2E-1 | Login/logout/proteção admin | ✅ PASS |
 | E2E-2 | Settings persistentes (incl. Sobre) | ✅ PASS |
 | E2E-3 | Upload logo + hero + `/api/branding/*` 200 | ✅ PASS |
-| E2E-4 | CRUD produto + upload Storage | ✅ PASS |
+| E2E-4 | CRUD produto + upload Storage | ✅ PASS — create redireciona para `/admin/products/[id]/edit?created=1`; preço BRL `MoneyInput` |
 | E2E-5 | Bloqueio data URL | ✅ PASS |
 | E2E-6 | Import CSV browser | ✅ PASS |
 | E2E-7 | Carrinho + WhatsApp `#TEMP-YYYYMMDD-NNNN` | ✅ PASS |
@@ -514,7 +513,7 @@ Ordem objetiva (sem novas features):
 Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 
 - Banner Manager (múltiplos banners)
-- Categorias CRUD (admin hoje é somente leitura)
+- Categorias CRUD v1.1 entregue; pendente: botão rápido “Ativar na loja” na listagem
 - Menus administráveis
 - Admin shell / histórico CSV / pedidos persistidos
 

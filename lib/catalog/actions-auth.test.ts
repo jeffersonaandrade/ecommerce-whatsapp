@@ -39,6 +39,9 @@ describe('createProductAction auth', () => {
       status: 'draft',
     })
 
-    expect(result).toEqual({ ok: false, errors: ['Não autenticado'] })
+    expect(result).toEqual({
+      ok: false,
+      errors: [{ field: 'form', message: 'Não autenticado' }],
+    })
   })
 })

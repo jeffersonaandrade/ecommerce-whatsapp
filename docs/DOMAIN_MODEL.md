@@ -40,10 +40,13 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 **Regras:**
 - Slug único, kebab-case.
 - `promotionalPrice` < `price` quando preenchido.
-- Produto ativo só aparece na vitrine (`getAllProducts` filtra `active`).
+- Produto **ativo** só aparece na vitrine (`getAllProducts` filtra `active`).
+- Cadastro manual: preço em **number** (reais); UI aceita BRL (`129,90` / `R$ 129,90`) via `MoneyInput` — não persistir string formatada.
+- **Publicar na loja:** editar produto → `status = active` → **Salvar alterações** (não há tela separada de publicação).
+- Novo produto manual nasce em `draft` por padrão; redirect pós-create para edit com `?created=1`.
 
 **Entrada no catálogo:**
-- **Manual (Fase 4):** admin → novo produto → galeria → variações.
+- **Manual:** admin → novo produto → validação (nome, preço, descrição, ≥1 imagem, variação/SKU) → revisão → ativar.
 - **CSV (Fase 5):** agrupamento por Identificador URL — ver [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
 
 ---
@@ -89,11 +92,11 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 
 **Responsabilidade:** organização do catálogo.
 
-| V1 | Depois |
+| V1 (atual) | Depois |
 |----|--------|
-| string em `Product.category` — **derivadas dos produtos** (sem CRUD) | tabela `categories`, hierarquia (`Camisas > Seleções`); CRUD para criar, editar, ordenar e ocultar |
+| tabela `categories` + slug; CRUD em `/admin/categories`; `Product.category` armazena **slug** | hierarquia (`Camisas > Seleções`) |
 
-Admin: `/admin/categories` — listagem derivada do catálogo (Fase 4). **Futuro:** gestão completa de categorias.
+Admin: `/admin/categories` — criar, editar, ordenar, ocultar (`visible`). Select no formulário de produto lista categorias cadastradas. **Clube/time** (`Product.club`) é campo separado — não confundir com categoria.
 
 ---
 

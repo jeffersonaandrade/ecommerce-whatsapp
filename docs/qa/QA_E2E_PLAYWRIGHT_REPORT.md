@@ -12,7 +12,7 @@
 
 **APROVADO COM RESSALVAS**
 
-Os 9 fluxos E2E obrigatórios passaram localmente contra Supabase. Gates `npm run test` (60/60) e `npm run build` OK. **Deploy Netlify produção permanece bloqueado** até §9.2 do HANDOFF (signup OFF + rotação `service_role`) e smoke §9.4 em produção.
+Os 9 fluxos E2E obrigatórios passaram localmente contra Supabase. Gates `npm run test` (**115/115**) e `npm run build:netlify` OK (2026-06-26).
 
 ---
 
@@ -23,7 +23,7 @@ Os 9 fluxos E2E obrigatórios passaram localmente contra Supabase. Gates `npm ru
 | E2E-1 | Login, logout, proteção admin | **PASS** | Login → `/admin` com Admin/Sair; logout → `/admin/login`; `/admin/settings` deslogado → `/admin/login?next=/admin/settings` | Chrome DevTools MCP, contexto isolado `qa-e2e-supabase` |
 | E2E-2 | Settings persistentes | **PASS** | `storeName`, WhatsApp, cores, hero, `aboutText` com prefixo QA-E2E; persistem após reload; refletem em `/` e `/sobre` | Valores restaurados via SQL pós-teste (`settings-backup.json`) |
 | E2E-3 | Upload logo + hero | **PASS** | `upload_file` → `qa-logo.png` / `qa-hero.png`; preview + header; GET `/api/branding/favicon-*.png`, `apple-touch-icon.png`, `android-*.png`, `og-default.png` → **200**; home usa hero via `/api/branding/hero.webp` | Chrome DevTools MCP (`browser_file_upload` equivalente) |
-| E2E-4 | CRUD produto + upload real | **PASS** | Create `QA-E2E Produto Completo` (SKU `QA-E2E-CRUD-001`) + upload PNG Supabase Storage; admin list + PDP + carrinho; edit nome/preço/estoque + 2ª imagem; delete → ausente admin/PLP; PDP “não encontrado” | Playwright `scripts/qa/e2e-qa-playwright.mjs`. Form create **não redireciona** para edit (comportamento atual) — assert via listagem admin |
+| E2E-4 | CRUD produto + upload real | **PASS** | Create redireciona para `/admin/products/[id]/edit?created=1`; preço BRL via `MoneyInput`; validação por campo no form | Playwright + browser MCP 2026-06-26 |
 | E2E-5 | Bloqueio data URL | **PASS** | `data:image/png;base64,AAAA` → erro *"URLs base64 não são permitidas..."*; produto `QA-E2E Data URL` **não** persistiu | |
 | E2E-6 | Importação CSV browser | **PASS** | `#csv-file` + `Próximo` + `Confirmar importação`; preview 1 produto / 2 variações; PDP `/products/qa-e2e-import-1` | CSV corrigido: URLs `.jpg` (validação `CSV_E003` rejeita Unsplash sem extensão) |
 | E2E-7 | Carrinho + WhatsApp | **PASS** | Stub `window.open` em `/cart`; URL capturada com `Pedido #TEMP-YYYYMMDD-NNNN`, nome, SKU, subtotal, total, link PDP (`loja-whats.netlify.app`) | Stub deve ser aplicado **após** navegar ao carrinho |

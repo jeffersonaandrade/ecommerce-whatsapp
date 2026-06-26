@@ -4,7 +4,21 @@ Formato baseado em entradas por fase/sessão. Não remover decisões ou versões
 
 ## [Unreleased]
 
-### Auth + catálogo Supabase — 2026-06-25
+### Admin produto — UX cadastro manual BRL — 2026-06-26
+
+#### fix(admin): preço BRL, validação e publicação na loja
+
+- `lib/money/brl-money.ts` + `components/admin/money-input.tsx` — entrada `129,90` / `R$ 129,90` → `129.9` (não grava string)
+- `components/admin/product-form.tsx` — validação por campo antes do submit; erros com `role="alert"` + scroll; redirect create → `/admin/products/[id]/edit?created=1`
+- `lib/catalog/storefront-visibility.ts` — banner “visível na loja” / rascunho no edit
+- `lib/catalog/product-form-errors.ts` — mensagens com rótulo do campo
+- Testes: `brl-money.test.ts`, `product-form.test.tsx`, `storefront-visibility.test.ts` — **115 passed**
+
+#### feat(catalog): categorias CRUD v1.1 — 2026-06-26
+
+- Tabela `categories` + RLS Supabase; admin CRUD; PLP/home por slug; select no produto; CSV `CSV_E008`
+
+---
 
 #### fix(auth): alerta unauthorized persistente
 
