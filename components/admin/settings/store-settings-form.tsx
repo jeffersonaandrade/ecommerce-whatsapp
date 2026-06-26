@@ -1,12 +1,11 @@
 'use client'
 
-import { useEffect, useState, useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { StoreSettings } from '@/types/store-settings'
 import { getButtonClassName } from '@/components/ui/button'
 import {
   updateStoreSettingsAction,
-  uploadStoreLogoAction,
   uploadHeroImageAction,
   restoreDefaultStorefrontAction,
   getStoreSettingsAction,
@@ -25,68 +24,10 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
   const [success, setSuccess] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
   const [restoreConfirm, setRestoreConfirm] = useState('')
-  const [logoFile, setLogoFile] = useState<File | null>(null)
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null)
   const [heroFile, setHeroFile] = useState<File | null>(null)
-  const [logoSectionMessage, setLogoSectionMessage] = useState<string | null>(null)
-  const [logoSectionError, setLogoSectionError] = useState<string | null>(null)
   const [heroSectionMessage, setHeroSectionMessage] = useState<string | null>(null)
   const [heroSectionError, setHeroSectionError] = useState<string | null>(null)
-  const [isLogoPending, startLogoTransition] = useTransition()
   const [isHeroPending, startHeroTransition] = useTransition()
-
-  useEffect(() => {
-    return () => {
-      if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl)
-    }
-  }, [logoPreviewUrl])
-
-  function handleLogoFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    setLogoSectionMessage(null)
-    setLogoSectionError(null)
-    setLogoFile(file)
-    setLogoPreviewUrl((prev) => {
-      if (prev) URL.revokeObjectURL(prev)
-      return URL.createObjectURL(file)
-    })
-    e.target.value = ''
-  }
-
-  function handleLogoUpload() {
-    if (!logoFile) return
-
-    startLogoTransition(async () => {
-      setLogoSectionMessage(null)
-      setLogoSectionError(null)
-      const formData = new FormData()
-      formData.set('logo', logoFile)
-      const result = await uploadStoreLogoAction(formData)
-
-      if (!result.ok) {
-        setLogoSectionError(result.error)
-        return
-      }
-
-      setSettings({
-        ...settings,
-        logoPath: 'logo.webp',
-        ogImagePath: 'og-default.jpg',
-        updatedAt: result.updatedAt,
-      })
-      setLogoFile(null)
-      setLogoPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev)
-        return null
-      })
-      setLogoSectionMessage(
-        'Logo enviada. Favicon e imagem de compartilhamento gerados. Abra a vitrine em nova aba para confirmar.'
-      )
-      router.refresh()
-    })
-  }
 
   function handleHeroFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -489,54 +430,11 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
       </form>
 
       <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
-        <h2 className="text-lg font-semibold text-ink">Aparência</h2>
+        <h2 className="text-lg font-semibold text-ink">Identidade visual</h2>
         <p className="text-sm text-mute">
-          Envie sua logo (PNG, JPG ou WebP). O upload é independente de{' '}
-          <strong className="text-ink">Salvar configurações</strong> — use o botão abaixo.
-          Favicon e imagem de compartilhamento são gerados automaticamente.
+          Logo e favicon são configurados na implantação da loja. Para solicitar alteração, fale com
+          o suporte.
         </p>
-        {logoSectionError && (
-          <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-            {logoSectionError}
-          </div>
-        )}
-        {logoSectionMessage && (
-          <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-            {logoSectionMessage}{' '}
-            <a
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium underline underline-offset-2"
-            >
-              Ver vitrine
-            </a>
-          </div>
-        )}
-        {logoPreviewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={logoPreviewUrl}
-            alt="Preview da logo selecionada"
-            className="h-8 max-w-[120px] rounded-sm object-contain"
-          />
-        )}
-        <input
-          id="store-logo-file"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={handleLogoFileSelect}
-          disabled={isLogoPending}
-          className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
-        />
-        <button
-          type="button"
-          disabled={isLogoPending || !logoFile}
-          onClick={handleLogoUpload}
-          className={getButtonClassName('default', 'md')}
-        >
-          {isLogoPending ? 'Enviando logo...' : 'Enviar logo'}
-        </button>
         <AppearancePreview settings={settings} />
       </section>
 
@@ -588,8 +486,9 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
       <section className="space-y-4 rounded-lg border border-red-200 bg-red-50/50 p-6">
         <h2 className="text-lg font-semibold text-ink">Restaurar aparência padrão</h2>
         <p className="text-sm text-mute">
-          Restaura cores, descrição, hero, logo, favicons, OG e textos institucionais para o
-          preset premium inicial.{' '}
+          <strong className="text-ink">Ferramenta de operador/suporte.</strong> Restaura logo,
+          favicon, imagem OG, cores, hero, descrição e textos institucionais para o preset premium
+          inicial.{' '}
           <strong className="text-ink">
             Não altera produtos, nome da loja, WhatsApp, siteUrl nem demais contatos.
           </strong>

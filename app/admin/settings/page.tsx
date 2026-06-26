@@ -22,7 +22,7 @@ export default async function AdminSettingsPage() {
             ← Voltar ao Admin
           </Link>
           <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Configurações</h1>
-          <p className="mt-2 text-mute">Identidade · Conteúdo · WhatsApp · Aparência</p>
+          <p className="mt-2 text-mute">Conteúdo · WhatsApp · Hero · Identidade (implantação)</p>
         </div>
       </div>
 

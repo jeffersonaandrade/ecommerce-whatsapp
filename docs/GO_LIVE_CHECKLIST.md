@@ -10,7 +10,8 @@ Checklist executável para colocar a loja em operação com cliente real — **s
 
 - [ ] `StoreSettings` em `storage/store-settings.json`
 - [ ] Admin `/admin/settings` — WhatsApp, URL, nome, contato
-- [ ] Upload logo → favicon + OG gerados (sharp)
+- [ ] Logo/favicon na implantação (operador/suporte — **não** self-service no admin)
+- [ ] Upload logo → favicon + OG (sharp) — via implantação ou operador; admin cliente sem botão de upload
 - [ ] Preview aparência no admin
 - [ ] Header/footer consomem settings
 - [ ] Carrinho usa telefone/URL do admin
@@ -119,7 +120,7 @@ Checklist manual no **Supabase Dashboard** — não substituível por código:
 - [ ] Login admin (email/senha Supabase)
 - [ ] Salvar settings persiste após redeploy
 - [ ] CRUD produto + import CSV
-- [ ] Upload logo → favicon/OG
+- [ ] Upload logo → favicon/OG (operador/implantação; fora do admin cliente)
 - [ ] Pedido WhatsApp `#TEMP-...`
 
 ## Deploy Netlify (demo cliente)

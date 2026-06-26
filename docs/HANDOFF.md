@@ -22,14 +22,14 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; redirect pós-create → edit `?created=1`; banner de visibilidade na loja |
 | **Categorias** | ✅ | CRUD v1.1 (`/admin/categories`); PLP/home com slugs; select no produto; CSV `CSV_E008` |
 | **Importação CSV** | ✅ | Wizard completo (`/admin/import`); **sem** histórico (CSV-5) |
-| **Branding** | ✅ | Logo → favicon/OG (sharp); API `/api/branding/*` |
+| **Branding** | ✅ | Logo/favicon/OG via Storage + `/api/branding/*`; **upload self-service de logo fora do MVP** (implantação/suporte) |
 | **Hero configurável** | ✅ | 1 hero em `StoreSettings`; grid de produtos removido do hero (Fase 0) |
 | **Institucional** | ✅ | `/sobre`, `/contato`, `/politica-de-trocas` via settings |
 | **Login Admin** | ✅ | Demo JSON (`localStorage`) **ou** Supabase Auth + `requireAdmin()` + middleware com `app_metadata.role=admin` |
 | **Persistência admin** | ✅ | Supabase em produção Netlify; JSON local para dev |
 | **SEO** | ✅ | `buildPageMetadata`, canonical PLP/Home/PDP, OG, robots PDP |
 | **Deploy Netlify** | ✅ | Produção Supabase integrada; smoke §9.4 + Fase 0 §9.7 PASS (2026-06-26) |
-| **Testes** | ✅ | **115 passed** (25 arquivos) — executado 2026-06-26 |
+| **Testes** | ✅ | **117 passed** (26 arquivos) — executado 2026-06-26 |
 | **Build** | ✅ | `npm run build` OK — 23 rotas |
 
 ### Itens explicitamente ❌ não implementados
@@ -40,6 +40,23 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 - Histórico import CSV (`/admin/import/history`)
 - Pedidos persistidos (`/admin/orders` = placeholder)
 - Checkout online / gateway
+- Upload self-service de logo no admin (fora do MVP — ver §1.1)
+
+### 1.1 Logo e identidade visual (MVP UnitSports)
+
+**Escopo cliente (admin):** produtos, CSV, fotos de produto, hero/banner, textos e contatos em `/admin/settings`. **Sem** upload de logo pelo lojista.
+
+**Escopo operador/suporte (implantação):** logo, favicon e imagem OG. Motivo: o pipeline Sharp gera vários derivados em Server Action serverless (Netlify) — operação rara, risco de timeout/500 em reenvio.
+
+**Onboarding recomendado — respeitar a arte do cliente:**
+
+- Se o cliente enviar logo **quadrada**, publicar **quadrada** (sem forçar crop horizontal).
+- Se enviar logo **horizontal**, publicar **horizontal**.
+- Header usa `object-contain` + `max-w-[120px]` — a vitrine respeita a proporção do arquivo implantado.
+- Operador: upload no bucket `branding` (Storage) e/ou `uploadStoreLogoAction` / scripts em `scripts/qa/` — **não exposto no admin do cliente**.
+- **Restaurar aparência padrão** (admin): ferramenta de operador; redefine logo, favicon, OG, cores, hero e textos preset.
+
+**Código mantido (não removido):** `generate-branding.ts`, `uploadStoreLogoAction`, metadata, `/api/branding/*`.
 
 ---
 
@@ -295,7 +312,7 @@ Sem aprovação explícita, **não implementar**:
 - [x] Sync `ARCHITECTURE.md`, `ROADMAP.md`, `HANDOFF.md`
 
 **Aceite (operacional — 1º cliente):**
-- [ ] Cliente altera logo/nome/WhatsApp sem suporte
+- [ ] Cliente altera nome/WhatsApp sem suporte (logo/favicon: implantação — ver §1.1)
 - [ ] Import CSV de catálogo real concluído
 - [ ] ≥1 pedido WhatsApp `#TEMP-...` em produção
 - [ ] Lista de melhorias priorizada por **uso real**

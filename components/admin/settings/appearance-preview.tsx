@@ -39,7 +39,7 @@ export function AppearancePreview({ settings }: AppearancePreviewProps) {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={faviconUrl} alt="" className="h-8 w-8" />
           ) : (
-            <p className="text-xs text-mute">Envie uma logo para gerar favicons.</p>
+            <p className="text-xs text-mute">Configurado na implantação da loja.</p>
           )}
         </div>
 
@@ -51,7 +51,7 @@ export function AppearancePreview({ settings }: AppearancePreviewProps) {
               <img src={ogUrl} alt="" className="aspect-[1200/630] w-full object-cover" />
             ) : (
               <div className="flex aspect-[1200/630] items-center justify-center bg-soft-cloud text-xs text-mute">
-                OG gerada da logo
+                Imagem OG configurada na implantação
               </div>
             )}
             <div className="p-2">
