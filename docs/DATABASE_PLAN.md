@@ -296,7 +296,11 @@ No Dashboard → Storage → New bucket:
 | Bucket | Public | Uso |
 |--------|--------|-----|
 | `branding` | Sim | logo, favicons, og, hero |
-| `products` | Sim | uploads admin (futuro) |
+| `products` | Sim | uploads admin; path `{product_id}/{unique}.{ext}` via Central de Mídia (browser → Storage) |
+
+**Central de Mídia (2026-06):** upload em lote usa JWT admin + anon key no browser (`createBrowserSupabaseClient`). Metadados (`products.images`) via `setProductImages` — bytes não passam pela Netlify.
+
+Convenção de associação de arquivos: `{slug|sku}--{01..05}.{jpg|jpeg|png|webp}`.
 
 Policies (SQL Editor):
 

@@ -20,6 +20,21 @@ Comando: `npm run test:e2e:smoke` (ou `PLAYWRIGHT_BASE_URL=http://localhost:3004
 
 Artefato: `test-data/e2e/smoke-regression-results.json`
 
+---
+
+## Central de Mídia (2026-06)
+
+Comando: `node scripts/qa/media-center-playwright.mjs` (headed por padrão; `PLAYWRIGHT_HEADLESS=true` para CI)
+
+| Caso | Descrição |
+|------|-----------|
+| Login admin | Acesso à `/admin/products/media` |
+| Filtros | Inventário + filtro URLs externas |
+| Upload tab | Preview de associação + export mapa CSV |
+| Storage | Uploads devem ir para Supabase Storage, não Netlify |
+
+Artefatos: `test-data/e2e/media-center-results.json`, `media-center-qa.png`
+
 **Nota:** após `npm run build:netlify`, reinicie o servidor (`npx next start -p 3003`) — build antigo em memória não reflete headers/CSP novos.
 
 ---

@@ -102,7 +102,7 @@ export default async function AdminPage() {
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
             Produtos
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <NavCard
               href="/admin/products"
               emoji="📋"
@@ -116,6 +116,13 @@ export default async function AdminPage() {
               title="Novo Produto"
               description="Cadastro manual — Fase 4"
               buttonLabel="Criar produto"
+            />
+            <NavCard
+              href="/admin/products/media"
+              emoji="🖼️"
+              title="Central de Mídia"
+              description="Inventário e migração de imagens em lote"
+              buttonLabel="Abrir central"
             />
             <NavCard
               href="/admin/import"
