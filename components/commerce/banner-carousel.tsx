@@ -62,24 +62,29 @@ export function BannerCarousel({ slides }: BannerCarouselProps) {
           const mobileSrc = s.mobileImagePath
             ? bannerImageUrl(s.id, 'mobile', s.updatedAt)
             : desktopSrc
+          const isActive = i === current
 
           return (
             <div
               key={s.id}
-              aria-hidden={i !== current}
+              aria-hidden={!isActive}
               className={`absolute inset-0 transition-opacity duration-700 ${
-                i === current ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
             >
-              <picture>
-                <source media="(max-width: 768px)" srcSet={mobileSrc} />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={desktopSrc}
-                  alt={s.title ?? ''}
-                  className="absolute inset-0 h-full w-full object-cover object-center"
-                />
-              </picture>
+              {isActive && (
+                <picture>
+                  <source media="(max-width: 768px)" srcSet={mobileSrc} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={desktopSrc}
+                    alt={s.title ?? ''}
+                    className="absolute inset-0 h-full w-full object-cover object-center"
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                </picture>
+              )}
             </div>
           )
         })}

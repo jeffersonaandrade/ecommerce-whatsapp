@@ -15,8 +15,15 @@ export async function GET(
 ) {
   try {
     const { path: segments } = await params
+    if (segments.some((segment) => segment === '..' || segment.includes('\0'))) {
+      return new Response('Not found', { status: 404 })
+    }
+
     const filename = segments.join('/')
     const resolved = resolveBrandingFilename(filename)
+    if (!resolved) {
+      return new Response('Not found', { status: 404 })
+    }
     const buffer = await readBrandingFile(resolved)
 
     if (!buffer) {

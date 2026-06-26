@@ -1,9 +1,18 @@
 import { ImportIssue } from './types'
+import { isAllowedImportImageUrl } from './validate-image-url'
 
 const HEAD_TIMEOUT_MS = 5000
 const MAX_BYTES = 5 * 1024 * 1024
 
 export async function checkImageUrlHead(url: string): Promise<ImportIssue | null> {
+  if (!isAllowedImportImageUrl(url)) {
+    return {
+      code: 'CSV_W008',
+      severity: 'warning',
+      message: `URL de imagem bloqueada (use HTTPS público): ${url}`,
+    }
+  }
+
   try {
     const response = await fetch(url, {
       method: 'HEAD',

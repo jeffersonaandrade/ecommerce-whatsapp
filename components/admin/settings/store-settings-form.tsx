@@ -154,7 +154,11 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         return
       }
       const refreshed = await getStoreSettingsAction()
-      setSettings(refreshed)
+      if ('ok' in refreshed && refreshed.ok === false) {
+        setError(refreshed.error)
+        return
+      }
+      setSettings(refreshed as StoreSettings)
       setRestoreConfirm('')
       setSuccess('Aparência padrão restaurada. Nome da loja e contatos operacionais foram preservados.')
       router.refresh()

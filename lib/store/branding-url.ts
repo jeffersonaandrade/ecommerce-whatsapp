@@ -7,9 +7,30 @@ const BRANDING_ALIASES: Record<string, string> = {
   [OG_IMAGE_LEGACY_ALIAS]: OG_IMAGE_FILENAME,
 }
 
-export function resolveBrandingFilename(filename: string): string {
-  const base = filename.split('/').pop() ?? filename
-  return BRANDING_ALIASES[base] ?? base
+const ALLOWED_BRANDING_PATH = /^[a-zA-Z0-9._/-]+$/
+
+export function resolveBrandingFilename(filename: string): string | null {
+  const normalized = filename.replace(/\\/g, '/').trim()
+  if (!normalized || normalized.includes('..') || normalized.includes('\0')) {
+    return null
+  }
+  if (!ALLOWED_BRANDING_PATH.test(normalized)) {
+    return null
+  }
+
+  if (!normalized.includes('/')) {
+    const base = normalized
+    return BRANDING_ALIASES[base] ?? base
+  }
+
+  if (
+    normalized.startsWith('banners/') ||
+    normalized.startsWith('categories/')
+  ) {
+    return normalized
+  }
+
+  return null
 }
 
 export function brandingAssetUrl(

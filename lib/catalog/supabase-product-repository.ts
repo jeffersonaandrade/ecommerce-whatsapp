@@ -21,19 +21,23 @@ import {
   type ProductVariationRow,
 } from './supabase-mappers'
 
-async function fetchAllProducts(): Promise<Product[]> {
+async function fetchProducts(status?: ProductStatus): Promise<Product[]> {
   const supabase = createAdminClient()
-  const { data: productRows, error: productsError } = await supabase
-    .from('products')
-    .select('*')
-    .order('id')
+  let productsQuery = supabase.from('products').select('*').order('id')
+  if (status) {
+    productsQuery = productsQuery.eq('status', status)
+  }
+
+  const { data: productRows, error: productsError } = await productsQuery
 
   if (productsError) throw new Error(`products read failed: ${productsError.message}`)
   if (!productRows?.length) return []
 
+  const productIds = (productRows as ProductRow[]).map((row) => row.id)
   const { data: variationRows, error: variationsError } = await supabase
     .from('product_variations')
     .select('*')
+    .in('product_id', productIds)
 
   if (variationsError) {
     throw new Error(`product_variations read failed: ${variationsError.message}`)
@@ -49,6 +53,10 @@ async function fetchAllProducts(): Promise<Product[]> {
   return (productRows as ProductRow[]).map((row) =>
     rowsToProduct(row, byProduct.get(row.id) ?? [])
   )
+}
+
+async function fetchAllProducts(): Promise<Product[]> {
+  return fetchProducts()
 }
 
 function nextProductId(products: Product[]): string {
@@ -104,6 +112,10 @@ async function persistProduct(product: Product): Promise<void> {
 export const supabaseProductRepository: ProductRepository = {
   async getAll(): Promise<Product[]> {
     return fetchAllProducts()
+  },
+
+  async getActive(): Promise<Product[]> {
+    return fetchProducts('active')
   },
 
   async getById(id: string): Promise<Product | undefined> {

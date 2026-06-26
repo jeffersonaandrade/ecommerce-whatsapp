@@ -31,4 +31,16 @@ describe('brandingAssetUrl', () => {
   it('maps og-default.png to og-default.jpg', () => {
     expect(resolveBrandingFilename('og-default.png')).toBe('og-default.jpg')
   })
+
+  it('rejects path traversal', () => {
+    expect(resolveBrandingFilename('../etc/passwd')).toBeNull()
+    expect(resolveBrandingFilename('foo/../../secret.png')).toBeNull()
+  })
+
+  it('preserves nested banner and category paths', () => {
+    expect(
+      resolveBrandingFilename('banners/a4f91804-0a26-4980-95a3-e5d241cbbf67-desktop.webp')
+    ).toBe('banners/a4f91804-0a26-4980-95a3-e5d241cbbf67-desktop.webp')
+    expect(resolveBrandingFilename('categories/abc123.webp')).toBe('categories/abc123.webp')
+  })
 })

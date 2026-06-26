@@ -48,6 +48,10 @@ export const jsonProductRepository: ProductRepository = {
     return loadCatalogFromDisk()
   },
 
+  async getActive(): Promise<Product[]> {
+    return loadCatalogFromDisk().filter((p) => p.status === 'active')
+  },
+
   async getById(id: string): Promise<Product | undefined> {
     return loadCatalogFromDisk().find((p) => p.id === id)
   },

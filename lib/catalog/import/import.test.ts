@@ -131,6 +131,7 @@ describe('applyImport', () => {
     const products: Product[] = []
     const repo: ProductRepository = {
       getAll: async () => products,
+      getActive: async () => products.filter((p) => p.status === 'active'),
       getById: async (id) => products.find((p) => p.id === id),
       getBySlug: async (slug) => products.find((p) => p.slug === slug),
       create: async (input) => {

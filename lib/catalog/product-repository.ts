@@ -20,6 +20,7 @@ export type ProductInput = Omit<
 
 export interface ProductRepository {
   getAll(): Promise<Product[]>
+  getActive(): Promise<Product[]>
   getById(id: string): Promise<Product | undefined>
   getBySlug(slug: string): Promise<Product | undefined>
   create(input: ProductInput): Promise<Product>

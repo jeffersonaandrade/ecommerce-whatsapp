@@ -131,7 +131,13 @@ export async function uploadHeroImageAction(
   }
 }
 
-export async function getStoreSettingsAction() {
+export async function getStoreSettingsAction(): Promise<
+  Awaited<ReturnType<typeof getStoreSettings>> | { ok: false; error: string }
+> {
+  const auth = await requireAdmin()
+  if (!auth.ok) {
+    return { ok: false, error: auth.error }
+  }
   return await getStoreSettings()
 }
 

@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { SECURITY_HEADERS } from './lib/security/security-headers'
 
 function getSupabaseProductsRemotePattern():
   | { protocol: 'https'; hostname: string; pathname: string }
@@ -25,7 +26,7 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['sharp'],
   experimental: {
     serverActions: {
-      bodySizeLimit: '3mb',
+      bodySizeLimit: '5mb',
     },
   },
   images: {
@@ -36,6 +37,14 @@ const nextConfig: NextConfig = {
       },
       ...(supabaseProductsPattern ? [supabaseProductsPattern] : []),
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [...SECURITY_HEADERS],
+      },
+    ]
   },
 }
 

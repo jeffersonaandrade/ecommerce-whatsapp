@@ -5,7 +5,11 @@ import { productMatchesCategoryFilter } from '@/lib/catalog/category-utils'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
 import { getStorefrontCategories } from '@/lib/categories'
 
-async function loadCatalog(): Promise<Product[]> {
+async function loadStorefrontCatalog(): Promise<Product[]> {
+  return getProductRepository().getActive()
+}
+
+async function loadAdminCatalog(): Promise<Product[]> {
   return getProductRepository().getAll()
 }
 
@@ -14,11 +18,11 @@ function isStorefrontProduct(product: Product): boolean {
 }
 
 export async function getAllProducts(): Promise<Product[]> {
-  return (await loadCatalog()).filter(isStorefrontProduct)
+  return (await loadStorefrontCatalog()).filter(isStorefrontProduct)
 }
 
 export async function getAllProductsAdmin(): Promise<Product[]> {
-  return loadCatalog()
+  return loadAdminCatalog()
 }
 
 export async function getFeaturedProducts(limit: number = 6): Promise<Product[]> {

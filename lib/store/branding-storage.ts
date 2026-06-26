@@ -57,6 +57,7 @@ export function brandingFileExists(filename: string): boolean {
 
 export async function readBrandingFile(filename: string): Promise<Buffer | null> {
   const safe = resolveBrandingFilename(filename)
+  if (!safe) return null
   return readBrandingFileBuffer(safe)
 }
 
@@ -65,6 +66,7 @@ export async function resolveExistingBrandingPath(
 ): Promise<string | null> {
   if (!filename) return null
   const safe = resolveBrandingFilename(filename)
+  if (!safe) return null
 
   if (getDataProvider() === 'supabase') {
     const buffer = await readBrandingFileBuffer(safe)
