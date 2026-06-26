@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import { Category } from '@/types/category'
 import { categoryImageUrl } from '@/lib/catalog/category-image-url'
+import { useState } from 'react'
 
 type CategoryVisualCardProps = {
   category: Category
@@ -13,6 +16,25 @@ function cardRing(active: boolean): string {
   return active
     ? 'ring-2 ring-ink ring-offset-2 ring-offset-canvas'
     : 'ring-1 ring-hairline hover:ring-ink/30'
+}
+
+function CategoryCardImage({ category }: { category: Category }) {
+  const [failed, setFailed] = useState(false)
+  const src = categoryImageUrl(category.id, category.updatedAt)
+
+  if (!category.imagePath || failed) {
+    return <div className="absolute inset-0 bg-hairline" aria-hidden />
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={category.name}
+      onError={() => setFailed(true)}
+      className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+    />
+  )
 }
 
 export function CategoryVisualCard({
@@ -29,16 +51,7 @@ export function CategoryVisualCard({
         compact ? 'h-20 w-28 sm:h-24 sm:w-32' : 'aspect-[4/3] w-full'
       } ${cardRing(active)}`}
     >
-      {category.imagePath ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={categoryImageUrl(category.id, category.updatedAt)}
-          alt={category.name}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      ) : (
-        <div className="absolute inset-0 bg-hairline" />
-      )}
+      <CategoryCardImage category={category} />
       <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
       <span
         className={`absolute bottom-0 left-0 right-0 font-semibold text-canvas ${
