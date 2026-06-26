@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { BenefitItem } from '@/types/benefit-item'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   BENEFIT_DESCRIPTION_MAX,
@@ -80,16 +81,8 @@ export function BenefitForm({ mode, benefit }: BenefitFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          Benefício salvo com sucesso.
-        </div>
-      )}
+      {error && <Alert type="error" message={error} />}
+      {success && <Alert type="success" message="Benefício salvo com sucesso." />}
 
       <div className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
         <div>

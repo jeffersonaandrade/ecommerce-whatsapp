@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Alert } from '@/components/ui/alert'
 import { getButtonClassName } from '@/components/ui/button'
 import {
   confirmImportAction,
@@ -123,11 +124,7 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
         })}
       </nav>
 
-      {error && (
-        <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
-      )}
+      {error && <Alert type="error" message={error} />}
 
       {step === 'upload' && (
         <section className="space-y-6 rounded-lg border border-hairline bg-canvas p-6">

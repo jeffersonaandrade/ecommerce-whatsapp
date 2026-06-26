@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { Alert } from '@/components/ui/alert'
 import { ProductForm } from '@/components/admin/product-form'
 import { getAllCategoriesAdmin } from '@/lib/categories'
 import { getProductByIdAdmin } from '@/lib/products'
@@ -49,15 +50,19 @@ export default async function EditProductPage({
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 space-y-4">
         {created === '1' && (
-          <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 space-y-2">
+          <Alert type="success" className="space-y-2">
             <p className="font-semibold">Produto criado com sucesso.</p>
             <p>Revise os dados abaixo. Para publicar na loja:</p>
-            <ol className="list-decimal list-inside space-y-1">
+            <ol className="list-inside list-decimal space-y-1">
               <li>Confira imagem, preço e estoque da variação.</li>
-              <li>Altere <strong>Status</strong> para <strong>Ativo</strong>.</li>
-              <li>Clique em <strong>Salvar alterações</strong>.</li>
+              <li>
+                Altere <strong>Status</strong> para <strong>Ativo</strong>.
+              </li>
+              <li>
+                Clique em <strong>Salvar alterações</strong>.
+              </li>
             </ol>
-          </div>
+          </Alert>
         )}
         <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8">
           <ProductForm

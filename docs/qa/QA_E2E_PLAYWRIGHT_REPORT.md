@@ -1,10 +1,26 @@
 # QA E2E Playwright — Supabase MVP
 
 **Projeto:** ecommerce-sports  
-**Ambiente:** http://localhost:3000  
+**Ambiente:** http://localhost:3000 (legado) · http://localhost:3004 (smoke 2026-06-26)  
 **Data provider:** Supabase (`DATA_PROVIDER=supabase`, `NEXT_PUBLIC_DATA_PROVIDER=supabase`)  
-**Data:** 2026-06-25  
+**Data:** 2026-06-25 (E2E-1..9) · **2026-06-26** (smoke regressivo pós-auditoria perf/seg)  
 **Executor:** Playwright (Chromium headless) + Chrome DevTools MCP (uploads E2E-1..3)
+
+---
+
+## Smoke regressivo 2026-06-26
+
+Comando: `npm run test:e2e:smoke` (ou `PLAYWRIGHT_BASE_URL=http://localhost:3004 npm run test:e2e:smoke`)
+
+| Rota | Status |
+|------|--------|
+| `/`, `/products`, PDP, `/cart`, `/admin/login` | PASS |
+| `/admin/products`, `/admin/import`, `/admin/banners`, `/admin/content/benefits` | PASS |
+| Security headers (nosniff, referrer-policy, X-Frame-Options) | PASS |
+
+Artefato: `test-data/e2e/smoke-regression-results.json`
+
+**Nota:** após `npm run build:netlify`, reinicie o servidor (`npx next start -p 3003`) — build antigo em memória não reflete headers/CSP novos.
 
 ---
 

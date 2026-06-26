@@ -11,6 +11,7 @@ import {
 } from './category-utils'
 import { CategoryRepository } from './category-repository'
 import {
+  buildCategoryUpdatePayload,
   categoryInputToRow,
   rowToCategory,
   type CategoryRow,
@@ -85,18 +86,10 @@ export const supabaseCategoryRepository: CategoryRepository = {
     const existing = await this.getById(id)
     if (!existing) throw new Error('Categoria não encontrada')
 
-    const name = input.name.trim()
-    const slug = normalizeCategorySlug(input.slug?.trim() || generateCategorySlug(name))
     const supabase = createAdminClient()
     const { data, error } = await supabase
       .from('categories')
-      .update({
-        name,
-        slug,
-        description: input.description?.trim() ?? '',
-        sort_order: input.sortOrder ?? existing.sortOrder,
-        visible: input.visible ?? existing.visible,
-      })
+      .update(buildCategoryUpdatePayload(input, existing))
       .eq('id', id)
       .select('*')
       .single()

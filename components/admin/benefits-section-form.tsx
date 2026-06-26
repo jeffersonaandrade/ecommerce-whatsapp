@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { updateBenefitsSectionAction } from '@/lib/benefits/benefit-actions'
 
@@ -44,16 +45,8 @@ export function BenefitsSectionForm({
         <p className="mt-1 text-sm text-mute">Eyebrow e título exibidos acima dos cards na home.</p>
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-          Cabeçalho salvo.
-        </div>
-      )}
+      {error && <Alert type="error" message={error} />}
+      {success && <Alert type="success" message="Cabeçalho salvo." />}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>

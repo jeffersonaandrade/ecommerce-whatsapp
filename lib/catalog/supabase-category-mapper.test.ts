@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { categoryInputToRow, rowToCategory } from './supabase-category-mapper'
+import { categoryInputToRow, rowToCategory, buildCategoryUpdatePayload } from './supabase-category-mapper'
 
 describe('supabase-category-mapper', () => {
   it('mapeia row snake_case para Category', () => {
@@ -32,5 +32,31 @@ describe('supabase-category-mapper', () => {
     expect(row.slug).toBe('acessorios')
     expect(row.name).toBe('Acessórios')
     expect(row.sort_order).toBe(10)
+  })
+
+  it('buildCategoryUpdatePayload inclui image_path quando informado', () => {
+    expect(
+      buildCategoryUpdatePayload(
+        {
+          name: 'Seleção Brasileira',
+          slug: 'selecao-brasileira',
+          imagePath: 'categories/abc.webp',
+        },
+        { sortOrder: 10, visible: true }
+      )
+    ).toMatchObject({
+      name: 'Seleção Brasileira',
+      slug: 'selecao-brasileira',
+      image_path: 'categories/abc.webp',
+    })
+  })
+
+  it('buildCategoryUpdatePayload preserva image_path quando omitido', () => {
+    expect(
+      buildCategoryUpdatePayload(
+        { name: 'Camisas', slug: 'camisas' },
+        { sortOrder: 10, visible: true }
+      )
+    ).not.toHaveProperty('image_path')
   })
 })

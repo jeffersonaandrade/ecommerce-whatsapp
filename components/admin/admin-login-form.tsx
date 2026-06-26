@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { Alert } from '@/components/ui/alert'
 import { getButtonClassName } from '@/components/ui/button'
 import { PasswordInput } from '@/components/ui/password-input'
 import {
@@ -94,12 +95,9 @@ export function AdminLoginForm() {
           </p>
 
           {showUnauthorizedAlert && (
-            <div
-              role="alert"
-              className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800"
-            >
+            <Alert type="error" className="mt-6">
               Acesso negado. Sua conta não tem permissão de administrador.
-            </div>
+            </Alert>
           )}
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">

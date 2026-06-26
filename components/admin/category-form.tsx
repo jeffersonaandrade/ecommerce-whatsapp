@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Category } from '@/types/category'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { generateCategorySlug } from '@/lib/catalog/category-utils'
 import {
@@ -58,6 +59,12 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
   const [imageError, setImageError] = useState<string | null>(null)
   const [imageSuccess, setImageSuccess] = useState<string | null>(null)
   const [currentImagePath, setCurrentImagePath] = useState(category?.imagePath ?? null)
+  const [imageVersion, setImageVersion] = useState(category?.updatedAt ?? '')
+
+  useEffect(() => {
+    setCurrentImagePath(category?.imagePath ?? null)
+    if (category?.updatedAt) setImageVersion(category.updatedAt)
+  }, [category?.imagePath, category?.updatedAt])
 
   function handleNameChange(value: string) {
     setName(value)
@@ -115,6 +122,8 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
         setCurrentImagePath(`categories/${category.id}.webp`)
         setImageFile(null)
         setImageSuccess('Imagem enviada com sucesso.')
+        setImageVersion(String(Date.now()))
+        router.refresh()
       } else {
         setImageError(result.error)
       }
@@ -130,6 +139,8 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
       if (result.ok) {
         setCurrentImagePath(null)
         setImageSuccess('Imagem removida.')
+        setImageVersion(String(Date.now()))
+        router.refresh()
       } else {
         setImageError(result.error)
       }
@@ -158,18 +169,14 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {errors.length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 space-y-1">
+        <Alert type="error" className="space-y-1">
           {errors.map((msg) => (
             <p key={msg}>{msg}</p>
           ))}
-        </div>
+        </Alert>
       )}
 
-      {success && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-          Categoria salva com sucesso.
-        </div>
-      )}
+      {success && <Alert type="success" message="Categoria salva com sucesso." />}
 
       <section className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -235,18 +242,15 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
         <section className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
           <h3 className="text-sm font-medium text-gray-700">Imagem da categoria</h3>
           <p className="text-xs text-gray-500">
-            Exibida como card visual na vitrine. Upload independente de Salvar. PNG, JPG ou WebP, máx. 2 MB.
+            Exibida como card visual na vitrine. Use <strong>Enviar imagem</strong> — não depende de
+            Salvar alterações. PNG, JPG ou WebP, máx. 2 MB.
           </p>
-          {imageError && (
-            <p className="text-xs text-red-600">{imageError}</p>
-          )}
-          {imageSuccess && (
-            <p className="text-xs text-green-600">{imageSuccess}</p>
-          )}
+          {imageError && <Alert type="error" size="sm" message={imageError} />}
+          {imageSuccess && <Alert type="success" size="sm" message={imageSuccess} />}
           {currentImagePath && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={categoryImageUrl(category.id, category.updatedAt)}
+              src={categoryImageUrl(category.id, imageVersion)}
               alt="Imagem atual da categoria"
               className="h-24 w-full rounded-lg object-cover"
             />

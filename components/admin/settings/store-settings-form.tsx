@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { StoreSettings } from '@/types/store-settings'
+import { Alert } from '@/components/ui/alert'
 import { getButtonClassName } from '@/components/ui/button'
 import {
   updateStoreSettingsAction,
@@ -174,16 +175,8 @@ export function StoreSettingsForm({
 
   return (
     <div className="space-y-8">
-      {error && (
-        <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-          {error}
-        </div>
-      )}
-      {success && (
-        <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-          {success}
-        </div>
-      )}
+      {error && <Alert type="error" message={error} />}
+      {success && <Alert type="success" message={success} />}
 
       <form id="store-settings-form" onSubmit={handleSave} className="space-y-8">
         <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
@@ -311,28 +304,28 @@ export function StoreSettingsForm({
           </p>
 
           {heroManagedByBanners ? (
-            <div className="rounded-lg border border-hairline bg-soft-cloud/50 px-4 py-3 text-sm text-ink">
-              <p>
+            <>
+              <Alert type="info">
                 A home exibe{' '}
                 <strong>
                   {activeBannerCount}{' '}
                   {activeBannerCount === 1 ? 'banner ativo' : 'banners ativos'}
                 </strong>
-                . Título, imagem e CTA da área principal são editados em{' '}
-                <Link href="/admin/banners" className="font-medium text-accent hover:underline">
+                . Edite em{' '}
+                <Link href="/admin/banners" className="font-medium underline">
                   Banners
                 </Link>
                 .
-              </p>
-              <p className="mt-2 text-xs text-mute">
-                O hero abaixo só volta a valer se todos os banners forem desativados ou removidos.
-              </p>
+                <span className="mt-1 block text-xs text-mute">
+                  O hero só volta se não houver banners ativos.
+                </span>
+              </Alert>
               <input type="hidden" name="heroHeadline" value={settings.heroHeadline} />
               <input type="hidden" name="heroHeadlineLine2" value={settings.heroHeadlineLine2} />
               <input type="hidden" name="heroSubheadline" value={settings.heroSubheadline} />
               <input type="hidden" name="heroCtaLabel" value={settings.heroCtaLabel} />
               <input type="hidden" name="heroCtaHref" value={settings.heroCtaHref} />
-            </div>
+            </>
           ) : (
             <div className="space-y-3 rounded-lg border border-hairline bg-soft-cloud/50 p-4">
               <h3 className="text-sm font-semibold text-ink">Hero (home)</h3>
@@ -574,16 +567,8 @@ export function StoreSettingsForm({
             Imagem de fundo da home (1920×1080 recomendado). Upload independente de Salvar
             configurações.
           </p>
-          {heroSectionError && (
-            <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-              {heroSectionError}
-            </div>
-          )}
-          {heroSectionMessage && (
-            <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-              {heroSectionMessage}
-            </div>
-          )}
+          {heroSectionError && <Alert type="error" message={heroSectionError} />}
+          {heroSectionMessage && <Alert type="success" message={heroSectionMessage} />}
           {heroPreviewUrl && (
             // eslint-disable-next-line @next/next/no-img-element
             <img

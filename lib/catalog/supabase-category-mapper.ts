@@ -27,6 +27,34 @@ export function rowToCategory(row: CategoryRow): Category {
   }
 }
 
+export function buildCategoryUpdatePayload(
+  input: CategoryInput,
+  existing: Pick<Category, 'sortOrder' | 'visible'>
+): {
+  name: string
+  slug: string
+  description: string
+  sort_order: number
+  visible: boolean
+  image_path?: string | null
+} {
+  const name = input.name.trim()
+  const slug = normalizeCategorySlug(input.slug?.trim() || generateCategorySlug(name))
+  const payload = {
+    name,
+    slug,
+    description: input.description?.trim() ?? '',
+    sort_order: input.sortOrder ?? existing.sortOrder,
+    visible: input.visible ?? existing.visible,
+  }
+
+  if ('imagePath' in input) {
+    return { ...payload, image_path: input.imagePath ?? null }
+  }
+
+  return payload
+}
+
 export function categoryInputToRow(
   input: CategoryInput,
   existing?: Pick<Category, 'id' | 'createdAt' | 'updatedAt'>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Product, ProductStatus } from '@/types/product'
 import { Category } from '@/types/category'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { ImageGalleryField } from '@/components/admin/image-gallery-field'
 import { MoneyInput, type MoneyInputHandle } from '@/components/admin/money-input'
@@ -270,26 +271,19 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
       )}
 
       {errors.length > 0 && (
-        <div
+        <Alert
           ref={errorAlertRef}
-          role="alert"
+          type="error"
           tabIndex={-1}
-          className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 space-y-1 outline-none focus:ring-2 focus:ring-red-300"
+          className="space-y-1 outline-none focus:ring-2 focus:ring-error/30"
         >
           {errors.map((msg) => (
             <p key={msg}>{msg}</p>
           ))}
-        </div>
+        </Alert>
       )}
 
-      {success && (
-        <div
-          role="status"
-          className="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800"
-        >
-          Produto salvo com sucesso.
-        </div>
-      )}
+      {success && <Alert type="success" message="Produto salvo com sucesso." />}
 
       <fieldset disabled={formLocked} className="space-y-8 min-w-0 border-0 p-0 m-0">
         <section className="space-y-4">

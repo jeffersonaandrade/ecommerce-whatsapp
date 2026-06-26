@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { BannerSlide } from '@/types/banner-slide'
+import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
   createBannerSlideWithDesktopAction,
@@ -152,11 +153,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
           {mode === 'create' ? 'Novo slide' : 'Editar slide'}
         </h2>
 
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <Alert type="error" message={error} />}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="block space-y-1 sm:col-span-2">
@@ -257,12 +254,8 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
           <h3 className="text-base font-semibold text-ink">Imagens</h3>
           <p className="text-xs text-mute">PNG, JPG ou WebP, máx. 5 MB. Upload independente de Salvar.</p>
 
-          {imageError && (
-            <p className="text-sm text-red-600">{imageError}</p>
-          )}
-          {imageSuccess && (
-            <p className="text-sm text-green-600">{imageSuccess}</p>
-          )}
+          {imageError && <Alert type="error" message={imageError} />}
+          {imageSuccess && <Alert type="success" message={imageSuccess} />}
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
