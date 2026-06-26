@@ -7,4 +7,3 @@
 
 [functions]
   external_node_modules = ["sharp"]
-  timeout = 26
