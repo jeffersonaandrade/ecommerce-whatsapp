@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:netlify": "node scripts/prepare-netlify-build.mjs && npm run build",
+    "build:netlify": "node scripts/deploy/prepare-netlify-build.mjs && npm run build",
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:supabase": "node scripts/migrate-json-to-supabase.mjs"
+    "migrate:supabase": "node scripts/migration/migrate-json-to-supabase.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

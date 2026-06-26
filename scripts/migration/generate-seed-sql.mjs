@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const settings = JSON.parse(
   fs.readFileSync(path.join(root, 'storage/store-settings.json'), 'utf8')
 )

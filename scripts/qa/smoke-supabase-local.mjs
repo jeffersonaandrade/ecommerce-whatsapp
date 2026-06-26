@@ -7,7 +7,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
 function loadEnv() {
   const file = path.join(root, '.env.local')

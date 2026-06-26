@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const deployDir = path.join(root, 'deploy', 'netlify')
 const storageDir = path.join(root, 'storage')
 const brandingDir = path.join(storageDir, 'branding')

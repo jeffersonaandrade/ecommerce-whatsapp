@@ -84,7 +84,7 @@ Quando `DATA_PROVIDER=supabase`, o prebuild **não** copia seed JSON — dados v
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Anon key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (server only) |
 
-**Provisionamento:** ver [`DATABASE_PLAN.md`](DATABASE_PLAN.md) — SQL, buckets, admin user, `node scripts/migrate-json-to-supabase.mjs`.
+**Provisionamento:** ver [`DATABASE_PLAN.md`](DATABASE_PLAN.md) — SQL, buckets, admin user, `node scripts/migration/migrate-json-to-supabase.mjs`.
 
 ## Segurança Admin (obrigatório antes de produção real)
 

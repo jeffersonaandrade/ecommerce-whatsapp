@@ -142,7 +142,7 @@ Sem aprovação explícita, **não implementar**:
 | Catálogo | `storage/catalog.json` (gitignored; seed em `catalog.seed.json`) |
 | Settings | `storage/store-settings.json` |
 | Branding | `storage/branding/` |
-| Prebuild Netlify | `deploy/netlify/` + `scripts/prepare-netlify-build.mjs` |
+| Prebuild Netlify | `deploy/netlify/` + `scripts/deploy/prepare-netlify-build.mjs` |
 
 ### Documentos a manter (núcleo)
 
@@ -474,7 +474,7 @@ Evidência: `test-data/e2e/prod-persistence-report.json`
 | Login admin | ✅ PASS |
 | `/admin/products` — botão + Novo Produto legível | ✅ PASS |
 
-Script auxiliar local (não versionado): `scripts/smoke-f0-prod.mjs`
+Script auxiliar local (não versionado): `scripts/qa/smoke-f0-prod.mjs`
 
 #### SQL Supabase — limpeza QA (reversível)
 
@@ -503,7 +503,7 @@ Ordem objetiva (sem novas features):
 #### Pendências reais (pós-Fase 0)
 
 - [ ] Onboarding 1º cliente (Sprint 3)
-- [ ] Auditoria/reorganização pós-V1 — **Fase 2 docs concluída** (Fases 3–6 pendentes)
+- [ ] Auditoria/reorganização pós-V1 — **Fases 1–3 concluídas** (Fases 4–6 pendentes)
 - [ ] Avaliar versionar script smoke produção (genérico + `package.json`) — **não** commitar `smoke-f0-prod.mjs` ainda
 - [ ] Manter signup público **OFF** no Supabase Dashboard
 - [ ] Revisar rotação periódica de `service_role` (já rotacionada em go-live; repetir antes de 2º cliente se necessário)

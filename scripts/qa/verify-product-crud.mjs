@@ -3,7 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const env = {}
 for (const line of fs.readFileSync(path.join(root, '.env.local'), 'utf8').split(/\r?\n/)) {
   const m = line.match(/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/)

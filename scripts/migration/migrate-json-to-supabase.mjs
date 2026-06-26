@@ -3,7 +3,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const storageDir = path.join(root, 'storage')
 const brandingDir = path.join(storageDir, 'branding')
 

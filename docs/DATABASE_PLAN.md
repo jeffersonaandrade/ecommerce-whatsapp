@@ -331,7 +331,7 @@ Copie [`.env.local.example`](../.env.local.example) para `.env.local`.
 Com `.env.local` configurado:
 
 ```bash
-node scripts/migrate-json-to-supabase.mjs
+node scripts/migration/migrate-json-to-supabase.mjs
 ```
 
 Lê `storage/catalog.json` (ou `catalog.seed.json`) + `storage/store-settings.json` e faz upsert. Upload de `storage/branding/*` para o bucket.
