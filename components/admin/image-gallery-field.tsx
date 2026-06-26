@@ -17,6 +17,11 @@ type ImageGalleryFieldProps = {
   uploadEnabled?: boolean
 }
 
+type UploadProgress = {
+  completed: number
+  total: number
+}
+
 export function ImageGalleryField({
   images,
   onChange,
@@ -27,6 +32,7 @@ export function ImageGalleryField({
   const fileRef = useRef<HTMLInputElement>(null)
   const urlRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   function addUrl() {
@@ -43,39 +49,64 @@ export function ImageGalleryField({
     if (urlRef.current) urlRef.current.value = ''
   }
 
-  async function handleFile(file: File) {
-    if (images.length >= MAX_IMAGES) return
+  async function handleFiles(fileList: FileList) {
+    const availableSlots = MAX_IMAGES - images.length
+    if (availableSlots <= 0) return
+
+    const requestedFiles = Array.from(fileList)
+    const selectedFiles = requestedFiles.slice(0, availableSlots)
+    const errors: string[] = []
+    const uploadedUrls: string[] = []
+
+    if (requestedFiles.length > availableSlots) {
+      const ignoredCount = requestedFiles.length - availableSlots
+      errors.push(
+        `${ignoredCount} ${ignoredCount === 1 ? 'arquivo foi ignorado' : 'arquivos foram ignorados'}: o limite é de ${MAX_IMAGES} imagens.`,
+      )
+    }
 
     setUploadError(null)
-
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setUploadError('Formato aceito: PNG, JPG ou WebP.')
-      return
-    }
-
-    if (file.size > MAX_BYTES) {
-      setUploadError('Imagem deve ter no máximo 5 MB.')
-      return
-    }
-
     setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.set('image', file)
-      formData.set('productSlug', productSlug)
+    setUploadProgress({ completed: 0, total: selectedFiles.length })
 
-      const result = await uploadProductImageAction(formData)
-      if (!result.ok) {
-        setUploadError(result.error)
-        return
+    for (const [index, file] of selectedFiles.entries()) {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        errors.push(`${file.name}: formato aceito é PNG, JPG ou WebP.`)
+        setUploadProgress({ completed: index + 1, total: selectedFiles.length })
+        continue
       }
 
-      onChange([...images, result.url])
-    } catch {
-      setUploadError('Falha ao enviar imagem. Tente novamente.')
-    } finally {
-      setUploading(false)
+      if (file.size > MAX_BYTES) {
+        errors.push(`${file.name}: a imagem deve ter no máximo 5 MB.`)
+        setUploadProgress({ completed: index + 1, total: selectedFiles.length })
+        continue
+      }
+
+      try {
+        const formData = new FormData()
+        formData.set('image', file)
+        formData.set('productSlug', productSlug)
+
+        const result = await uploadProductImageAction(formData)
+        if (result.ok) {
+          uploadedUrls.push(result.url)
+        } else {
+          errors.push(`${file.name}: ${result.error}`)
+        }
+      } catch {
+        errors.push(`${file.name}: falha ao enviar. Tente novamente.`)
+      }
+
+      setUploadProgress({ completed: index + 1, total: selectedFiles.length })
     }
+
+    if (uploadedUrls.length > 0) {
+      onChange([...images, ...uploadedUrls])
+    }
+
+    setUploadError(errors.length > 0 ? errors.join(' ') : null)
+    setUploading(false)
+    setUploadProgress(null)
   }
 
   function removeAt(index: number) {
@@ -105,11 +136,13 @@ export function ImageGalleryField({
             <input
               ref={fileRef}
               type="file"
+              multiple
               accept="image/png,image/jpeg,image/webp"
+              aria-label="Selecionar imagens do produto"
               className="hidden"
               onChange={(e) => {
-                const file = e.target.files?.[0]
-                if (file) void handleFile(file)
+                const files = e.target.files
+                if (files?.length) void handleFiles(files)
                 e.target.value = ''
               }}
             />
@@ -120,7 +153,9 @@ export function ImageGalleryField({
               onClick={() => fileRef.current?.click()}
               disabled={images.length >= MAX_IMAGES || uploading}
             >
-              {uploading ? 'Enviando...' : 'Enviar imagem'}
+              {uploading && uploadProgress
+                ? `Enviando ${uploadProgress.completed}/${uploadProgress.total}...`
+                : 'Enviar imagens'}
             </Button>
           </>
         ) : null}
