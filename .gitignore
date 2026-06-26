@@ -60,3 +60,9 @@ skills-lock.json
 /storage/catalog.json
 /storage/store-settings.json
 /storage/branding/
+
+# QA smoke auxiliares locais (não versionados)
+/scripts/qa/smoke-f0-prod.mjs
+/scripts/qa/smoke-prod-netlify.mjs
+/scripts/qa/smoke-prod-persistence-redeploy.mjs
+/test-data/e2e/*.json
