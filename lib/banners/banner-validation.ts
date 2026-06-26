@@ -14,8 +14,8 @@ export function validateBannerImageFile(file: File): string | null {
   return null
 }
 
-export function assertBannerDesktopPath(desktopImagePath: string): void {
-  if (!desktopImagePath.trim()) {
+export function assertBannerDesktopPath(desktopImagePath: string | null | undefined): void {
+  if (!desktopImagePath?.trim()) {
     throw new Error('Imagem desktop é obrigatória para criar um slide.')
   }
 }

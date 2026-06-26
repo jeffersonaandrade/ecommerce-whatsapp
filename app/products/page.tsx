@@ -2,11 +2,13 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
+import { ProductsCategoryFilter } from '@/components/commerce/products-category-filter'
+import { ProductsCategoryChips } from '@/components/commerce/products-category-chips'
 import { getAllProducts, getProductsByCategory } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
-  categoryProductsHref,
-  isCategoryFilterActive,
+  hasStorefrontCategoryImages,
+  productsPageHref,
   resolveCategoryHeading,
   resolveStorefrontCategoryList,
 } from '@/lib/catalog/storefront-categories'
@@ -24,12 +26,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 interface ProductsPageProps {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<Record<string, string | undefined>>
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
-  const { category } = await searchParams
+  const params = await searchParams
+  const { category } = params
   const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
+  const showVisualCategories = hasStorefrontCategoryImages(categories)
 
   const filteredProducts = category
     ? await getProductsByCategory(category)
@@ -52,34 +56,23 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             {filteredProducts.length === 1 ? 'produto' : 'produtos'} disponíveis
           </p>
 
-          <nav
-            className="mt-6 flex flex-wrap gap-2"
-            aria-label="Filtrar por categoria"
-          >
-            <Link
-              href="/products"
-              className={getButtonClassName(
-                category ? 'secondary' : 'default',
-                'sm'
-              )}
-            >
-              Todos
-            </Link>
-            {categories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={categoryProductsHref(cat.slug)}
-                className={getButtonClassName(
-                  isCategoryFilterActive(category, cat) ? 'default' : 'secondary',
-                  'sm'
-                )}
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </nav>
+          {!showVisualCategories && (
+            <ProductsCategoryChips
+              categories={categories}
+              activeCategory={category}
+              searchParams={params}
+            />
+          )}
         </div>
       </div>
+
+      {showVisualCategories && (
+        <ProductsCategoryFilter
+          categories={categories}
+          activeCategory={category}
+          searchParams={params}
+        />
+      )}
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {filteredProducts.length > 0 ? (
@@ -97,7 +90,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               Explore outras categorias ou volte ao catálogo completo.
             </p>
             <Link
-              href="/products"
+              href={productsPageHref({ preserve: params })}
               className={`mt-6 inline-flex ${getButtonClassName('outline', 'sm')}`}
             >
               Ver todos os produtos

@@ -63,6 +63,35 @@ export function categoryProductsHref(slug: string): string {
   return `/products?category=${encodeURIComponent(slug)}`
 }
 
+export function hasStorefrontCategoryImages(categories: Category[]): boolean {
+  return categories.some((c) => Boolean(c.imagePath?.trim()))
+}
+
+const PRODUCTS_HREF_PRESERVED_PARAMS = new Set(['q', 'sort', 'dir', 'size'])
+
+export function productsPageHref(options: {
+  category?: string | null
+  preserve?: Record<string, string | undefined>
+} = {}): string {
+  const params = new URLSearchParams()
+
+  if (options.preserve) {
+    for (const [key, value] of Object.entries(options.preserve)) {
+      if (!value || key === 'category' || key === 'page') continue
+      if (PRODUCTS_HREF_PRESERVED_PARAMS.has(key)) {
+        params.set(key, value)
+      }
+    }
+  }
+
+  if (options.category) {
+    params.set('category', options.category)
+  }
+
+  const qs = params.toString()
+  return qs ? `/products?${qs}` : '/products'
+}
+
 export function isCategoryFilterActive(
   filterParam: string | undefined,
   category: Category

@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { categoryProductsHref } from '@/lib/catalog/storefront-categories'
+import { categoryProductsHref, hasStorefrontCategoryImages } from '@/lib/catalog/storefront-categories'
 import { getButtonClassName } from '@/components/ui/button'
 import { Category } from '@/types/category'
-import { categoryImageUrl } from '@/lib/catalog/category-image-url'
+import { CategoryAllCard, CategoryVisualCard } from './category-visual-card'
 
 type HomeCategoriesProps = {
   categories: Category[]
@@ -11,7 +11,7 @@ type HomeCategoriesProps = {
 export function HomeCategories({ categories }: HomeCategoriesProps) {
   if (categories.length === 0) return null
 
-  const hasImages = categories.some((c) => c.imagePath)
+  const hasImages = hasStorefrontCategoryImages(categories)
 
   return (
     <section className="hidden border-b border-hairline bg-soft-cloud py-12 sm:py-16 lg:block">
@@ -28,26 +28,11 @@ export function HomeCategories({ categories }: HomeCategoriesProps) {
         {hasImages ? (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             {categories.map((category) => (
-              <Link
+              <CategoryVisualCard
                 key={category.id}
+                category={category}
                 href={categoryProductsHref(category.slug)}
-                className="group relative overflow-hidden rounded-lg aspect-[4/3] bg-soft-cloud"
-              >
-                {category.imagePath ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={categoryImageUrl(category.id, category.updatedAt)}
-                    alt={category.name}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-hairline" />
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/20 to-transparent" />
-                <span className="absolute bottom-0 left-0 right-0 px-3 py-2 text-sm font-semibold text-canvas">
-                  {category.name}
-                </span>
-              </Link>
+              />
             ))}
             <Link
               href="/products"

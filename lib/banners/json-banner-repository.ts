@@ -41,12 +41,13 @@ export const jsonBannerRepository: BannerRepository = {
 
   async create(input: BannerSlideCreateInput): Promise<BannerSlide> {
     assertBannerDesktopPath(input.desktopImagePath)
+    const desktopImagePath = input.desktopImagePath!.trim()
     const slides = load()
     const now = nowIso()
     const slide: BannerSlide = {
       id: input.id ?? crypto.randomUUID(),
       ...input,
-      desktopImagePath: input.desktopImagePath.trim(),
+      desktopImagePath,
       createdAt: now,
       updatedAt: now,
     }

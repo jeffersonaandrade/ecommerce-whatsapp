@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { siteConfig } from '@/config/site'
 import {
   categoryProductsHref,
+  hasStorefrontCategoryImages,
   isCategoryFilterActive,
   isStorefrontTestResidue,
+  productsPageHref,
   resolveCategoryHeading,
   resolveStorefrontCategories,
   resolveStorefrontCategoryList,
@@ -92,6 +94,36 @@ describe('isStorefrontTestResidue', () => {
 describe('categoryProductsHref', () => {
   it('monta query com slug', () => {
     expect(categoryProductsHref('acessorios')).toBe('/products?category=acessorios')
+  })
+})
+
+describe('hasStorefrontCategoryImages', () => {
+  it('retorna true quando alguma categoria tem imagePath', () => {
+    expect(
+      hasStorefrontCategoryImages([
+        { ...sampleCategories[0]!, imagePath: 'categories/1.webp' },
+        sampleCategories[1]!,
+      ])
+    ).toBe(true)
+    expect(hasStorefrontCategoryImages(sampleCategories)).toBe(false)
+  })
+})
+
+describe('productsPageHref', () => {
+  it('monta href sem category e sem page', () => {
+    expect(productsPageHref()).toBe('/products')
+    expect(
+      productsPageHref({ preserve: { category: 'camisas', page: '2', q: 'bola' } })
+    ).toBe('/products?q=bola')
+  })
+
+  it('inclui category e preserva params permitidos', () => {
+    expect(
+      productsPageHref({
+        category: 'camisas',
+        preserve: { q: 'bola', page: '3', sort: 'name' },
+      })
+    ).toBe('/products?q=bola&sort=name&category=camisas')
   })
 })
 

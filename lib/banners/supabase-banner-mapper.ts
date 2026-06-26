@@ -2,7 +2,7 @@ import { BannerSlide, BannerSlideInput } from '@/types/banner-slide'
 
 export type BannerSlideRow = {
   id: string
-  desktop_image_path: string
+  desktop_image_path: string | null
   mobile_image_path: string | null
   title: string | null
   subtitle: string | null

@@ -1,6 +1,6 @@
 export type BannerSlide = {
   id: string
-  desktopImagePath: string
+  desktopImagePath: string | null
   mobileImagePath?: string | null
   title?: string | null
   subtitle?: string | null

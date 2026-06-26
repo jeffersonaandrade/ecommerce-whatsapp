@@ -45,7 +45,7 @@ export const supabaseBannerRepository: BannerRepository = {
     const row = {
       ...(input.id ? { id: input.id } : {}),
       ...slideInputToRow(input),
-      desktop_image_path: input.desktopImagePath.trim(),
+      desktop_image_path: input.desktopImagePath!.trim(),
     }
     const { data, error } = await supabase.from(TABLE).insert(row).select().single()
     if (error) throw new Error(error.message)
