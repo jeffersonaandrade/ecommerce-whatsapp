@@ -201,6 +201,26 @@ export const jsonProductRepository: ProductRepository = {
     const idSet = new Set(ids)
     persistCatalog(products.filter((p) => !idSet.has(p.id)))
   },
+
+  async setProductImages(id: string, images: string[]): Promise<Product> {
+    const products = loadCatalogFromDisk()
+    const index = products.findIndex((p) => p.id === id)
+    if (index === -1) throw new Error('Produto não encontrado')
+    const updated = {
+      ...products[index],
+      images: images.filter(Boolean).slice(0, 5),
+    }
+    const next = [...products]
+    next[index] = updated
+    persistCatalog(next)
+    return updated
+  },
+
+  async bulkSetProductImages(items: { id: string; images: string[] }[]): Promise<void> {
+    for (const item of items) {
+      await jsonProductRepository.setProductImages(item.id, item.images)
+    }
+  },
 }
 
 function matchesSearch(p: Product, search: string): boolean {

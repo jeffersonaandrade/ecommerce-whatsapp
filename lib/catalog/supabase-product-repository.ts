@@ -306,4 +306,21 @@ export const supabaseProductRepository: ProductRepository = {
     const { error } = await supabase.from('products').delete().in('id', ids)
     if (error) throw new Error(`deleteMany failed: ${error.message}`)
   },
+
+  async setProductImages(id: string, images: string[]): Promise<Product> {
+    const normalized = images.filter(Boolean).slice(0, 5)
+    const supabase = createAdminClient()
+    const { error } = await supabase.from('products').update({ images: normalized }).eq('id', id)
+    if (error) throw new Error(`setProductImages failed: ${error.message}`)
+
+    const product = await supabaseProductRepository.getById(id)
+    if (!product) throw new Error('Produto não encontrado')
+    return product
+  },
+
+  async bulkSetProductImages(items: { id: string; images: string[] }[]): Promise<void> {
+    for (const item of items) {
+      await supabaseProductRepository.setProductImages(item.id, item.images)
+    }
+  },
 }

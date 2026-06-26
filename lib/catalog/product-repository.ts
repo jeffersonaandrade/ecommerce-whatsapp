@@ -31,4 +31,6 @@ export interface ProductRepository {
   bulkSetStatus(ids: string[], status: ProductStatus): Promise<void>
   bulkSetCategory(ids: string[], category: string): Promise<void>
   deleteMany(ids: string[]): Promise<void>
+  setProductImages(id: string, images: string[]): Promise<Product>
+  bulkSetProductImages(items: { id: string; images: string[] }[]): Promise<void>
 }
