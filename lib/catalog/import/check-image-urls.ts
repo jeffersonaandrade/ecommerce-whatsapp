@@ -1,5 +1,6 @@
 import { ImportIssue } from './types'
 import { isAllowedImportImageUrl } from './validate-image-url'
+import { IMPORT_MAX_IMAGES_PER_PRODUCT } from './parse-limits'
 
 const IMAGE_EXTENSIONS = /\.(jpe?g|png|webp)(\?.*)?$/i
 
@@ -11,12 +12,12 @@ export function validateProductImageUrlsLocal(
   const unique = [...new Set(urls.map((u) => u.trim()).filter(Boolean))]
   const issues: ImportIssue[] = []
 
-  if (unique.length > 5) {
+  if (unique.length > IMPORT_MAX_IMAGES_PER_PRODUCT) {
     issues.push({
       code: 'CSV_E003',
       severity: 'error',
       slug,
-      message: `Máximo de 5 URLs em image_urls (${unique.length} encontradas)`,
+      message: `Máximo de ${IMPORT_MAX_IMAGES_PER_PRODUCT} URLs em image_urls (${unique.length} encontradas)`,
     })
     return issues
   }

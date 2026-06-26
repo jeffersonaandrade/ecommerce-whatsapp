@@ -72,11 +72,29 @@ camisa-teste,Camisa,Camisas,100,150,5,SKU-1,Desc`
     expect(preview.issues.some((i) => i.code === 'CSV_E004')).toBe(true)
   })
 
-  it('detecta CSV_E003 para URL http', () => {
+  it('detecta CSV_E003 para host privado em image_urls', () => {
     const csv = `${CSV_HEADERS},image_urls
-camisa-teste,Camisa,Camisas,100,,5,SKU-1,Desc,http://example.com/a.jpg`
-    const preview = buildImportPreview(csv, 'http.csv', [], importCategories)
+camisa-teste,Camisa,Camisas,100,,5,SKU-1,Desc,https://127.0.0.1/a.jpg`
+    const preview = buildImportPreview(csv, 'private-host.csv', [], importCategories)
     expect(preview.issues.some((i) => i.code === 'CSV_E003')).toBe(true)
+  })
+
+  it('detecta header ausente como CSV_E006', () => {
+    const csv = `camisa-teste,Camisa,Camisas,100,,5,SKU-1,Desc`
+    const preview = buildImportPreview(csv, 'no-header.csv', [], importCategories)
+    expect(preview.issues.some((i) => i.code === 'CSV_E006')).toBe(true)
+  })
+
+  it('parseia preview pequeno em menos de 10 segundos', () => {
+    const rows = Array.from({ length: 20 }, (_, i) =>
+      `prod-${i},Prod ${i},Camisas,100,,5,SKU-${i},Desc`
+    ).join('\n')
+    const csv = `${CSV_HEADERS}\n${rows}`
+    const started = performance.now()
+    const preview = buildImportPreview(csv, 'timing.csv', [], importCategories)
+    const durationMs = performance.now() - started
+    expect(preview.stats.totalProducts).toBe(20)
+    expect(durationMs).toBeLessThan(10_000)
   })
 
   it('detecta CSV_E002 SKU duplicado', () => {
@@ -179,6 +197,12 @@ describe('applyImport', () => {
       bulkSetStatus: async () => {},
       bulkSetCategory: async () => {},
       deleteMany: async () => {},
+      setProductImages: async (id, images) => {
+        const product = products.find((p) => p.id === id)
+        if (!product) throw new Error('not found')
+        return { ...product, images }
+      },
+      bulkSetProductImages: async () => {},
     }
 
     const csv = fs.readFileSync(TEMPLATE_PATH, 'utf-8')

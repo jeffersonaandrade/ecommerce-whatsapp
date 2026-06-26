@@ -8,6 +8,7 @@ import {
   parseNumber,
   rowProductFields,
 } from './map-rows'
+import { validateProductImageUrlsLocal } from './check-image-urls'
 import { csvToRecords } from './parse-csv'
 import {
   CsvRow,
@@ -41,47 +42,14 @@ export function computeStatusBreakdown(
   )
 }
 
-const IMAGE_EXTENSIONS = /\.(jpe?g|png|webp)(\?.*)?$/i
-
 function validateImageUrls(raw: string, slug: string, row?: number): ImportIssue[] {
-  const issues: ImportIssue[] = []
-  if (!raw.trim()) return issues
+  if (!raw.trim()) return []
 
   const urls = raw.split('|').map((u) => u.trim()).filter(Boolean)
-  if (urls.length > 5) {
-    issues.push({
-      code: 'CSV_E003',
-      severity: 'error',
-      row,
-      slug,
-      message: `Máximo de 5 URLs em image_urls (${urls.length} encontradas)`,
-    })
-    return issues
-  }
-
-  for (const url of urls) {
-    if (!url.startsWith('https://')) {
-      issues.push({
-        code: 'CSV_E003',
-        severity: 'error',
-        row,
-        slug,
-        message: `URL inválida (apenas HTTPS): ${url}`,
-      })
-      continue
-    }
-    if (!IMAGE_EXTENSIONS.test(url)) {
-      issues.push({
-        code: 'CSV_E003',
-        severity: 'error',
-        row,
-        slug,
-        message: `Extensão de imagem inválida: ${url}`,
-      })
-    }
-  }
-
-  return issues
+  return validateProductImageUrlsLocal(urls, slug).map((issue) => ({
+    ...issue,
+    row: issue.row ?? row,
+  }))
 }
 
 function validateDimensions(row: CsvRow, slug: string): ImportIssue[] {

@@ -19,7 +19,7 @@ Checklist executável para colocar a loja em operação com cliente real — **s
 ## Sprint 2 — Hardening (obrigatório)
 
 - [ ] `ProductImage` com fallback (URLs externas CSV)
-- [ ] CSV preview — HEAD warnings (`CSV_W008`, nunca bloqueia)
+- [ ] CSV preview — validação local de URLs (sem HEAD/rede; imagens quebradas corrigíveis na Central de Mídia)
 - [ ] WhatsApp com `Pedido #TEMP-YYYYMMDD-NNNN`
 - [ ] Importação exibe tempo (`durationMs`)
 
@@ -43,7 +43,7 @@ Após Sprint 1 + 2:
 - Theme engine completo / page builder
 - Histórico CSV
 - CMS (banners, categorias CRUD, menus) — Sprint 4+
-- Bloquear import por falha HEAD
+- Bloquear import por imagem externa inacessível (usar Central de Mídia pós-import)
 
 ---
 
