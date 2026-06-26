@@ -22,7 +22,7 @@ export async function Header() {
             <img
               src={logoUrl}
               alt={settings.storeName}
-              className="h-8 w-8 shrink-0 rounded-sm object-cover"
+              className="h-8 max-w-[120px] shrink-0 rounded-sm object-contain"
             />
           ) : (
             <div

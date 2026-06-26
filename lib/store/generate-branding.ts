@@ -1,6 +1,6 @@
 import 'server-only'
 
-import sharp, { type Sharp } from 'sharp'
+import sharp, { type Color, type Sharp } from 'sharp'
 import { OG_IMAGE_FILENAME, resolveBrandingFilename } from './branding-url'
 import {
   brandingFileExists,
@@ -16,6 +16,12 @@ export type GeneratedBranding = {
 }
 
 const FAVICON_SIZES = [16, 32, 180, 192, 512] as const
+const LOGO_OUTPUT_SIZE = 512
+
+/** Preserva logos horizontais (ex.: faixa com texto) sem crop agressivo. */
+function resizeContainedSquare(image: Sharp, size: number, background: Color) {
+  return image.clone().resize(size, size, { fit: 'contain', background })
+}
 
 async function writeProcessedImage(
   image: Sharp,
@@ -32,9 +38,15 @@ export async function generateBrandingFromLogo(
   const image = sharp(fileBuffer).rotate()
   const logoPath = 'logo.webp'
 
+  const logoBackground: Color = { r: 0, g: 0, b: 0, alpha: 0 }
+
   await writeProcessedImage(image, logoPath, () =>
-    image.clone().resize(512, 512, { fit: 'cover', position: 'centre' }).webp({ quality: 90 }).toBuffer()
+    resizeContainedSquare(image, LOGO_OUTPUT_SIZE, logoBackground)
+      .webp({ quality: 90 })
+      .toBuffer()
   )
+
+  const faviconBackground: Color = { r: 0, g: 0, b: 0, alpha: 1 }
 
   for (const size of FAVICON_SIZES) {
     const name =
@@ -46,7 +58,7 @@ export async function generateBrandingFromLogo(
             ? 'android-512.png'
             : `favicon-${size}.png`
     await writeProcessedImage(image, name, () =>
-      image.clone().resize(size, size, { fit: 'cover', position: 'centre' }).png().toBuffer()
+      resizeContainedSquare(image, size, faviconBackground).png().toBuffer()
     )
   }
 

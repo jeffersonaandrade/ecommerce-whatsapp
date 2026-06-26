@@ -79,7 +79,7 @@ export function buildRootMetadata(settings: StoreSettings): Metadata {
       description: settings.description,
       images: absoluteOg ? [absoluteOg] : [],
     },
-    icons: versionedIcons(settings.updatedAt),
+    icons: settings.logoPath ? versionedIcons(settings.updatedAt) : undefined,
   }
 }
 

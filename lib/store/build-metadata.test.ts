@@ -4,9 +4,10 @@ import { buildRootMetadata } from './build-metadata'
 import { BRANDING_ICON_FILES } from './branding-url'
 
 describe('buildRootMetadata', () => {
-  it('includes versioned favicon and og urls', () => {
+  it('includes versioned favicon and og urls when logo exists', () => {
     const settings = {
       ...createDefaultStoreSettings(),
+      logoPath: 'logo.webp',
       ogImagePath: BRANDING_ICON_FILES.og,
       updatedAt: '2026-06-24T22:00:00.000Z',
     }
@@ -26,5 +27,11 @@ describe('buildRootMetadata', () => {
 
     const ogImages = metadata.openGraph?.images as Array<{ url: string }>
     expect(ogImages[0].url).toContain('og-default.jpg?v=2026-06-24T22%3A00%3A00.000Z')
+  })
+
+  it('omits custom icons when logo is not configured', () => {
+    const settings = createDefaultStoreSettings()
+    const metadata = buildRootMetadata(settings)
+    expect(metadata.icons).toBeUndefined()
   })
 })
