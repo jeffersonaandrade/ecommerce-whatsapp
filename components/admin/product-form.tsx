@@ -428,7 +428,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
           <h2 className="text-lg font-semibold">Galeria de imagens</h2>
           <p className="text-sm text-gray-500">
             Ao menos 1 imagem (máximo 5). Use URL externa ou envie arquivo (Supabase).
-            Clique em <strong>Adicionar URL</strong> após colar o link.
+            Defina a <strong>posição na loja</strong>: a 1 aparece em destaque; 2, 3… seguem na galeria.
           </p>
           <FieldError message={fieldErrors.images} />
           <ImageGalleryField

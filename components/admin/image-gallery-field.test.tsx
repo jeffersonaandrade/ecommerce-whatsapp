@@ -2,7 +2,7 @@
 
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ImageGalleryField } from './image-gallery-field'
+import { ImageGalleryField, moveImageToPosition } from './image-gallery-field'
 
 const uploadProductImageAction = vi.fn()
 
@@ -96,5 +96,36 @@ describe('ImageGalleryField', () => {
       'https://cdn.test/e.webp',
     ])
     expect(screen.getByText(/1 arquivo foi ignorado/i)).toBeTruthy()
+  })
+
+  it('reordena imagens ao mudar a posição no select', () => {
+    const onChange = vi.fn()
+    const existingImages = [
+      'https://cdn.test/a.webp',
+      'https://cdn.test/b.webp',
+      'https://cdn.test/c.webp',
+    ]
+
+    render(
+      <ImageGalleryField images={existingImages} onChange={onChange} uploadEnabled={false} />
+    )
+
+    fireEvent.change(screen.getByLabelText('Posição da imagem 3'), {
+      target: { value: '1' },
+    })
+
+    expect(onChange).toHaveBeenCalledWith([
+      'https://cdn.test/c.webp',
+      'https://cdn.test/a.webp',
+      'https://cdn.test/b.webp',
+    ])
+  })
+})
+
+describe('moveImageToPosition', () => {
+  it('move item para a posição escolhida', () => {
+    const images = ['a', 'b', 'c']
+    expect(moveImageToPosition(images, 2, 1)).toEqual(['c', 'a', 'b'])
+    expect(moveImageToPosition(images, 0, 3)).toEqual(['b', 'c', 'a'])
   })
 })
