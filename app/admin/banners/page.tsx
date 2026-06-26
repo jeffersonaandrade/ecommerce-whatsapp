@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { getButtonClassName } from '@/components/ui/button'
-import { AdminListPage } from '@/components/admin/admin-list-page'
 import { getAllBannerSlides } from '@/lib/banners'
 import { ReorderBannerButtons } from '@/components/admin/reorder-banner-buttons'
 import { ToggleBannerActiveButton } from '@/components/admin/toggle-banner-active-button'
@@ -16,22 +15,34 @@ export default async function AdminBannersPage() {
   const slides = await getAllBannerSlides()
 
   return (
-    <AdminListPage
-      header={
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-ink">Banners</h1>
-            <p className="mt-1 text-sm text-mute">
-              Slides do carrossel na home. Ordem pelo campo &quot;Ordem&quot;.
-            </p>
-          </div>
-          <Link href="/admin/banners/new" className={getButtonClassName('default', 'sm')}>
-            + Novo slide
+    <div className="w-full">
+      <div className="bg-ink py-8 text-canvas sm:py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/admin"
+            className="text-sm text-mute transition-colors hover:text-canvas"
+          >
+            ← Voltar ao Admin
           </Link>
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold sm:text-4xl">Banners</h1>
+              <p className="mt-2 text-mute">
+                Slides do carrossel na home. Ordem pelo campo &quot;Ordem&quot;.
+              </p>
+            </div>
+            <Link
+              href="/admin/banners/new"
+              className={getButtonClassName('secondary', 'md', '!text-ink')}
+            >
+              + Novo slide
+            </Link>
+          </div>
         </div>
-      }
-      content={
-        slides.length === 0 ? (
+      </div>
+
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+        {slides.length === 0 ? (
           <div className="rounded-lg border border-hairline bg-canvas px-6 py-12 text-center">
             <p className="text-mute">Nenhum slide cadastrado.</p>
             <Link
@@ -42,7 +53,7 @@ export default async function AdminBannersPage() {
             </Link>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-hairline">
+          <div className="overflow-x-auto rounded-lg border border-hairline">
             <table className="w-full text-sm">
               <thead className="bg-soft-cloud">
                 <tr>
@@ -109,8 +120,8 @@ export default async function AdminBannersPage() {
               </tbody>
             </table>
           </div>
-        )
-      }
-    />
+        )}
+      </div>
+    </div>
   )
 }
