@@ -122,5 +122,5 @@ _Nenhum bloqueante identificado nesta suíte._
 ## Referências
 
 - Plano: QA E2E Playwright (2026-06-25)  
-- QA anterior (parcial): [`QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](QA_SUPABASE_ADMIN_BROWSER_REPORT.md)  
+- QA anterior (parcial): [`docs/archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](../archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md)  
 - Pendências operacionais: [`docs/HANDOFF.md`](docs/HANDOFF.md) §9.2–§9.4

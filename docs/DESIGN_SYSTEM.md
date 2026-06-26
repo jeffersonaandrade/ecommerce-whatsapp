@@ -19,7 +19,7 @@ Este documento congela regras visuais para que sprints de UI **não inventem** r
 
 **Referências cruzadas:**
 
-- Direção e ordem de implementação: [`docs/UI_POLISH_PLAN.md`](UI_POLISH_PLAN.md)
+- Direção e ordem de implementação: [`docs/archive/UI_POLISH_PLAN.md`](archive/UI_POLISH_PLAN.md)
 - Checklists UX/a11y: [`.cursor/skills/ui-ux-pro-max/`](../.cursor/skills/ui-ux-pro-max/)
 
 ---
@@ -289,7 +289,7 @@ UI-6   cart
 UI-7   footer.tsx
 ```
 
-Detalhes por sprint: [`docs/UI_POLISH_PLAN.md` §9](UI_POLISH_PLAN.md#9-sprints-de-implementação-ordem-revisada).
+Detalhes por sprint: [`docs/archive/UI_POLISH_PLAN.md` §9](archive/UI_POLISH_PLAN.md#9-sprints-de-implementação-ordem-revisada).
 
 **Regra:** antes de cada alteração visual, justificar com seção do DS (ver [`UI_POLISH_PLAN.md` §8](UI_POLISH_PLAN.md#8-regra-de-justificativa-obrigatória) e `.cursor/rules/design-system.mdc`).
 

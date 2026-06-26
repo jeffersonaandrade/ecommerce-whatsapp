@@ -153,26 +153,30 @@ Sem aprovação explícita, **não implementar**:
 - `docs/GO_LIVE_CHECKLIST.md` — checkboxes operacionais Supabase/Netlify pendentes
 - `CHANGELOG.md`
 - `docs/HANDOFF.md` (este documento)
-- [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md) — evidência QA E2E Supabase (fonte atual)
-- `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` — superseded pelo E2E Playwright
+- [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md) — evidência QA E2E Supabase (fonte atual)
+- [`docs/product/PROJECT_SCOPE.md`](product/PROJECT_SCOPE.md) — escopo histórico
+- [`docs/operations/CLIENT_SETUP_CHECKLIST.md`](operations/CLIENT_SETUP_CHECKLIST.md) — onboarding
 - `graphify-out/` (mapa vivo)
 
-### Documentos candidatos a `docs/archive/`
+### Documentos em `docs/archive/` (Fase 2 — 2026-06-26)
 
 | Arquivo | Motivo |
 |---------|--------|
-| `docs/QA_REPORT.md` | QA Fase 3 — superseded |
-| `docs/SPRINT_BUGFIX_QA_REPORT.md` | Entrega pontual |
-| `docs/PDP_RELOAD_INVESTIGATION.md` | Investigação concluída |
-| `docs/VISUAL_QA_POST_LANDING.md` | Checkpoint UI pontual |
-| `docs/RELEASE_NOTES_v1.0.0-demo.md` | Tag antiga |
-| `docs/UI_POLISH_PLAN.md` | Adiado até feedback cliente |
+| [`docs/archive/QA_REPORT.md`](archive/QA_REPORT.md) | QA Fase 3 — superseded |
+| [`docs/archive/SPRINT_BUGFIX_QA_REPORT.md`](archive/SPRINT_BUGFIX_QA_REPORT.md) | Entrega pontual |
+| [`docs/archive/PDP_RELOAD_INVESTIGATION.md`](archive/PDP_RELOAD_INVESTIGATION.md) | Investigação concluída |
+| [`docs/archive/VISUAL_QA_POST_LANDING.md`](archive/VISUAL_QA_POST_LANDING.md) | Checkpoint UI pontual |
+| [`docs/archive/RELEASE_NOTES_v1.0.0-demo.md`](archive/RELEASE_NOTES_v1.0.0-demo.md) | Tag antiga |
+| [`docs/archive/UI_POLISH_PLAN.md`](archive/UI_POLISH_PLAN.md) | Adiado até feedback cliente |
+| [`docs/archive/GO_LIVE_QA_REPORT.md`](archive/GO_LIVE_QA_REPORT.md) | Superseded por E2E |
+| [`docs/archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md) | Superseded por E2E |
+| [`docs/archive/DEV_NOTES.md`](archive/DEV_NOTES.md) | Diário interno — HANDOFF é canônico |
 
 ### Documentos desatualizados (corrigir ou consolidar)
 
 - `ROADMAP.md` — Fase 7 parcialmente marcada ✅; migração Netlify pendente
 - `docs/MODULE_ROADMAP.md` — diz Fases 4–6 ✅ mas Go Live “em andamento” sem sync
-- `PROJECT_SCOPE.md` — versão 0.2.0, lista placeholders já implementados
+- `PROJECT_SCOPE.md` → [`docs/product/PROJECT_SCOPE.md`](product/PROJECT_SCOPE.md)
 - `docs/ARCHITECTURE.md` — ~~tabela de módulos desatualizada~~ corrigido 2026-06-25
 
 ---
@@ -354,7 +358,7 @@ graphify update . # após mudanças estruturais
 
 ## 9. Validação de pendências
 
-**Atualizado:** 2026-06-26 · Fontes: commits `76f5431`, `16b796a`, [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://loja-whats.netlify.app
+**Atualizado:** 2026-06-26 · Fontes: commits `76f5431`, `16b796a`, [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://loja-whats.netlify.app
 
 ### Resumo
 
@@ -373,7 +377,7 @@ graphify update . # após mudanças estruturais
 | Auth P0 (`requireAdmin`, middleware, RLS doc) | ✅ | commit `1eb4d43` |
 | Alerta `?error=unauthorized` persistente | ✅ | commit `299c7f7` |
 | Repositórios async + páginas `await` | ✅ | commit `14905a2` |
-| Upload imagem produto (Storage) | ✅ | E2E-4 PASS — [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md) |
+| Upload imagem produto (Storage) | ✅ | E2E-4 PASS — [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md) |
 | QA E2E Playwright (E2E-1…E2E-9) | ✅ | commit `16b796a` |
 | Testes | ✅ | `60 passed` / 12 files |
 | Build | ✅ | `npm run build` OK |
@@ -390,7 +394,7 @@ graphify update . # após mudanças estruturais
 
 ### 9.3 QA E2E local Supabase
 
-**Relatório:** [`QA_E2E_PLAYWRIGHT_REPORT.md`](../QA_E2E_PLAYWRIGHT_REPORT.md) · **Resultado:** APROVADO COM RESSALVAS (local)
+**Relatório:** [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md) · **Resultado:** APROVADO COM RESSALVAS (local)
 
 | ID | Fluxo | Status |
 |----|--------|--------|
@@ -404,7 +408,7 @@ graphify update . # após mudanças estruturais
 | E2E-8 | Regressão desktop + mobile | ✅ PASS |
 | E2E-9 | Filesystem `storage/*` não tocado | ✅ PASS |
 
-Substitui o QA parcial em `QA_SUPABASE_ADMIN_BROWSER_REPORT.md` (uploads/CSV/WhatsApp não testados naquela sessão).
+Substitui o QA parcial em [`docs/archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md) (uploads/CSV/WhatsApp não testados naquela sessão).
 
 ### 9.4 Produção Netlify
 
@@ -499,7 +503,7 @@ Ordem objetiva (sem novas features):
 #### Pendências reais (pós-Fase 0)
 
 - [ ] Onboarding 1º cliente (Sprint 3)
-- [ ] Auditoria/reorganização pós-V1 (docs, scripts, código morto) — plano aprovado, execução pendente
+- [ ] Auditoria/reorganização pós-V1 — **Fase 2 docs concluída** (Fases 3–6 pendentes)
 - [ ] Avaliar versionar script smoke produção (genérico + `package.json`) — **não** commitar `smoke-f0-prod.mjs` ainda
 - [ ] Manter signup público **OFF** no Supabase Dashboard
 - [ ] Revisar rotação periódica de `service_role` (já rotacionada em go-live; repetir antes de 2º cliente se necessário)

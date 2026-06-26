@@ -9,7 +9,7 @@
 
 | Papel | Commit | Motivo |
 |-------|--------|--------|
-| **UI aprovada (referência visual)** | `759e9e6` | Sign-off em [`docs/VISUAL_QA_POST_LANDING.md`](VISUAL_QA_POST_LANDING.md) pós UI-7..UI-12 |
+| **UI aprovada (referência visual)** | `759e9e6` | Sign-off em [`docs/archive/VISUAL_QA_POST_LANDING.md`](../archive/VISUAL_QA_POST_LANDING.md) pós UI-7..UI-12 |
 | **Código UI premium** | `12d59c3` | UI-12 ProductCard editorial — último commit de polish visual antes do admin StoreSettings |
 | **Preset de dados** | `80df18b` | Seed completo: cores, hero copy, institucional em `storage/store-settings.seed.json` |
 | **Assets empacotados** | `98bb454` | [`deploy/netlify/branding/hero.webp`](deploy/netlify/branding/hero.webp) para hero offline |
