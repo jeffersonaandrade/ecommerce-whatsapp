@@ -9,7 +9,8 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "migrate:supabase": "node scripts/migration/migrate-json-to-supabase.mjs"
+    "migrate:supabase": "node scripts/migration/migrate-json-to-supabase.mjs",
+    "branding:sync": "node scripts/deploy/sync-branding-logo.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

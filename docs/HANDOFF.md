@@ -50,11 +50,13 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 
 **Onboarding recomendado — respeitar a arte do cliente:**
 
+- **Arquivo canônico:** substitua `deploy/branding/logo.jpeg` (ou `logo.jpg` / `logo.png` / `logo.webp`) — nome genérico fixo, pasta única por loja.
 - Se o cliente enviar logo **quadrada**, publicar **quadrada** (sem forçar crop horizontal).
 - Se enviar logo **horizontal**, publicar **horizontal**.
 - Header usa `object-contain` + `max-w-[120px]` — a vitrine respeita a proporção do arquivo implantado.
-- Operador: upload no bucket `branding` (Storage) e/ou `uploadStoreLogoAction` / scripts em `scripts/qa/` — **não exposto no admin do cliente**.
-- **Restaurar aparência padrão** (admin): ferramenta de operador; redefine logo, favicon, OG, cores, hero e textos preset.
+- **Supabase (produção):** após trocar o arquivo, rode `npm run branding:sync` (carrega `.env.local` com service role) ou use **Restaurar aparência padrão** no admin.
+- **JSON local / demo Netlify sem Supabase:** o prebuild gera os derivados automaticamente a partir de `deploy/branding/logo.*`.
+- **Restaurar aparência padrão** (admin): ferramenta de operador; redefine logo, favicon, OG, cores, hero e textos preset a partir do preset + `deploy/branding/logo.*`.
 
 **Código mantido (não removido):** `generate-branding.ts`, `uploadStoreLogoAction`, metadata, `/api/branding/*`.
 

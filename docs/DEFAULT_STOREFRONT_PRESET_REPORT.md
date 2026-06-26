@@ -51,7 +51,7 @@ Em `12d59c3`, hero usava Unsplash hardcoded e nome "Sports Store" no componente.
 | `heroImagePath` | `hero.webp` (asset em deploy/netlify) |
 | `aboutText`, `businessHours`, `exchangePolicyText` | seed `80df18b` |
 
-Logo/favicon/OG: gerados via [`generateBrandingFromLogo()`](../lib/store/generate-branding.ts) a partir do buffer hero (fallback) ou `logo-source.png` se adicionado.
+Logo/favicon/OG: gerados via [`generateBrandingFromLogo()`](../lib/store/generate-branding.ts) a partir de [`deploy/branding/logo.*`](../deploy/branding/) (nome genérico fixo). Fallback: hero do preset.
 
 ---
 

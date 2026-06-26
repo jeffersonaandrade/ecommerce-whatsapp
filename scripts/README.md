@@ -6,7 +6,8 @@ Organização pós-auditoria (Fase 3). Todos assumem execução na raiz do repos
 
 | Script | Uso |
 |--------|-----|
-| `prepare-netlify-build.mjs` | Prebuild Netlify — copia seed JSON/branding quando `DATA_PROVIDER` ≠ `supabase`. Invocado por `npm run build:netlify`. |
+| `prepare-netlify-build.mjs` | Prebuild Netlify — copia seed JSON/branding quando `DATA_PROVIDER` ≠ `supabase`. Gera favicon/OG a partir de `deploy/branding/logo.*`. Invocado por `npm run build:netlify`. |
+| `sync-branding-logo.mjs` | Publica `deploy/branding/logo.*` no Supabase Storage e atualiza `store_settings`. `npm run branding:sync` |
 
 ## `migration/`
 

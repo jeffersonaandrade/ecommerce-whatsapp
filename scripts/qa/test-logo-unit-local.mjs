@@ -11,7 +11,7 @@ import { chromium } from 'playwright'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const base = process.env.QA_BASE_URL ?? 'http://localhost:3003'
-const logoPath = path.join(root, 'logoUnit.jpeg')
+const logoPath = path.join(root, 'deploy/branding/logo.jpeg')
 
 function loadEnv() {
   const env = {}
@@ -96,7 +96,7 @@ const supabaseUrl = env.NEXT_PUBLIC_SUPABASE_URL
 const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!fs.existsSync(logoPath)) {
-  console.error('FAIL logo_file :: logoUnit.jpeg não encontrado na raiz do projeto')
+  console.error('FAIL logo_file :: deploy/branding/logo.jpeg não encontrado')
   process.exit(1)
 }
 

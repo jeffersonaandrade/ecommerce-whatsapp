@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { StoreSettingsInput } from '@/types/store-settings'
+import { readBrandingLogoSourceBuffer } from './branding-logo-source'
 
 export type DefaultStorefrontVisualPreset = Pick<
   StoreSettingsInput,
@@ -35,9 +36,9 @@ export function readDefaultStorefrontHeroBuffer(): Buffer {
 }
 
 export function readDefaultStorefrontLogoSourceBuffer(): Buffer {
-  const logoPath = path.join(presetDir, 'branding/logo-source.png')
-  if (fs.existsSync(logoPath)) {
-    return fs.readFileSync(logoPath)
+  const fromDeployBranding = readBrandingLogoSourceBuffer()
+  if (fromDeployBranding) {
+    return fromDeployBranding
   }
   return readDefaultStorefrontHeroBuffer()
 }
