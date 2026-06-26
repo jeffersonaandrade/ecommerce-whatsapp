@@ -1,7 +1,12 @@
 import 'server-only'
 
-import { Product } from '@/types/product'
+import { Product, ProductStatus } from '@/types/product'
 import { ProductInput, ProductRepository } from './product-repository'
+import type {
+  ProductQuery,
+  ProductQueryResult,
+  ProductStatusCounts,
+} from '@/lib/query'
 import { loadCatalogFromDisk, persistCatalog } from './catalog-storage'
 import {
   assignVariationIds,
@@ -34,6 +39,7 @@ function buildProduct(input: ProductInput, existing: Product[]): Product {
     images: input.images.filter(Boolean).slice(0, 5),
     variations: assignVariationIds(input.variations),
     status: input.status,
+    importBatchId: input.importBatchId,
   }
 }
 
@@ -79,6 +85,7 @@ export const jsonProductRepository: ProductRepository = {
       images: input.images.filter(Boolean).slice(0, 5),
       variations: assignVariationIds(input.variations, products[index].variations),
       status: input.status,
+      importBatchId: input.importBatchId ?? products[index].importBatchId,
     }
     const next = [...products]
     next[index] = updated
@@ -94,4 +101,106 @@ export const jsonProductRepository: ProductRepository = {
   async saveAll(products: Product[]): Promise<void> {
     persistCatalog(products)
   },
+
+  async query(q: ProductQuery): Promise<ProductQueryResult> {
+    const all = loadCatalogFromDisk()
+    const { filters = {}, sort = {}, pagination = {} } = q
+    const page = Math.max(1, pagination.page ?? 1)
+    const pageSize = pagination.pageSize ?? 25
+
+    // counts are computed against all products (ignoring status filter)
+    const countsBase = filters.search
+      ? all.filter((p) => matchesSearch(p, filters.search!))
+      : all
+
+    const counts: ProductStatusCounts = countsBase.reduce(
+      (acc, p) => {
+        acc.all++
+        if (p.status === 'active') acc.active++
+        else if (p.status === 'draft') acc.draft++
+        else if (p.status === 'unavailable') acc.unavailable++
+        const stock = p.variations.reduce((s, v) => s + v.stock, 0)
+        if (stock === 0) acc.noStock++
+        return acc
+      },
+      { all: 0, active: 0, draft: 0, unavailable: 0, noStock: 0 }
+    )
+
+    let filtered = all
+
+    if (filters.status?.length) {
+      filtered = filtered.filter((p) => filters.status!.includes(p.status))
+    }
+    if (filters.category) {
+      const cat = filters.category.toLowerCase()
+      filtered = filtered.filter((p) => p.category.toLowerCase() === cat)
+    }
+    if (filters.hasStock === true) {
+      filtered = filtered.filter(
+        (p) => p.variations.reduce((s, v) => s + v.stock, 0) > 0
+      )
+    }
+    if (filters.hasDiscount === true) {
+      filtered = filtered.filter(
+        (p) => p.promotionalPrice != null && p.promotionalPrice < p.price
+      )
+    }
+    if (filters.search) {
+      filtered = filtered.filter((p) => matchesSearch(p, filters.search!))
+    }
+    if (filters.batchId) {
+      filtered = filtered.filter((p) => p.importBatchId === filters.batchId)
+    }
+
+    // sort
+    const by = sort.by ?? 'createdAt'
+    const asc = sort.dir === 'asc'
+    filtered = [...filtered].sort((a, b) => {
+      let cmp = 0
+      if (by === 'name') {
+        cmp = a.name.localeCompare(b.name, 'pt-BR')
+      } else if (by === 'price') {
+        cmp = a.price - b.price
+      } else {
+        // createdAt: use numeric id as proxy (higher id = newer)
+        cmp = parseInt(a.id, 10) - parseInt(b.id, 10)
+      }
+      return asc ? cmp : -cmp
+    })
+
+    const total = filtered.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+    const offset = (page - 1) * pageSize
+    const products = filtered.slice(offset, offset + pageSize)
+
+    return { products, total, page, pageSize, totalPages, counts }
+  },
+
+  async bulkSetStatus(ids: string[], status: ProductStatus): Promise<void> {
+    const products = loadCatalogFromDisk()
+    const idSet = new Set(ids)
+    persistCatalog(
+      products.map((p) => (idSet.has(p.id) ? { ...p, status } : p))
+    )
+  },
+
+  async bulkSetCategory(ids: string[], category: string): Promise<void> {
+    const products = loadCatalogFromDisk()
+    const idSet = new Set(ids)
+    persistCatalog(
+      products.map((p) => (idSet.has(p.id) ? { ...p, category } : p))
+    )
+  },
+
+  async deleteMany(ids: string[]): Promise<void> {
+    const products = loadCatalogFromDisk()
+    const idSet = new Set(ids)
+    persistCatalog(products.filter((p) => !idSet.has(p.id)))
+  },
+}
+
+function matchesSearch(p: Product, search: string): boolean {
+  const q = search.toLowerCase()
+  if (p.name.toLowerCase().includes(q)) return true
+  return p.variations.some((v) => v.sku.toLowerCase().includes(q))
 }

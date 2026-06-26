@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getButtonClassName } from '@/components/ui/button'
 import {
@@ -19,11 +20,22 @@ const TEMPLATE_PATH = '/templates/importacao-produtos-exemplo.csv'
 
 type WizardStep = 'upload' | 'preview' | 'result'
 
-export function ImportWizard() {
+type ImportWizardProps = {
+  importStatusPolicy?: 'active' | 'draft'
+}
+
+const POLICY_LABEL: Record<string, string> = {
+  active: 'Ativar automaticamente',
+  draft: 'Manter como Rascunho',
+}
+
+export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps) {
+  const router = useRouter()
   const [step, setStep] = useState<WizardStep>('upload')
   const [file, setFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<ImportPreview | null>(null)
   const [result, setResult] = useState<ImportApplyResult | null>(null)
+  const [batchId, setBatchId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -66,7 +78,9 @@ export function ImportWizard() {
       }
 
       setResult(response.result)
+      setBatchId(response.batchId)
       setStep('result')
+      router.push(`/admin/products?batch=${response.batchId}`)
     })
   }
 
@@ -75,6 +89,7 @@ export function ImportWizard() {
     setFile(null)
     setPreview(null)
     setResult(null)
+    setBatchId(null)
     setError(null)
   }
 
@@ -121,6 +136,14 @@ export function ImportWizard() {
             <p className="mt-2 text-sm text-mute">
               Baixe o template, preencha com seus produtos e selecione o arquivo
               CSV para continuar.
+            </p>
+            <p className="mt-2 text-xs text-mute">
+              Política atual:{' '}
+              <span className="font-medium text-ink">
+                {POLICY_LABEL[importStatusPolicy] ?? 'Rascunho'}
+              </span>{' '}
+              (para alterar, acesse{' '}
+              <a href="/admin/settings" className="underline">Configurações</a>)
             </p>
           </div>
 
@@ -189,9 +212,19 @@ export function ImportWizard() {
                 <dd className="text-2xl font-bold text-amber-600">{preview.stats.warningCount}</dd>
               </div>
             </dl>
+            <dl className="mt-3 grid grid-cols-2 gap-4 border-t border-hairline pt-3 sm:grid-cols-2">
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-mute">Novos</dt>
+                <dd className="text-lg font-semibold text-ink">{preview.stats.newProducts}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-mute">Atualizações</dt>
+                <dd className="text-lg font-semibold text-ink">{preview.stats.updateProducts}</dd>
+              </div>
+            </dl>
           </div>
 
-          <ImportPreviewTable preview={preview} />
+          <ImportPreviewTable preview={preview} policy={importStatusPolicy} />
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button

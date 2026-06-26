@@ -1,4 +1,5 @@
-import { Product } from '@/types/product'
+import { Product, ProductStatus } from '@/types/product'
+import type { ProductQuery, ProductQueryResult } from '@/lib/query'
 
 export type VariationInput = {
   id?: string
@@ -25,4 +26,8 @@ export interface ProductRepository {
   update(id: string, input: ProductInput): Promise<Product>
   delete(id: string): Promise<void>
   saveAll(products: Product[]): Promise<void>
+  query(q: ProductQuery): Promise<ProductQueryResult>
+  bulkSetStatus(ids: string[], status: ProductStatus): Promise<void>
+  bulkSetCategory(ids: string[], category: string): Promise<void>
+  deleteMany(ids: string[]): Promise<void>
 }

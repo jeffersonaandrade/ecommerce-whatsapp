@@ -12,6 +12,7 @@ export type ProductRow = {
   club: string | null
   images: string[]
   status: ProductStatus
+  import_batch_id: string | null
   created_at?: string
   updated_at?: string
 }
@@ -49,6 +50,7 @@ export function rowsToProduct(
       stock: v.stock,
     })),
     status: row.status,
+    importBatchId: row.import_batch_id ?? undefined,
   }
 }
 
@@ -65,6 +67,7 @@ export function productToRow(product: Product): ProductRow {
     club: product.club ?? null,
     images: product.images,
     status: product.status,
+    import_batch_id: product.importBatchId ?? null,
     updated_at: new Date().toISOString(),
   }
 }

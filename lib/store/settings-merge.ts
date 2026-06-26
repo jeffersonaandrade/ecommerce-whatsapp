@@ -4,6 +4,7 @@ import {
   DEFAULT_SECONDARY_COLOR,
   isValidHexColor,
 } from './settings-defaults'
+import { normalizeHeaderBrandDisplay } from './header-brand-display'
 
 function normalizeColor(value: string | undefined, fallback: string): string {
   if (!value) return fallback
@@ -47,6 +48,16 @@ export function mergeStoreSettings(
     cityState: input.cityState?.trim() ?? current.cityState,
     businessHours: input.businessHours?.trim() ?? current.businessHours,
     exchangePolicyText: input.exchangePolicyText?.trim() ?? current.exchangePolicyText,
+    importStatusPolicy:
+      input.importStatusPolicy === 'active' || input.importStatusPolicy === 'draft'
+        ? input.importStatusPolicy
+        : current.importStatusPolicy,
+    headerBrandDisplay: normalizeHeaderBrandDisplay(
+      input.headerBrandDisplay,
+      current.headerBrandDisplay
+    ),
+    benefitsEyebrow: input.benefitsEyebrow?.trim() ?? current.benefitsEyebrow,
+    benefitsTitle: input.benefitsTitle?.trim() ?? current.benefitsTitle,
     updatedAt: new Date().toISOString(),
   }
 }

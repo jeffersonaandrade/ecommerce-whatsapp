@@ -1,7 +1,7 @@
 import { ParsedProduct, ImportApplyResult } from './types'
 import { ProductInput, ProductRepository, VariationInput } from '@/lib/catalog/product-repository'
 import { deriveShortDescription } from '@/lib/catalog/product-utils'
-import { Product } from '@/types/product'
+import { Product, ProductStatus } from '@/types/product'
 
 function stripHtml(html: string): string {
   return html
@@ -24,7 +24,24 @@ function deriveShortFromHtml(html: string): string {
   return `${text.slice(0, end).trimEnd()}...`
 }
 
-function toProductInput(parsed: ParsedProduct): ProductInput {
+type ApplyImportOptions = {
+  policy: 'active' | 'draft'
+  batchId: string
+  existingBySlug: Map<string, Product>
+}
+
+function resolveStatus(
+  parsed: ParsedProduct,
+  existing: Product | undefined,
+  policy: 'active' | 'draft'
+): ProductStatus {
+  if (parsed.statusFromCsv) return parsed.statusFromCsv
+  if (existing) return existing.status
+  return policy
+}
+
+function toProductInput(parsed: ParsedProduct, options: ApplyImportOptions): ProductInput {
+  const existing = options.existingBySlug.get(parsed.slug)
   const longDescription = parsed.longDescription.trim()
   return {
     slug: parsed.slug,
@@ -42,7 +59,8 @@ function toProductInput(parsed: ParsedProduct): ProductInput {
       size: v.size,
       color: v.color,
     })),
-    status: parsed.images.length > 0 ? 'active' : 'draft',
+    status: resolveStatus(parsed, existing, options.policy),
+    importBatchId: options.batchId,
   }
 }
 
@@ -80,7 +98,8 @@ function mergeVariations(
 
 export async function applyImport(
   products: ParsedProduct[],
-  repo: ProductRepository
+  repo: ProductRepository,
+  options: ApplyImportOptions
 ): Promise<ImportApplyResult> {
   const started = performance.now()
   const snapshot = structuredClone(await repo.getAll())
@@ -95,8 +114,8 @@ export async function applyImport(
         continue
       }
 
-      const input = toProductInput(parsed)
-      const existing = await repo.getBySlug(parsed.slug)
+      const existing = options.existingBySlug.get(parsed.slug)
+      const input = toProductInput(parsed, options)
 
       if (existing) {
         const merged = mergeVariations(existing, input)
@@ -112,5 +131,11 @@ export async function applyImport(
     throw error
   }
 
-  return { created, updated, skipped, durationMs: Math.round(performance.now() - started) }
+  return {
+    created,
+    updated,
+    skipped,
+    durationMs: Math.round(performance.now() - started),
+    batchId: options.batchId,
+  }
 }

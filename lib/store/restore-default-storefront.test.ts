@@ -14,6 +14,9 @@ describe('buildRestoreStorefrontPatch', () => {
       instagram: '@loja',
       facebook: 'fb.com/loja',
       whatsappMessagePrefix: 'Olá!',
+      headerBrandDisplay: 'logo_only' as const,
+      benefitsEyebrow: 'Eyebrow custom',
+      benefitsTitle: 'Título custom',
       description: 'Descrição customizada QA',
       primaryColor: '#dc2626',
     }
@@ -31,6 +34,9 @@ describe('buildRestoreStorefrontPatch', () => {
     expect(patch.instagram).toBe('@loja')
     expect(patch.facebook).toBe('fb.com/loja')
     expect(patch.whatsappMessagePrefix).toBe('Olá!')
+    expect(patch.headerBrandDisplay).toBe('logo_only')
+    expect(patch.benefitsEyebrow).toBe('Eyebrow custom')
+    expect(patch.benefitsTitle).toBe('Título custom')
     expect(patch.description).toBe('Sua loja esportiva de confiança')
     expect(patch.primaryColor).toBe('#111111')
     expect(patch.heroHeadline).toBe('Vista o jogo')

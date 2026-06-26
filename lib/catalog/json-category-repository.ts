@@ -2,6 +2,7 @@ import 'server-only'
 
 import { siteConfig } from '@/config/site'
 import { Category, CategoryInput } from '@/types/category'
+import type { CategoryQuery, CategoryQueryResult } from '@/lib/query'
 import { loadCatalogFromDisk } from './catalog-storage'
 import {
   generateCategorySlug,
@@ -78,6 +79,7 @@ function buildCategory(input: CategoryInput, existing: Category[]): Category {
     description: input.description?.trim() ?? '',
     sortOrder: input.sortOrder ?? (existing.length + 1) * 10,
     visible: input.visible ?? true,
+    imagePath: input.imagePath ?? undefined,
     createdAt: timestamp,
     updatedAt: timestamp,
   }
@@ -126,6 +128,7 @@ export const jsonCategoryRepository: CategoryRepository = {
       description: input.description?.trim() ?? '',
       sortOrder: input.sortOrder ?? categories[index].sortOrder,
       visible: input.visible ?? categories[index].visible,
+      imagePath: 'imagePath' in input ? (input.imagePath ?? undefined) : categories[index].imagePath,
       updatedAt: nowIso(),
     }
     const next = [...categories]
@@ -137,5 +140,32 @@ export const jsonCategoryRepository: CategoryRepository = {
   async delete(id: string): Promise<void> {
     const categories = ensureCategoriesLoaded()
     persistCategories(categories.filter((c) => c.id !== id))
+  },
+
+  async query(q: CategoryQuery): Promise<CategoryQueryResult> {
+    const { filters = {}, pagination = {} } = q
+    const page = Math.max(1, pagination.page ?? 1)
+    const pageSize = pagination.pageSize ?? 25
+
+    let filtered = sortCategories(ensureCategoriesLoaded())
+
+    if (filters.visible !== undefined) {
+      filtered = filtered.filter((c) => c.visible === filters.visible)
+    }
+    if (filters.search) {
+      const s = filters.search.toLowerCase()
+      filtered = filtered.filter(
+        (c) =>
+          c.name.toLowerCase().includes(s) ||
+          c.slug.toLowerCase().includes(s)
+      )
+    }
+
+    const total = filtered.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+    const offset = (page - 1) * pageSize
+    const categories = filtered.slice(offset, offset + pageSize)
+
+    return { categories, total, page, pageSize, totalPages }
   },
 }

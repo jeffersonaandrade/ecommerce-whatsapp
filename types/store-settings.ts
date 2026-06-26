@@ -1,3 +1,5 @@
+export type HeaderBrandDisplay = 'both' | 'logo_only' | 'name_only'
+
 export type StoreSettings = {
   storeName: string
   description: string
@@ -23,6 +25,10 @@ export type StoreSettings = {
   cityState: string
   businessHours: string
   exchangePolicyText: string
+  importStatusPolicy: 'active' | 'draft'
+  headerBrandDisplay: HeaderBrandDisplay
+  benefitsEyebrow: string
+  benefitsTitle: string
   updatedAt: string
 }
 

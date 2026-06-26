@@ -1,5 +1,6 @@
 import { CSV_COLUMNS } from './columns'
 import { CsvRow, ParsedProduct, ParsedVariation } from './types'
+import { ProductStatus } from '@/types/product'
 
 function parseNumber(value: string): number | null {
   const normalized = value.replace(/\s/g, '').replace(',', '.')
@@ -24,6 +25,14 @@ function parseImageUrls(raw: string): string[] {
     urls.push(url)
   }
   return urls
+}
+
+export function parseImportStatus(raw: string): ProductStatus | undefined {
+  const v = raw.trim().toLowerCase()
+  if (v === 'active' || v === 'ativo') return 'active'
+  if (v === 'draft' || v === 'rascunho') return 'draft'
+  if (v === 'unavailable' || v === 'indisponível' || v === 'indisponivel') return 'unavailable'
+  return undefined
 }
 
 function mapVariationAttributes(row: CsvRow): Pick<ParsedVariation, 'size' | 'color'> {
@@ -93,7 +102,10 @@ function productFieldsMatch(a: ReturnType<typeof rowProductFields>, b: ReturnTyp
   )
 }
 
-export function groupRowsBySlug(rows: CsvRow[]): ParsedProduct[] {
+export function groupRowsBySlug(
+  rows: CsvRow[],
+  statusWarnings?: Array<{ slug: string; row: number; raw: string }>
+): ParsedProduct[] {
   const groups = new Map<string, CsvRow[]>()
 
   for (const row of rows) {
@@ -115,6 +127,15 @@ export function groupRowsBySlug(rows: CsvRow[]): ParsedProduct[] {
       if (variation) variations.push(variation)
     }
 
+    const rawStatus = groupRows[0][CSV_COLUMNS.status]?.trim() ?? ''
+    let statusFromCsv: ProductStatus | undefined
+    if (rawStatus) {
+      statusFromCsv = parseImportStatus(rawStatus)
+      if (!statusFromCsv && statusWarnings) {
+        statusWarnings.push({ slug, row: groupRows[0].__rowNumber, raw: rawStatus })
+      }
+    }
+
     products.push({
       slug,
       name: firstFields.name,
@@ -126,6 +147,7 @@ export function groupRowsBySlug(rows: CsvRow[]): ParsedProduct[] {
       images: firstFields.images,
       variations,
       rowNumbers: groupRows.map((r) => r.__rowNumber),
+      statusFromCsv,
     })
   }
 

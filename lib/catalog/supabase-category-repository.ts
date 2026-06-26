@@ -2,6 +2,7 @@ import 'server-only'
 
 import { Category, CategoryInput } from '@/types/category'
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { CategoryQuery, CategoryQueryResult } from '@/lib/query'
 import {
   generateCategorySlug,
   isStorefrontCategoryEntity,
@@ -108,5 +109,37 @@ export const supabaseCategoryRepository: CategoryRepository = {
     const supabase = createAdminClient()
     const { error } = await supabase.from('categories').delete().eq('id', id)
     if (error) throw new Error(`category delete failed: ${error.message}`)
+  },
+
+  async query(q: CategoryQuery): Promise<CategoryQueryResult> {
+    const supabase = createAdminClient()
+    const { filters = {}, pagination = {} } = q
+    const page = Math.max(1, pagination.page ?? 1)
+    const pageSize = pagination.pageSize ?? 25
+    const offset = (page - 1) * pageSize
+
+    let qb = supabase
+      .from('categories')
+      .select('*', { count: 'exact' })
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true })
+
+    if (filters.visible !== undefined) qb = qb.eq('visible', filters.visible)
+    if (filters.search) {
+      qb = qb.or(`name.ilike.%${filters.search}%,slug.ilike.%${filters.search}%`)
+    }
+
+    qb = qb.range(offset, offset + pageSize - 1)
+
+    const { data, error, count } = await qb
+    if (error) throw new Error(`categories query failed: ${error.message}`)
+
+    const categories = sortCategories(
+      (data ?? []).map((row) => rowToCategory(row as CategoryRow))
+    )
+    const total = count ?? categories.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+    return { categories, total, page, pageSize, totalPages }
   },
 }

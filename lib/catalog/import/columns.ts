@@ -20,6 +20,7 @@ export const CSV_COLUMNS = {
   variationName3: 'Nome da variação 3',
   variationValue3: 'Valor da variação 3',
   imageUrls: 'image_urls',
+  status: 'status',
 } as const
 
 export const REQUIRED_HEADERS = [

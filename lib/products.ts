@@ -1,5 +1,6 @@
 import { Product } from '@/types/product'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
+import type { ProductQuery, ProductQueryResult } from '@/lib/query'
 import { productMatchesCategoryFilter } from '@/lib/catalog/category-utils'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
 import { getStorefrontCategories } from '@/lib/categories'
@@ -57,4 +58,8 @@ export async function getCategoriesAdmin(): Promise<string[]> {
   const categories = new Set<string>()
   ;(await getAllProductsAdmin()).forEach((p) => categories.add(p.category))
   return Array.from(categories).sort()
+}
+
+export async function queryProductsAdmin(q: ProductQuery): Promise<ProductQueryResult> {
+  return getProductRepository().query(q)
 }

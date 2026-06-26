@@ -41,16 +41,10 @@ function resizeContainedSquare(image, size, background) {
 }
 
 async function buildHeaderLogoWebp(sourceBuffer) {
-  const image = sharp(sourceBuffer).rotate()
   const logoBackground = { r: 0, g: 0, b: 0, alpha: 0 }
-  let prepared = image.clone()
-  try {
-    prepared = prepared.trim({ threshold: 15 })
-  } catch {
-    // noop
-  }
-  return prepared
-    .resize(512, 128, { fit: 'inside', background: logoBackground })
+  return sharp(sourceBuffer)
+    .rotate()
+    .resize(512, 512, { fit: 'inside', background: logoBackground })
     .webp({ quality: 90 })
     .toBuffer()
 }
@@ -208,10 +202,11 @@ for (const asset of ['logo.webp', 'favicon-32.png', 'favicon-16.png', 'apple-tou
 }
 
 const logoMeta = await sharp(logoWebp).metadata()
-if (logoMeta.width && logoMeta.height && logoMeta.width > logoMeta.height) {
+const aspectRatio = (logoMeta.width ?? 1) / (logoMeta.height ?? 1)
+if (logoMeta.width && logoMeta.height && Math.abs(aspectRatio - 1) < 0.05) {
   pass('logo_webp_aspect', `${logoMeta.width}x${logoMeta.height}`)
 } else {
-  fail('logo_webp_aspect', `${logoMeta.width}x${logoMeta.height}`)
+  fail('logo_webp_aspect', `${logoMeta.width}x${logoMeta.height} — esperado quadrado`)
 }
 
 const browser = await chromium.launch({ headless: true })
@@ -272,10 +267,11 @@ try {
 
   const displayW = clientSize.width || box?.width || 0
   const displayH = clientSize.height || box?.height || 0
-  if (displayW > displayH * 1.2) {
+  const displayRatio = displayW / (displayH || 1)
+  if (displayW > 0 && Math.abs(displayRatio - 1) < 0.25) {
     pass('vitrine_logo_shape', `${Math.round(displayW)}x${Math.round(displayH)}`)
   } else if (displayW > 0) {
-    fail('vitrine_logo_shape', `${Math.round(displayW)}x${Math.round(displayH)} — esperado largura > altura`)
+    fail('vitrine_logo_shape', `${Math.round(displayW)}x${Math.round(displayH)} — esperado quadrado`)
   } else {
     fail('vitrine_logo_shape', 'sem dimensões')
   }

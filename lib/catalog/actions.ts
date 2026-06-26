@@ -179,3 +179,48 @@ export async function uploadProductImageAction(
     return { ok: false, error: message }
   }
 }
+
+export async function bulkSetProductStatusAction(
+  ids: string[],
+  status: ProductStatus
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
+  try {
+    await getProductRepository().bulkSetStatus(ids, status)
+    revalidateCatalog()
+    return { ok: true, count: ids.length }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao atualizar.' }
+  }
+}
+
+export async function bulkSetProductCategoryAction(
+  ids: string[],
+  category: string
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
+  if (!category.trim()) return { ok: false, error: 'Categoria inválida.' }
+  try {
+    await getProductRepository().bulkSetCategory(ids, category.trim())
+    revalidateCatalog()
+    return { ok: true, count: ids.length }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao atualizar.' }
+  }
+}
+
+export async function bulkDeleteProductsAction(
+  ids: string[]
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
+  try {
+    await getProductRepository().deleteMany(ids)
+    revalidateCatalog()
+    return { ok: true, count: ids.length }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao excluir.' }
+  }
+}

@@ -9,8 +9,11 @@ import {
   createCategoryAction,
   deleteCategoryAction,
   updateCategoryAction,
+  uploadCategoryImageAction,
+  removeCategoryImageAction,
   type CategoryFormPayload,
 } from '@/lib/catalog/category-actions'
+import { categoryImageUrl } from '@/lib/catalog/category-image-url'
 
 type CategoryFormProps = {
   mode: 'create' | 'edit'
@@ -50,6 +53,11 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
   const [errors, setErrors] = useState<string[]>([])
   const [success, setSuccess] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [isImagePending, startImageTransition] = useTransition()
+  const [imageError, setImageError] = useState<string | null>(null)
+  const [imageSuccess, setImageSuccess] = useState<string | null>(null)
+  const [currentImagePath, setCurrentImagePath] = useState(category?.imagePath ?? null)
 
   function handleNameChange(value: string) {
     setName(value)
@@ -91,6 +99,39 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
         } else {
           setErrors(result.errors)
         }
+      }
+    })
+  }
+
+  function handleImageUpload() {
+    if (!category || !imageFile) return
+    setImageError(null)
+    setImageSuccess(null)
+    startImageTransition(async () => {
+      const formData = new FormData()
+      formData.set('image', imageFile)
+      const result = await uploadCategoryImageAction(category.id, formData)
+      if (result.ok) {
+        setCurrentImagePath(`categories/${category.id}.webp`)
+        setImageFile(null)
+        setImageSuccess('Imagem enviada com sucesso.')
+      } else {
+        setImageError(result.error)
+      }
+    })
+  }
+
+  function handleImageRemove() {
+    if (!category) return
+    setImageError(null)
+    setImageSuccess(null)
+    startImageTransition(async () => {
+      const result = await removeCategoryImageAction(category.id)
+      if (result.ok) {
+        setCurrentImagePath(null)
+        setImageSuccess('Imagem removida.')
+      } else {
+        setImageError(result.error)
       }
     })
   }
@@ -189,6 +230,55 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
           />
         </label>
       </section>
+
+      {mode === 'edit' && category && (
+        <section className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <h3 className="text-sm font-medium text-gray-700">Imagem da categoria</h3>
+          <p className="text-xs text-gray-500">
+            Exibida como card visual na vitrine. Upload independente de Salvar. PNG, JPG ou WebP, máx. 2 MB.
+          </p>
+          {imageError && (
+            <p className="text-xs text-red-600">{imageError}</p>
+          )}
+          {imageSuccess && (
+            <p className="text-xs text-green-600">{imageSuccess}</p>
+          )}
+          {currentImagePath && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={categoryImageUrl(category.id, category.updatedAt)}
+              alt="Imagem atual da categoria"
+              className="h-24 w-full rounded-lg object-cover"
+            />
+          )}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            disabled={isImagePending}
+            className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-gray-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-700"
+          />
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              disabled={isImagePending || !imageFile}
+              onClick={handleImageUpload}
+            >
+              {isImagePending ? 'Enviando...' : 'Enviar imagem'}
+            </Button>
+            {currentImagePath && (
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isImagePending}
+                onClick={handleImageRemove}
+              >
+                Remover imagem
+              </Button>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isPending}>

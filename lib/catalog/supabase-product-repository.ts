@@ -1,8 +1,13 @@
 import 'server-only'
 
-import { Product } from '@/types/product'
+import { Product, ProductStatus } from '@/types/product'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { ProductInput, ProductRepository } from './product-repository'
+import type {
+  ProductQuery,
+  ProductQueryResult,
+  ProductStatusCounts,
+} from '@/lib/query'
 import {
   assignVariationIds,
   deriveShortDescription,
@@ -162,5 +167,131 @@ export const supabaseProductRepository: ProductRepository = {
     for (const product of products) {
       await persistProduct(product)
     }
+  },
+
+  async query(q: ProductQuery): Promise<ProductQueryResult> {
+    const supabase = createAdminClient()
+    const { filters = {}, sort = {}, pagination = {} } = q
+    const page = Math.max(1, pagination.page ?? 1)
+    const pageSize = pagination.pageSize ?? 25
+    const offset = (page - 1) * pageSize
+
+    const orderCol =
+      sort.by === 'name'
+        ? 'name'
+        : sort.by === 'price'
+          ? 'price'
+          : 'id'
+    const ascending = sort.dir === 'asc'
+
+    let qb = supabase
+      .from('products')
+      .select('*, product_variations(*)', { count: 'exact' })
+
+    if (filters.status?.length) qb = qb.in('status', filters.status)
+    if (filters.category) qb = qb.ilike('category', filters.category)
+    if (filters.hasDiscount) qb = qb.not('promotional_price', 'is', null)
+    if (filters.batchId) qb = qb.eq('import_batch_id', filters.batchId)
+    if (filters.search) {
+      // name search; SKU search via second query below
+      qb = qb.ilike('name', `%${filters.search}%`)
+    }
+
+    qb = qb
+      .order(orderCol, { ascending })
+      .range(offset, offset + pageSize - 1)
+
+    const { data, error, count } = await qb
+
+    if (error) throw new Error(`products query failed: ${error.message}`)
+
+    let products = ((data ?? []) as (ProductRow & { product_variations: ProductVariationRow[] })[]).map(
+      (row) => rowsToProduct(row, row.product_variations ?? [])
+    )
+
+    // SKU search: find additional products by SKU and merge
+    if (filters.search) {
+      const { data: varRows } = await supabase
+        .from('product_variations')
+        .select('product_id')
+        .ilike('sku', `%${filters.search}%`)
+
+      const skuProductIds = new Set((varRows ?? []).map((r: { product_id: string }) => r.product_id))
+      const existingIds = new Set(products.map((p) => p.id))
+      const missing = [...skuProductIds].filter((id) => !existingIds.has(id))
+      if (missing.length) {
+        const { data: extra } = await supabase
+          .from('products')
+          .select('*, product_variations(*)')
+          .in('id', missing)
+        const extraProducts = ((extra ?? []) as (ProductRow & { product_variations: ProductVariationRow[] })[]).map(
+          (row) => rowsToProduct(row, row.product_variations ?? [])
+        )
+        products = [...products, ...extraProducts]
+      }
+    }
+
+    // hasStock filter (post-fetch, requires variation data)
+    if (filters.hasStock === true) {
+      products = products.filter(
+        (p) => p.variations.reduce((s, v) => s + v.stock, 0) > 0
+      )
+    }
+
+    // counts: one GROUP BY query ignoring status filter
+    const countsResult = await supabase.rpc('get_product_status_counts').maybeSingle()
+
+    let counts: ProductStatusCounts
+    if (countsResult.error || !countsResult.data) {
+      // fallback: derive from full fetch (only if RPC not available)
+      const all = await fetchAllProducts()
+      counts = all.reduce(
+        (acc, p) => {
+          acc.all++
+          if (p.status === 'active') acc.active++
+          else if (p.status === 'draft') acc.draft++
+          else if (p.status === 'unavailable') acc.unavailable++
+          const stock = p.variations.reduce((s, v) => s + v.stock, 0)
+          if (stock === 0) acc.noStock++
+          return acc
+        },
+        { all: 0, active: 0, draft: 0, unavailable: 0, noStock: 0 }
+      )
+    } else {
+      counts = countsResult.data as ProductStatusCounts
+    }
+
+    const total = count ?? products.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+
+    return { products, total, page, pageSize, totalPages, counts }
+  },
+
+  async bulkSetStatus(ids: string[], status: ProductStatus): Promise<void> {
+    if (!ids.length) return
+    const supabase = createAdminClient()
+    const { error } = await supabase
+      .from('products')
+      .update({ status })
+      .in('id', ids)
+    if (error) throw new Error(`bulkSetStatus failed: ${error.message}`)
+  },
+
+  async bulkSetCategory(ids: string[], category: string): Promise<void> {
+    if (!ids.length) return
+    const supabase = createAdminClient()
+    const { error } = await supabase
+      .from('products')
+      .update({ category })
+      .in('id', ids)
+    if (error) throw new Error(`bulkSetCategory failed: ${error.message}`)
+  },
+
+  async deleteMany(ids: string[]): Promise<void> {
+    if (!ids.length) return
+    const supabase = createAdminClient()
+    await supabase.from('product_variations').delete().in('product_id', ids)
+    const { error } = await supabase.from('products').delete().in('id', ids)
+    if (error) throw new Error(`deleteMany failed: ${error.message}`)
   },
 }

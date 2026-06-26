@@ -2,6 +2,7 @@ import 'server-only'
 
 import { Category } from '@/types/category'
 import { getCategoryRepository } from './catalog/get-category-repository'
+import type { CategoryQuery, CategoryQueryResult } from '@/lib/query'
 import { siteConfig } from '@/config/site'
 import { generateCategorySlug, sortCategories } from './catalog/category-utils'
 
@@ -35,4 +36,8 @@ export async function getCategoryById(id: string): Promise<Category | undefined>
 
 export async function getCategoryBySlug(slug: string): Promise<Category | undefined> {
   return getCategoryRepository().getBySlug(slug)
+}
+
+export async function queryCategoriesAdmin(q: CategoryQuery): Promise<CategoryQueryResult> {
+  return getCategoryRepository().query(q)
 }

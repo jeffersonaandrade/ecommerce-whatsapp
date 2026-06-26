@@ -5,6 +5,7 @@ export type Category = {
   description: string
   sortOrder: number
   visible: boolean
+  imagePath?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -15,4 +16,5 @@ export type CategoryInput = {
   description?: string
   sortOrder?: number
   visible?: boolean
+  imagePath?: string | null
 }

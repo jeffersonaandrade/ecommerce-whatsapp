@@ -8,6 +8,13 @@ type Filter = 'all' | 'valid' | 'errors'
 
 type ImportPreviewTableProps = {
   preview: ImportPreview
+  policy?: 'active' | 'draft'
+}
+
+const STATUS_LABEL: Record<string, string> = {
+  active: 'Ativo',
+  draft: 'Rascunho',
+  unavailable: 'Indisponível',
 }
 
 function productHasError(preview: ImportPreview, slug: string): boolean {
@@ -16,7 +23,7 @@ function productHasError(preview: ImportPreview, slug: string): boolean {
   )
 }
 
-export function ImportPreviewTable({ preview }: ImportPreviewTableProps) {
+export function ImportPreviewTable({ preview, policy = 'draft' }: ImportPreviewTableProps) {
   const [filter, setFilter] = useState<Filter>('all')
   const validSlugs = useMemo(
     () => new Set(getValidProducts(preview).map((p) => p.slug)),
@@ -85,6 +92,7 @@ export function ImportPreviewTable({ preview }: ImportPreviewTableProps) {
               <th className="px-4 py-3">Categoria</th>
               <th className="px-4 py-3">Variações</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Validação</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-hairline bg-canvas">
@@ -97,6 +105,17 @@ export function ImportPreviewTable({ preview }: ImportPreviewTableProps) {
                   <td className="px-4 py-3">{product.name}</td>
                   <td className="px-4 py-3">{product.category}</td>
                   <td className="px-4 py-3">{product.variations.length}</td>
+                  <td className="px-4 py-3">
+                    {product.statusFromCsv ? (
+                      <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
+                        {STATUS_LABEL[product.statusFromCsv] ?? product.statusFromCsv} (CSV)
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-soft-cloud px-2 py-0.5 text-xs font-medium text-mute">
+                        {STATUS_LABEL[policy] ?? policy} (política)
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${

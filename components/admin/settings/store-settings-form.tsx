@@ -11,6 +11,7 @@ import {
   getStoreSettingsAction,
 } from '@/lib/store/actions'
 import { brandingAssetUrl } from '@/lib/store/branding-url'
+import { normalizeHeaderBrandDisplay } from '@/lib/store/header-brand-display'
 import { AppearancePreview } from './appearance-preview'
 
 type StoreSettingsFormProps = {
@@ -94,6 +95,11 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         cityState: String(data.get('cityState') ?? ''),
         businessHours: String(data.get('businessHours') ?? ''),
         exchangePolicyText: String(data.get('exchangePolicyText') ?? ''),
+        importStatusPolicy: data.get('importStatusPolicy') === 'active' ? 'active' : 'draft',
+        headerBrandDisplay: normalizeHeaderBrandDisplay(
+          String(data.get('headerBrandDisplay') ?? ''),
+          settings.headerBrandDisplay
+        ),
       })
 
       if (!result.ok) {
@@ -124,6 +130,11 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         cityState: String(data.get('cityState') ?? ''),
         businessHours: String(data.get('businessHours') ?? ''),
         exchangePolicyText: String(data.get('exchangePolicyText') ?? ''),
+        importStatusPolicy: data.get('importStatusPolicy') === 'active' ? 'active' : 'draft',
+        headerBrandDisplay: normalizeHeaderBrandDisplay(
+          String(data.get('headerBrandDisplay') ?? ''),
+          settings.headerBrandDisplay
+        ),
         updatedAt: result.updatedAt,
       })
       setSuccess('Configurações salvas.')
@@ -163,7 +174,7 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         </div>
       )}
 
-      <form onSubmit={handleSave} className="space-y-8">
+      <form id="store-settings-form" onSubmit={handleSave} className="space-y-8">
         <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
           <h2 className="text-lg font-semibold text-ink">Institucional</h2>
           <div className="space-y-3">
@@ -420,6 +431,41 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
           </label>
         </section>
 
+        <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
+          <h2 className="text-lg font-semibold text-ink">Importação</h2>
+          <p className="text-sm text-mute">
+            Define o status padrão dos produtos criados via importação CSV quando o CSV não especifica status.
+          </p>
+          <div className="space-y-3">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="importStatusPolicy"
+                value="draft"
+                defaultChecked={settings.importStatusPolicy !== 'active'}
+                className="mt-0.5"
+              />
+              <div>
+                <span className="text-sm font-medium text-ink">Manter como Rascunho (recomendado)</span>
+                <p className="text-xs text-mute">Revisar e ativar manualmente antes de publicar</p>
+              </div>
+            </label>
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="radio"
+                name="importStatusPolicy"
+                value="active"
+                defaultChecked={settings.importStatusPolicy === 'active'}
+                className="mt-0.5"
+              />
+              <div>
+                <span className="text-sm font-medium text-ink">Ativar automaticamente</span>
+                <p className="text-xs text-mute">Produtos ficam visíveis na vitrine imediatamente após a importação</p>
+              </div>
+            </label>
+          </div>
+        </section>
+
         <button
           type="submit"
           disabled={isPending}
@@ -435,6 +481,51 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
           Logo e favicon são configurados na implantação da loja. Para solicitar alteração, fale com
           o suporte.
         </p>
+
+        <div className="space-y-3">
+          <p className="text-sm font-medium text-ink">Exibição da marca no topo</p>
+          <p className="text-xs text-mute">
+            A logo é configurada na implantação. Aqui você escolhe apenas como ela aparece no
+            cabeçalho.
+          </p>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="radio"
+              form="store-settings-form"
+              name="headerBrandDisplay"
+              value="both"
+              checked={settings.headerBrandDisplay === 'both'}
+              onChange={() => setSettings({ ...settings, headerBrandDisplay: 'both' })}
+              className="mt-0.5"
+            />
+            <span className="text-sm text-ink">Logo + nome da loja</span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="radio"
+              form="store-settings-form"
+              name="headerBrandDisplay"
+              value="logo_only"
+              checked={settings.headerBrandDisplay === 'logo_only'}
+              onChange={() => setSettings({ ...settings, headerBrandDisplay: 'logo_only' })}
+              className="mt-0.5"
+            />
+            <span className="text-sm text-ink">Apenas logo</span>
+          </label>
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="radio"
+              form="store-settings-form"
+              name="headerBrandDisplay"
+              value="name_only"
+              checked={settings.headerBrandDisplay === 'name_only'}
+              onChange={() => setSettings({ ...settings, headerBrandDisplay: 'name_only' })}
+              className="mt-0.5"
+            />
+            <span className="text-sm text-ink">Apenas nome da loja</span>
+          </label>
+        </div>
+
         <AppearancePreview settings={settings} />
       </section>
 

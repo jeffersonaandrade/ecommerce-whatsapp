@@ -4,21 +4,17 @@ const FAVICON_SIZES = [16, 32, 180, 192, 512]
 export const OG_IMAGE_FILENAME = 'og-default.jpg'
 export const LOGO_FILENAME = 'logo.webp'
 
+const LOGO_MAX_SIZE = 512
+
 function resizeContainedSquare(image, size, background) {
   return image.clone().resize(size, size, { fit: 'contain', background })
 }
 
 async function buildHeaderLogoWebp(sourceBuffer) {
-  const image = sharp(sourceBuffer).rotate()
   const logoBackground = { r: 0, g: 0, b: 0, alpha: 0 }
-  let prepared = image.clone()
-  try {
-    prepared = sharp(await image.clone().trim({ threshold: 15 }).toBuffer())
-  } catch {
-    // noop
-  }
-  return prepared
-    .resize(512, 128, { fit: 'inside', background: logoBackground })
+  return sharp(sourceBuffer)
+    .rotate()
+    .resize(LOGO_MAX_SIZE, LOGO_MAX_SIZE, { fit: 'inside', background: logoBackground })
     .webp({ quality: 90 })
     .toBuffer()
 }

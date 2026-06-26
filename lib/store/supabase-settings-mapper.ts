@@ -1,4 +1,9 @@
 import { StoreSettings } from '@/types/store-settings'
+import { normalizeHeaderBrandDisplay } from './header-brand-display'
+import {
+  DEFAULT_BENEFITS_EYEBROW,
+  DEFAULT_BENEFITS_TITLE,
+} from '@/lib/benefits/constants'
 
 export type StoreSettingsRow = {
   id: string
@@ -26,6 +31,10 @@ export type StoreSettingsRow = {
   city_state: string
   business_hours: string
   exchange_policy_text: string
+  import_status_policy: string
+  header_brand_display?: string | null
+  benefits_eyebrow?: string | null
+  benefits_title?: string | null
   updated_at: string
 }
 
@@ -55,6 +64,10 @@ export function rowToStoreSettings(row: StoreSettingsRow): StoreSettings {
     cityState: row.city_state,
     businessHours: row.business_hours,
     exchangePolicyText: row.exchange_policy_text,
+    importStatusPolicy: row.import_status_policy === 'active' ? 'active' : 'draft',
+    headerBrandDisplay: normalizeHeaderBrandDisplay(row.header_brand_display),
+    benefitsEyebrow: row.benefits_eyebrow?.trim() || DEFAULT_BENEFITS_EYEBROW,
+    benefitsTitle: row.benefits_title?.trim() || DEFAULT_BENEFITS_TITLE,
     updatedAt: row.updated_at,
   }
 }
@@ -86,6 +99,10 @@ export function storeSettingsToRow(settings: StoreSettings): StoreSettingsRow {
     city_state: settings.cityState,
     business_hours: settings.businessHours,
     exchange_policy_text: settings.exchangePolicyText,
+    import_status_policy: settings.importStatusPolicy,
+    header_brand_display: settings.headerBrandDisplay,
+    benefits_eyebrow: settings.benefitsEyebrow,
+    benefits_title: settings.benefitsTitle,
     updated_at: settings.updatedAt,
   }
 }

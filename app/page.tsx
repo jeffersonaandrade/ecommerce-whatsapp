@@ -1,4 +1,5 @@
 import { SportsHero } from '@/components/commerce/sports-hero'
+import { BannerCarousel } from '@/components/commerce/banner-carousel'
 import { CategoryChips } from '@/components/commerce/category-chips'
 import { HomeCategories } from '@/components/commerce/home-categories'
 import { HomeBenefits } from '@/components/commerce/home-benefits'
@@ -10,6 +11,7 @@ import { resolveStorefrontCategoryList } from '@/lib/catalog/storefront-categori
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { resolveExistingBrandingPath } from '@/lib/store/branding-storage'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
+import { getActiveBannerSlides } from '@/lib/banners'
 import type { Metadata } from 'next'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -18,26 +20,33 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const settings = await getStoreSettings()
-  const allProducts = await getAllProducts()
+  const [settings, allProducts, bannerSlides] = await Promise.all([
+    getStoreSettings(),
+    getAllProducts(),
+    getActiveBannerSlides(),
+  ])
   const { featured, seeAlso } = pickHomeProductSections(allProducts, 6, 4)
   const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
   const heroImagePath = await resolveExistingBrandingPath(settings.heroImagePath)
 
   return (
     <div className="w-full">
-      <SportsHero
-        content={{
-          storeName: settings.storeName,
-          heroImagePath,
-          heroHeadline: settings.heroHeadline,
-          heroHeadlineLine2: settings.heroHeadlineLine2,
-          heroSubheadline: settings.heroSubheadline,
-          heroCtaLabel: settings.heroCtaLabel,
-          heroCtaHref: settings.heroCtaHref,
-          updatedAt: settings.updatedAt,
-        }}
-      />
+      {bannerSlides.length > 0 ? (
+        <BannerCarousel slides={bannerSlides} />
+      ) : (
+        <SportsHero
+          content={{
+            storeName: settings.storeName,
+            heroImagePath,
+            heroHeadline: settings.heroHeadline,
+            heroHeadlineLine2: settings.heroHeadlineLine2,
+            heroSubheadline: settings.heroSubheadline,
+            heroCtaLabel: settings.heroCtaLabel,
+            heroCtaHref: settings.heroCtaHref,
+            updatedAt: settings.updatedAt,
+          }}
+        />
+      )}
 
       <CategoryChips categories={categories} />
       <HomeCategories categories={categories} />

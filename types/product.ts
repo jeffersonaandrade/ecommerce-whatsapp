@@ -21,6 +21,7 @@ export type Product = {
   images: string[]
   variations: ProductVariation[]
   status: ProductStatus
+  importBatchId?: string
 }
 
 export type CartItem = {

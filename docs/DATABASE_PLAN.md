@@ -38,11 +38,61 @@ Storage buckets (não relacional):
 
 ---
 
-## SQL — copiar e colar no Supabase SQL Editor
+## Migrations Supabase
 
-Execute **na ordem** em: Supabase Dashboard → SQL → New query.
+**Arquivo canônico (DDL):** [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql)
 
-### 1. Tabelas
+Aplicar novas migrations via **MCP Supabase** (`apply_migration`). Após aplicar, adicionar o bloco SQL no arquivo acima com o nome/version da migration.
+
+### Registro aplicado (produção UnitSports)
+
+| Version | Nome | Descrição |
+|---------|------|-----------|
+| `20260625192654` | `create_sports_store_tables` | `products`, `product_variations`, `store_settings` |
+| `20260625192704` | `create_sports_store_rls` | RLS inicial + `is_store_admin()` |
+| `20260625192715` | `create_sports_store_storage` | Policies buckets `branding` / `products` |
+| `20260625192844` | `seed_sports_store_data` | Seed settings |
+| `20260625192938` | `seed_products_batch_1` | Seed produtos (lote 1) |
+| `20260625192941` | `seed_products_batch_2` | Seed produtos (lote 2) |
+| `20260625192949` | `seed_products_batch_3` | Seed produtos (lote 3) |
+| `20260625214951` | `rls_is_store_admin_policies` | Troca policies permissivas |
+| `20260625215039` | `storage_admin_policies` | Storage admin-only |
+| `20260625215042` | `set_admin_app_metadata_role` | Role admin no JWT |
+| `20260626015218` | `create_categories_table_v1_1` | Tabela `categories` |
+| `20260626015229` | `create_categories_rls_v1_1` | RLS + seed categorias |
+| `20260626183041` | `add_header_brand_display_to_store_settings` | `header_brand_display` |
+| `20260626183213` | `sprint2_import_batch_schema` | `import_batch_id`, `import_status_policy`, `import_batches` |
+| `20260626183757` | `add_get_product_status_counts_rpc` | RPC `get_product_status_counts()` — tabs admin produtos |
+| `20260626190619` | `sprint3_media_storefront` | `categories.image_path`, tabela `banner_slides` + RLS |
+| `20260626190630` | `sprint4a_benefit_items` | `benefit_items`, `benefits_eyebrow/title` em settings + seed |
+
+> **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
+
+---
+
+## SQL — referência rápida
+
+O DDL completo está em [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql).  
+Use o SQL Editor ou MCP apenas para **projeto novo** ou **migration incremental** (bloco isolado no final do arquivo).
+
+### Schema atual (colunas extras pós-Sprint 2)
+
+Além do schema base em `store_settings`:
+
+- `header_brand_display` — `'both' | 'logo_only' | 'name_only'` (default `both`)
+- `benefits_eyebrow`, `benefits_title` — cabeçalho da seção benefícios na home (Sprint 4A)
+- `benefit_items` — cards editáveis (max 6 via app; seed `benefit-default-1..3`)
+- `import_status_policy` — `'active' | 'draft'` (default `draft`)
+
+Além do schema base em `products`:
+
+- `import_batch_id` — UUID do lote CSV (nullable, indexado)
+
+Tabela admin:
+
+- `import_batches` — histórico de importação (RLS admin-only; persistência no código pendente)
+
+### 1. Tabelas base (início do arquivo SQL)
 
 ```sql
 -- products
@@ -110,95 +160,7 @@ CREATE TABLE IF NOT EXISTS public.store_settings (
 );
 ```
 
-### 1b. Tabela `categories` (V1.1 — aplicada 2026-06-26)
-
-Migration MCP: `create_categories_table_v1_1` + `create_categories_rls_v1_1`.
-
-```sql
-CREATE TABLE IF NOT EXISTS public.categories (
-  id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
-  name text NOT NULL,
-  slug text NOT NULL,
-  description text NOT NULL DEFAULT '',
-  sort_order integer NOT NULL DEFAULT 0,
-  visible boolean NOT NULL DEFAULT true,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT categories_name_not_empty CHECK (char_length(trim(name)) > 0),
-  CONSTRAINT categories_slug_not_empty CHECK (char_length(trim(slug)) > 0),
-  CONSTRAINT categories_slug_unique UNIQUE (slug),
-  CONSTRAINT categories_slug_format CHECK (slug ~ '^[a-z0-9]+(?:-[a-z0-9]+)*$')
-);
-
-CREATE INDEX IF NOT EXISTS categories_visible_sort_idx
-  ON public.categories (visible, sort_order, name);
-
-CREATE INDEX IF NOT EXISTS categories_slug_idx
-  ON public.categories (slug);
-
-CREATE OR REPLACE FUNCTION public.set_updated_at()
-RETURNS trigger
-LANGUAGE plpgsql
-SET search_path = public
-AS $$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$$;
-
-DROP TRIGGER IF EXISTS categories_set_updated_at ON public.categories;
-CREATE TRIGGER categories_set_updated_at
-  BEFORE UPDATE ON public.categories
-  FOR EACH ROW
-  EXECUTE FUNCTION public.set_updated_at();
-
-ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "categories_public_read"
-  ON public.categories FOR SELECT
-  TO anon, authenticated
-  USING (visible = true);
-
-CREATE POLICY "categories_admin_select"
-  ON public.categories FOR SELECT
-  TO authenticated
-  USING (public.is_store_admin());
-
-CREATE POLICY "categories_admin_insert"
-  ON public.categories FOR INSERT
-  TO authenticated
-  WITH CHECK (public.is_store_admin());
-
-CREATE POLICY "categories_admin_update"
-  ON public.categories FOR UPDATE
-  TO authenticated
-  USING (public.is_store_admin())
-  WITH CHECK (public.is_store_admin());
-
-CREATE POLICY "categories_admin_delete"
-  ON public.categories FOR DELETE
-  TO authenticated
-  USING (public.is_store_admin());
-
-GRANT SELECT ON TABLE public.categories TO anon, authenticated;
-GRANT INSERT, UPDATE, DELETE ON TABLE public.categories TO authenticated;
-```
-
-**Seed inicial (idempotente):**
-
-```sql
-INSERT INTO public.categories (name, slug, sort_order, visible)
-VALUES
-  ('Acessórios', 'acessorios', 10, true),
-  ('Camisas',    'camisas',    20, true),
-  ('Jaquetas',   'jaquetas',   30, true),
-  ('Meias',      'meias',      40, true),
-  ('Shorts',     'shorts',     50, true)
-ON CONFLICT (slug) DO NOTHING;
-```
-
-> **Pendente:** `UPDATE products SET category = slug` — só após repositories + admin UI + vitrine por slug.
+Ver arquivo completo + migrations incrementais em [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql).
 
 ### 2. RLS
 
@@ -458,4 +420,4 @@ Lê `storage/catalog.json` (ou `catalog.seed.json`) + `storage/store-settings.js
 
 ---
 
-*Última atualização: categories V1.1 schema (MCP) — 2026-06-26*
+*Última atualização: migrations consolidadas em `scripts/migration/supabase-migrations.sql` — 2026-06-26*

@@ -31,13 +31,14 @@ describe('generateBrandingFromLogo', () => {
     written.clear()
   })
 
-  it('uses contain fit so horizontal logos stay legible in logo.webp', async () => {
-    const logoPath = path.join(process.cwd(), 'logoUnit.jpeg')
+  it('preserves square logo aspect ratio in logo.webp (no trim letterboxing crop)', async () => {
+    const logoPath = path.join(process.cwd(), 'deploy/branding/logo.jpeg')
     if (!fs.existsSync(logoPath)) {
       return
     }
 
     const source = fs.readFileSync(logoPath)
+    const sourceMeta = await sharp(source).metadata()
     const { data: coverData, info: coverInfo } = await sharp(source)
       .rotate()
       .resize(512, 512, { fit: 'cover', position: 'centre' })
@@ -50,7 +51,12 @@ describe('generateBrandingFromLogo', () => {
     expect(logoWebp).toBeDefined()
 
     const logoMeta = await sharp(logoWebp!).metadata()
-    expect(logoMeta.width).toBeGreaterThan(logoMeta.height ?? 0)
+    expect(logoMeta.width).toBeDefined()
+    expect(logoMeta.height).toBeDefined()
+
+    const sourceRatio = (sourceMeta.width ?? 1) / (sourceMeta.height ?? 1)
+    const outputRatio = (logoMeta.width ?? 1) / (logoMeta.height ?? 1)
+    expect(Math.abs(outputRatio - sourceRatio)).toBeLessThan(0.05)
 
     const { data: containData, info: containInfo } = await sharp(logoWebp!)
       .raw()

@@ -70,7 +70,9 @@ export async function uploadStoreLogoAction(
   }
 
   const allowed = ['image/png', 'image/jpeg', 'image/webp']
-  if (!allowed.includes(file.type)) {
+  const ext = file.name.split('.').pop()?.toLowerCase()
+  const extAllowed = ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'webp'
+  if (!allowed.includes(file.type) && !extAllowed) {
     return { ok: false, error: 'Formato aceito: PNG, JPG ou WebP.' }
   }
 
@@ -85,7 +87,14 @@ export async function uploadStoreLogoAction(
     return { ok: true, updatedAt: next.updatedAt }
   } catch (error) {
     console.error('[uploadStoreLogoAction]', error)
-    return { ok: false, error: 'Falha ao processar logo. Tente outro arquivo.' }
+    const detail = error instanceof Error ? error.message : String(error)
+    if (detail.includes('branding upload failed')) {
+      return { ok: false, error: 'Falha ao salvar no storage. Tente novamente em instantes.' }
+    }
+    if (/timeout|timed out|ENOMEM|memory/i.test(detail)) {
+      return { ok: false, error: 'Processamento demorou demais. Tente uma imagem menor ou aguarde e reenvie.' }
+    }
+    return { ok: false, error: 'Falha ao processar logo. Tente outro arquivo ou um JPG/PNG menor.' }
   }
 }
 

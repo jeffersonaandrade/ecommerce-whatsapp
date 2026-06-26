@@ -18,29 +18,21 @@ export {
 } from './branding-storage'
 
 const FAVICON_SIZES = [16, 32, 180, 192, 512] as const
-const LOGO_MAX_WIDTH = 512
-const LOGO_MAX_HEIGHT = 128
+const LOGO_MAX_SIZE = 512
 
 /** Preserva logos horizontais (ex.: faixa com texto) sem crop agressivo. */
 function resizeContainedSquare(image: Sharp, size: number, background: Color) {
   return image.clone().resize(size, size, { fit: 'contain', background })
 }
 
-/** Remove letterboxing e gera asset retangular para o header (não canvas quadrado). */
+/** Preserva a proporção original (quadrada ou horizontal) — sem trim que corta letterboxing. */
 async function buildHeaderLogoWebp(image: Sharp): Promise<Buffer> {
   const logoBackground: Color = { r: 0, g: 0, b: 0, alpha: 0 }
-  const rotated = image.clone().rotate()
-  let source = rotated
 
-  try {
-    const trimmed = await rotated.clone().trim({ threshold: 15 }).toBuffer()
-    source = sharp(trimmed)
-  } catch {
-    source = rotated
-  }
-
-  return source
-    .resize(LOGO_MAX_WIDTH, LOGO_MAX_HEIGHT, {
+  return image
+    .clone()
+    .rotate()
+    .resize(LOGO_MAX_SIZE, LOGO_MAX_SIZE, {
       fit: 'inside',
       background: logoBackground,
     })
@@ -62,10 +54,15 @@ export async function generateBrandingFromLogo(
 ): Promise<GeneratedBranding> {
   const image = sharp(fileBuffer).rotate()
   const logoPath = 'logo.webp'
-
-  await writeProcessedImage(image, logoPath, () => buildHeaderLogoWebp(image))
-
   const faviconBackground: Color = { r: 0, g: 0, b: 0, alpha: 1 }
+  const ogImagePath = OG_IMAGE_FILENAME
+
+  const tasks: Promise<void>[] = [
+    writeProcessedImage(image, logoPath, () => buildHeaderLogoWebp(image)),
+    writeProcessedImage(image, ogImagePath, () =>
+      image.clone().resize(1200, 630, { fit: 'cover', position: 'centre' }).jpeg({ quality: 85 }).toBuffer()
+    ),
+  ]
 
   for (const size of FAVICON_SIZES) {
     const name =
@@ -76,15 +73,14 @@ export async function generateBrandingFromLogo(
           : size === 512
             ? 'android-512.png'
             : `favicon-${size}.png`
-    await writeProcessedImage(image, name, () =>
-      resizeContainedSquare(image, size, faviconBackground).png().toBuffer()
+    tasks.push(
+      writeProcessedImage(image, name, () =>
+        resizeContainedSquare(image, size, faviconBackground).png().toBuffer()
+      )
     )
   }
 
-  const ogImagePath = OG_IMAGE_FILENAME
-  await writeProcessedImage(image, ogImagePath, () =>
-    image.clone().resize(1200, 630, { fit: 'cover', position: 'centre' }).jpeg({ quality: 85 }).toBuffer()
-  )
+  await Promise.all(tasks)
 
   return { logoPath, ogImagePath }
 }

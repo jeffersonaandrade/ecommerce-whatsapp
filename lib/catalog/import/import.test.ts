@@ -174,12 +174,20 @@ describe('applyImport', () => {
       saveAll: async (next) => {
         products.splice(0, products.length, ...next)
       },
+      query: async () => ({ products: [], total: 0, page: 1, pageSize: 25, totalPages: 0, counts: { all: 0, active: 0, draft: 0, unavailable: 0, noStock: 0 } }),
+      bulkSetStatus: async () => {},
+      bulkSetCategory: async () => {},
+      deleteMany: async () => {},
     }
 
     const csv = fs.readFileSync(TEMPLATE_PATH, 'utf-8')
     const preview = buildImportPreview(csv, 'template.csv', [], importCategories)
     const valid = getValidProducts(preview)
-    const result = await applyImport(valid, repo)
+    const result = await applyImport(valid, repo, {
+      policy: 'draft',
+      batchId: 'test-batch-1',
+      existingBySlug: new Map(),
+    })
 
     expect(result.created).toBe(1)
     expect(result.durationMs).toBeGreaterThanOrEqual(0)

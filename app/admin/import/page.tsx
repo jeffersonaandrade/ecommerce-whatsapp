@@ -1,13 +1,16 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { ImportWizard } from '@/components/admin/import/import-wizard'
+import { getStoreSettings } from '@/lib/store/settings-repository'
 
 export const metadata: Metadata = {
   title: 'Importação CSV',
   description: 'Importação de produtos via planilha CSV de carga em massa',
 }
 
-export default function AdminImportPage() {
+export default async function AdminImportPage() {
+  const settings = await getStoreSettings()
+
   return (
     <div className="w-full">
       <div className="bg-ink py-8 text-canvas sm:py-12">
@@ -26,7 +29,7 @@ export default function AdminImportPage() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        <ImportWizard />
+        <ImportWizard importStatusPolicy={settings.importStatusPolicy} />
       </div>
     </div>
   )

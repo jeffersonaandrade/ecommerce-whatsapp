@@ -11,6 +11,9 @@ export const PRESERVED_STOREFRONT_FIELDS = [
   'instagram',
   'facebook',
   'whatsappMessagePrefix',
+  'headerBrandDisplay',
+  'benefitsEyebrow',
+  'benefitsTitle',
 ] as const satisfies ReadonlyArray<keyof StoreSettings>
 
 export function buildRestoreStorefrontPatch(
@@ -28,6 +31,9 @@ export function buildRestoreStorefrontPatch(
     instagram: current.instagram,
     facebook: current.facebook,
     whatsappMessagePrefix: current.whatsappMessagePrefix,
+    headerBrandDisplay: current.headerBrandDisplay,
+    benefitsEyebrow: current.benefitsEyebrow,
+    benefitsTitle: current.benefitsTitle,
     logoPath: branding.logoPath,
     ogImagePath: branding.ogImagePath,
   }

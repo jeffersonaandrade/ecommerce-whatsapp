@@ -2,20 +2,65 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { getButtonClassName } from '@/components/ui/button'
-import { getAllCategoriesAdmin } from '@/lib/categories'
+import { AdminListPage } from '@/components/admin/admin-list-page'
+import { AdminPagination } from '@/components/admin/admin-pagination'
+import { SearchBar } from '@/components/admin/search-bar'
+import { StatusTabs } from '@/components/admin/status-tabs'
+import { queryCategoriesAdmin } from '@/lib/categories'
 import { getAllProductsAdmin } from '@/lib/products'
 import { countProductsForCategory } from '@/lib/catalog/category-utils'
+import type { CategoryQuery } from '@/lib/query'
 
 export const metadata: Metadata = {
   title: 'Categorias',
   description: 'Gerenciar categorias da loja',
 }
 
-export default async function AdminCategoriesPage() {
-  const [categories, products] = await Promise.all([
-    getAllCategoriesAdmin(),
+const VISIBILITY_LABELS: Record<string, string> = {
+  visible: 'Visíveis',
+  hidden: 'Ocultas',
+}
+
+export default async function AdminCategoriesPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | undefined>>
+}) {
+  const params = await searchParams
+
+  const visibilityParam = params.status
+  const visible =
+    visibilityParam === 'visible' ? true
+    : visibilityParam === 'hidden' ? false
+    : undefined
+
+  const query: CategoryQuery = {
+    filters: {
+      visible,
+      search: params.q || undefined,
+    },
+    pagination: {
+      page: Math.max(1, parseInt(params.page ?? '1', 10) || 1),
+      pageSize: [25, 50, 100, 200].includes(Number(params.size))
+        ? Number(params.size)
+        : 25,
+    },
+  }
+
+  const [result, products] = await Promise.all([
+    queryCategoriesAdmin(query),
     getAllProductsAdmin(),
   ])
+
+  const currentParams = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v != null) as [string, string][]
+  )
+
+  // counts for visibility tabs
+  const allResult = await queryCategoriesAdmin({ pagination: { pageSize: 999 } })
+  const visibleCount = allResult.categories.filter((c) => c.visible).length
+  const hiddenCount = allResult.categories.filter((c) => !c.visible).length
+  const visibilityCounts = { visible: visibleCount, hidden: hiddenCount }
 
   return (
     <div className="w-full">
@@ -45,54 +90,82 @@ export default async function AdminCategoriesPage() {
       </div>
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
-        {categories.length === 0 ? (
-          <p className="text-gray-600 text-center py-12">
-            Nenhuma categoria cadastrada ainda.
-          </p>
-        ) : (
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <table className="w-full">
-              <thead className="border-b border-gray-200 bg-gray-50">
-                <tr>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Nome</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Slug</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Ordem</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Produtos</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-700">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categories.map((category) => {
-                  const { count, activeCount } = countProductsForCategory(category, products)
-                  return (
-                    <tr key={category.id} className="border-b border-gray-100">
-                      <td className="py-4 px-4 font-medium text-gray-900">{category.name}</td>
-                      <td className="py-4 px-4 text-sm text-gray-600 font-mono">{category.slug}</td>
-                      <td className="py-4 px-4 text-sm text-gray-600">{category.sortOrder}</td>
-                      <td className="py-4 px-4 text-sm text-gray-600">
-                        {count} ({activeCount} ativo{activeCount !== 1 ? 's' : ''})
-                      </td>
-                      <td className="py-4 px-4">
-                        <Badge variant={category.visible ? 'success' : 'default'}>
-                          {category.visible ? 'Visível' : 'Oculta'}
-                        </Badge>
-                      </td>
-                      <td className="py-4 px-4">
-                        <Link
-                          href={`/admin/categories/${category.id}/edit`}
-                          className="text-sm font-medium text-gray-900 hover:underline"
-                        >
-                          Editar
-                        </Link>
-                      </td>
+        <AdminListPage
+          header={<span />}
+          toolbar={
+            <div className="space-y-3">
+              <SearchBar
+                placeholder="Buscar por nome ou slug..."
+                defaultValue={params.q ?? ''}
+              />
+              <StatusTabs
+                counts={visibilityCounts}
+                labels={VISIBILITY_LABELS}
+                paramName="status"
+              />
+            </div>
+          }
+          content={
+            result.categories.length === 0 ? (
+              <p className="py-12 text-center text-mute">
+                Nenhuma categoria encontrada.
+              </p>
+            ) : (
+              <div className="overflow-hidden rounded-lg border border-hairline bg-canvas">
+                <table className="w-full">
+                  <thead className="border-b border-hairline bg-soft-cloud">
+                    <tr>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-ink">Nome</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-ink">Slug</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-ink">Ordem</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-ink">Produtos</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-ink">Status</th>
+                      <th className="py-3 px-4 text-left text-sm font-semibold text-ink">Ações</th>
                     </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                  </thead>
+                  <tbody>
+                    {result.categories.map((category) => {
+                      const { count, activeCount } = countProductsForCategory(category, products)
+                      return (
+                        <tr key={category.id} className="border-b border-hairline last:border-0 hover:bg-soft-cloud/50">
+                          <td className="py-4 px-4 font-medium text-ink">{category.name}</td>
+                          <td className="py-4 px-4 font-mono text-sm text-mute">{category.slug}</td>
+                          <td className="py-4 px-4 text-sm text-mute">{category.sortOrder}</td>
+                          <td className="py-4 px-4 text-sm text-mute">
+                            {count} ({activeCount} ativo{activeCount !== 1 ? 's' : ''})
+                          </td>
+                          <td className="py-4 px-4">
+                            <Badge variant={category.visible ? 'success' : 'default'}>
+                              {category.visible ? 'Visível' : 'Oculta'}
+                            </Badge>
+                          </td>
+                          <td className="py-4 px-4">
+                            <Link
+                              href={`/admin/categories/${category.id}/edit`}
+                              className="text-sm font-medium text-ink hover:underline"
+                            >
+                              Editar
+                            </Link>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+          footer={
+            <AdminPagination
+              page={result.page}
+              pageSize={result.pageSize}
+              total={result.total}
+              totalPages={result.totalPages}
+              basePath="/admin/categories"
+              currentParams={currentParams}
+            />
+          }
+        />
       </div>
     </div>
   )

@@ -325,10 +325,14 @@ Sem aprovação explícita, **não implementar**:
 
 **Objetivo:** Evoluir vitrine administrável — cada feature nasce direto no Supabase.
 
-**Ordem sugerida:**
-1. **Banner Manager** — tabela `banners` + Storage desktop/mobile
-2. **Ativar produto na loja** — Status `Ativo` + Salvar no edit (sem tela separada de publicação); banner de visibilidade no formulário
-3. **Menus admin** — tabela `nav_items`; header/footer dinâmicos
+**Entregue (Sprint 3/4A):**
+- **Banner carrossel** — tabela `banner_slides` + Storage desktop/mobile (`/admin/banners`)
+- **Benefícios editáveis** — tabela `benefit_items` + settings eyebrow/título (`/admin/content/benefits`)
+
+**Ordem sugerida (backlog):**
+1. **Footer editável** — Sprint 4B (categorias dinâmicas + links controlados)
+2. **Menus admin** — tabela `nav_items`; header/footer dinâmicos
+3. **Termos/Privacidade** — Sprint 4C
 4. **Admin shell** — sidebar, rotas Conteúdo/Config (quando fizer sentido)
 
 **Dependências:** Sprint 3 concluída + feedback do 1º cliente.

@@ -1,4 +1,5 @@
 import { ProductInput } from '@/lib/catalog/product-repository'
+import { ProductStatus } from '@/types/product'
 
 export type CsvErrorCode =
   | 'CSV_E001'
@@ -40,6 +41,13 @@ export type ParsedProduct = {
   images: string[]
   variations: ParsedVariation[]
   rowNumbers: number[]
+  statusFromCsv?: ProductStatus
+}
+
+export type ImportStatusBreakdown = {
+  active: number
+  draft: number
+  unavailable: number
 }
 
 export type ImportPreview = {
@@ -50,6 +58,8 @@ export type ImportPreview = {
     totalRows: number
     totalProducts: number
     validProducts: number
+    newProducts: number
+    updateProducts: number
     errorCount: number
     warningCount: number
   }
@@ -60,6 +70,7 @@ export type ImportApplyResult = {
   updated: number
   skipped: number
   durationMs: number
+  batchId: string
 }
 
 export type ImportProductInput = ProductInput & { slug: string }

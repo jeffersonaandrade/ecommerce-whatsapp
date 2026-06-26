@@ -13,8 +13,33 @@ import {
   CsvRow,
   ImportIssue,
   ImportPreview,
+  ImportStatusBreakdown,
   ParsedProduct,
 } from './types'
+
+export function computeStatusBreakdown(
+  products: ParsedProduct[],
+  policy: 'active' | 'draft',
+  existingBySlug?: Map<string, { status: string }>
+): ImportStatusBreakdown {
+  return products.reduce(
+    (acc, p) => {
+      let status: string
+      if (p.statusFromCsv) {
+        status = p.statusFromCsv
+      } else if (existingBySlug?.has(p.slug)) {
+        status = existingBySlug.get(p.slug)!.status
+      } else {
+        status = policy
+      }
+      if (status === 'active') acc.active++
+      else if (status === 'unavailable') acc.unavailable++
+      else acc.draft++
+      return acc
+    },
+    { active: 0, draft: 0, unavailable: 0 } as ImportStatusBreakdown
+  )
+}
 
 const IMAGE_EXTENSIONS = /\.(jpe?g|png|webp)(\?.*)?$/i
 
@@ -264,6 +289,8 @@ export function buildImportPreview(
         totalRows: 0,
         totalProducts: 0,
         validProducts: 0,
+        newProducts: 0,
+        updateProducts: 0,
         errorCount: 1,
         warningCount: 0,
       },
@@ -290,6 +317,8 @@ export function buildImportPreview(
         totalRows: matrix.length,
         totalProducts: 0,
         validProducts: 0,
+        newProducts: 0,
+        updateProducts: 0,
         errorCount: issues.length,
         warningCount: 0,
       },
@@ -311,13 +340,27 @@ export function buildImportPreview(
 
   issues.push(...validateDuplicateSkus(matrix))
 
-  const products = groupRowsBySlug(matrix)
+  const statusWarnings: Array<{ slug: string; row: number; raw: string }> = []
+  const products = groupRowsBySlug(matrix, statusWarnings)
+  for (const w of statusWarnings) {
+    issues.push({
+      code: 'CSV_W008',
+      severity: 'warning',
+      row: w.row,
+      slug: w.slug,
+      message: `Status inválido ignorado: "${w.raw}". Será aplicada a regra de fallback.`,
+    })
+  }
+
   issues.push(...validateImportProductCategories(products, categories))
   issues.push(...validateCatalogSkus(products, catalog))
 
+  const existingSlugs = new Set(catalog.map((p) => p.slug))
   const errorCount = issues.filter((i) => i.severity === 'error').length
   const warningCount = issues.filter((i) => i.severity === 'warning').length
   const validProducts = products.filter((p) => !productHasBlockingIssues(p, issues)).length
+  const newProducts = products.filter((p) => !existingSlugs.has(p.slug)).length
+  const updateProducts = products.filter((p) => existingSlugs.has(p.slug)).length
 
   return {
     fileName,
@@ -327,6 +370,8 @@ export function buildImportPreview(
       totalRows: matrix.length,
       totalProducts: products.length,
       validProducts,
+      newProducts,
+      updateProducts,
       errorCount,
       warningCount,
     },

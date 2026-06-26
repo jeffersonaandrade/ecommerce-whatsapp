@@ -2,6 +2,12 @@
 
 Organização pós-auditoria (Fase 3). Todos assumem execução na raiz do repositório.
 
+## `dev/`
+
+| Script | Uso |
+|--------|-----|
+| `start-headroom-cursor.ps1` | Inicia proxy Headroom para Cursor (`headroom wrap cursor`). Ver [AGENTS.md](../AGENTS.md). |
+
 ## `deploy/`
 
 | Script | Uso |
@@ -11,8 +17,9 @@ Organização pós-auditoria (Fase 3). Todos assumem execução na raiz do repos
 
 ## `migration/`
 
-| Script | Uso |
-|--------|-----|
+| Arquivo / script | Uso |
+|------------------|-----|
+| **`supabase-migrations.sql`** | **DDL canônico** — todas as migrations Supabase em ordem. Atualizar após cada `apply_migration` via MCP. |
 | `migrate-json-to-supabase.mjs` | Migra `storage/*.json` + branding para Supabase. `npm run migrate:supabase` |
 | `generate-seed-sql.mjs` | Gera SQL de seed a partir dos JSON locais (setup manual). |
 

@@ -10,12 +10,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "migrate:supabase": "node scripts/migration/migrate-json-to-supabase.mjs",
-    "branding:sync": "node scripts/deploy/sync-branding-logo.mjs"
+    "branding:sync": "node scripts/deploy/sync-branding-logo.mjs",
+    "headroom:cursor": "headroom wrap cursor"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "framer-motion": "^12.41.0",
+    "headroom-ai": "^0.22.4",
     "next": "16.2.9",
     "react": "19.2.4",
     "react-dom": "19.2.4",

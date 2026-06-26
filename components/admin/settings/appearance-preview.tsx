@@ -2,6 +2,8 @@
 
 import { StoreSettings } from '@/types/store-settings'
 import { BRANDING_ICON_FILES, brandingAssetUrl } from '@/lib/store/branding-url'
+import { headerBrandPreviewClasses } from '@/components/layout/header-brand-mark'
+import { resolveHeaderBrandRender } from '@/lib/store/header-brand-display'
 
 type AppearancePreviewProps = {
   settings: StoreSettings
@@ -12,6 +14,11 @@ export function AppearancePreview({ settings }: AppearancePreviewProps) {
   const logoUrl = brandingAssetUrl(settings.logoPath, v)
   const ogUrl = brandingAssetUrl(settings.ogImagePath, v)
   const faviconUrl = brandingAssetUrl(BRANDING_ICON_FILES.favicon32, v)
+  const headerRender = resolveHeaderBrandRender(
+    settings.headerBrandDisplay,
+    Boolean(logoUrl)
+  )
+  const previewLogoClass = headerBrandPreviewClasses(settings.headerBrandDisplay)
 
   return (
     <div className="space-y-4 rounded-lg border border-hairline bg-soft-cloud p-4">
@@ -20,16 +27,23 @@ export function AppearancePreview({ settings }: AppearancePreviewProps) {
       <div className="rounded-lg border border-hairline bg-canvas p-4">
         <p className="mb-2 text-xs uppercase tracking-wide text-mute">Header</p>
         <div className="flex items-center gap-2 border-b border-hairline pb-3">
-          {logoUrl ? (
+          {headerRender.showLogo && logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoUrl} alt="" className="h-8 w-auto max-w-[120px] rounded-sm object-contain" />
-          ) : (
+            <img src={logoUrl} alt="" className={previewLogoClass} />
+          ) : headerRender.showInitialFallback ? (
             <div className="flex h-8 w-8 items-center justify-center rounded-sm bg-ink text-xs font-bold text-canvas">
               {settings.storeName.charAt(0).toUpperCase()}
             </div>
-          )}
-          <span className="text-sm font-semibold text-ink">{settings.storeName}</span>
+          ) : null}
+          {headerRender.showName ? (
+            <span className="text-sm font-semibold text-ink">{settings.storeName}</span>
+          ) : null}
         </div>
+        {!logoUrl && settings.headerBrandDisplay === 'logo_only' && (
+          <p className="mt-2 text-xs text-mute">
+            Sem logo implantada — o nome da loja aparece como fallback.
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

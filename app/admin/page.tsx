@@ -140,11 +140,25 @@ export default async function AdminPage() {
               buttonLabel="Categorias"
             />
             <NavCard
+              href="/admin/banners"
+              emoji="🖼️"
+              title="Banners"
+              description="Slides do carrossel na home"
+              buttonLabel="Banners"
+            />
+            <NavCard
               href="/admin/orders"
               emoji="📦"
               title="Pedidos"
               description="Placeholder até checkout online (V2)"
               buttonLabel="Ver pedidos"
+            />
+            <NavCard
+              href="/admin/content"
+              emoji="📝"
+              title="Conteúdo"
+              description="Benefícios e textos do template"
+              buttonLabel="Conteúdo"
             />
             <NavCard
               href="/admin/settings"

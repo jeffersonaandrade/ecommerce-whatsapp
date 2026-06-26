@@ -1,4 +1,9 @@
 import { StoreSettings } from '@/types/store-settings'
+import { DEFAULT_HEADER_BRAND_DISPLAY } from './header-brand-display'
+import {
+  DEFAULT_BENEFITS_EYEBROW,
+  DEFAULT_BENEFITS_TITLE,
+} from '@/lib/benefits/constants'
 
 export const DEFAULT_PRIMARY_COLOR = '#111111'
 export const DEFAULT_SECONDARY_COLOR = '#f5f5f5'
@@ -35,6 +40,10 @@ export function createDefaultStoreSettings(): StoreSettings {
     businessHours: 'Seg–Sex, 9h–18h',
     exchangePolicyText:
       'Trocas em até 7 dias para produtos sem uso, com etiqueta e nota fiscal. Entre em contato pelo WhatsApp ou e-mail da loja.',
+    importStatusPolicy: 'draft',
+    headerBrandDisplay: DEFAULT_HEADER_BRAND_DISPLAY,
+    benefitsEyebrow: DEFAULT_BENEFITS_EYEBROW,
+    benefitsTitle: DEFAULT_BENEFITS_TITLE,
     updatedAt: new Date(0).toISOString(),
   }
 }

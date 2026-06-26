@@ -8,6 +8,7 @@ export type CategoryRow = {
   description: string
   sort_order: number
   visible: boolean
+  image_path: string | null
   created_at: string
   updated_at: string
 }
@@ -20,6 +21,7 @@ export function rowToCategory(row: CategoryRow): Category {
     description: row.description ?? '',
     sortOrder: row.sort_order,
     visible: row.visible,
+    imagePath: row.image_path ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -41,6 +43,7 @@ export function categoryInputToRow(
     description: input.description?.trim() ?? '',
     sort_order: input.sortOrder ?? 0,
     visible: input.visible ?? true,
+    image_path: input.imagePath ?? null,
     ...(existing
       ? { created_at: existing.createdAt, updated_at: new Date().toISOString() }
       : {}),

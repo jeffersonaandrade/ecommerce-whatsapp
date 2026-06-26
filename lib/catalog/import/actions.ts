@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getCategoryRepository } from '@/lib/catalog/get-category-repository'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
+import { getStoreSettings } from '@/lib/store/settings-repository'
 import { applyImport } from './apply-import'
 import { checkProductImageUrls } from './check-image-urls'
 import {
@@ -60,7 +61,7 @@ export async function parseImportCsvAction(
 
 export async function confirmImportAction(
   products: ParsedProduct[]
-): Promise<{ ok: true; result: ImportApplyResult } | { ok: false; error: string }> {
+): Promise<{ ok: true; result: ImportApplyResult; batchId: string } | { ok: false; error: string }> {
   const auth = await requireAdmin()
   if (!auth.ok) {
     return { ok: false, error: auth.error }
@@ -72,9 +73,10 @@ export async function confirmImportAction(
 
   const repo = getProductRepository()
   const categoryRepo = getCategoryRepository()
-  const [catalog, categories] = await Promise.all([
+  const [catalog, categories, settings] = await Promise.all([
     repo.getAll(),
     categoryRepo.getAll(),
+    getStoreSettings(),
   ])
 
   const normalizedProducts = structuredClone(products)
@@ -85,12 +87,17 @@ export async function confirmImportAction(
     return { ok: false, error: blocking[0].message }
   }
 
+  const batchId = crypto.randomUUID()
+  const policy = settings.importStatusPolicy ?? 'draft'
+  const existingBySlug = new Map(catalog.map((p) => [p.slug, p]))
+
   try {
     const started = performance.now()
-    const result = await applyImport(normalizedProducts, repo)
+    const result = await applyImport(normalizedProducts, repo, { policy, batchId, existingBySlug })
     revalidateCatalog()
     return {
       ok: true,
+      batchId,
       result: {
         ...result,
         durationMs: result.durationMs || Math.round(performance.now() - started),

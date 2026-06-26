@@ -52,6 +52,8 @@ function storeSettingsToRow(settings) {
     city_state: settings.cityState ?? '',
     business_hours: settings.businessHours ?? '',
     exchange_policy_text: settings.exchangePolicyText ?? '',
+    import_status_policy: settings.importStatusPolicy ?? 'draft',
+    header_brand_display: settings.headerBrandDisplay ?? 'both',
     updated_at: settings.updatedAt ?? new Date().toISOString(),
   }
 }
