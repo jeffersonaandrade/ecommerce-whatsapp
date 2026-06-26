@@ -46,6 +46,10 @@ graphify-out/cache/
 
 # IDE / agent local
 .claude/
+.agents/
+.mcp.json
+skills-lock.json
+.cursor/mcp.json
 
 # Manual investigation scripts (raiz)
 /simulate-hero-upload.js
