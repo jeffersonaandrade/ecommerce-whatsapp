@@ -8,7 +8,7 @@ import { pickHomeProductSections } from '@/lib/products-home-sections'
 import { getStorefrontCategories } from '@/lib/categories'
 import { resolveStorefrontCategoryList } from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
-import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
+import { resolveExistingBrandingPath } from '@/lib/store/branding-storage'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 import type { Metadata } from 'next'
 

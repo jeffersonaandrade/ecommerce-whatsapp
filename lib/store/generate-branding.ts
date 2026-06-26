@@ -1,12 +1,8 @@
 import 'server-only'
 
 import sharp, { type Color, type Sharp } from 'sharp'
-import { OG_IMAGE_FILENAME, resolveBrandingFilename } from './branding-url'
-import {
-  brandingFileExists,
-  readBrandingFileBuffer,
-  writeBrandingFile,
-} from './branding-storage'
+import { OG_IMAGE_FILENAME } from './branding-url'
+import { writeBrandingFile } from './branding-storage'
 import { getDataProvider } from '@/lib/data/provider'
 import { getBrandingPublicUrl } from '@/lib/supabase/env'
 
@@ -14,6 +10,12 @@ export type GeneratedBranding = {
   logoPath: string
   ogImagePath: string
 }
+
+// Re-export for callers that already import from this module.
+export {
+  readBrandingFile,
+  resolveExistingBrandingPath,
+} from './branding-storage'
 
 const FAVICON_SIZES = [16, 32, 180, 192, 512] as const
 const LOGO_MAX_WIDTH = 512
@@ -27,15 +29,17 @@ function resizeContainedSquare(image: Sharp, size: number, background: Color) {
 /** Remove letterboxing e gera asset retangular para o header (não canvas quadrado). */
 async function buildHeaderLogoWebp(image: Sharp): Promise<Buffer> {
   const logoBackground: Color = { r: 0, g: 0, b: 0, alpha: 0 }
-  let prepared = image.clone().rotate()
+  const rotated = image.clone().rotate()
+  let source = rotated
 
   try {
-    prepared = prepared.trim({ threshold: 15 })
+    const trimmed = await rotated.clone().trim({ threshold: 15 }).toBuffer()
+    source = sharp(trimmed)
   } catch {
-    // Mantém original se trim falhar (ex.: imagem uniforme).
+    source = rotated
   }
 
-  return prepared
+  return source
     .resize(LOGO_MAX_WIDTH, LOGO_MAX_HEIGHT, {
       fit: 'inside',
       background: logoBackground,
@@ -94,25 +98,6 @@ export async function saveHeroImage(fileBuffer: Buffer): Promise<string> {
     .toBuffer()
   await writeBrandingFile(heroPath, buffer)
   return heroPath
-}
-
-export async function readBrandingFile(filename: string): Promise<Buffer | null> {
-  const safe = resolveBrandingFilename(filename)
-  return readBrandingFileBuffer(safe)
-}
-
-export async function resolveExistingBrandingPath(
-  filename: string | null | undefined
-): Promise<string | null> {
-  if (!filename) return null
-  const safe = resolveBrandingFilename(filename)
-
-  if (getDataProvider() === 'supabase') {
-    const buffer = await readBrandingFileBuffer(safe)
-    return buffer ? filename : null
-  }
-
-  return brandingFileExists(safe) ? filename : null
 }
 
 export function getBrandingAssetPublicUrl(filename: string): string | null {

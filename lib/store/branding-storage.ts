@@ -4,6 +4,7 @@ import { getDataProvider } from '@/lib/data/provider'
 import { createAdminClient } from '@/lib/supabase/admin'
 import fs from 'fs'
 import path from 'path'
+import { resolveBrandingFilename } from './branding-url'
 import { getBrandingDir } from './settings-storage'
 
 const BRANDING_BUCKET = 'branding'
@@ -52,4 +53,23 @@ export function brandingFileExists(filename: string): boolean {
     return true
   }
   return fs.existsSync(path.join(getBrandingDir(), filename))
+}
+
+export async function readBrandingFile(filename: string): Promise<Buffer | null> {
+  const safe = resolveBrandingFilename(filename)
+  return readBrandingFileBuffer(safe)
+}
+
+export async function resolveExistingBrandingPath(
+  filename: string | null | undefined
+): Promise<string | null> {
+  if (!filename) return null
+  const safe = resolveBrandingFilename(filename)
+
+  if (getDataProvider() === 'supabase') {
+    const buffer = await readBrandingFileBuffer(safe)
+    return buffer ? filename : null
+  }
+
+  return brandingFileExists(safe) ? filename : null
 }

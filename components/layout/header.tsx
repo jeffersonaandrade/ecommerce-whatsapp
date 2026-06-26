@@ -3,7 +3,7 @@ import { AdminAccessButton } from '@/components/admin/admin-access-button'
 import { CartNavLink } from '@/components/cart/cart-nav-link'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { brandingAssetUrl } from '@/lib/store/branding-url'
-import { resolveExistingBrandingPath } from '@/lib/store/generate-branding'
+import { resolveExistingBrandingPath } from '@/lib/store/branding-storage'
 
 export async function Header() {
   const settings = await getStoreSettings()

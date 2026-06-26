@@ -1,4 +1,4 @@
-import { readBrandingFile } from '@/lib/store/generate-branding'
+import { readBrandingFile } from '@/lib/store/branding-storage'
 import { resolveBrandingFilename } from '@/lib/store/branding-url'
 import { BRANDING_CACHE_CONTROL } from '@/lib/store/build-metadata'
 
@@ -13,22 +13,27 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
-  const { path: segments } = await params
-  const filename = segments.join('/')
-  const resolved = resolveBrandingFilename(filename)
-  const buffer = await readBrandingFile(resolved)
+  try {
+    const { path: segments } = await params
+    const filename = segments.join('/')
+    const resolved = resolveBrandingFilename(filename)
+    const buffer = await readBrandingFile(resolved)
 
-  if (!buffer) {
-    return new Response('Not found', { status: 404 })
+    if (!buffer) {
+      return new Response('Not found', { status: 404 })
+    }
+
+    const ext = resolved.slice(resolved.lastIndexOf('.')).toLowerCase()
+    const contentType = MIME[ext] ?? 'application/octet-stream'
+
+    return new Response(new Uint8Array(buffer), {
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': BRANDING_CACHE_CONTROL,
+      },
+    })
+  } catch (error) {
+    console.error('[api/branding]', error)
+    return new Response('Internal server error', { status: 500 })
   }
-
-  const ext = resolved.slice(resolved.lastIndexOf('.')).toLowerCase()
-  const contentType = MIME[ext] ?? 'application/octet-stream'
-
-  return new Response(new Uint8Array(buffer), {
-    headers: {
-      'Content-Type': contentType,
-      'Cache-Control': BRANDING_CACHE_CONTROL,
-    },
-  })
 }

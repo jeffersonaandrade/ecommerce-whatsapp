@@ -22,6 +22,12 @@ function getSupabaseProductsRemotePattern():
 const supabaseProductsPattern = getSupabaseProductsRemotePattern()
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['sharp'],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '3mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

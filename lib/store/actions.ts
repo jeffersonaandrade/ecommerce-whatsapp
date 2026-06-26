@@ -83,7 +83,8 @@ export async function uploadStoreLogoAction(
     })
     revalidateStore()
     return { ok: true, updatedAt: next.updatedAt }
-  } catch {
+  } catch (error) {
+    console.error('[uploadStoreLogoAction]', error)
     return { ok: false, error: 'Falha ao processar logo. Tente outro arquivo.' }
   }
 }

@@ -1,4 +1,4 @@
-import { readBrandingFile } from '@/lib/store/generate-branding'
+import { readBrandingFile } from '@/lib/store/branding-storage'
 import { BRANDING_CACHE_CONTROL } from '@/lib/store/build-metadata'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 
