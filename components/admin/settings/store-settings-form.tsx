@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { StoreSettings } from '@/types/store-settings'
 import { getButtonClassName } from '@/components/ui/button'
@@ -16,9 +17,15 @@ import { AppearancePreview } from './appearance-preview'
 
 type StoreSettingsFormProps = {
   initial: StoreSettings
+  heroManagedByBanners?: boolean
+  activeBannerCount?: number
 }
 
-export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
+export function StoreSettingsForm({
+  initial,
+  heroManagedByBanners = false,
+  activeBannerCount = 0,
+}: StoreSettingsFormProps) {
   const router = useRouter()
   const [settings, setSettings] = useState(initial)
   const [error, setError] = useState<string | null>(null)
@@ -298,56 +305,83 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
           <h2 className="text-lg font-semibold text-ink">Conteúdo da Loja</h2>
           <p className="text-sm text-mute">
-            Textos e imagem do hero e páginas institucionais. Layout fixo — apenas conteúdo.
+            {heroManagedByBanners
+              ? 'Páginas institucionais. A home usa os slides em Banners.'
+              : 'Textos e imagem do hero e páginas institucionais. Layout fixo — apenas conteúdo.'}
           </p>
 
-          <div className="space-y-3 rounded-lg border border-hairline bg-soft-cloud/50 p-4">
-            <h3 className="text-sm font-semibold text-ink">Hero (home)</h3>
-            <label className="block text-sm font-medium text-ink">
-              Headline (linha 1)
-              <input
-                name="heroHeadline"
-                defaultValue={settings.heroHeadline}
-                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-              />
-            </label>
-            <label className="block text-sm font-medium text-ink">
-              Headline (linha 2)
-              <input
-                name="heroHeadlineLine2"
-                defaultValue={settings.heroHeadlineLine2}
-                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-              />
-            </label>
-            <label className="block text-sm font-medium text-ink">
-              Subtítulo
-              <textarea
-                name="heroSubheadline"
-                defaultValue={settings.heroSubheadline}
-                rows={2}
-                className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-              />
-            </label>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="block text-sm font-medium text-ink">
-                CTA — texto
-                <input
-                  name="heroCtaLabel"
-                  defaultValue={settings.heroCtaLabel}
-                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-                />
-              </label>
-              <label className="block text-sm font-medium text-ink">
-                CTA — link
-                <input
-                  name="heroCtaHref"
-                  defaultValue={settings.heroCtaHref}
-                  placeholder="/products"
-                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-                />
-              </label>
+          {heroManagedByBanners ? (
+            <div className="rounded-lg border border-hairline bg-soft-cloud/50 px-4 py-3 text-sm text-ink">
+              <p>
+                A home exibe{' '}
+                <strong>
+                  {activeBannerCount}{' '}
+                  {activeBannerCount === 1 ? 'banner ativo' : 'banners ativos'}
+                </strong>
+                . Título, imagem e CTA da área principal são editados em{' '}
+                <Link href="/admin/banners" className="font-medium text-accent hover:underline">
+                  Banners
+                </Link>
+                .
+              </p>
+              <p className="mt-2 text-xs text-mute">
+                O hero abaixo só volta a valer se todos os banners forem desativados ou removidos.
+              </p>
+              <input type="hidden" name="heroHeadline" value={settings.heroHeadline} />
+              <input type="hidden" name="heroHeadlineLine2" value={settings.heroHeadlineLine2} />
+              <input type="hidden" name="heroSubheadline" value={settings.heroSubheadline} />
+              <input type="hidden" name="heroCtaLabel" value={settings.heroCtaLabel} />
+              <input type="hidden" name="heroCtaHref" value={settings.heroCtaHref} />
             </div>
-          </div>
+          ) : (
+            <div className="space-y-3 rounded-lg border border-hairline bg-soft-cloud/50 p-4">
+              <h3 className="text-sm font-semibold text-ink">Hero (home)</h3>
+              <label className="block text-sm font-medium text-ink">
+                Headline (linha 1)
+                <input
+                  name="heroHeadline"
+                  defaultValue={settings.heroHeadline}
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm font-medium text-ink">
+                Headline (linha 2)
+                <input
+                  name="heroHeadlineLine2"
+                  defaultValue={settings.heroHeadlineLine2}
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+              <label className="block text-sm font-medium text-ink">
+                Subtítulo
+                <textarea
+                  name="heroSubheadline"
+                  defaultValue={settings.heroSubheadline}
+                  rows={2}
+                  className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                />
+              </label>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="block text-sm font-medium text-ink">
+                  CTA — texto
+                  <input
+                    name="heroCtaLabel"
+                    defaultValue={settings.heroCtaLabel}
+                    className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                  />
+                </label>
+                <label className="block text-sm font-medium text-ink">
+                  CTA — link
+                  <input
+                    name="heroCtaHref"
+                    defaultValue={settings.heroCtaHref}
+                    placeholder="/products"
+                    className="mt-1 w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+                  />
+                </label>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-3 rounded-lg border border-hairline bg-soft-cloud/50 p-4">
             <h3 className="text-sm font-semibold text-ink">Páginas institucionais</h3>
@@ -533,50 +567,52 @@ export function StoreSettingsForm({ initial }: StoreSettingsFormProps) {
         <AppearancePreview settings={settings} />
       </section>
 
-      <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
-        <h2 className="text-lg font-semibold text-ink">Banner do hero</h2>
-        <p className="text-sm text-mute">
-          Imagem de fundo da home (1920×1080 recomendado). Upload independente de Salvar
-          configurações.
-        </p>
-        {heroSectionError && (
-          <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-            {heroSectionError}
-          </div>
-        )}
-        {heroSectionMessage && (
-          <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-            {heroSectionMessage}
-          </div>
-        )}
-        {heroPreviewUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={heroPreviewUrl}
-            alt="Preview do hero"
-            className="h-32 w-full rounded-lg object-cover"
+      {!heroManagedByBanners && (
+        <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
+          <h2 className="text-lg font-semibold text-ink">Banner do hero</h2>
+          <p className="text-sm text-mute">
+            Imagem de fundo da home (1920×1080 recomendado). Upload independente de Salvar
+            configurações.
+          </p>
+          {heroSectionError && (
+            <div className="rounded-lg border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
+              {heroSectionError}
+            </div>
+          )}
+          {heroSectionMessage && (
+            <div className="rounded-lg border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
+              {heroSectionMessage}
+            </div>
+          )}
+          {heroPreviewUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={heroPreviewUrl}
+              alt="Preview do hero"
+              className="h-32 w-full rounded-lg object-cover"
+            />
+          )}
+          <input
+            id="store-hero-file"
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={handleHeroFileSelect}
+            disabled={isHeroPending}
+            className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
           />
-        )}
-        <input
-          id="store-hero-file"
-          type="file"
-          accept="image/png,image/jpeg,image/webp"
-          onChange={handleHeroFileSelect}
-          disabled={isHeroPending}
-          className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
-        />
-        {heroFile && (
-          <p className="text-sm text-mute">Arquivo selecionado: {heroFile.name}</p>
-        )}
-        <button
-          type="button"
-          disabled={isHeroPending || !heroFile}
-          onClick={handleHeroUpload}
-          className={getButtonClassName('default', 'md')}
-        >
-          {isHeroPending ? 'Enviando imagem...' : 'Enviar imagem do hero'}
-        </button>
-      </section>
+          {heroFile && (
+            <p className="text-sm text-mute">Arquivo selecionado: {heroFile.name}</p>
+          )}
+          <button
+            type="button"
+            disabled={isHeroPending || !heroFile}
+            onClick={handleHeroUpload}
+            className={getButtonClassName('default', 'md')}
+          >
+            {isHeroPending ? 'Enviando imagem...' : 'Enviar imagem do hero'}
+          </button>
+        </section>
+      )}
 
       <section className="space-y-4 rounded-lg border border-red-200 bg-red-50/50 p-6">
         <h2 className="text-lg font-semibold text-ink">Restaurar aparência padrão</h2>
