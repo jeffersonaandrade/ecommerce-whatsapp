@@ -37,15 +37,6 @@ export async function Header() {
           </span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
-          <Link
-            href="/products"
-            className="text-sm font-medium text-ink transition-colors hover:text-mute"
-          >
-            Produtos
-          </Link>
-        </div>
-
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <CartNavLink />
           <AdminAccessButton />
