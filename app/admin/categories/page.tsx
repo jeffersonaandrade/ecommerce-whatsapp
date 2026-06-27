@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { getButtonClassName } from '@/components/ui/button'
 import { AdminListPage } from '@/components/admin/admin-list-page'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
@@ -64,30 +65,19 @@ export default async function AdminCategoriesPage({
 
   return (
     <div className="w-full">
-      <div className="bg-gray-900 text-white py-8 sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <AdminPageHeader
+        title="Categorias"
+        subtitle="Crie, ordene e oculte categorias exibidas na vitrine."
+        back={{ href: '/admin', label: 'Voltar ao Admin' }}
+        actions={
           <Link
-            href="/admin"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
+            href="/admin/categories/new"
+            className={getButtonClassName('secondary', 'md', '!text-ink')}
           >
-            ← Voltar ao Admin
+            + Nova categoria
           </Link>
-          <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold">Categorias</h1>
-              <p className="text-gray-400 mt-2">
-                Crie, ordene e oculte categorias exibidas na vitrine.
-              </p>
-            </div>
-            <Link
-              href="/admin/categories/new"
-              className={getButtonClassName('secondary', 'md', '!text-ink')}
-            >
-              + Nova categoria
-            </Link>
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
         <AdminListPage

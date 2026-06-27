@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 
 export const metadata: Metadata = {
   title: 'Admin - Pedidos',
@@ -10,13 +11,10 @@ export const metadata: Metadata = {
 export default function AdminOrdersPage() {
   return (
     <div className="w-full">
-      {/* Page Header */}
-      <div className="bg-ink py-8 text-canvas">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold">Gerenciar Pedidos</h1>
-          <p className="mt-1 text-mute">Acompanhe todos os pedidos dos clientes</p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Gerenciar Pedidos"
+        subtitle="Acompanhe todos os pedidos dos clientes"
+      />
 
       {/* Empty State */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">

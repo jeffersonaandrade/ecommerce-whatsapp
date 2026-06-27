@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { MediaCenter } from '@/components/admin/media/media-center'
 import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllProductsAdmin, queryProductsAdmin } from '@/lib/products'
@@ -61,23 +61,11 @@ export default async function AdminProductsMediaPage({
 
   return (
     <div className="w-full">
-      <div className="bg-ink py-8 text-canvas">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-sm text-mute">
-                <Link href="/admin/products" className="hover:text-canvas">
-                  ← Produtos
-                </Link>
-              </p>
-              <h1 className="text-3xl font-bold">Central de Mídia</h1>
-              <p className="mt-1 text-mute">
-                Inventário, associação e upload em lote para migração de imagens
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Central de Mídia"
+        subtitle="Inventário, associação e upload em lote para migração de imagens"
+        back={{ href: '/admin/products', label: 'Produtos' }}
+      />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <MediaCenter

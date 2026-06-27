@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getButtonClassName } from '@/components/ui/button'
 import { AdminListPage } from '@/components/admin/admin-list-page'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
@@ -9,6 +10,7 @@ import { FilterBar } from '@/components/admin/filter-bar'
 import { ProductsTable } from '@/components/admin/products-table'
 import { queryProductsAdmin } from '@/lib/products'
 import { getAllCategoriesAdmin } from '@/lib/categories'
+import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import type { ProductQuery, ProductFilters, ProductSort } from '@/lib/query'
 import type { ProductStatus } from '@/types/product'
 
@@ -32,6 +34,7 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>
 }) {
+  const migrationTools = isMigrationToolsEnabled()
   const params = await searchParams
 
   const rawStatus = params.status as ProductStatus | undefined
@@ -79,40 +82,28 @@ export default async function AdminProductsPage({
 
   return (
     <div className="w-full">
-      <div className="bg-gray-900 text-white py-8">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-3xl font-bold">Gerenciar Produtos</h1>
-              <p className="text-gray-400 mt-1">
-                {result.total} produto{result.total !== 1 ? 's' : ''} encontrado{result.total !== 1 ? 's' : ''}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
+      <AdminPageHeader
+        title="Gerenciar Produtos"
+        subtitle={`${result.total} produto${result.total !== 1 ? 's' : ''} encontrado${result.total !== 1 ? 's' : ''}`}
+        actions={
+          <div className="flex flex-wrap gap-3">
+            {migrationTools ? (
               <Link
                 href="/admin/products/media"
-                className={getButtonClassName(
-                  'secondary',
-                  'md',
-                  '!text-ink bg-white hover:bg-gray-100 focus:ring-gray-300 w-full sm:w-auto'
-                )}
+                className={getButtonClassName('secondary', 'md', '!text-ink')}
               >
                 Central de Mídia
               </Link>
-              <Link
-                href="/admin/products/new"
-                className={getButtonClassName(
-                  'secondary',
-                  'md',
-                  '!text-ink bg-white hover:bg-gray-100 focus:ring-gray-300 w-full sm:w-auto'
-                )}
-              >
-                + Novo Produto
-              </Link>
-            </div>
+            ) : null}
+            <Link
+              href="/admin/products/new"
+              className={getButtonClassName('secondary', 'md', '!text-ink')}
+            >
+              + Novo Produto
+            </Link>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {params.batch && (
