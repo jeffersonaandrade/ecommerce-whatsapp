@@ -136,7 +136,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
     const base = 'w-full rounded-lg border px-3 py-2 text-sm'
     return fieldErrors[field]
       ? `${base} border-red-500 ring-1 ring-red-200`
-      : `${base} border-gray-300`
+      : `${base} border-hairline`
   }
 
   function applyValidationErrors(
@@ -290,7 +290,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
           <h2 className="text-lg font-semibold">Informações básicas</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label className="block space-y-1">
-              <span className="text-sm font-medium text-gray-700">Nome *</span>
+              <span className="text-sm font-medium text-ink">Nome *</span>
               <input
                 id="product-field-name"
                 required
@@ -301,7 +301,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               <FieldError message={fieldErrors.name} />
             </label>
             <label className="block space-y-1">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-ink">
                 Slug (opcional)
               </span>
               <input
@@ -314,7 +314,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               <FieldError message={fieldErrors.slug} />
             </label>
             <label className="block space-y-1">
-              <span className="text-sm font-medium text-gray-700">Categoria *</span>
+              <span className="text-sm font-medium text-ink">Categoria *</span>
               <select
                 id="product-field-category"
                 required
@@ -338,13 +338,13 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
                   ))
                 )}
               </select>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-mute">
                 Tipo do produto na loja (ex.: Camisas). Clube/time vai em Clube / Marca.
               </p>
               <FieldError message={fieldErrors.category} />
             </label>
             <label className="block space-y-1">
-              <span className="text-sm font-medium text-gray-700">Clube / Marca</span>
+              <span className="text-sm font-medium text-ink">Clube / Marca</span>
               <input
                 id="product-field-club"
                 value={club}
@@ -355,7 +355,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               <FieldError message={fieldErrors.club} />
             </label>
             <label className="block space-y-1">
-              <span className="text-sm font-medium text-gray-700">Preço *</span>
+              <span className="text-sm font-medium text-ink">Preço *</span>
               <MoneyInput
                 ref={priceInputRef}
                 id="product-field-price"
@@ -368,7 +368,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               <FieldError message={fieldErrors.price} />
             </label>
             <label className="block space-y-1">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-ink">
                 Preço promocional
               </span>
               <MoneyInput
@@ -384,7 +384,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               <FieldError message={fieldErrors.promotionalPrice} />
             </label>
             <label className="block space-y-1 sm:col-span-2">
-              <span className="text-sm font-medium text-gray-700">Status</span>
+              <span className="text-sm font-medium text-ink">Status</span>
               <select
                 id="product-field-status"
                 value={status}
@@ -400,18 +400,18 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
           </div>
 
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-gray-700">
+            <span className="text-sm font-medium text-ink">
               Descrição curta (opcional)
             </span>
             <input
               value={shortDescription}
               onChange={(e) => setShortDescription(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
             />
           </label>
 
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-gray-700">Descrição *</span>
+            <span className="text-sm font-medium text-ink">Descrição *</span>
             <textarea
               id="product-field-longDescription"
               required
@@ -426,7 +426,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
 
         <section id="product-field-images" className="space-y-3">
           <h2 className="text-lg font-semibold">Galeria de imagens</h2>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-mute">
             Ao menos 1 imagem (máximo 5). Use URL externa ou envie arquivo (Supabase).
             Defina a <strong>posição na loja</strong>: a 1 aparece em destaque; 2, 3… seguem na galeria.
           </p>
@@ -457,41 +457,41 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
             {variations.map((row, index) => (
               <div
                 key={row.id ?? `new-${index}`}
-                className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end border border-gray-100 rounded-lg p-3"
+                className="grid grid-cols-2 sm:grid-cols-5 gap-2 items-end border border-hairline rounded-lg p-3"
               >
                 <label className="block space-y-1">
-                  <span className="text-xs text-gray-600">Tamanho</span>
+                  <span className="text-xs text-mute">Tamanho</span>
                   <input
                     value={row.size}
                     onChange={(e) => updateVariation(index, { size: e.target.value })}
-                    className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+                    className="w-full rounded border border-hairline px-2 py-1.5 text-sm"
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs text-gray-600">Cor</span>
+                  <span className="text-xs text-mute">Cor</span>
                   <input
                     value={row.color}
                     onChange={(e) => updateVariation(index, { color: e.target.value })}
-                    className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+                    className="w-full rounded border border-hairline px-2 py-1.5 text-sm"
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs text-gray-600">SKU *</span>
+                  <span className="text-xs text-mute">SKU *</span>
                   <input
                     required
                     value={row.sku}
                     onChange={(e) => updateVariation(index, { sku: e.target.value })}
-                    className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+                    className="w-full rounded border border-hairline px-2 py-1.5 text-sm"
                   />
                 </label>
                 <label className="block space-y-1">
-                  <span className="text-xs text-gray-600">Estoque</span>
+                  <span className="text-xs text-mute">Estoque</span>
                   <input
                     type="number"
                     min="0"
                     value={row.stock}
                     onChange={(e) => updateVariation(index, { stock: e.target.value })}
-                    className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm"
+                    className="w-full rounded border border-hairline px-2 py-1.5 text-sm"
                   />
                 </label>
                 <Button

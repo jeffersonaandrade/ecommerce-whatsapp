@@ -181,16 +181,16 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
       <section className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-gray-700">Nome *</span>
+            <span className="text-sm font-medium text-ink">Nome *</span>
             <input
               required
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
             />
           </label>
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-gray-700">Slug *</span>
+            <span className="text-sm font-medium text-ink">Slug *</span>
             <input
               required
               value={slug}
@@ -200,21 +200,21 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
                 setSlugTouched(true)
                 setSlug(e.target.value)
               }}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm font-mono disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
+              className="w-full rounded-lg border border-hairline px-3 py-2 text-sm font-mono disabled:bg-soft-cloud disabled:text-mute disabled:cursor-not-allowed"
             />
             {mode === 'edit' && productCount > 0 && (
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-mute">
                 Slug bloqueado: {productCount} produto(s) vinculado(s).
               </span>
             )}
           </label>
           <label className="block space-y-1">
-            <span className="text-sm font-medium text-gray-700">Ordem</span>
+            <span className="text-sm font-medium text-ink">Ordem</span>
             <input
               type="number"
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
             />
           </label>
           <label className="flex items-center gap-2 pt-7">
@@ -222,26 +222,26 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
               type="checkbox"
               checked={visible}
               onChange={(e) => setVisible(e.target.checked)}
-              className="rounded border-gray-300"
+              className="rounded border-hairline"
             />
-            <span className="text-sm font-medium text-gray-700">Visível na vitrine</span>
+            <span className="text-sm font-medium text-ink">Visível na vitrine</span>
           </label>
         </div>
         <label className="block space-y-1">
-          <span className="text-sm font-medium text-gray-700">Descrição</span>
+          <span className="text-sm font-medium text-ink">Descrição</span>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
           />
         </label>
       </section>
 
       {mode === 'edit' && category && (
-        <section className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <h3 className="text-sm font-medium text-gray-700">Imagem da categoria</h3>
-          <p className="text-xs text-gray-500">
+        <section className="space-y-3 rounded-lg border border-hairline bg-soft-cloud p-4">
+          <h3 className="text-sm font-medium text-ink">Imagem da categoria</h3>
+          <p className="text-xs text-mute">
             Exibida como card visual na vitrine. Use <strong>Enviar imagem</strong> — não depende de
             Salvar alterações. PNG, JPG ou WebP, máx. 2 MB.
           </p>
@@ -260,7 +260,7 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
             accept="image/png,image/jpeg,image/webp"
             onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
             disabled={isImagePending}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-gray-200 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gray-700"
+            className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
           />
           <div className="flex gap-2">
             <Button
