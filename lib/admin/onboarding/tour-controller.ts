@@ -111,12 +111,18 @@ function resolveVisibleSteps(steps: TourStepDef[]): TourStepDef[] {
   })
 }
 
+function isFinalTourStep(stepDef: TourStepDef): boolean {
+  const lastStep = PHASE_2_TOUR_STEPS[PHASE_2_TOUR_STEPS.length - 1]
+  return lastStep != null && stepDef.id === lastStep.id
+}
+
 function buildDriverSteps(
   steps: TourStepDef[],
   callbacks: TourControllerCallbacks
 ): DriveStep[] {
   return steps.map((stepDef, index) => {
-    const isLast = index === steps.length - 1
+    const isFinalStep = isFinalTourStep(stepDef)
+    const isFirst = index === 0
 
     const driveStep: DriveStep = {
       element: stepDef.target,
@@ -124,29 +130,36 @@ function buildDriverSteps(
         title: stepDef.title,
         description: stepDef.description,
         showButtons: ['previous', 'next', 'close'],
-        nextBtnText: isLast ? 'Concluir' : 'Próximo',
+        nextBtnText: isFinalStep ? 'Concluir' : 'Próximo',
         prevBtnText: 'Voltar',
-        onNextClick: isLast
+        onNextClick: stepDef.navigateOnNext && stepDef.resumeStepId
           ? (_element, _step, { driver: driverInstance }) => {
-              tourDebug('destroy', { reason: 'phase-complete', stepId: stepDef.id })
-              clearTourResume()
+              tourDebug('navigate', {
+                from: stepDef.id,
+                to: stepDef.navigateOnNext,
+                resumeStepId: stepDef.resumeStepId,
+              })
+              writeTourResume({ phase: TOUR_PHASE, stepId: stepDef.resumeStepId! })
               driverInstance.destroy()
               callbacks.onTourActiveChange(false)
-              callbacks.onPhaseComplete(PHASE_2_COMPLETION_MESSAGE)
+              callbacks.onNavigate(stepDef.navigateOnNext!)
             }
-          : stepDef.navigateOnNext && stepDef.resumeStepId
+          : isFinalStep
             ? (_element, _step, { driver: driverInstance }) => {
-                tourDebug('navigate', {
-                  from: stepDef.id,
-                  to: stepDef.navigateOnNext,
-                  resumeStepId: stepDef.resumeStepId,
-                })
-                writeTourResume({ phase: TOUR_PHASE, stepId: stepDef.resumeStepId! })
+                tourDebug('destroy', { reason: 'phase-complete', stepId: stepDef.id })
+                clearTourResume()
                 driverInstance.destroy()
                 callbacks.onTourActiveChange(false)
-                callbacks.onNavigate(stepDef.navigateOnNext!)
+                callbacks.onPhaseComplete(PHASE_2_COMPLETION_MESSAGE)
               }
-            : undefined,
+            : (_element, _step, { driver: driverInstance }) => {
+                driverInstance.moveNext()
+              },
+        onPrevClick: isFirst
+          ? undefined
+          : (_element, _step, { driver: driverInstance }) => {
+              driverInstance.movePrevious()
+            },
         onCloseClick: (_element, _step, { driver: driverInstance }) => {
           tourDebug('destroy', { reason: 'close', stepId: stepDef.id })
           clearTourResume()

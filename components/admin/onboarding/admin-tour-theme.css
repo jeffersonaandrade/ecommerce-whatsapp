@@ -32,6 +32,12 @@
   border-radius: var(--admin-tour-popover-radius);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
   max-width: 22rem;
+  z-index: 1000000001 !important;
+  pointer-events: auto !important;
+}
+
+.driver-popover.admin-tour-popover * {
+  pointer-events: auto;
 }
 
 .driver-popover.admin-tour-popover .driver-popover-title {
@@ -64,6 +70,13 @@
   background-color: var(--admin-tour-btn-primary-bg);
   color: var(--admin-tour-btn-primary-text);
   border: none;
+}
+
+.driver-popover.admin-tour-popover .driver-popover-prev-btn,
+.driver-popover.admin-tour-popover .driver-popover-next-btn,
+.driver-popover.admin-tour-popover .driver-popover-close-btn {
+  cursor: pointer;
+  pointer-events: auto !important;
 }
 
 .driver-popover.admin-tour-popover .driver-popover-prev-btn,
