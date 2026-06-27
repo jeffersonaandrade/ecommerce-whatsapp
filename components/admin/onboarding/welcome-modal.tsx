@@ -14,6 +14,7 @@ type WelcomeModalProps = {
   storeMature: boolean
   onStateChange: (state: AdminOnboardingState) => void
   onClose: () => void
+  onStartTour: () => void
 }
 
 export function WelcomeModal({
@@ -21,6 +22,7 @@ export function WelcomeModal({
   storeMature,
   onStateChange,
   onClose,
+  onStartTour,
 }: WelcomeModalProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -45,6 +47,7 @@ export function WelcomeModal({
         onStateChange(result.state)
         onClose()
         router.refresh()
+        window.requestAnimationFrame(() => onStartTour())
       }
     })
   }

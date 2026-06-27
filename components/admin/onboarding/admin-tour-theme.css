@@ -1,0 +1,78 @@
+:root {
+  --admin-tour-overlay: rgba(17, 17, 17, 0.6);
+  --admin-tour-popover-bg: #ffffff;
+  --admin-tour-popover-text: #111111;
+  --admin-tour-popover-muted: #6b7280;
+  --admin-tour-popover-border: #e5e7eb;
+  --admin-tour-popover-radius: 0.75rem;
+  --admin-tour-btn-primary-bg: #111111;
+  --admin-tour-btn-primary-text: #ffffff;
+  --admin-tour-btn-outline-border: #e5e7eb;
+  --admin-tour-btn-outline-text: #111111;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-admin-theme='dark'] {
+    --admin-tour-overlay: rgba(0, 0, 0, 0.75);
+    --admin-tour-popover-bg: #1a1a1a;
+    --admin-tour-popover-text: #f5f5f5;
+    --admin-tour-popover-muted: #9ca3af;
+    --admin-tour-popover-border: #374151;
+    --admin-tour-btn-primary-bg: #f5f5f5;
+    --admin-tour-btn-primary-text: #111111;
+    --admin-tour-btn-outline-border: #374151;
+    --admin-tour-btn-outline-text: #f5f5f5;
+  }
+}
+
+.driver-popover.admin-tour-popover {
+  background-color: var(--admin-tour-popover-bg);
+  color: var(--admin-tour-popover-text);
+  border: 1px solid var(--admin-tour-popover-border);
+  border-radius: var(--admin-tour-popover-radius);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+  max-width: 22rem;
+}
+
+.driver-popover.admin-tour-popover .driver-popover-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--admin-tour-popover-text);
+}
+
+.driver-popover.admin-tour-popover .driver-popover-description {
+  font-size: 0.875rem;
+  color: var(--admin-tour-popover-muted);
+  line-height: 1.5;
+}
+
+.driver-popover.admin-tour-popover .driver-popover-progress-text {
+  font-size: 0.75rem;
+  color: var(--admin-tour-popover-muted);
+}
+
+.driver-popover.admin-tour-popover button {
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.375rem 0.875rem;
+  text-shadow: none;
+}
+
+.driver-popover.admin-tour-popover .driver-popover-next-btn,
+.driver-popover.admin-tour-popover .driver-popover-done-btn {
+  background-color: var(--admin-tour-btn-primary-bg);
+  color: var(--admin-tour-btn-primary-text);
+  border: none;
+}
+
+.driver-popover.admin-tour-popover .driver-popover-prev-btn,
+.driver-popover.admin-tour-popover .driver-popover-close-btn {
+  background-color: transparent;
+  color: var(--admin-tour-btn-outline-text);
+  border: 1px solid var(--admin-tour-btn-outline-border);
+}
+
+.driver-overlay {
+  background-color: var(--admin-tour-overlay) !important;
+}

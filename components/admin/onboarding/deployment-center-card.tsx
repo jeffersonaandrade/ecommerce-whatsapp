@@ -118,7 +118,10 @@ export function DeploymentCenterCard() {
   }
 
   return (
-    <section className="mb-10 rounded-lg border border-hairline bg-canvas p-6">
+    <section
+      className="mb-10 rounded-lg border border-hairline bg-canvas p-6"
+      data-onboarding="deployment-center"
+    >
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-lg font-semibold text-ink">Centro de Implantação</h2>

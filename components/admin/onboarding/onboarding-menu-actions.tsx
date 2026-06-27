@@ -6,22 +6,26 @@ import { getButtonClassName } from '@/components/ui/button'
 import {
   resetDeploymentAction,
   restartTourAction,
+  startOnboardingAction,
 } from '@/lib/admin/onboarding/actions'
 import { useAdminOnboarding } from '@/hooks/use-admin-onboarding'
 
 export function OnboardingMenuActions() {
   const router = useRouter()
-  const { setState, openWelcomeModal } = useAdminOnboarding()
+  const { setState, startTour, openWelcomeModal } = useAdminOnboarding()
   const [confirmReset, setConfirmReset] = useState(false)
   const [isPending, startTransition] = useTransition()
 
   function handleRestartTour() {
     startTransition(async () => {
-      const result = await restartTourAction()
-      if (result.ok) {
-        setState(result.state)
-        openWelcomeModal()
+      const restart = await restartTourAction()
+      if (!restart.ok) return
+
+      const start = await startOnboardingAction()
+      if (start.ok) {
+        setState(start.state)
         router.refresh()
+        window.requestAnimationFrame(() => startTour())
       }
     })
   }

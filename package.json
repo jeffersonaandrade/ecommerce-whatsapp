@@ -11,6 +11,10 @@
     "test:watch": "vitest",
     "test:e2e:smoke": "node scripts/qa/smoke-regression-playwright.mjs",
     "migrate:supabase": "node scripts/migration/migrate-json-to-supabase.mjs",
+    "migrate:images:dry-run": "node scripts/migration/dry-run-local-images.mjs",
+    "migrate:images:pilot": "node scripts/migration/upload-local-images-pilot.mjs",
+    "migrate:images:remaining": "node scripts/migration/upload-local-images-pilot.mjs --remaining",
+    "migrate:images:all-safe": "node scripts/migration/upload-local-images-pilot.mjs --all-safe",
     "branding:sync": "node scripts/deploy/sync-branding-logo.mjs",
     "headroom:cursor": "headroom wrap cursor"
   },
@@ -18,6 +22,7 @@
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "clsx": "^2.1.1",
+    "driver.js": "^1.6.0",
     "framer-motion": "^12.41.0",
     "headroom-ai": "^0.22.4",
     "lucide-react": "^1.21.0",

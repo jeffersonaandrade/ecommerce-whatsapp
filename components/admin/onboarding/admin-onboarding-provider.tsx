@@ -6,11 +6,14 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
 import { usePathname } from 'next/navigation'
 import type { AdminOnboardingState, OnboardingProgress } from '@/types/admin-onboarding'
+import type { TourStepId } from '@/lib/admin/onboarding/tour-steps'
+import { AdminTourDriver } from './admin-tour-driver'
 import { WelcomeModal } from './welcome-modal'
 
 type AdminOnboardingContextValue = {
@@ -21,6 +24,9 @@ type AdminOnboardingContextValue = {
   openWelcomeModal: () => void
   closeWelcomeModal: () => void
   storeMature: boolean
+  startTour: (stepId?: TourStepId) => void
+  stopTour: () => void
+  isTourActive: boolean
 }
 
 const AdminOnboardingContext = createContext<AdminOnboardingContextValue | null>(null)
@@ -39,6 +45,8 @@ export function AdminOnboardingProvider({
   const pathname = usePathname()
   const [state, setState] = useState(initialState)
   const [forceWelcome, setForceWelcome] = useState(false)
+  const [isTourActive, setIsTourActive] = useState(false)
+  const startTourRef = useRef<((stepId?: TourStepId) => void) | null>(null)
 
   useEffect(() => {
     setState(initialState)
@@ -59,6 +67,14 @@ export function AdminOnboardingProvider({
   const openWelcomeModal = useCallback(() => setForceWelcome(true), [])
   const closeWelcomeModal = useCallback(() => setForceWelcome(false), [])
 
+  const startTour = useCallback((stepId: TourStepId = 'deployment-center') => {
+    startTourRef.current?.(stepId)
+  }, [])
+
+  const stopTour = useCallback(() => {
+    setIsTourActive(false)
+  }, [])
+
   const value = useMemo(
     () => ({
       state,
@@ -68,8 +84,20 @@ export function AdminOnboardingProvider({
       openWelcomeModal,
       closeWelcomeModal,
       storeMature: progress.storeMature,
+      startTour,
+      stopTour,
+      isTourActive,
     }),
-    [state, progress, showWelcomeModal, openWelcomeModal, closeWelcomeModal]
+    [
+      state,
+      progress,
+      showWelcomeModal,
+      openWelcomeModal,
+      closeWelcomeModal,
+      startTour,
+      stopTour,
+      isTourActive,
+    ]
   )
 
   if (isLogin) {
@@ -79,11 +107,16 @@ export function AdminOnboardingProvider({
   return (
     <AdminOnboardingContext.Provider value={value}>
       {children}
+      <AdminTourDriver
+        onActiveChange={setIsTourActive}
+        startTourRef={startTourRef}
+      />
       <WelcomeModal
         open={showWelcomeModal}
         storeMature={progress.storeMature}
         onStateChange={setState}
         onClose={closeWelcomeModal}
+        onStartTour={startTour}
       />
     </AdminOnboardingContext.Provider>
   )

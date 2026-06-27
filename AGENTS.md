@@ -16,6 +16,8 @@ Alterações de schema e consultas no Postgres remoto devem usar o **MCP Supabas
 
 Não pedir ao usuário copiar SQL no dashboard, salvo bloqueio do MCP. Documentar migrations aplicadas em `docs/DATABASE_PLAN.md` e adicionar o SQL em `scripts/migration/supabase-migrations.sql`.
 
+**Debug onboarding (Fase 2):** `NEXT_PUBLIC_DEBUG_ONBOARDING=true` — logs `[onboarding]` no console durante o tour Driver.js.
+
 ## Headroom (economia de tokens)
 
 Este projeto usa [Headroom](https://github.com/headroomlabs-ai/headroom) para comprimir saídas de ferramentas, logs e arquivos grandes antes de chegarem ao LLM (60–95% menos tokens, respostas equivalentes).
