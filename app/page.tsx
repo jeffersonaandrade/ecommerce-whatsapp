@@ -1,5 +1,4 @@
-import { SportsHero } from '@/components/commerce/sports-hero'
-import { BannerCarousel } from '@/components/commerce/banner-carousel'
+import { HomeHero } from '@/components/commerce/home-hero'
 import { CategoryChips } from '@/components/commerce/category-chips'
 import { HomeCategories } from '@/components/commerce/home-categories'
 import { HomeBenefits } from '@/components/commerce/home-benefits'
@@ -31,22 +30,19 @@ export default async function Home() {
 
   return (
     <div className="w-full">
-      {bannerSlides.length > 0 ? (
-        <BannerCarousel slides={bannerSlides} />
-      ) : (
-        <SportsHero
-          content={{
-            storeName: settings.storeName,
-            heroImagePath,
-            heroHeadline: settings.heroHeadline,
-            heroHeadlineLine2: settings.heroHeadlineLine2,
-            heroSubheadline: settings.heroSubheadline,
-            heroCtaLabel: settings.heroCtaLabel,
-            heroCtaHref: settings.heroCtaHref,
-            updatedAt: settings.updatedAt,
-          }}
-        />
-      )}
+      <HomeHero
+        slides={bannerSlides}
+        fallback={{
+          storeName: settings.storeName,
+          heroImagePath,
+          heroHeadline: settings.heroHeadline,
+          heroHeadlineLine2: settings.heroHeadlineLine2,
+          heroSubheadline: settings.heroSubheadline,
+          heroCtaLabel: settings.heroCtaLabel,
+          heroCtaHref: settings.heroCtaHref,
+          updatedAt: settings.updatedAt,
+        }}
+      />
 
       <CategoryChips categories={categories} />
       <HomeCategories categories={categories} />
