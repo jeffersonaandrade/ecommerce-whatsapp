@@ -54,7 +54,7 @@ export function MediaCenter({
   }, [tab, pageProducts, probeAll])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-onboarding="media-center">
       <div className="flex flex-wrap gap-2">
         {(
           [
