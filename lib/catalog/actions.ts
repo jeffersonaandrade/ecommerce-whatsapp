@@ -13,6 +13,10 @@ import { getCategoryRepository } from './get-category-repository'
 import { getProductRepository } from './get-product-repository'
 import { ProductInput } from './product-repository'
 import { validateProductInput, type ProductValidationError } from './product-utils'
+import {
+  mimeToImageExt,
+  validateImageFile,
+} from '@/lib/media/validate-image-file'
 
 export type ProductActionError = ProductValidationError
 
@@ -128,16 +132,6 @@ export async function deleteProductAction(
   }
 }
 
-const PRODUCT_IMAGE_MAX_BYTES = 5 * 1024 * 1024
-const PRODUCT_IMAGE_MIME = ['image/png', 'image/jpeg', 'image/webp'] as const
-
-function mimeToExt(mime: string): string {
-  if (mime === 'image/png') return 'png'
-  if (mime === 'image/jpeg') return 'jpg'
-  if (mime === 'image/webp') return 'webp'
-  return 'jpg'
-}
-
 export async function uploadProductImageAction(
   formData: FormData
 ): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
@@ -154,23 +148,20 @@ export async function uploadProductImageAction(
   }
 
   const file = formData.get('image')
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, error: 'Selecione uma imagem válida.' }
+  const fileError = validateImageFile(file instanceof File ? file : new File([], ''), {
+    allowExtensionFallback: false,
+  })
+  if (fileError) {
+    return { ok: false, error: fileError }
   }
 
-  if (file.size > PRODUCT_IMAGE_MAX_BYTES) {
-    return { ok: false, error: 'Imagem deve ter no máximo 5 MB.' }
-  }
-
-  if (!PRODUCT_IMAGE_MIME.includes(file.type as (typeof PRODUCT_IMAGE_MIME)[number])) {
-    return { ok: false, error: 'Formato aceito: PNG, JPG ou WebP.' }
-  }
+  const validFile = file as File
 
   const productSlug = String(formData.get('productSlug') ?? '').trim()
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const ext = mimeToExt(file.type)
+    const buffer = Buffer.from(await validFile.arrayBuffer())
+    const ext = mimeToImageExt(validFile.type)
     const filename = buildProductImageFilename(productSlug, ext)
     await writeProductImage(filename, buffer)
     return { ok: true, url: getProductsPublicUrl(filename) }

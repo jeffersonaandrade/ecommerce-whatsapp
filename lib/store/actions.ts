@@ -11,6 +11,10 @@ import {
   readDefaultStorefrontLogoSourceBuffer,
 } from './default-storefront-preset'
 import { buildRestoreStorefrontPatch } from './restore-default-storefront'
+import {
+  LOGO_IMAGE_MAX_BYTES,
+  validateImageFile,
+} from '@/lib/media/validate-image-file'
 
 function revalidateStore() {
   revalidatePath('/', 'layout')
@@ -61,23 +65,18 @@ export async function uploadStoreLogoAction(
   }
 
   const file = formData.get('logo')
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, error: 'Selecione uma imagem válida.' }
+  const logoError = validateImageFile(file instanceof File ? file : new File([], ''), {
+    maxBytes: LOGO_IMAGE_MAX_BYTES,
+    sizeMessage: 'Logo deve ter no máximo 2 MB.',
+  })
+  if (logoError) {
+    return { ok: false, error: logoError }
   }
 
-  if (file.size > 2 * 1024 * 1024) {
-    return { ok: false, error: 'Logo deve ter no máximo 2 MB.' }
-  }
-
-  const allowed = ['image/png', 'image/jpeg', 'image/webp']
-  const ext = file.name.split('.').pop()?.toLowerCase()
-  const extAllowed = ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'webp'
-  if (!allowed.includes(file.type) && !extAllowed) {
-    return { ok: false, error: 'Formato aceito: PNG, JPG ou WebP.' }
-  }
+  const validLogo = file as File
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const buffer = Buffer.from(await validLogo.arrayBuffer())
     const branding = await generateBrandingFromLogo(buffer)
     const next = await updateStoreSettings({
       logoPath: branding.logoPath,
@@ -107,21 +106,18 @@ export async function uploadHeroImageAction(
   }
 
   const file = formData.get('hero')
-  if (!(file instanceof File) || file.size === 0) {
-    return { ok: false, error: 'Selecione uma imagem válida.' }
+  const heroError = validateImageFile(file instanceof File ? file : new File([], ''), {
+    sizeMessage: 'Imagem do hero deve ter no máximo 5 MB.',
+    allowExtensionFallback: false,
+  })
+  if (heroError) {
+    return { ok: false, error: heroError }
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    return { ok: false, error: 'Imagem do hero deve ter no máximo 5 MB.' }
-  }
-
-  const allowed = ['image/png', 'image/jpeg', 'image/webp']
-  if (!allowed.includes(file.type)) {
-    return { ok: false, error: 'Formato aceito: PNG, JPG ou WebP.' }
-  }
+  const validHero = file as File
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const buffer = Buffer.from(await validHero.arrayBuffer())
     const heroPath = await saveHeroImage(buffer)
     const next = await updateStoreSettings({ heroImagePath: heroPath })
     revalidateStore()

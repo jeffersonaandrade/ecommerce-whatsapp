@@ -1,9 +1,12 @@
 import { MediaMapProduct } from './types'
+import {
+  DEFAULT_IMAGE_MAX_BYTES,
+  isAllowedImageMime,
+} from '@/lib/media/validate-image-file'
 
 const ASSOCIATION_PATTERN = /^(.+)--(\d{2})\.(jpe?g|png|webp)$/i
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+const MAX_IMAGE_BYTES = DEFAULT_IMAGE_MAX_BYTES
 const MAX_IMAGES_PER_PRODUCT = 5
-const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 export type ParsedAssociationFilename = {
   key: string
@@ -67,14 +70,14 @@ export function validateAssociationFile(file: File): AssociationError | null {
       message: 'Nome deve seguir slug--01.jpg ou sku--01.webp',
     }
   }
-  if (file.size > MAX_IMAGE_BYTES) {
+  if (file.size > DEFAULT_IMAGE_MAX_BYTES) {
     return {
       fileName: file.name,
       code: 'FILE_TOO_LARGE',
       message: 'Arquivo excede 5 MB',
     }
   }
-  if (file.type && !ALLOWED_MIME.has(file.type)) {
+  if (file.type && !isAllowedImageMime(file.type)) {
     return {
       fileName: file.name,
       code: 'INVALID_MIME',
@@ -182,8 +185,7 @@ export function buildMediaMapCsvRows(products: MediaMapProduct[]): string {
   const header = 'product_id,name,slug,sku,current_image_count,expected_filename'
   const rows = products.map((p) => {
     const count = p.images.length
-    const nextOrder = count >= MAX_IMAGES_PER_PRODUCT ? MAX_IMAGES_PER_PRODUCT : count + 1
-    const expected = buildExpectedFilename(p.slug, Math.max(1, nextOrder))
+    const expected = buildExpectedFilename(p.slug, 1)
     return [p.id, csvEscape(p.name), p.slug, p.sku ?? '', String(count), expected].join(',')
   })
   return [header, ...rows].join('\n')

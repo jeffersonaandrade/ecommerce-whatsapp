@@ -1,10 +1,8 @@
 'use client'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { validateImageFile } from '@/lib/media/validate-image-file'
 import { buildUniqueStoragePath } from './validate-image-path'
-import { MAX_IMAGE_BYTES } from './filename-association'
-
-const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 export type ClientUploadResult = {
   path: string
@@ -12,9 +10,11 @@ export type ClientUploadResult = {
 }
 
 export function validateClientUploadFile(file: File): string | null {
-  if (file.size > MAX_IMAGE_BYTES) return 'Arquivo excede 5 MB'
-  if (file.type && !ALLOWED_MIME.has(file.type)) return 'Formato inválido'
-  return null
+  return validateImageFile(file, {
+    sizeMessage: 'Arquivo excede 5 MB',
+    formatMessage: 'Formato inválido',
+    allowExtensionFallback: false,
+  })
 }
 
 function extFromFile(file: File): string {

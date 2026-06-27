@@ -12,6 +12,10 @@ import {
 } from './category-utils'
 import { getAllProductsAdmin } from '@/lib/products'
 import { writeCategoryImage, deleteCategoryImage } from './category-image-storage'
+import {
+  LOGO_IMAGE_MAX_BYTES,
+  validateImageFile,
+} from '@/lib/media/validate-image-file'
 
 export type CategoryFormPayload = {
   name: string
@@ -147,24 +151,20 @@ export async function uploadCategoryImageAction(
   if (!auth.ok) return { ok: false, error: auth.error }
 
   const file = formData.get('image')
-  if (!(file instanceof File) || file.size === 0)
-    return { ok: false, error: 'Selecione uma imagem válida.' }
+  const fileError = validateImageFile(file instanceof File ? file : new File([], ''), {
+    maxBytes: LOGO_IMAGE_MAX_BYTES,
+    sizeMessage: 'Imagem deve ter no máximo 2 MB.',
+  })
+  if (fileError) return { ok: false, error: fileError }
 
-  if (file.size > 2 * 1024 * 1024)
-    return { ok: false, error: 'Imagem deve ter no máximo 2 MB.' }
-
-  const allowed = ['image/png', 'image/jpeg', 'image/webp']
-  const ext = file.name.split('.').pop()?.toLowerCase()
-  const extOk = ext === 'png' || ext === 'jpg' || ext === 'jpeg' || ext === 'webp'
-  if (!allowed.includes(file.type) && !extOk)
-    return { ok: false, error: 'Formato aceito: PNG, JPG ou WebP.' }
+  const validFile = file as File
 
   try {
     const repo = getCategoryRepository()
     const category = await repo.getById(categoryId)
     if (!category) return { ok: false, error: 'Categoria não encontrada.' }
 
-    const buffer = Buffer.from(await file.arrayBuffer())
+    const buffer = Buffer.from(await validFile.arrayBuffer())
     const imagePath = await writeCategoryImage(categoryId, buffer)
     await repo.update(categoryId, {
       name: category.name,

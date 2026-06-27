@@ -4,10 +4,9 @@ import Image from 'next/image'
 import { useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { uploadProductImageAction } from '@/lib/catalog/actions'
+import { validateImageFile } from '@/lib/media/validate-image-file'
 
 const MAX_IMAGES = 5
-const MAX_BYTES = 5 * 1024 * 1024
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp']
 
 export function moveImageToPosition(
   images: string[],
@@ -92,14 +91,9 @@ export function ImageGalleryField({
     setUploadProgress({ completed: 0, total: selectedFiles.length })
 
     for (const [index, file] of selectedFiles.entries()) {
-      if (!ALLOWED_TYPES.includes(file.type)) {
-        errors.push(`${file.name}: formato aceito é PNG, JPG ou WebP.`)
-        setUploadProgress({ completed: index + 1, total: selectedFiles.length })
-        continue
-      }
-
-      if (file.size > MAX_BYTES) {
-        errors.push(`${file.name}: a imagem deve ter no máximo 5 MB.`)
+      const validationError = validateImageFile(file, { allowExtensionFallback: false })
+      if (validationError) {
+        errors.push(`${file.name}: ${validationError}`)
         setUploadProgress({ completed: index + 1, total: selectedFiles.length })
         continue
       }

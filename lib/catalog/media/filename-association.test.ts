@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildExpectedFilename,
+  buildMediaMapCsvRows,
   matchFilesToProducts,
   parseAssociationFilename,
 } from './filename-association'
@@ -50,5 +51,19 @@ describe('filename-association', () => {
 
   it('gera expected filename', () => {
     expect(buildExpectedFilename('camisa-brasil', 2, 'webp')).toBe('camisa-brasil--02.webp')
+  })
+
+  it('sugere --01 no mapa para substituir a galeria atual', () => {
+    const csv = buildMediaMapCsvRows([
+      {
+        id: '1',
+        name: 'Camisa Brasil',
+        slug: 'camisa-brasil',
+        sku: 'BRA-001',
+        images: Array.from({ length: 5 }, (_, index) => `https://cdn.test/${index}.jpg`),
+      },
+    ])
+
+    expect(csv).toContain('camisa-brasil--01.jpg')
   })
 })
