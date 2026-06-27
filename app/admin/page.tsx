@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { DemoAdminToolbar } from '@/components/admin/demo-admin-toolbar'
+import { DeploymentCenterCard } from '@/components/admin/onboarding/deployment-center-card'
+import { OnboardingMenuActions } from '@/components/admin/onboarding/onboarding-menu-actions'
 import { getButtonClassName } from '@/components/ui/button'
 import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
@@ -65,7 +67,8 @@ export default async function AdminPage() {
         title="Admin Dashboard"
         subtitle="Gerencie sua loja esportiva"
         actions={
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <OnboardingMenuActions />
             <Link
               href="/"
               className="text-sm text-mute transition-colors hover:text-canvas"
@@ -97,7 +100,9 @@ export default async function AdminPage() {
           </div>
         </div>
 
-        <section className="mb-10">
+        <DeploymentCenterCard />
+
+        <section className="mb-10" data-onboarding="nav-produtos">
           <h2 className="text-sm font-semibold text-mute uppercase tracking-wide mb-4">
             Produtos
           </h2>
@@ -137,7 +142,7 @@ export default async function AdminPage() {
           </div>
         </section>
 
-        <section>
+        <section data-onboarding="nav-loja">
           <h2 className="text-sm font-semibold text-mute uppercase tracking-wide mb-4">
             Loja
           </h2>

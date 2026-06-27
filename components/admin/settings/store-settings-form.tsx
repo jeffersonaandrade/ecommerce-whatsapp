@@ -178,7 +178,12 @@ export function StoreSettingsForm({
       {error && <Alert type="error" message={error} />}
       {success && <Alert type="success" message={success} />}
 
-      <form id="store-settings-form" onSubmit={handleSave} className="space-y-8">
+      <form
+        id="store-settings-form"
+        data-onboarding="settings-form"
+        onSubmit={handleSave}
+        className="space-y-8"
+      >
         <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
           <h2 className="text-lg font-semibold text-ink">Institucional</h2>
           <div className="space-y-3">
