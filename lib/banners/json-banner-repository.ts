@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import { BannerSlide, BannerSlideCreateInput, BannerSlideInput } from '@/types/banner-slide'
 import { BannerRepository } from './banner-repository'
-import { assertBannerDesktopPath } from './banner-validation'
+import { assertBannerSlideImages } from './banner-viewport'
 
 const STORAGE_PATH = path.join(process.cwd(), 'storage', 'banner-slides.json')
 
@@ -40,14 +40,14 @@ export const jsonBannerRepository: BannerRepository = {
   },
 
   async create(input: BannerSlideCreateInput): Promise<BannerSlide> {
-    assertBannerDesktopPath(input.desktopImagePath)
-    const desktopImagePath = input.desktopImagePath!.trim()
+    assertBannerSlideImages(input)
     const slides = load()
     const now = nowIso()
     const slide: BannerSlide = {
       id: input.id ?? crypto.randomUUID(),
       ...input,
-      desktopImagePath,
+      desktopImagePath: input.desktopImagePath?.trim() ?? null,
+      visibility: input.visibility ?? 'all',
       createdAt: now,
       updatedAt: now,
     }

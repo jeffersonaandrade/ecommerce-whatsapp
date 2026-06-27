@@ -5,6 +5,17 @@ import { getAllBannerSlides } from '@/lib/banners'
 import { ReorderBannerButtons } from '@/components/admin/reorder-banner-buttons'
 import { ToggleBannerActiveButton } from '@/components/admin/toggle-banner-active-button'
 import { bannerImageUrl } from '@/lib/banners/banner-storage'
+import { BANNER_VISIBILITY_OPTIONS, BannerSlideVisibility } from '@/types/banner-slide'
+
+function visibilityLabel(visibility: BannerSlideVisibility): string {
+  return BANNER_VISIBILITY_OPTIONS.find((o) => o.value === visibility)?.label ?? visibility
+}
+
+function visibilityBadgeClass(visibility: BannerSlideVisibility): string {
+  if (visibility === 'desktop') return 'bg-blue-50 text-blue-800'
+  if (visibility === 'mobile') return 'bg-violet-50 text-violet-800'
+  return 'bg-soft-cloud text-ink'
+}
 
 export const metadata: Metadata = {
   title: 'Banners',
@@ -59,7 +70,7 @@ export default async function AdminBannersPage() {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-mute">Slide</th>
                   <th className="px-4 py-3 text-left font-medium text-mute">Título</th>
-                  <th className="px-4 py-3 text-left font-medium text-mute">Imagem</th>
+                  <th className="px-4 py-3 text-left font-medium text-mute">Visibilidade</th>
                   <th className="px-4 py-3 text-center font-medium text-mute">Ordem</th>
                   <th className="px-4 py-3 text-center font-medium text-mute">Ativo</th>
                   <th className="px-4 py-3 text-right font-medium text-mute">Ações</th>
@@ -85,18 +96,16 @@ export default async function AdminBannersPage() {
                       {slide.subtitle && <p className="text-xs text-mute">{slide.subtitle}</p>}
                     </td>
                     <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${visibilityBadgeClass(slide.visibility ?? 'all')}`}
+                      >
+                        {visibilityLabel(slide.visibility ?? 'all')}
+                      </span>
                       {slide.mobileImagePath ? (
-                        <span className="inline-flex rounded-full bg-soft-cloud px-2.5 py-0.5 text-xs font-medium text-ink">
-                          Desktop + mobile
-                        </span>
-                      ) : (
-                        <span
-                          className="inline-flex rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800"
-                          title="No celular, a vitrine usa a imagem desktop deste slide"
-                        >
-                          Só desktop
-                        </span>
-                      )}
+                        <p className="mt-1 text-xs text-mute">Com imagem mobile dedicada</p>
+                      ) : slide.visibility !== 'mobile' ? (
+                        <p className="mt-1 text-xs text-mute">Mobile usa desktop</p>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-1">

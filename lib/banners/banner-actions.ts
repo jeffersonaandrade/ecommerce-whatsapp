@@ -6,7 +6,13 @@ import { requireAdmin } from '@/lib/auth/require-admin'
 import { BannerSlideCreateInput, BannerSlideInput } from '@/types/banner-slide'
 import { getBannerRepository } from './get-banner-repository'
 import { writeBannerImage, deleteBannerImages, deleteBannerImage, BannerImageSide } from './banner-storage'
-import { assertBannerDesktopPath, validateBannerImageFile } from './banner-validation'
+import {
+  parseBannerVisibility,
+  validateBannerImageFile,
+  validateBannerSlideInput,
+  visibilityRequiresMobile,
+} from './banner-validation'
+import { assertBannerSlideImages } from './banner-viewport'
 
 function revalidateBanners() {
   revalidatePath('/')
@@ -21,22 +27,25 @@ function validateCta(input: Partial<BannerSlideInput>): string | null {
   return null
 }
 
-function parseBannerMetadata(formData: FormData): Omit<BannerSlideCreateInput, 'desktopImagePath' | 'id'> {
+function parseBannerMetadata(
+  formData: FormData
+): Omit<BannerSlideCreateInput, 'desktopImagePath' | 'mobileImagePath' | 'id'> {
   const title = String(formData.get('title') ?? '').trim()
   const subtitle = String(formData.get('subtitle') ?? '').trim()
   const ctaLabel = String(formData.get('ctaLabel') ?? '').trim()
   const ctaHref = String(formData.get('ctaHref') ?? '').trim()
   const sortOrder = parseInt(String(formData.get('sortOrder') ?? '0'), 10) || 0
   const active = formData.get('active') !== 'false'
+  const visibility = parseBannerVisibility(formData.get('visibility'))
 
   return {
-    mobileImagePath: null,
     title: title || null,
     subtitle: subtitle || null,
     ctaLabel: ctaLabel || null,
     ctaHref: ctaHref || null,
     sortOrder,
     active,
+    visibility,
   }
 }
 
@@ -46,30 +55,51 @@ export async function createBannerSlideWithDesktopAction(
   const auth = await requireAdmin()
   if (!auth.ok) return { ok: false, error: auth.error }
 
-  const file = formData.get('image')
-  if (!(file instanceof File)) {
-    return { ok: false, error: 'Selecione a imagem desktop antes de criar o slide.' }
-  }
-
-  const fileError = validateBannerImageFile(file)
-  if (fileError) return { ok: false, error: fileError }
-
   const metadata = parseBannerMetadata(formData)
   const ctaError = validateCta(metadata)
   if (ctaError) return { ok: false, error: ctaError }
 
+  const mobileOnly = visibilityRequiresMobile(metadata.visibility)
+  const desktopFile = formData.get('image')
+  const mobileFile = formData.get('mobileImage')
+
+  const primaryFile = mobileOnly ? mobileFile : desktopFile
+  const primarySide: BannerImageSide = mobileOnly ? 'mobile' : 'desktop'
+
+  if (!(primaryFile instanceof File)) {
+    return {
+      ok: false,
+      error: mobileOnly
+        ? 'Selecione a imagem mobile antes de criar o slide.'
+        : 'Selecione a imagem desktop antes de criar o slide.',
+    }
+  }
+
+  const fileError = validateBannerImageFile(primaryFile, primarySide)
+  if (fileError) return { ok: false, error: fileError }
+
   const slideId = randomUUID()
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const desktopImagePath = await writeBannerImage(slideId, 'desktop', buffer)
+    const buffer = Buffer.from(await primaryFile.arrayBuffer())
+    const imagePath = await writeBannerImage(slideId, primarySide, buffer)
 
-    const repo = getBannerRepository()
-    const slide = await repo.create({
+    const payload: BannerSlideCreateInput = {
       id: slideId,
       ...metadata,
-      desktopImagePath,
-    })
+      desktopImagePath: null,
+      mobileImagePath: mobileOnly ? imagePath : null,
+    }
+
+    if (!mobileOnly) {
+      payload.desktopImagePath = imagePath
+    }
+
+    const inputError = validateBannerSlideInput(payload)
+    if (inputError) return { ok: false, error: inputError }
+
+    const repo = getBannerRepository()
+    const slide = await repo.create(payload)
 
     revalidateBanners()
     return { ok: true, id: slide.id }
@@ -81,7 +111,7 @@ export async function createBannerSlideWithDesktopAction(
     }
     return {
       ok: false,
-      error: err instanceof Error ? err.message : 'Falha ao criar slide com imagem desktop.',
+      error: err instanceof Error ? err.message : 'Falha ao criar slide.',
     }
   }
 }
@@ -93,9 +123,9 @@ export async function createBannerSlideAction(
   if (!auth.ok) return { ok: false, error: auth.error }
 
   try {
-    assertBannerDesktopPath(input.desktopImagePath)
+    assertBannerSlideImages(input)
   } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'Imagem desktop obrigatória.' }
+    return { ok: false, error: err instanceof Error ? err.message : 'Imagens obrigatórias ausentes.' }
   }
 
   const ctaError = validateCta(input)
@@ -123,6 +153,13 @@ export async function updateBannerSlideAction(
 
   try {
     const repo = getBannerRepository()
+    const existing = await repo.getById(id)
+    if (!existing) return { ok: false, error: 'Slide não encontrado.' }
+
+    const merged: BannerSlideInput = { ...existing, ...input }
+    const inputError = validateBannerSlideInput(merged)
+    if (inputError) return { ok: false, error: inputError }
+
     await repo.update(id, input)
     revalidateBanners()
     return { ok: true }
@@ -160,7 +197,7 @@ async function uploadBannerImageAction(
   if (!(file instanceof File) || file.size === 0)
     return { ok: false, error: 'Selecione uma imagem válida.' }
 
-  const fileError = validateBannerImageFile(file)
+  const fileError = validateBannerImageFile(file, side)
   if (fileError) return { ok: false, error: fileError }
 
   try {

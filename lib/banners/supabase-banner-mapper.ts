@@ -1,4 +1,5 @@
 import { BannerSlide, BannerSlideInput } from '@/types/banner-slide'
+import { normalizeBannerVisibility } from './banner-viewport'
 
 export type BannerSlideRow = {
   id: string
@@ -10,6 +11,7 @@ export type BannerSlideRow = {
   cta_href: string | null
   sort_order: number
   active: boolean
+  visibility: string
   created_at: string
   updated_at: string
 }
@@ -25,6 +27,7 @@ export function rowToSlide(row: BannerSlideRow): BannerSlide {
     ctaHref: row.cta_href ?? undefined,
     sortOrder: row.sort_order,
     active: row.active,
+    visibility: normalizeBannerVisibility(row.visibility as BannerSlide['visibility']),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }
@@ -40,5 +43,6 @@ export function slideInputToRow(input: Partial<BannerSlideInput>): Partial<Banne
   if (input.ctaHref !== undefined) row.cta_href = input.ctaHref ?? null
   if (input.sortOrder !== undefined) row.sort_order = input.sortOrder
   if (input.active !== undefined) row.active = input.active
+  if (input.visibility !== undefined) row.visibility = input.visibility
   return row
 }

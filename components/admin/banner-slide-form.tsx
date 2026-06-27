@@ -2,7 +2,11 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { BannerSlide } from '@/types/banner-slide'
+import { BannerSlide, BannerSlideVisibility, BANNER_VISIBILITY_OPTIONS } from '@/types/banner-slide'
+import {
+  visibilityRequiresDesktop,
+  visibilityRequiresMobile,
+} from '@/lib/banners/banner-validation'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import {
@@ -32,6 +36,9 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
   const [ctaHref, setCtaHref] = useState(slide?.ctaHref ?? '')
   const [sortOrder, setSortOrder] = useState(String(slide?.sortOrder ?? 0))
   const [active, setActive] = useState(slide?.active ?? true)
+  const [visibility, setVisibility] = useState<BannerSlideVisibility>(
+    slide?.visibility ?? 'all'
+  )
   const [error, setError] = useState<string | null>(null)
   const [imageError, setImageError] = useState<string | null>(null)
   const [imageSuccess, setImageSuccess] = useState<string | null>(null)
@@ -41,27 +48,36 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
   const [hasMobile, setHasMobile] = useState(!!slide?.mobileImagePath)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
 
+  const needsDesktop = visibilityRequiresDesktop(visibility)
+  const needsMobile = visibilityRequiresMobile(visibility)
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
-    if (mode === 'create' && !desktopFile) {
-      setError('Selecione a imagem desktop antes de criar o slide.')
-      return
+    if (mode === 'create') {
+      if (needsDesktop && !desktopFile) {
+        setError('Selecione a imagem desktop antes de criar o slide.')
+        return
+      }
+      if (needsMobile && !mobileFile) {
+        setError('Selecione a imagem mobile antes de criar o slide.')
+        return
+      }
     }
 
     startTransition(async () => {
       if (mode === 'create') {
-        if (!desktopFile) return
-
         const formData = new FormData()
-        formData.set('image', desktopFile)
+        if (desktopFile) formData.set('image', desktopFile)
+        if (mobileFile) formData.set('mobileImage', mobileFile)
         formData.set('title', title)
         formData.set('subtitle', subtitle)
         formData.set('ctaLabel', ctaLabel)
         formData.set('ctaHref', ctaHref)
         formData.set('sortOrder', sortOrder)
         formData.set('active', String(active))
+        formData.set('visibility', visibility)
 
         const result = await createBannerSlideWithDesktopAction(formData)
         if (result.ok) {
@@ -78,6 +94,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
           ctaHref: ctaHref.trim() || null,
           sortOrder: parseInt(sortOrder, 10) || 0,
           active,
+          visibility,
         })
         if (result.ok) {
           router.refresh()
@@ -172,6 +189,26 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
               className="w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm"
             />
           </label>
+          <label className="block space-y-1 sm:col-span-2">
+            <span className="text-sm font-medium text-ink">Visibilidade</span>
+            <select
+              value={visibility}
+              onChange={(e) => setVisibility(e.target.value as BannerSlideVisibility)}
+              className="w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm"
+            >
+              {BANNER_VISIBILITY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-mute">
+              {visibility === 'all' &&
+                'Aparece no desktop e no mobile. Imagem mobile é opcional.'}
+              {visibility === 'desktop' && 'Aparece apenas em telas maiores que 768px.'}
+              {visibility === 'mobile' && 'Aparece apenas em telas até 768px.'}
+            </p>
+          </label>
           <label className="block space-y-1">
             <span className="text-sm font-medium text-ink">Texto do botão (CTA)</span>
             <input
@@ -211,7 +248,13 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
         </div>
 
         <div className="flex gap-3">
-          <Button type="submit" disabled={isPending || (mode === 'create' && !desktopFile)}>
+          <Button
+            type="submit"
+            disabled={
+              isPending ||
+              (mode === 'create' && ((needsDesktop && !desktopFile) || (needsMobile && !mobileFile)))
+            }
+          >
             {isPending ? 'Salvando...' : mode === 'create' ? 'Criar slide' : 'Salvar'}
           </Button>
           {mode === 'edit' && slide && (
@@ -230,21 +273,43 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
 
       {mode === 'create' && (
         <div className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
-          <h3 className="text-base font-semibold text-ink">Imagem desktop</h3>
-          <p className="text-xs text-mute">
-            Obrigatória para criar o slide. PNG, JPG ou WebP, máx. 5 MB. Mobile pode ser adicionado
-            após a criação.
-          </p>
-          <input
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            required
-            disabled={isPending}
-            onChange={(e) => setDesktopFile(e.target.files?.[0] ?? null)}
-            className="block w-full text-sm text-mute file:mr-3 file:rounded-full file:border-0 file:bg-soft-cloud file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-ink"
-          />
-          {desktopFile && (
-            <p className="text-sm text-mute">Selecionado: {desktopFile.name}</p>
+          {needsDesktop && (
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-ink">Imagem desktop</h3>
+              <p className="text-xs text-mute">
+                Obrigatória para esta visibilidade. PNG, JPG ou WebP, máx. 5 MB.
+              </p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                required={needsDesktop}
+                disabled={isPending}
+                onChange={(e) => setDesktopFile(e.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-mute file:mr-3 file:rounded-full file:border-0 file:bg-soft-cloud file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-ink"
+              />
+              {desktopFile && (
+                <p className="text-sm text-mute">Selecionado: {desktopFile.name}</p>
+              )}
+            </div>
+          )}
+          {needsMobile && (
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-ink">Imagem mobile</h3>
+              <p className="text-xs text-mute">
+                Obrigatória para slide somente mobile. PNG, JPG ou WebP, máx. 5 MB.
+              </p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                required={needsMobile}
+                disabled={isPending}
+                onChange={(e) => setMobileFile(e.target.files?.[0] ?? null)}
+                className="block w-full text-sm text-mute file:mr-3 file:rounded-full file:border-0 file:bg-soft-cloud file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-ink"
+              />
+              {mobileFile && (
+                <p className="text-sm text-mute">Selecionado: {mobileFile.name}</p>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -258,8 +323,11 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
           {imageSuccess && <Alert type="success" message={imageSuccess} />}
 
           <div className="grid gap-6 sm:grid-cols-2">
+            {visibilityRequiresDesktop(visibility) && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-ink">Desktop (obrigatório)</p>
+              <p className="text-sm font-medium text-ink">
+                Desktop {visibility === 'desktop' || visibility === 'all' ? '(obrigatório)' : ''}
+              </p>
               {hasDesktop && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -294,19 +362,26 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
                   </Button>
                 )}
               </div>
-              {!hasDesktop && (
+              {!hasDesktop && visibility !== 'mobile' && (
                 <p className="text-xs text-mute">
-                  Sem imagem desktop, o slide não aparece na vitrine.
+                  Sem imagem desktop, o slide não aparece na vitrine desktop.
                 </p>
               )}
             </div>
+            )}
 
+            {(visibility === 'all' || visibility === 'mobile') && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-ink">Mobile (opcional)</p>
-              {!hasMobile && (
+              <p className="text-sm font-medium text-ink">
+                Mobile {visibility === 'mobile' ? '(obrigatório)' : '(opcional)'}
+              </p>
+              {!hasMobile && visibility === 'all' && (
                 <p className="text-xs text-amber-800">
                   Sem imagem mobile — no celular este slide usa a versão desktop.
                 </p>
+              )}
+              {!hasMobile && visibility === 'mobile' && (
+                <p className="text-xs text-mute">Imagem mobile obrigatória para este slide.</p>
               )}
               {hasMobile && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -343,6 +418,7 @@ export function BannerSlideForm({ mode, slide }: BannerSlideFormProps) {
                 )}
               </div>
             </div>
+            )}
           </div>
         </div>
       )}

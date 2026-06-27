@@ -67,6 +67,7 @@ Aplicar novas migrations via **MCP Supabase** (`apply_migration`). Após aplicar
 | `20260626190630` | `sprint4a_benefit_items` | `benefit_items`, `benefits_eyebrow/title` em settings + seed |
 | `20260626221601` | `transactional_product_import` | RPC `apply_product_import_batch(jsonb)` — import CSV transacional |
 | `20260626224221` | `import_batch_post_upsert_sku_check` | Revalida SKU após upsert de products na RPC de import |
+| `20260627153700` | `banner_slide_visibility` | Coluna `visibility` (`all` \| `desktop` \| `mobile`); `desktop_image_path` nullable para slides mobile-only |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
 
@@ -371,6 +372,7 @@ DROP POLICY IF EXISTS "products_authenticated_write" ON storage.objects;
 | `SUPABASE_SERVICE_ROLE_KEY` | Netlify + local (server only) | Service role — **nunca** expor no client |
 | `DATA_PROVIDER` | Netlify + local | `json` (default) ou `supabase` |
 | `NEXT_PUBLIC_DATA_PROVIDER` | Netlify + local | Espelho público para Auth no browser |
+| `ENABLE_MIGRATION_TOOLS` | Netlify + local | `true` habilita Import CSV e Central de Mídia no admin (onboarding). Default: desligado (`notFound()` nas rotas) |
 
 Copie [`.env.local.example`](../.env.local.example) para `.env.local`.
 
@@ -420,10 +422,28 @@ Lê `storage/catalog.json` (ou `catalog.seed.json`) + `storage/store-settings.js
 ## Onboarding 1º cliente
 
 1. Identidade — nome, WhatsApp, logo via `/admin/settings`
-2. Import CSV — catálogo real
-3. Validar pedido WhatsApp em produção
-4. Registrar fricções → backlog Sprint 4+
+2. `ENABLE_MIGRATION_TOOLS=true` — habilitar Import CSV + Central de Mídia durante onboarding
+3. Import CSV — catálogo real (RPC transacional)
+4. Migração imagens — dry-run → upload seguros → validação manual (`scripts/README.md`)
+5. Publicar produtos aprovados (`draft` → `active`)
+6. Validar pedido WhatsApp em produção
+7. Desligar `ENABLE_MIGRATION_TOOLS` quando catálogo estiver estável
+8. Registrar fricções → backlog Sprint 4+
 
 ---
 
-*Última atualização: migrations consolidadas em `scripts/migration/supabase-migrations.sql` — 2026-06-26*
+## Migração de imagens (operacional)
+
+Quando o catálogo já existe com URLs externas e há arquivos locais exportados:
+
+1. `npm run migrate:images:dry-run` — classifica seguro vs ambíguo
+2. Revisar `test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md`
+3. `npm run migrate:images:pilot` — validar amostra com cliente
+4. `npm run migrate:images:remaining` — lote dos seguros restantes
+5. Corrigir ambíguos manualmente via admin ou Central de Mídia
+
+Detalhes: [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) § Migração de imagens.
+
+---
+
+*Última atualização: 2026-06-27 — migrations + migração imagens UnitSports*
