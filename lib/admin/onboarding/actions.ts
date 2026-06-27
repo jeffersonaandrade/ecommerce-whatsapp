@@ -106,6 +106,10 @@ export async function markFirstSaleStepAction(): Promise<ActionResult> {
   }
 }
 
+export async function completeTourAction(): Promise<ActionResult> {
+  return persist({ tourCompleted: true })
+}
+
 export async function completeOnboardingIfReadyAction(
   percentComplete: number
 ): Promise<ActionResult> {

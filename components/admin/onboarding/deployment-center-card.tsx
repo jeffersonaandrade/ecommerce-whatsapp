@@ -139,6 +139,7 @@ export function DeploymentCenterCard() {
         {visibleItems.map((item: OnboardingProgressItem) => (
           <li
             key={item.id}
+            data-onboarding={item.id === 'review-storefront' ? 'review-storefront' : undefined}
             className="flex flex-col gap-1 border-b border-hairline pb-4 last:border-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between"
           >
             <div className="min-w-0 flex-1">

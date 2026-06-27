@@ -8,10 +8,12 @@ import {
   useMemo,
   useRef,
   useState,
+  useTransition,
   type ReactNode,
 } from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import type { AdminOnboardingState, OnboardingProgress } from '@/types/admin-onboarding'
+import { completeTourAction } from '@/lib/admin/onboarding/actions'
 import type { TourStepId } from '@/lib/admin/onboarding/tour-steps'
 import { AdminTourDriver } from './admin-tour-driver'
 import { WelcomeModal } from './welcome-modal'
@@ -45,10 +47,12 @@ export function AdminOnboardingProvider({
   children,
 }: AdminOnboardingProviderProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [state, setState] = useState(initialState)
   const [forceWelcome, setForceWelcome] = useState(false)
   const [isTourActive, setIsTourActive] = useState(false)
   const startTourRef = useRef<((stepId?: TourStepId) => void) | null>(null)
+  const [, startTransition] = useTransition()
 
   useEffect(() => {
     setState(initialState)
@@ -76,6 +80,16 @@ export function AdminOnboardingProvider({
   const stopTour = useCallback(() => {
     setIsTourActive(false)
   }, [])
+
+  const handleTourComplete = useCallback(() => {
+    startTransition(async () => {
+      const result = await completeTourAction()
+      if (result.ok) {
+        setState(result.state)
+        router.refresh()
+      }
+    })
+  }, [router])
 
   const value = useMemo(
     () => ({
@@ -112,7 +126,7 @@ export function AdminOnboardingProvider({
       <AdminTourDriver
         migrationToolsEnabled={migrationToolsEnabled}
         onActiveChange={setIsTourActive}
-        onTourComplete={() => {}}
+        onTourComplete={handleTourComplete}
         startTourRef={startTourRef}
       />
       <WelcomeModal
