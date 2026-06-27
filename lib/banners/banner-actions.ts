@@ -116,31 +116,6 @@ export async function createBannerSlideWithDesktopAction(
   }
 }
 
-export async function createBannerSlideAction(
-  input: BannerSlideCreateInput
-): Promise<{ ok: true; id: string } | { ok: false; error: string }> {
-  const auth = await requireAdmin()
-  if (!auth.ok) return { ok: false, error: auth.error }
-
-  try {
-    assertBannerSlideImages(input)
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'Imagens obrigatórias ausentes.' }
-  }
-
-  const ctaError = validateCta(input)
-  if (ctaError) return { ok: false, error: ctaError }
-
-  try {
-    const repo = getBannerRepository()
-    const slide = await repo.create(input)
-    revalidateBanners()
-    return { ok: true, id: slide.id }
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : 'Falha ao criar slide.' }
-  }
-}
-
 export async function updateBannerSlideAction(
   id: string,
   input: Partial<BannerSlideInput>

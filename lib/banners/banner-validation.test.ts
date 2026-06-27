@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 import {
-  assertBannerDesktopPath,
   hasBannerDesktopImage,
   validateBannerImageFile,
   validateBannerSlideInput,
@@ -9,11 +8,6 @@ import {
 } from './banner-validation'
 
 describe('banner-validation', () => {
-  it('rejeita desktop path vazio no create legado', () => {
-    expect(() => assertBannerDesktopPath('')).toThrow(/desktop/i)
-    expect(() => assertBannerDesktopPath('   ')).toThrow(/desktop/i)
-  })
-
   it('hasBannerDesktopImage ignora paths vazios', () => {
     expect(hasBannerDesktopImage('')).toBe(false)
     expect(hasBannerDesktopImage('banners/slide-desktop.webp')).toBe(true)
