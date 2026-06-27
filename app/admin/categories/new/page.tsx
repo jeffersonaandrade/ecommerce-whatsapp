@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { CategoryForm } from '@/components/admin/category-form'
 
 export const metadata: Metadata = {
@@ -10,20 +10,13 @@ export const metadata: Metadata = {
 export default function AdminNewCategoryPage() {
   return (
     <div className="w-full">
-      <div className="bg-gray-900 text-white py-8 sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/admin/categories"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            ← Voltar para Categorias
-          </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold mt-4">Nova categoria</h1>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Nova categoria"
+        back={{ href: '/admin/categories', label: 'Voltar para Categorias' }}
+      />
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8">
+        <div className="bg-canvas border border-hairline rounded-lg p-6 sm:p-8">
           <CategoryForm mode="create" />
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { getDataProvider } from '@/lib/data/provider'
 
 export const metadata: Metadata = {
@@ -12,20 +13,11 @@ export default function AdminContentPage() {
 
   return (
     <div className="w-full">
-      <div className="bg-ink py-8 text-canvas sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/admin"
-            className="text-sm text-mute transition-colors hover:text-canvas"
-          >
-            ← Voltar ao Admin
-          </Link>
-          <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Conteúdo</h1>
-          <p className="mt-2 text-mute">
-            Personalize textos do template sem alterar o layout da loja.
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Conteúdo"
+        subtitle="Personalize textos do template sem alterar o layout da loja."
+        back={{ href: '/admin', label: 'Voltar ao Admin' }}
+      />
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         {!isSupabase && (

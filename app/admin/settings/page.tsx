@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { StoreSettingsForm } from '@/components/admin/settings/store-settings-form'
 import { getActiveBannerSlides } from '@/lib/banners'
 import { getStoreSettings } from '@/lib/store/settings-repository'
@@ -18,22 +18,15 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="w-full">
-      <div className="bg-ink py-8 text-canvas sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/admin"
-            className="text-sm text-mute transition-colors hover:text-canvas"
-          >
-            ← Voltar ao Admin
-          </Link>
-          <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Configurações</h1>
-          <p className="mt-2 text-mute">
-            {heroManagedByBanners
-              ? 'Conteúdo · WhatsApp · Identidade (implantação) · Home via Banners'
-              : 'Conteúdo · WhatsApp · Hero · Identidade (implantação)'}
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Configurações"
+        subtitle={
+          heroManagedByBanners
+            ? 'Conteúdo · WhatsApp · Identidade (implantação) · Home via Banners'
+            : 'Conteúdo · WhatsApp · Hero · Identidade (implantação)'
+        }
+        back={{ href: '/admin', label: 'Voltar ao Admin' }}
+      />
 
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         <StoreSettingsForm

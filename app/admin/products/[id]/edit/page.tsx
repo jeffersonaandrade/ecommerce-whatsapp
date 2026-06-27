@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { Alert } from '@/components/ui/alert'
 import { ProductForm } from '@/components/admin/product-form'
 import { getAllCategoriesAdmin } from '@/lib/categories'
@@ -35,18 +35,11 @@ export default async function EditProductPage({
 
   return (
     <div className="w-full">
-      <div className="bg-gray-900 text-white py-8 sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/admin/products"
-            className="text-sm text-gray-400 hover:text-white transition-colors"
-          >
-            ← Voltar para Produtos
-          </Link>
-          <h1 className="text-3xl sm:text-4xl font-bold mt-4">Editar Produto</h1>
-          <p className="text-gray-400 mt-2">{product.name}</p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Editar Produto"
+        subtitle={product.name}
+        back={{ href: '/admin/products', label: 'Voltar para Produtos' }}
+      />
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 space-y-4">
         {created === '1' && (
@@ -64,7 +57,7 @@ export default async function EditProductPage({
             </ol>
           </Alert>
         )}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 sm:p-8">
+        <div className="bg-canvas border border-hairline rounded-lg p-6 sm:p-8">
           <ProductForm
             mode="edit"
             product={product}

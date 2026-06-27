@@ -1,6 +1,6 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { BannerSlideForm } from '@/components/admin/banner-slide-form'
 import { getBannerRepository } from '@/lib/banners/get-banner-repository'
 
@@ -21,22 +21,11 @@ export default async function EditBannerPage({ params }: Props) {
 
   return (
     <div className="w-full">
-      <div className="bg-ink py-8 text-canvas sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/admin/banners"
-            className="text-sm text-mute transition-colors hover:text-canvas"
-          >
-            ← Banners
-          </Link>
-          <h1 className="mt-4 text-3xl font-bold sm:text-4xl">
-            {slide.title ?? 'Editar slide'}
-          </h1>
-          <p className="mt-2 text-mute">
-            Ajuste imagens, textos e exibição deste slide.
-          </p>
-        </div>
-      </div>
+      <AdminPageHeader
+        title={slide.title ?? 'Editar slide'}
+        subtitle="Ajuste imagens, textos e exibição deste slide."
+        back={{ href: '/admin/banners', label: 'Banners' }}
+      />
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         <BannerSlideForm mode="edit" slide={slide} />

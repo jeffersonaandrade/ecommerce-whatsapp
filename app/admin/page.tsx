@@ -1,7 +1,9 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { DemoAdminToolbar } from '@/components/admin/demo-admin-toolbar'
 import { getButtonClassName } from '@/components/ui/button'
+import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
 
 export const metadata: Metadata = {
@@ -26,7 +28,7 @@ function NavCard({
 }) {
   const inner = (
     <div
-      className={`bg-white border border-gray-200 rounded-lg p-6 text-center h-full ${
+      className={`bg-canvas border border-hairline rounded-lg p-6 text-center h-full ${
         disabled
           ? 'opacity-50 cursor-not-allowed'
           : 'hover:shadow-lg transition-shadow'
@@ -34,7 +36,7 @@ function NavCard({
     >
       <div className="text-4xl mb-3">{emoji}</div>
       <h2 className="text-lg font-semibold mb-1">{title}</h2>
-      <p className="text-gray-600 text-sm mb-4 min-h-10">{description}</p>
+      <p className="text-mute text-sm mb-4 min-h-10">{description}</p>
       <span
         className={getButtonClassName(
           'outline',
@@ -52,54 +54,51 @@ function NavCard({
 }
 
 export default async function AdminPage() {
+  const migrationTools = isMigrationToolsEnabled()
   const allProducts = await getAllProductsAdmin()
   const activeProducts = await getAllProducts()
   const totalProducts = allProducts.length
 
   return (
     <div className="w-full">
-      <div className="bg-gray-900 text-white py-8 sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold sm:text-4xl">Admin Dashboard</h1>
-              <p className="mt-2 text-gray-400">Gerencie sua loja esportiva</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/"
-                className="text-sm text-gray-400 transition-colors hover:text-white"
-              >
-                ← Voltar ao site
-              </Link>
-              <DemoAdminToolbar />
-            </div>
+      <AdminPageHeader
+        title="Admin Dashboard"
+        subtitle="Gerencie sua loja esportiva"
+        actions={
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              className="text-sm text-mute transition-colors hover:text-canvas"
+            >
+              ← Voltar ao site
+            </Link>
+            <DemoAdminToolbar />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="text-3xl font-bold text-black mb-2">
+          <div className="bg-canvas border border-hairline rounded-lg p-6">
+            <div className="text-3xl font-bold text-ink mb-2">
               {totalProducts}
             </div>
-            <p className="text-gray-600">Total de Produtos</p>
+            <p className="text-mute">Total de Produtos</p>
           </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="text-3xl font-bold text-green-600 mb-2">
+          <div className="bg-canvas border border-hairline rounded-lg p-6">
+            <div className="text-3xl font-bold text-accent mb-2">
               {activeProducts.length}
             </div>
-            <p className="text-gray-600">Produtos Ativos</p>
+            <p className="text-mute">Produtos Ativos</p>
           </div>
-          <div className="bg-white border border-gray-200 rounded-lg p-6">
-            <div className="text-3xl font-bold text-blue-600 mb-2">0</div>
-            <p className="text-gray-600">Pedidos (V2)</p>
+          <div className="bg-canvas border border-hairline rounded-lg p-6">
+            <div className="text-3xl font-bold text-mute mb-2">0</div>
+            <p className="text-mute">Pedidos (V2)</p>
           </div>
         </div>
 
         <section className="mb-10">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+          <h2 className="text-sm font-semibold text-mute uppercase tracking-wide mb-4">
             Produtos
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -117,25 +116,29 @@ export default async function AdminPage() {
               description="Cadastro manual — Fase 4"
               buttonLabel="Criar produto"
             />
-            <NavCard
-              href="/admin/products/media"
-              emoji="🖼️"
-              title="Central de Mídia"
-              description="Inventário e migração de imagens em lote"
-              buttonLabel="Abrir central"
-            />
-            <NavCard
-              href="/admin/import"
-              emoji="📥"
-              title="Importar CSV"
-              description="Carga em massa via planilha"
-              buttonLabel="Importar"
-            />
+            {migrationTools ? (
+              <>
+                <NavCard
+                  href="/admin/products/media"
+                  emoji="🖼️"
+                  title="Central de Mídia"
+                  description="Inventário e migração de imagens em lote"
+                  buttonLabel="Abrir central"
+                />
+                <NavCard
+                  href="/admin/import"
+                  emoji="📥"
+                  title="Importar CSV"
+                  description="Carga em massa via planilha"
+                  buttonLabel="Importar"
+                />
+              </>
+            ) : null}
           </div>
         </section>
 
         <section>
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+          <h2 className="text-sm font-semibold text-mute uppercase tracking-wide mb-4">
             Loja
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
