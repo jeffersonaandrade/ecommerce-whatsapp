@@ -3,6 +3,7 @@
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { reorderBenefitItemAction } from '@/lib/benefits/benefit-actions'
+import { AdminReorderButtons } from '@/components/admin/admin-reorder-buttons'
 
 export function ReorderBenefitButtons({ benefitId }: { benefitId: string }) {
   const router = useRouter()
@@ -16,25 +17,10 @@ export function ReorderBenefitButtons({ benefitId }: { benefitId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-0.5">
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() => reorder('up')}
-        aria-label="Mover para cima"
-        className="rounded px-1 text-mute hover:text-ink disabled:opacity-40"
-      >
-        ▲
-      </button>
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() => reorder('down')}
-        aria-label="Mover para baixo"
-        className="rounded px-1 text-mute hover:text-ink disabled:opacity-40"
-      >
-        ▼
-      </button>
-    </div>
+    <AdminReorderButtons
+      disabled={isPending}
+      onMoveUp={() => reorder('up')}
+      onMoveDown={() => reorder('down')}
+    />
   )
 }

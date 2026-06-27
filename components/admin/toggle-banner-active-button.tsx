@@ -3,6 +3,7 @@
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateBannerSlideAction } from '@/lib/banners/banner-actions'
+import { AdminToggleSwitch } from '@/components/admin/admin-toggle-switch'
 
 export function ToggleBannerActiveButton({
   slideId,
@@ -22,20 +23,11 @@ export function ToggleBannerActiveButton({
   }
 
   return (
-    <button
-      type="button"
+    <AdminToggleSwitch
+      active={active}
       disabled={isPending}
-      onClick={toggle}
-      aria-label={active ? 'Desativar slide' : 'Ativar slide'}
-      className={`inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-40 ${
-        active ? 'bg-green-500' : 'bg-gray-300'
-      }`}
-    >
-      <span
-        className={`inline-block h-4 w-4 translate-x-1 rounded-full bg-white shadow transition-transform ${
-          active ? 'translate-x-6' : ''
-        }`}
-      />
-    </button>
+      onToggle={toggle}
+      ariaLabel={active ? 'Desativar slide' : 'Ativar slide'}
+    />
   )
 }
