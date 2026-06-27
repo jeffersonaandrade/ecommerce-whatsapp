@@ -91,7 +91,11 @@ export default async function AdminProductsPage({
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/admin/products/media"
-                className={getButtonClassName('outline', 'md', 'w-full sm:w-auto')}
+                className={getButtonClassName(
+                  'secondary',
+                  'md',
+                  '!text-ink bg-white hover:bg-gray-100 focus:ring-gray-300 w-full sm:w-auto'
+                )}
               >
                 Central de Mídia
               </Link>
