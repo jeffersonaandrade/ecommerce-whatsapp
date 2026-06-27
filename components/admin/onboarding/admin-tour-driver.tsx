@@ -8,18 +8,25 @@ import {
   readTourResume,
   type TourController,
 } from '@/lib/admin/onboarding/tour-controller'
-import type { TourStepId } from '@/lib/admin/onboarding/tour-steps'
+import { getStepRoute, type TourStepId } from '@/lib/admin/onboarding/tour-steps'
 import 'driver.js/dist/driver.css'
 import './admin-tour-theme.css'
 
 const RESUME_FAILED_MESSAGE = 'Não foi possível continuar o tutorial.'
 
 type AdminTourDriverProps = {
+  migrationToolsEnabled: boolean
   onActiveChange: (active: boolean) => void
+  onTourComplete: (message: string) => void
   startTourRef: MutableRefObject<((stepId?: TourStepId) => void) | null>
 }
 
-export function AdminTourDriver({ onActiveChange, startTourRef }: AdminTourDriverProps) {
+export function AdminTourDriver({
+  migrationToolsEnabled,
+  onActiveChange,
+  onTourComplete,
+  startTourRef,
+}: AdminTourDriverProps) {
   const router = useRouter()
   const pathname = usePathname()
   const prefersReducedMotion = useReducedMotion() ?? false
@@ -36,9 +43,10 @@ export function AdminTourDriver({ onActiveChange, startTourRef }: AdminTourDrive
   const runStart = useCallback(
     (stepId: TourStepId = 'deployment-center') => {
       resumeHandledRef.current = null
-      if (stepId === 'deployment-center' && pathname !== '/admin') {
+      const stepRoute = getStepRoute(stepId)
+      if (pathname !== stepRoute) {
         pendingStartRef.current = stepId
-        router.push('/admin')
+        router.push(stepRoute)
         return
       }
       controllerRef.current?.start(stepId)
@@ -56,10 +64,14 @@ export function AdminTourDriver({ onActiveChange, startTourRef }: AdminTourDrive
   useEffect(() => {
     const controller = createTourController({
       reducedMotion: prefersReducedMotion,
+      migrationToolsEnabled,
       onNavigate: (path) => router.push(path),
       onTourActiveChange: onActiveChange,
       onResumeFailed: () => showToast(RESUME_FAILED_MESSAGE),
-      onPhaseComplete: (message) => showToast(message),
+      onTourComplete: (message) => {
+        showToast(message)
+        onTourComplete(message)
+      },
     })
 
     controllerRef.current = controller
@@ -68,7 +80,7 @@ export function AdminTourDriver({ onActiveChange, startTourRef }: AdminTourDrive
       controller.destroy()
       controllerRef.current = null
     }
-  }, [onActiveChange, prefersReducedMotion, router, showToast])
+  }, [migrationToolsEnabled, onActiveChange, onTourComplete, prefersReducedMotion, router, showToast])
 
   useEffect(() => {
     const resume = readTourResume()
@@ -77,7 +89,7 @@ export function AdminTourDriver({ onActiveChange, startTourRef }: AdminTourDrive
     const resumeKey = `${pathname}:${resume.stepId}`
     if (resumeHandledRef.current === resumeKey) return
 
-    const stepRoute = resume.stepId === 'settings-form' ? '/admin/settings' : '/admin'
+    const stepRoute = getStepRoute(resume.stepId)
     if (pathname !== stepRoute) return
 
     resumeHandledRef.current = resumeKey
@@ -85,8 +97,11 @@ export function AdminTourDriver({ onActiveChange, startTourRef }: AdminTourDrive
   }, [pathname])
 
   useEffect(() => {
-    if (pathname !== '/admin' || !pendingStartRef.current) return
+    if (!pendingStartRef.current) return
     const stepId = pendingStartRef.current
+    const stepRoute = getStepRoute(stepId)
+    if (pathname !== stepRoute) return
+
     pendingStartRef.current = null
     controllerRef.current?.start(stepId)
   }, [pathname])

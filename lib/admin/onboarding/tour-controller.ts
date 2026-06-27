@@ -1,11 +1,16 @@
 import { driver, type Config, type DriveStep, type Driver } from 'driver.js'
 import { tourDebug } from './tour-debug'
 import {
-  PHASE_2_COMPLETION_MESSAGE,
-  PHASE_2_TOUR_STEPS,
+  FULL_TOUR_STEPS,
+  TOUR_COMPLETION_MESSAGE,
   TOUR_PHASE,
   findStepIndex,
+  formatStepDescription,
   getStepById,
+  isFinalTourStep,
+  resolveApplicableSteps,
+  resolveNavigationAfterStep,
+  type TourNavigationContext,
   type TourStepDef,
   type TourStepId,
 } from './tour-steps'
@@ -31,8 +36,9 @@ export type TourControllerCallbacks = {
   onNavigate: (path: string) => void
   onTourActiveChange: (active: boolean) => void
   onResumeFailed: (stepId: TourStepId) => void
-  onPhaseComplete: (message: string) => void
+  onTourComplete: (message: string) => void
   reducedMotion: boolean
+  migrationToolsEnabled: boolean
 }
 
 export type TourController = {
@@ -44,6 +50,10 @@ export type TourController = {
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined'
+}
+
+function getNavigationContext(callbacks: TourControllerCallbacks): TourNavigationContext {
+  return { migrationToolsEnabled: callbacks.migrationToolsEnabled }
 }
 
 export function readTourResume(): TourResumePayload | null {
@@ -111,49 +121,57 @@ function resolveVisibleSteps(steps: TourStepDef[]): TourStepDef[] {
   })
 }
 
-function isFinalTourStep(stepDef: TourStepDef): boolean {
-  const lastStep = PHASE_2_TOUR_STEPS[PHASE_2_TOUR_STEPS.length - 1]
-  return lastStep != null && stepDef.id === lastStep.id
+function hasNextOnSameRoute(stepDef: TourStepDef, visibleSteps: TourStepDef[]): boolean {
+  const index = findStepIndex(stepDef.id, visibleSteps)
+  if (index < 0 || index >= visibleSteps.length - 1) return false
+  return visibleSteps[index + 1]?.route === stepDef.route
 }
 
 function buildDriverSteps(
-  steps: TourStepDef[],
+  visibleSteps: TourStepDef[],
   callbacks: TourControllerCallbacks
 ): DriveStep[] {
-  return steps.map((stepDef, index) => {
-    const isFinalStep = isFinalTourStep(stepDef)
+  const ctx = getNavigationContext(callbacks)
+
+  return visibleSteps.map((stepDef, index) => {
+    const isFinalStep = isFinalTourStep(stepDef, ctx)
     const isFirst = index === 0
 
     const driveStep: DriveStep = {
       element: stepDef.target,
       popover: {
         title: stepDef.title,
-        description: stepDef.description,
+        description: formatStepDescription(stepDef, ctx),
         showButtons: ['previous', 'next', 'close'],
         nextBtnText: isFinalStep ? 'Concluir' : 'Próximo',
         prevBtnText: 'Voltar',
-        onNextClick: stepDef.navigateOnNext && stepDef.resumeStepId
+        onNextClick: isFinalStep
           ? (_element, _step, { driver: driverInstance }) => {
-              tourDebug('navigate', {
-                from: stepDef.id,
-                to: stepDef.navigateOnNext,
-                resumeStepId: stepDef.resumeStepId,
-              })
-              writeTourResume({ phase: TOUR_PHASE, stepId: stepDef.resumeStepId! })
+              tourDebug('destroy', { reason: 'tour-complete', stepId: stepDef.id })
+              clearTourResume()
               driverInstance.destroy()
               callbacks.onTourActiveChange(false)
-              callbacks.onNavigate(stepDef.navigateOnNext!)
+              callbacks.onTourComplete(TOUR_COMPLETION_MESSAGE)
             }
-          : isFinalStep
+          : hasNextOnSameRoute(stepDef, visibleSteps)
             ? (_element, _step, { driver: driverInstance }) => {
-                tourDebug('destroy', { reason: 'phase-complete', stepId: stepDef.id })
-                clearTourResume()
-                driverInstance.destroy()
-                callbacks.onTourActiveChange(false)
-                callbacks.onPhaseComplete(PHASE_2_COMPLETION_MESSAGE)
+                driverInstance.moveNext()
               }
             : (_element, _step, { driver: driverInstance }) => {
-                driverInstance.moveNext()
+                const target = resolveNavigationAfterStep(stepDef.id, ctx)
+                if (!target) {
+                  tourDebug('navigate skipped', { from: stepDef.id, reason: 'no-next-step' })
+                  return
+                }
+                tourDebug('navigate', {
+                  from: stepDef.id,
+                  to: target.path,
+                  resumeStepId: target.resumeStepId,
+                })
+                writeTourResume({ phase: TOUR_PHASE, stepId: target.resumeStepId })
+                driverInstance.destroy()
+                callbacks.onTourActiveChange(false)
+                callbacks.onNavigate(target.path)
               },
         onPrevClick: isFirst
           ? undefined
@@ -209,7 +227,9 @@ export function createTourController(callbacks: TourControllerCallbacks): TourCo
   }
 
   function driveAtStepId(stepId: TourStepId) {
-    const visibleSteps = resolveVisibleSteps(PHASE_2_TOUR_STEPS)
+    const ctx = getNavigationContext(callbacks)
+    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS, ctx)
+    const visibleSteps = resolveVisibleSteps(applicable)
     const stepDef = getStepById(stepId, visibleSteps)
     if (!stepDef) {
       tourDebug('start skipped', { stepId, reason: 'target-missing' })
@@ -258,3 +278,5 @@ export function createTourController(callbacks: TourControllerCallbacks): TourCo
     isActive: () => driverInstance?.isActive() ?? false,
   }
 }
+
+export { resolveNavigationAfterStep }

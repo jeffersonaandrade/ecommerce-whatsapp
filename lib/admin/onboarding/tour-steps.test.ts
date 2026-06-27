@@ -1,21 +1,30 @@
 import { describe, expect, it } from 'vitest'
 import {
-  PHASE_2_TOUR_STEPS,
+  FULL_TOUR_STEPS,
+  INTRO_TOUR_STEPS,
   findStepIndex,
   getNextStepId,
   getStepById,
   getTourStepsForPhase,
+  resolveApplicableSteps,
+  resolveNavigationAfterStep,
 } from './tour-steps'
 
 describe('tour-steps', () => {
-  it('returns phase 2 steps', () => {
-    expect(getTourStepsForPhase(2)).toHaveLength(3)
-    expect(getTourStepsForPhase(3)).toHaveLength(0)
+  it('returns full tour for phase 3', () => {
+    expect(getTourStepsForPhase(3)).toHaveLength(8)
+    expect(getTourStepsForPhase(2)).toHaveLength(8)
   })
 
   it('has unique step ids', () => {
-    const ids = PHASE_2_TOUR_STEPS.map((step) => step.id)
+    const ids = FULL_TOUR_STEPS.map((step) => step.id)
     expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('intro flow uses nav-loja before settings', () => {
+    expect(findStepIndex('nav-loja', INTRO_TOUR_STEPS)).toBe(1)
+    expect(getNextStepId('nav-loja', INTRO_TOUR_STEPS)).toBe('settings-form')
+    expect(getStepById('nav-loja')?.target).toBe('[data-onboarding="nav-loja"]')
   })
 
   it('resolves step by id', () => {
@@ -23,21 +32,37 @@ describe('tour-steps', () => {
     expect(getStepById('missing' as 'settings-form')).toBeUndefined()
   })
 
-  it('finds step index by id', () => {
-    expect(findStepIndex('nav-produtos')).toBe(1)
-    expect(findStepIndex('settings-form')).toBe(2)
-  })
-
-  it('nav-produtos navigates to settings with resume stepId', () => {
-    const step = getStepById('nav-produtos')
-    expect(step?.navigateOnNext).toBe('/admin/settings')
-    expect(step?.resumeStepId).toBe('settings-form')
-    expect(getNextStepId('nav-produtos')).toBe('settings-form')
-  })
-
   it('uses only data-onboarding targets', () => {
-    for (const step of PHASE_2_TOUR_STEPS) {
+    for (const step of FULL_TOUR_STEPS) {
       expect(step.target).toMatch(/^\[data-onboarding="[^"]+"\]$/)
     }
+  })
+
+  it('skips migration-only steps when flag is off', () => {
+    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS, { migrationToolsEnabled: false })
+    expect(applicable.map((s) => s.id)).not.toContain('import-wizard')
+    expect(applicable.map((s) => s.id)).not.toContain('media-center')
+    expect(applicable.map((s) => s.id)).toContain('categories-list')
+    expect(applicable).toHaveLength(6)
+  })
+
+  it('includes migration steps when flag is on', () => {
+    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS, { migrationToolsEnabled: true })
+    expect(applicable).toHaveLength(8)
+  })
+
+  it('navigates from settings to import when migration tools enabled', () => {
+    const target = resolveNavigationAfterStep('settings-form', { migrationToolsEnabled: true })
+    expect(target).toEqual({ path: '/admin/import', resumeStepId: 'import-wizard' })
+  })
+
+  it('navigates from settings to categories when migration tools disabled', () => {
+    const target = resolveNavigationAfterStep('settings-form', { migrationToolsEnabled: false })
+    expect(target).toEqual({ path: '/admin/categories', resumeStepId: 'categories-list' })
+  })
+
+  it('navigates from import to media when migration tools enabled', () => {
+    const target = resolveNavigationAfterStep('import-wizard', { migrationToolsEnabled: true })
+    expect(target).toEqual({ path: '/admin/products/media', resumeStepId: 'media-center' })
   })
 })

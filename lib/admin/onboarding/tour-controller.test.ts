@@ -20,18 +20,18 @@ describe('tour-controller storage', () => {
   })
 
   it('writes and reads resume payload by stepId', () => {
-    writeTourResume({ phase: 2, stepId: 'settings-form' })
-    expect(readTourResume()).toEqual({ phase: 2, stepId: 'settings-form' })
+    writeTourResume({ phase: 3, stepId: 'settings-form' })
+    expect(readTourResume()).toEqual({ phase: 3, stepId: 'settings-form' })
   })
 
   it('clears resume payload', () => {
-    writeTourResume({ phase: 2, stepId: 'settings-form' })
+    writeTourResume({ phase: 3, stepId: 'settings-form' })
     clearTourResume()
     expect(sessionStorage.getItem(TOUR_RESUME_STORAGE_KEY)).toBeNull()
   })
 
   it('rejects invalid resume payload', () => {
-    sessionStorage.setItem(TOUR_RESUME_STORAGE_KEY, JSON.stringify({ phase: 2, stepId: 'invalid' }))
+    sessionStorage.setItem(TOUR_RESUME_STORAGE_KEY, JSON.stringify({ phase: 3, stepId: 'invalid' }))
     expect(readTourResume()).toBeNull()
   })
 })
@@ -81,10 +81,11 @@ describe('createTourController resume failure', () => {
     const onResumeFailed = vi.fn()
     const controller = createTourController({
       reducedMotion: true,
+      migrationToolsEnabled: false,
       onNavigate: vi.fn(),
       onTourActiveChange: vi.fn(),
       onResumeFailed,
-      onPhaseComplete: vi.fn(),
+      onTourComplete: vi.fn(),
     })
 
     await controller.resume('settings-form')
