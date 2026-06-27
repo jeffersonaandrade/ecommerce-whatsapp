@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { AdminPageHeader } from '@/components/admin/admin-page-header'
+import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { getButtonClassName } from '@/components/ui/button'
 import { BenefitsSectionForm } from '@/components/admin/benefits-section-form'
 import { ReorderBenefitButtons } from '@/components/admin/reorder-benefit-buttons'
@@ -20,18 +22,11 @@ export default async function AdminBenefitsPage() {
   if (!isSupabase) {
     return (
       <div className="w-full">
-        <div className="bg-ink py-8 text-canvas sm:py-12">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Link
-              href="/admin/content"
-              className="text-sm text-mute transition-colors hover:text-canvas"
-            >
-              ← Conteúdo
-            </Link>
-            <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Benefícios</h1>
-            <p className="mt-2 text-mute">Cards de benefícios exibidos na home.</p>
-          </div>
-        </div>
+        <AdminPageHeader
+          title="Benefícios"
+          subtitle="Cards de benefícios exibidos na home."
+          back={{ href: '/admin/content', label: 'Conteúdo' }}
+        />
 
         <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="rounded-lg border border-hairline bg-canvas px-6 py-8">
@@ -49,32 +44,21 @@ export default async function AdminBenefitsPage() {
 
   return (
     <div className="w-full">
-      <div className="bg-ink py-8 text-canvas sm:py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/admin/content"
-            className="text-sm text-mute transition-colors hover:text-canvas"
-          >
-            ← Conteúdo
-          </Link>
-          <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold sm:text-4xl">Benefícios</h1>
-              <p className="mt-2 text-mute">
-                Até {MAX_BENEFIT_ITEMS} cards na home. Se nenhum estiver ativo, usa o fallback padrão.
-              </p>
-            </div>
-            {canCreate && (
-              <Link
-                href="/admin/content/benefits/new"
-                className={getButtonClassName('secondary', 'md', '!text-ink')}
-              >
-                + Novo benefício
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
+      <AdminPageHeader
+        title="Benefícios"
+        subtitle={`Até ${MAX_BENEFIT_ITEMS} cards na home. Se nenhum estiver ativo, usa o fallback padrão.`}
+        back={{ href: '/admin/content', label: 'Conteúdo' }}
+        actions={
+          canCreate ? (
+            <Link
+              href="/admin/content/benefits/new"
+              className={getButtonClassName('secondary', 'md', '!text-ink')}
+            >
+              + Novo benefício
+            </Link>
+          ) : undefined
+        }
+      />
 
       <div className="mx-auto max-w-4xl space-y-6 px-4 py-12 sm:px-6 lg:px-8">
         <BenefitsSectionForm
@@ -83,17 +67,14 @@ export default async function AdminBenefitsPage() {
         />
 
         {items.length === 0 ? (
-          <div className="rounded-lg border border-hairline bg-canvas px-6 py-12 text-center">
-            <p className="text-mute">Nenhum benefício cadastrado.</p>
-            {canCreate && (
-              <Link
-                href="/admin/content/benefits/new"
-                className={getButtonClassName('default', 'sm', 'mt-4 inline-flex')}
-              >
-                Criar primeiro benefício
-              </Link>
-            )}
-          </div>
+          <AdminEmptyState
+            message="Nenhum benefício cadastrado."
+            action={
+              canCreate
+                ? { href: '/admin/content/benefits/new', label: 'Criar primeiro benefício' }
+                : undefined
+            }
+          />
         ) : (
           <div className="overflow-x-auto rounded-lg border border-hairline">
             <table className="w-full text-sm">

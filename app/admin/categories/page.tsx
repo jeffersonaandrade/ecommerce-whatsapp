@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge'
 import { getButtonClassName } from '@/components/ui/button'
 import { AdminListPage } from '@/components/admin/admin-list-page'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
+import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
@@ -97,9 +98,7 @@ export default async function AdminCategoriesPage({
           }
           content={
             result.categories.length === 0 ? (
-              <p className="py-12 text-center text-mute">
-                Nenhuma categoria encontrada.
-              </p>
+              <AdminEmptyState message="Nenhuma categoria encontrada." />
             ) : (
               <div className="overflow-hidden rounded-lg border border-hairline bg-canvas">
                 <table className="w-full">

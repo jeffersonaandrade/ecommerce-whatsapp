@@ -1,7 +1,8 @@
 import { Metadata } from 'next'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import Link from 'next/link'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
+import { AdminEmptyState } from '@/components/admin/admin-empty-state'
+import { getButtonClassName } from '@/components/ui/button'
 
 export const metadata: Metadata = {
   title: 'Admin - Pedidos',
@@ -16,20 +17,18 @@ export default function AdminOrdersPage() {
         subtitle="Acompanhe todos os pedidos dos clientes"
       />
 
-      {/* Empty State */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="text-6xl mb-4">📭</div>
-        <h2 className="text-2xl font-semibold mb-2 text-ink">
-          Nenhum Pedido Ainda
-        </h2>
-        <p className="mb-8 text-mute">
-          Os pedidos dos clientes aparecerão aqui quando o sistema de checkout
-          estiver funcionando.
-        </p>
-        <Button variant="outline">Voltar ao Dashboard</Button>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+        <AdminEmptyState message="Nenhum pedido ainda.">
+          <p className="mt-2 text-sm text-mute">
+            Os pedidos dos clientes aparecerão aqui quando o sistema de checkout estiver
+            funcionando.
+          </p>
+          <Link href="/admin" className={getButtonClassName('outline', 'md', 'mt-6 inline-flex')}>
+            Voltar ao Dashboard
+          </Link>
+        </AdminEmptyState>
       </div>
 
-      {/* Info Box */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
           <h3 className="font-semibold text-blue-900 mb-2">ℹ️ Sobre os Pedidos</h3>

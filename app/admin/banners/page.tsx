@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { getButtonClassName } from '@/components/ui/button'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
+import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { getAllBannerSlides } from '@/lib/banners'
 import { ReorderBannerButtons } from '@/components/admin/reorder-banner-buttons'
 import { ToggleBannerActiveButton } from '@/components/admin/toggle-banner-active-button'
@@ -44,15 +45,10 @@ export default async function AdminBannersPage() {
 
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         {slides.length === 0 ? (
-          <div className="rounded-lg border border-hairline bg-canvas px-6 py-12 text-center">
-            <p className="text-mute">Nenhum slide cadastrado.</p>
-            <Link
-              href="/admin/banners/new"
-              className={getButtonClassName('default', 'sm', 'mt-4 inline-flex')}
-            >
-              Criar primeiro slide
-            </Link>
-          </div>
+          <AdminEmptyState
+            message="Nenhum slide cadastrado."
+            action={{ href: '/admin/banners/new', label: 'Criar primeiro slide' }}
+          />
         ) : (
           <div className="overflow-x-auto rounded-lg border border-hairline">
             <table className="w-full text-sm">
