@@ -1,10 +1,21 @@
 'use client'
 
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { useReducedMotion } from 'framer-motion'
 import { getButtonClassName } from '@/components/ui/button'
 import { BannerSlide } from '@/types/banner-slide'
-import { bannerImageUrl } from '@/lib/banners/banner-image-url'
+import {
+  getBannerPreloadIndices,
+  preloadBannerImageUrl,
+} from '@/lib/banners/banner-preload'
+import { resolveBannerSlidePreloadSrc } from '@/lib/banners/banner-slide-image'
+import { resolveSlidePictureSources } from '@/lib/banners/banner-viewport'
+import { useDeviceBreakpoint } from '@/hooks/use-device-breakpoint'
+
+const AUTOPLAY_MS = 5000
+const RESUME_AFTER_INTERACTION_MS = 8000
+const LOAD_TIMEOUT_MS = 8000
 
 type BannerCarouselProps = {
   slides: BannerSlide[]
@@ -12,79 +23,138 @@ type BannerCarouselProps = {
 
 export function BannerCarousel({ slides }: BannerCarouselProps) {
   const [current, setCurrent] = useState(0)
+  const [displayed, setDisplayed] = useState(0)
+  const [loadedIds, setLoadedIds] = useState<Set<string>>(() => new Set())
   const [paused, setPaused] = useState(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const single = slides.length === 1
+  const prefersReducedMotion = useReducedMotion() ?? false
+  const { isMobile, isReady } = useDeviceBreakpoint()
 
-  const goTo = useCallback((index: number) => {
-    setCurrent(index)
-    setPaused(true)
+  const single = slides.length === 1
+  const transitionClass = prefersReducedMotion
+    ? 'transition-none'
+    : 'transition-opacity duration-700'
+
+  const pauseInteraction = useCallback(() => setPaused(true), [])
+
+  const markLoaded = useCallback((slideId: string) => {
+    setLoadedIds((prev) => {
+      if (prev.has(slideId)) return prev
+      const next = new Set(prev)
+      next.add(slideId)
+      return next
+    })
   }, [])
+
+  const goTo = useCallback(
+    (index: number) => {
+      setCurrent(index)
+      pauseInteraction()
+    },
+    [pauseInteraction]
+  )
 
   const prev = useCallback(() => {
     setCurrent((c) => (c - 1 + slides.length) % slides.length)
-    setPaused(true)
-  }, [slides.length])
+    pauseInteraction()
+  }, [slides.length, pauseInteraction])
 
   const next = useCallback(() => {
     setCurrent((c) => (c + 1) % slides.length)
-    setPaused(true)
-  }, [slides.length])
+    pauseInteraction()
+  }, [slides.length, pauseInteraction])
 
+  // Sync displayed slide when target is loaded (or immediately if already loaded)
   useEffect(() => {
-    if (single || paused) return
+    const target = slides[current]
+    if (!target) return
+    if (loadedIds.has(target.id)) {
+      setDisplayed(current)
+    }
+  }, [current, loadedIds, slides])
+
+  // Fallback: show target after timeout even if image failed to load
+  useEffect(() => {
+    if (current === displayed) return
+    const t = setTimeout(() => setDisplayed(current), LOAD_TIMEOUT_MS)
+    return () => clearTimeout(t)
+  }, [current, displayed])
+
+  // Autoplay
+  useEffect(() => {
+    if (single || paused || prefersReducedMotion) return
     timerRef.current = setTimeout(() => {
       setCurrent((c) => (c + 1) % slides.length)
-    }, 5000)
+    }, AUTOPLAY_MS)
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [current, paused, single, slides.length])
+  }, [current, paused, single, slides.length, prefersReducedMotion])
 
-  // resume auto-play 8s after user interaction
+  // Resume autoplay after interaction
   useEffect(() => {
-    if (!paused) return
-    const t = setTimeout(() => setPaused(false), 8000)
+    if (!paused || prefersReducedMotion) return
+    const t = setTimeout(() => setPaused(false), RESUME_AFTER_INTERACTION_MS)
     return () => clearTimeout(t)
-  }, [paused])
+  }, [paused, prefersReducedMotion])
 
-  const slide = slides[current]
+  // Preload adjacent slides (policy: neighbors if <=5, else next only)
+  useEffect(() => {
+    if (!isReady || slides.length <= 1) return
+    const indices = getBannerPreloadIndices(current, slides.length)
+    for (const index of indices) {
+      const slide = slides[index]
+      if (!slide) continue
+      const src = resolveBannerSlidePreloadSrc(slide, isMobile)
+      if (src) preloadBannerImageUrl(src)
+    }
+  }, [current, slides, isMobile, isReady])
+
+  const slide = slides[displayed] ?? slides[0]
+
+  if (!slide) return null
 
   return (
     <section
       className="relative w-full"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      data-testid="banner-carousel"
+      onMouseEnter={pauseInteraction}
+      onMouseLeave={() => !prefersReducedMotion && setPaused(false)}
+      onPointerDown={pauseInteraction}
+      onTouchStart={pauseInteraction}
     >
-      <div className="relative flex min-h-[75vh] flex-col justify-end overflow-hidden lg:min-h-[88vh]">
+      <div className="relative flex aspect-[4/5] max-h-[88vh] w-full flex-col justify-end overflow-hidden bg-ink sm:aspect-[16/9] lg:aspect-[21/9]">
         {slides.map((s, i) => {
-          const desktopSrc = bannerImageUrl(s.id, 'desktop', s.updatedAt)
-          const mobileSrc = s.mobileImagePath
-            ? bannerImageUrl(s.id, 'mobile', s.updatedAt)
-            : desktopSrc
-          const isActive = i === current
+          const { desktopSrc, mobileSrc } = resolveSlidePictureSources(s)
+          if (!desktopSrc) return null
+          const isVisible = i === displayed
 
           return (
             <div
               key={s.id}
-              aria-hidden={!isActive}
-              className={`absolute inset-0 transition-opacity duration-700 ${
-                isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              aria-hidden={!isVisible}
+              className={`absolute inset-0 ${transitionClass} ${
+                isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
               }`}
             >
-              {isActive && (
-                <picture>
+              <picture>
+                {mobileSrc && mobileSrc !== desktopSrc && (
                   <source media="(max-width: 768px)" srcSet={mobileSrc} />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={desktopSrc}
-                    alt={s.title ?? ''}
-                    className="absolute inset-0 h-full w-full object-cover object-center"
-                    fetchPriority="high"
-                    decoding="async"
-                  />
-                </picture>
-              )}
+                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  ref={(el) => {
+                    if (el?.complete) markLoaded(s.id)
+                  }}
+                  src={desktopSrc}
+                  alt={s.title ?? ''}
+                  className="absolute inset-0 h-full w-full object-cover object-center"
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
+                  decoding="async"
+                  onLoad={() => markLoaded(s.id)}
+                />
+              </picture>
             </div>
           )
         })}
@@ -122,21 +192,35 @@ export function BannerCarousel({ slides }: BannerCarouselProps) {
             <button
               type="button"
               onClick={prev}
+              onFocus={pauseInteraction}
               aria-label="Slide anterior"
               className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-ink/40 p-2 text-canvas hover:bg-ink/60 transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M13 4l-6 6 6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M13 4l-6 6 6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
             <button
               type="button"
               onClick={next}
+              onFocus={pauseInteraction}
               aria-label="Próximo slide"
               className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-ink/40 p-2 text-canvas hover:bg-ink/60 transition-colors"
             >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M7 4l6 6-6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </>
@@ -150,9 +234,11 @@ export function BannerCarousel({ slides }: BannerCarouselProps) {
               key={i}
               type="button"
               onClick={() => goTo(i)}
+              onFocus={pauseInteraction}
               aria-label={`Ir para slide ${i + 1}`}
+              aria-current={i === displayed ? 'true' : undefined}
               className={`h-2 rounded-full transition-all ${
-                i === current ? 'w-6 bg-canvas' : 'w-2 bg-canvas/50'
+                i === displayed ? 'w-6 bg-canvas' : 'w-2 bg-canvas/50'
               }`}
             />
           ))}
