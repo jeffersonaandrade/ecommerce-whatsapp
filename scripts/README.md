@@ -1,6 +1,47 @@
 # Scripts utilitários
 
-Organização pós-auditoria (Fase 3). Todos assumem execução na raiz do repositório.
+Organização por classificação: **Produto** · **Operador** · **QA** · **Legacy/Dev**.
+
+Todos assumem execução na raiz do repositório.
+
+## Classificação
+
+| Classe | Propósito | Exemplos |
+|--------|-----------|----------|
+| **Produto** | Build/deploy da loja em produção | `deploy/prepare-netlify-build.mjs`, `branding:sync` |
+| **Operador** | Onboarding de cliente, migração pontual, import scraping | `migration/dry-run-local-images.mjs`, `migration/upload-local-images-pilot.mjs`, `qa/build-scraping-import-csv.mjs` |
+| **QA** | Smoke, E2E, verificação de regressão | `qa/e2e-qa-playwright.mjs`, `qa/smoke-supabase-local.mjs` |
+| **Legacy/Dev** | JSON local, utilitários de desenvolvimento | `migration/migrate-json-to-supabase.mjs`, `dev/start-headroom-cursor.ps1` |
+
+### Feature flag `ENABLE_MIGRATION_TOOLS`
+
+Controla rotas admin de onboarding:
+
+- `/admin/import` — wizard CSV
+- `/admin/products/media` — Central de Mídia
+- Cards correspondentes no dashboard admin
+
+Implementação: [`lib/env/migration-tools.ts`](../lib/env/migration-tools.ts).
+
+| Ambiente | Valor recomendado |
+|----------|-------------------|
+| Onboarding / migração UnitSports | `ENABLE_MIGRATION_TOOLS=true` |
+| Produção estável pós-validação cliente | `ENABLE_MIGRATION_TOOLS=false` (ou omitir) |
+
+**Não remover** o código — apenas desligar via env após o cliente validar imagens e catálogo.
+
+## `operator/` (referência)
+
+Scripts operacionais hoje em `migration/` e `qa/` — pasta reservada para consolidação futura.
+
+| Script npm | Arquivo | Risco |
+|------------|---------|-------|
+| `migrate:images:dry-run` | `migration/dry-run-local-images.mjs` | Leitura — gera relatório |
+| `migrate:images:pilot` | `migration/upload-local-images-pilot.mjs` | **Escrita produção** — 10 produtos |
+| `migrate:images:remaining` | idem `--remaining` | **Escrita produção** |
+| `migrate:images:all-safe` | idem `--all-safe` | **Escrita produção** — lote seguro |
+
+Relatórios em `test-data/reports/LOCAL_IMAGE_*`. Lógica compartilhada: [`lib/catalog/media/local-image-migration/`](../lib/catalog/media/local-image-migration/).
 
 ## `dev/`
 
@@ -21,6 +62,8 @@ Organização pós-auditoria (Fase 3). Todos assumem execução na raiz do repos
 |------------------|-----|
 | **`supabase-migrations.sql`** | **DDL canônico** — todas as migrations Supabase em ordem. Atualizar após cada `apply_migration` via MCP. |
 | `migrate-json-to-supabase.mjs` | Migra `storage/*.json` + branding para Supabase. `npm run migrate:supabase` |
+| `dry-run-local-images.mjs` | Dry-run da migração de imagens locais → Storage. `npm run migrate:images:dry-run` |
+| `upload-local-images-pilot.mjs` | Upload local → bucket `products` + `products.images`. `migrate:images:pilot` (10), `migrate:images:remaining` (46), `migrate:images:all-safe` (56) |
 | `generate-seed-sql.mjs` | Gera SQL de seed a partir dos JSON locais (setup manual). |
 
 ## `qa/`

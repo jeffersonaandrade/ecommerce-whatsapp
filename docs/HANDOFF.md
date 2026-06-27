@@ -1,6 +1,6 @@
 # Handoff — Checkpoint pré-Fase 7
 
-**Auditoria:** 2026-06-26  
+**Auditoria:** 2026-06-27  
 **Fonte da verdade:** código + testes executados + Graphify  
 **Repo:** https://github.com/jeffersonaandrade/ecommerce-whatsapp.git  
 **Produção:** https://loja-whats.netlify.app  
@@ -16,12 +16,13 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 |------|--------|------------------------|
 | **Home** | ✅ | `app/page.tsx` — hero, chips mobile, categorias desktop, destaques deduplicados (Fase 0 `25ef567`) |
 | **PLP** | ✅ | `app/products/page.tsx` — filtros dinâmicos do catálogo, metadata |
-| **PDP** | ✅ | `app/products/[slug]/page.tsx` — variações, metadata, canonical |
+| **PDP** | ✅ | `app/products/[slug]/page.tsx` — variações, metadata, canonical; `ProductGallery` (miniaturas + setas); textos sem HTML cru (`stripHtml`) |
 | **Carrinho** | ✅ | `context/cart-context.tsx` + localStorage + testes |
 | **WhatsApp** | ✅ | `buildWhatsAppMessage` + `#TEMP-YYYYMMDD-NNNN` + testes |
-| **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; redirect pós-create → edit `?created=1`; banner de visibilidade na loja |
+| **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; ordem fotos (posição 1 = destaque); redirect pós-create → edit `?created=1`; banner visibilidade na loja |
 | **Categorias** | ✅ | CRUD v1.1 (`/admin/categories`); PLP/home com slugs; select no produto; CSV `CSV_E008` |
-| **Importação CSV** | ✅ | Wizard completo (`/admin/import`); **sem** histórico (CSV-5) |
+| **Importação CSV** | ✅ | Wizard (`/admin/import`); RPC transacional `apply_product_import_batch`; revalidação SKU pós-upsert; **sem** histórico (CSV-5). Rota oculta quando `ENABLE_MIGRATION_TOOLS≠true` |
+| **Central de Mídia** | 🟡 | `/admin/products/media` — inventário URL, wizard upload, associação por filename. Oculta por default (`ENABLE_MIGRATION_TOOLS`). Migração local→Storage: **56** OK · **35** ambíguos pendentes validação cliente |
 | **Branding** | ✅ | Logo/favicon/OG via Storage + `/api/branding/*`; **upload self-service de logo fora do MVP** (implantação/suporte) |
 | **Hero configurável** | ✅ | 1 hero em `StoreSettings`; grid de produtos removido do hero (Fase 0) |
 | **Institucional** | ✅ | `/sobre`, `/contato`, `/politica-de-trocas` via settings |
@@ -29,7 +30,7 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **Persistência admin** | ✅ | Supabase em produção Netlify; JSON local para dev |
 | **SEO** | ✅ | `buildPageMetadata`, canonical PLP/Home/PDP, OG, robots PDP |
 | **Deploy Netlify** | ✅ | Produção Supabase integrada; smoke §9.4 + Fase 0 §9.7 PASS (2026-06-26) |
-| **Testes** | ✅ | **117 passed** (26 arquivos) — executado 2026-06-26 |
+| **Testes** | ✅ | **207 passed** (47 arquivos) — executado 2026-06-27 |
 | **Build** | ✅ | `npm run build` OK — 23 rotas |
 
 ### Itens explicitamente ❌ não implementados
@@ -146,11 +147,11 @@ Sem aprovação explícita, **não implementar**:
 
 | Item | Valor atual |
 |------|-------------|
-| Testes | **115 passed** / 25 files (`vitest run`) |
+| Testes | **207 passed** / 47 files (`vitest run`) |
 | Build | OK (`npm run build:netlify`) |
-| Último commit | `feat(catalog)` categorias v1.1 + `fix(admin)` UX cadastro produto (pendente push) |
+| Último commit | `0a00394` chore(graphify) · `99860e6` ordem fotos admin · `026dab8` PDP galeria · `97fdeab` SKU pós-upsert import |
 | Branch | `master` — sincronizado com `origin/master` |
-| Graphify | **666 nós · 1566 arestas · 29 comunidades** (`graphify-out/`, sync 2026-06-26) |
+| Graphify | **1410 nós · 3507 arestas · 72 comunidades** (`graphify-out/`, sync 2026-06-26, commit `99860e6`) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
 
 ### Persistência atual (filesystem)
@@ -192,17 +193,17 @@ Sem aprovação explícita, **não implementar**:
 
 ### Documentos desatualizados (corrigir ou consolidar)
 
-- `ROADMAP.md` — Fase 7 parcialmente marcada ✅; migração Netlify pendente
-- `docs/MODULE_ROADMAP.md` — diz Fases 4–6 ✅ mas Go Live “em andamento” sem sync
-- `PROJECT_SCOPE.md` → [`docs/product/PROJECT_SCOPE.md`](product/PROJECT_SCOPE.md)
-- `docs/ARCHITECTURE.md` — ~~tabela de módulos desatualizada~~ corrigido 2026-06-25
+- ~~`ROADMAP.md` — Fase 7 parcialmente marcada ✅; migração Netlify pendente~~ — **sync 2026-06-27**
+- ~~`docs/MODULE_ROADMAP.md` — Go Live “em andamento” sem sync~~ — **sync 2026-06-27**
+- `PROJECT_SCOPE.md` → [`docs/product/PROJECT_SCOPE.md`](product/PROJECT_SCOPE.md) — escopo histórico
+- `README.md` — revisar métricas de teste e comandos de migração
 
 ---
 
 ## 4. Produção (Netlify)
 
 **URL:** https://loja-whats.netlify.app (HTTP 200 — verificado 2026-06-26)  
-**Provider:** `DATA_PROVIDER=supabase` · **Último deploy validado:** commit `25ef567d1bd4b5c64f90f10615c72b509ed7a18e`
+**Provider:** `DATA_PROVIDER=supabase` · **Último deploy validado:** commit `026dab8` (PDP galeria + strip HTML) — commits posteriores incluem ordem fotos admin (`99860e6`) e graphify (`0a00394`)
 
 ### Funciona normalmente
 
@@ -351,14 +352,38 @@ Sem aprovação explícita, **não implementar**:
 
 ---
 
+## 7.1 `ENABLE_MIGRATION_TOOLS` (operador)
+
+| Variável | Efeito |
+|----------|--------|
+| `true` | Exibe `/admin/import`, `/admin/products/media` e cards no dashboard |
+| `false` / omitida | Rotas retornam 404; cards ocultos — **padrão produção estável** |
+
+Código: [`lib/env/migration-tools.ts`](../lib/env/migration-tools.ts). Scripts: [`scripts/README.md`](../scripts/README.md) · [`scripts/operator/README.md`](../scripts/operator/README.md).
+
+**Pós-validação cliente UnitSports:** definir `ENABLE_MIGRATION_TOOLS=false` no Netlify. Manter scripts `migrate:images:*` no repo.
+
+## 7.2 Auditorias futuras (ref. jun/2026)
+
+**Hooks:** `useDeviceBreakpoint`, `useImageProbe`, `useDemoAdminSession`, `useSupabaseAdminSession`, `useCart` — sem duplicação crítica; investigar loading/upload em forms admin.
+
+**Storage services:** `banner-storage`, `category-storage`, `category-image-storage`, `branding-storage`, `product-image-storage` — candidatos a extrair helpers comuns (Sprint futuro).
+
+---
+
 ## 7. Comandos de verificação
 
 ```bash
-npm run test      # 60 passed
+npm run test      # 241 passed
 npm run build     # produção local
 npm run build:netlify  # simula prebuild deploy
 npm run start     # admin gravável localmente
 graphify update . # após mudanças estruturais
+
+# Onboarding / migração de imagens (operador — requer ENABLE_MIGRATION_TOOLS=true)
+npm run migrate:images:dry-run
+npm run migrate:images:pilot      # 10 produtos
+npm run migrate:images:remaining  # restante dos seguros
 ```
 
 ---
@@ -367,12 +392,13 @@ graphify update . # após mudanças estruturais
 
 | Documento | Código real |
 |-----------|-------------|
-| ROADMAP: Fase 4 “próxima” | Fases 4–6 implementadas |
+| ~~ROADMAP: Fase 4 “próxima”~~ | Fases 4–7 concluídas — sync 2026-06-27 |
 | ARCHITECTURE: Catalog “Mock” | Repositórios JSON + Supabase via factory |
 | ARCHITECTURE: Settings “Placeholder” | Admin settings funcional (JSON ou Supabase) |
-| GO_LIVE: checkboxes abertos Sprints 1–3 | Código pronto; aceite operacional pendente (§9) |
-| MODULE_ROADMAP: CSV-5 histórico | Rota `/admin/import/history` não existe |
+| GO_LIVE: checkboxes abertos Sprints 1–3 | Código pronto; aceite operacional onboarding pendente (§9) |
+| MODULE_ROADMAP: CSV-5 histórico | Rota `/admin/import/history` não existe — adiado |
 | CHANGELOG 1.0.1-demo vs package 1.0.0 | Versões desalinhadas |
+| HANDOFF test count | **207 passed** / 47 files (2026-06-27) |
 
 **Regra:** em conflito, **código prevalece**.
 
@@ -380,7 +406,7 @@ graphify update . # após mudanças estruturais
 
 ## 9. Validação de pendências
 
-**Atualizado:** 2026-06-26 · Fontes: commits `76f5431`, `16b796a`, [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://loja-whats.netlify.app
+**Atualizado:** 2026-06-27 · Fontes: commits `97fdeab`…`0a00394`, [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://loja-whats.netlify.app
 
 ### Resumo
 
@@ -401,7 +427,7 @@ graphify update . # após mudanças estruturais
 | Repositórios async + páginas `await` | ✅ | commit `14905a2` |
 | Upload imagem produto (Storage) | ✅ | E2E-4 PASS — [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md) |
 | QA E2E Playwright (E2E-1…E2E-9) | ✅ | commit `16b796a` |
-| Testes | ✅ | `60 passed` / 12 files |
+| Testes | ✅ | `207 passed` / 47 files |
 | Build | ✅ | `npm run build` OK |
 | Toggle mostrar senha no login | ✅ | commit `76f5431` |
 
@@ -524,12 +550,16 @@ Ordem objetiva (sem novas features):
 
 #### Pendências reais (pós-Fase 0)
 
-- [ ] Onboarding 1º cliente (Sprint 3)
+- [ ] Onboarding 1º cliente (Sprint 3) — **validação imagens amanhã** (56 migrados + 35 ambíguos)
+- [ ] Corrigir associações erradas reportadas pelo cliente (regras manuais ou ajuste de matching)
+- [ ] Publicar produtos aprovados (`draft` → `active`) após validação
+- [ ] Reimportar CSV 91 produtos quando cliente confirmar catálogo
 - [ ] Auditoria/reorganização pós-V1 — **Fases 1–3 concluídas** (Fases 4–6 pendentes)
 - [ ] Avaliar versionar script smoke produção (genérico + `package.json`) — **não** commitar `smoke-f0-prod.mjs` ainda
 - [ ] Manter signup público **OFF** no Supabase Dashboard
 - [ ] Revisar rotação periódica de `service_role` (já rotacionada em go-live; repetir antes de 2º cliente se necessário)
-- [ ] Sync `README.md`, `ROADMAP.md`, `MODULE_ROADMAP.md` (desatualizados vs estado Supabase)
+- [ ] Sync `README.md` (métricas teste + comandos migração)
+- [ ] `ENABLE_MIGRATION_TOOLS=true` só durante onboarding; desligar em produção estável
 
 ### 9.6 Sprint 4+ (fora do escopo do deploy)
 
@@ -542,4 +572,21 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 
 ---
 
-*Próxima revisão deste handoff: após auditoria pós-V1 (Fase 1+) ou onboarding 1º cliente.*
+### 9.8 Migração de imagens UnitSports (2026-06-26)
+
+**Contexto:** catálogo importado com URLs mitiendanube; pasta local `test-data/images/` com arquivos exportados.
+
+| Etapa | Resultado |
+|-------|-----------|
+| Dry-run (`migrate:images:dry-run`) | 91 produtos → **56 seguros**, **35 ambíguos**, 0 sem imagem |
+| Upload piloto (10 produtos) | 36 imagens, 0 falhas técnicas — cliente reportou associações visuais incorretas |
+| Upload restante (46 seguros) | 201 imagens, 0 falhas → **56** produtos com URLs Supabase Storage |
+| Pendentes | **35** produtos ainda com URLs externas (match ambíguo — revisão manual) |
+
+**Relatórios:** `test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md`, `LOCAL_IMAGE_MIGRATION_PILOT_UPLOAD.md`, `LOCAL_IMAGE_MIGRATION_REMAINING_UPLOAD.md`
+
+**Próximo passo:** cliente valida produto a produto; corrigir no admin ou re-associar via Central de Mídia.
+
+---
+
+*Próxima revisão deste handoff: após validação cliente (imagens) ou onboarding 1º cliente concluído.*
