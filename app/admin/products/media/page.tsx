@@ -16,7 +16,9 @@ export default async function AdminProductsMediaPage({
   searchParams: Promise<Record<string, string | undefined>>
 }) {
   const params = await searchParams
-  const pageSize = [25, 50].includes(Number(params.size)) ? Number(params.size) : 25
+  const pageSize = [25, 50, 100, 200].includes(Number(params.size))
+    ? Number(params.size)
+    : 25
 
   const query: ProductQuery = {
     filters: { search: params.q || undefined },
