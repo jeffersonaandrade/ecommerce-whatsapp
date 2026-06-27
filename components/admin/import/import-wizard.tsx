@@ -121,7 +121,7 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
   const loadingLabel = pendingAction === 'confirm' ? 'Importando' : 'Analisando'
 
   return (
-    <div className="relative min-h-[280px] space-y-8">
+    <div className="relative min-h-[280px] space-y-8" data-onboarding="import-wizard">
       {isPending && pendingAction && (
         <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-canvas/80 backdrop-blur-[1px]">
           <ImportLoadingIndicator label={loadingLabel} />
