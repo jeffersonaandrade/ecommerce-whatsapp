@@ -11,20 +11,20 @@ export default function AdminOrdersPage() {
   return (
     <div className="w-full">
       {/* Page Header */}
-      <div className="bg-gray-900 text-white py-8">
+      <div className="bg-ink py-8 text-canvas">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold">Gerenciar Pedidos</h1>
-          <p className="text-gray-400 mt-1">Acompanhe todos os pedidos dos clientes</p>
+          <p className="mt-1 text-mute">Acompanhe todos os pedidos dos clientes</p>
         </div>
       </div>
 
       {/* Empty State */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
         <div className="text-6xl mb-4">📭</div>
-        <h2 className="text-2xl font-semibold mb-2 text-gray-900">
+        <h2 className="text-2xl font-semibold mb-2 text-ink">
           Nenhum Pedido Ainda
         </h2>
-        <p className="text-gray-600 mb-8">
+        <p className="mb-8 text-mute">
           Os pedidos dos clientes aparecerão aqui quando o sistema de checkout
           estiver funcionando.
         </p>

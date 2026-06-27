@@ -1,6 +1,8 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
 import { MediaCenter } from '@/components/admin/media/media-center'
+import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllProductsAdmin, queryProductsAdmin } from '@/lib/products'
 import { getSupabaseUrl } from '@/lib/supabase/env'
 import type { ProductQuery } from '@/lib/query'
@@ -15,6 +17,8 @@ export default async function AdminProductsMediaPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>
 }) {
+  if (!isMigrationToolsEnabled()) notFound()
+
   const params = await searchParams
   const pageSize = [25, 50, 100, 200].includes(Number(params.size))
     ? Number(params.size)
@@ -57,17 +61,17 @@ export default async function AdminProductsMediaPage({
 
   return (
     <div className="w-full">
-      <div className="bg-gray-900 py-8 text-white">
+      <div className="bg-ink py-8 text-canvas">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-gray-400">
-                <Link href="/admin/products" className="hover:text-white">
+              <p className="text-sm text-mute">
+                <Link href="/admin/products" className="hover:text-canvas">
                   ← Produtos
                 </Link>
               </p>
               <h1 className="text-3xl font-bold">Central de Mídia</h1>
-              <p className="mt-1 text-gray-400">
+              <p className="mt-1 text-mute">
                 Inventário, associação e upload em lote para migração de imagens
               </p>
             </div>
