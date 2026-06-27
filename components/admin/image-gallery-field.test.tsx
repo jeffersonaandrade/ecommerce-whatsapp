@@ -95,7 +95,9 @@ describe('ImageGalleryField', () => {
       ...existingImages,
       'https://cdn.test/e.webp',
     ])
-    expect(screen.getByText(/1 arquivo foi ignorado/i)).toBeTruthy()
+    await waitFor(() =>
+      expect(screen.getByText(/1 arquivo foi ignorado/i)).toBeTruthy()
+    )
   })
 
   it('reordena imagens ao mudar a posição no select', () => {

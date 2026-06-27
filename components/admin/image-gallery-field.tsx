@@ -86,7 +86,7 @@ export function ImageGalleryField({
       )
     }
 
-    setUploadError(null)
+    setUploadError(errors.length > 0 ? errors.join(' ') : null)
     setUploading(true)
     setUploadProgress({ completed: 0, total: selectedFiles.length })
 
