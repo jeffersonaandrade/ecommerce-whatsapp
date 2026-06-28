@@ -307,6 +307,34 @@ export const supabaseProductRepository: ProductRepository = {
     return products
   },
 
+  async getByIdsAdmin(ids: string[]): Promise<Product[]> {
+    const uniqueIds = [...new Set(ids.map((id) => id.trim()).filter(Boolean))]
+    if (!uniqueIds.length) return []
+
+    const supabase = createAdminClient()
+    const selectClause = productSelect('full')
+    const products: Product[] = []
+
+    await runInChunks(uniqueIds, CHUNK_SIZE, async (chunk) => {
+      const { data, error } = await supabase
+        .from('products')
+        .select(selectClause)
+        .in('id', chunk)
+
+      if (error) throw new Error(`getByIdsAdmin failed: ${error.message}`)
+
+      products.push(
+        ...(
+          (data ?? []) as unknown as (ProductRow & {
+            product_variations: ProductVariationRow[]
+          })[]
+        ).map((row) => rowsToProduct(row, row.product_variations ?? []))
+      )
+    })
+
+    return products
+  },
+
   async create(input: ProductInput): Promise<Product> {
     const [existing, id] = await Promise.all([fetchSlugIndex(), nextProductIdFromDb()])
     const product = buildProduct(input, existing, id)

@@ -14,6 +14,10 @@ import { getProductRepository } from './get-product-repository'
 import { ProductInput } from './product-repository'
 import { validateProductInput, type ProductValidationError } from './product-utils'
 import {
+  validateProductsForBulkActivation,
+  type BulkValidationSummary,
+} from './publication-rules'
+import {
   mimeToImageExt,
   validateImageFile,
 } from '@/lib/media/validate-image-file'
@@ -238,5 +242,19 @@ export async function bulkDeleteProductsAction(
     return { ok: true, count: ids.length }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Erro ao excluir.' }
+  }
+}
+
+export async function bulkValidateForActivationAction(
+  ids: string[]
+): Promise<{ ok: true; summary: BulkValidationSummary } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
+  try {
+    const products = await getProductRepository().getByIdsAdmin(ids)
+    const summary = validateProductsForBulkActivation(products)
+    return { ok: true, summary }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao validar produtos.' }
   }
 }

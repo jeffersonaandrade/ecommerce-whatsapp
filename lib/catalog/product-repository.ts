@@ -24,6 +24,7 @@ export interface ProductRepository {
   getById(id: string): Promise<Product | undefined>
   getBySlug(slug: string): Promise<Product | undefined>
   getByIds(ids: string[], fields?: ProductQuery['fields']): Promise<Product[]>
+  getByIdsAdmin(ids: string[]): Promise<Product[]>
   create(input: ProductInput): Promise<Product>
   update(id: string, input: ProductInput): Promise<Product>
   delete(id: string): Promise<void>

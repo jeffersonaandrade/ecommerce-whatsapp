@@ -73,6 +73,11 @@ export const jsonProductRepository: ProductRepository = {
     return loadCatalogFromDisk().filter((p) => idSet.has(p.id) && p.status === 'active')
   },
 
+  async getByIdsAdmin(ids: string[]): Promise<Product[]> {
+    const idSet = new Set(ids)
+    return loadCatalogFromDisk().filter((p) => idSet.has(p.id))
+  },
+
   async create(input: ProductInput): Promise<Product> {
     const products = loadCatalogFromDisk()
     const product = buildProduct(input, products)

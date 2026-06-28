@@ -203,6 +203,11 @@ describe('applyImport', () => {
         return { ...product, images }
       },
       bulkSetProductImages: async () => {},
+      getByIds: async (ids) => products.filter((p) => ids.includes(p.id) && p.status === 'active'),
+      getByIdsAdmin: async (ids) => products.filter((p) => ids.includes(p.id)),
+      queryStorefront: async () => ({ products: [], total: 0, page: 1, pageSize: 25, totalPages: 0, counts: { all: 0, active: 0, draft: 0, unavailable: 0, noStock: 0 } }),
+      getStorefrontFeatured: async () => [],
+      findConflictingSkus: async () => [],
     }
 
     const csv = fs.readFileSync(TEMPLATE_PATH, 'utf-8')
