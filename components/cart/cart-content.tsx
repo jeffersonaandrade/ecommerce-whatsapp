@@ -6,6 +6,7 @@ import { formatPrice } from '@/lib/formatters'
 import { Button, getButtonClassName } from '@/components/ui/button'
 import { CartLineItem } from '@/components/cart/cart-line-item'
 import { buildPurchaseIntentFromCart } from '@/lib/purchase-intent/build-purchase-intent'
+import { enrichPricingWithCartItems } from '@/lib/purchase-intent/enrich-pricing-with-cart-items'
 import {
   buildWhatsAppMessage,
   buildWhatsAppUrl,
@@ -23,10 +24,11 @@ export function CartContent({
   whatsappPhone,
   whatsappMessagePrefix = '',
 }: CartContentProps) {
-  const { pricing, itemCount, clearCart, isHydrated } = useCart()
+  const { pricing, itemCount, clearCart, isHydrated, items } = useCart()
 
   function handleWhatsAppCheckout() {
-    const intent = buildPurchaseIntentFromCart(pricing, siteUrl)
+    const enrichedPricing = enrichPricingWithCartItems(pricing, items)
+    const intent = buildPurchaseIntentFromCart(enrichedPricing, siteUrl)
     if (!intent) return
 
     const message = buildWhatsAppMessage(intent, whatsappMessagePrefix)

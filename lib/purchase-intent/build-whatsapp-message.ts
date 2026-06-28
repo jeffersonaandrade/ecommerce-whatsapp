@@ -1,12 +1,41 @@
 import { formatPrice } from '@/lib/formatters'
-import { PurchaseIntent } from '@/types/purchase-intent'
+import { PurchaseIntent, PurchaseIntentLine } from '@/types/purchase-intent'
 
-function formatAddonsLine(intentLine: PurchaseIntent['lines'][number]): string | null {
+function formatPersonalizationLines(intentLine: PurchaseIntentLine): string[] {
   const p = intentLine.addons?.personalization
-  if (!p) return null
-  const parts = [`Nome: ${p.name}`, `Nº: ${p.number}`]
-  if (p.notes?.trim()) parts.push(`Obs: ${p.notes.trim()}`)
-  return parts.join(' | ')
+  if (!p) return []
+
+  const lines = [
+    `Nome na camisa: ${p.name.trim()}`,
+    `Número: ${p.number.trim()}`,
+  ]
+
+  if (p.notes?.trim()) {
+    lines.push(`Observação: ${p.notes.trim()}`)
+  }
+
+  const addonsExtra = intentLine.addonsExtra ?? 0
+  if (addonsExtra > 0) {
+    lines.push(`Taxa personalização: +${formatPrice(addonsExtra)}`)
+  }
+
+  return lines
+}
+
+function formatLineTotals(intentLine: PurchaseIntentLine): string {
+  const addonsExtra = intentLine.addonsExtra ?? 0
+  const productTotal = intentLine.lineMerchandiseTotal - addonsExtra
+
+  if (addonsExtra > 0) {
+    return [
+      `Qtd: ${intentLine.quantity}`,
+      `Produto: ${formatPrice(productTotal)}`,
+      `Personalização: ${formatPrice(addonsExtra)}`,
+      `Total linha: ${formatPrice(intentLine.lineMerchandiseTotal)}`,
+    ].join(' | ')
+  }
+
+  return `Qtd: ${intentLine.quantity} | Subtotal: ${formatPrice(intentLine.lineMerchandiseTotal)}`
 }
 
 export function buildWhatsAppMessage(
@@ -22,32 +51,35 @@ export function buildWhatsAppMessage(
   lines.push('Olá! Gostaria de solicitar este pedido.', '', `Pedido #${intent.id}`, '')
 
   for (const line of intent.lines) {
-    const parts = [
-      `• ${line.productName}`,
+    lines.push(`• ${line.productName}`)
+    lines.push(
       [
         line.size ? `Tamanho: ${line.size}` : null,
         line.color ? `Cor: ${line.color}` : null,
         line.sku ? `SKU: ${line.sku}` : null,
       ]
         .filter(Boolean)
-        .join(' | '),
-      formatAddonsLine(line),
-      `Qtd: ${line.quantity} | Subtotal: ${formatPrice(line.lineMerchandiseTotal)}`,
-      line.productUrl,
-    ].filter(Boolean) as string[]
-
-    lines.push(...parts, '')
+        .join(' | ')
+    )
+    lines.push(...formatPersonalizationLines(line))
+    lines.push(formatLineTotals(line))
+    lines.push(line.productUrl, '')
   }
 
+  const productSubtotal = intent.merchandiseSubtotal - intent.addonsSubtotal
+
+  lines.push('— Resumo —')
+  lines.push(`Subtotal produtos: ${formatPrice(productSubtotal)}`)
+
   if (intent.addonsSubtotal > 0) {
-    lines.push(`Personalização: ${formatPrice(intent.addonsSubtotal)}`, '')
+    lines.push(`Total personalização: ${formatPrice(intent.addonsSubtotal)}`)
   }
 
   if (intent.commercialDiscount > 0) {
     const label = intent.appliedRuleName
       ? `Desconto (${intent.appliedRuleName})`
       : 'Desconto'
-    lines.push(`${label}: -${formatPrice(intent.commercialDiscount)}`, '')
+    lines.push(`${label}: -${formatPrice(intent.commercialDiscount)}`)
   }
 
   lines.push(`Total: ${formatPrice(intent.cartTotal)}`, '', 'Aguardo retorno.')

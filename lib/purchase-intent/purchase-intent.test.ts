@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { computeTotals } from '@/lib/pricing/compute-totals'
 import { buildPurchaseIntentFromCart } from './build-purchase-intent'
 import { buildWhatsAppMessage, buildWhatsAppUrl } from './build-whatsapp-message'
+import { enrichPricingWithCartItems } from './enrich-pricing-with-cart-items'
 import type { CartPricing } from '@/types/cart-pricing'
+import { Product } from '@/types/product'
+import { PersonalizationSettings } from '@/types/personalization-settings'
 
 const samplePricing: CartPricing = {
   lines: [
@@ -25,6 +29,32 @@ const samplePricing: CartPricing = {
   addonsSubtotal: 0,
   commercialDiscount: 0,
   cartTotal: 379.8,
+}
+
+const personalizedProduct: Product = {
+  id: 'p1',
+  slug: 'camisa-real-madrid',
+  name: 'Camisa Real Madrid 25/26',
+  shortDescription: '',
+  longDescription: '',
+  price: 159.9,
+  category: 'camisas',
+  images: [],
+  variations: [{ id: 'v1', sku: 'SKU-RM-P', stock: 10, size: 'P' }],
+  status: 'active',
+  personalizationEnabled: true,
+  personalizationPrice: 30,
+}
+
+const personalizationSettings: PersonalizationSettings = {
+  enabled: true,
+  defaultPrice: 30,
+  nameMaxLength: 15,
+  numberMin: 1,
+  numberMax: 99,
+  notesRequired: false,
+  notesMaxLength: 200,
+  updatedAt: '',
 }
 
 describe('buildPurchaseIntentFromCart', () => {
@@ -85,6 +115,127 @@ describe('buildWhatsAppMessage', () => {
     const message = buildWhatsAppMessage(intent)
     expect(message).toContain('Desconto (Leve 3)')
     expect(message).toContain('Total:')
+  })
+
+  it('inclui nome, número e observação da personalização por item', () => {
+    const pricing: CartPricing = {
+      lines: [
+        {
+          productId: 'p1',
+          variationId: 'v1',
+          quantity: 1,
+          name: personalizedProduct.name,
+          slug: personalizedProduct.slug,
+          sku: 'SKU-RM-P',
+          image: '',
+          size: 'P',
+          unitPrice: 159.9,
+          addons: {
+            personalization: {
+              name: 'Jefferson Andrade',
+              number: '10',
+              notes: 'testando',
+            },
+          },
+          addonsUnitTotal: 30,
+          lineMerchandiseTotal: 189.9,
+          maxStock: 10,
+        },
+      ],
+      merchandiseSubtotal: 189.9,
+      addonsSubtotal: 30,
+      commercialDiscount: 0,
+      cartTotal: 189.9,
+    }
+
+    const intent = buildPurchaseIntentFromCart(pricing, 'https://loja-unitsports')!
+    const message = buildWhatsAppMessage(intent)
+
+    expect(message).toContain('Nome na camisa: Jefferson Andrade')
+    expect(message).toContain('Número: 10')
+    expect(message).toContain('Observação: testando')
+    expect(message).toMatch(/Taxa personalização: \+R\$[\u00a0 ]30,00/)
+    expect(message).toMatch(/Total personalização: R\$[\u00a0 ]30,00/)
+    expect(message).toMatch(/Produto: R\$[\u00a0 ]159,90/)
+    expect(message).toMatch(/Total linha: R\$[\u00a0 ]189,90/)
+  })
+
+  it('monta mensagem com personalização a partir do carrinho precificado', () => {
+    const pricing = computeTotals(
+      [
+        {
+          productId: 'p1',
+          variationId: 'v1',
+          quantity: 1,
+          addons: {
+            personalization: {
+              name: 'Jefferson Andrade',
+              number: '10',
+              notes: 'testando',
+            },
+          },
+        },
+      ],
+      {
+        getProductById: () => personalizedProduct,
+        personalizationSettings,
+        commercialRules: [],
+      }
+    )
+
+    const intent = buildPurchaseIntentFromCart(pricing, 'https://loja-unitsports')!
+    const message = buildWhatsAppMessage(intent)
+
+    expect(message).toContain('Nome na camisa: Jefferson Andrade')
+    expect(message).toContain('Número: 10')
+    expect(message).toContain('Observação: testando')
+  })
+
+  it('recupera addons do carrinho quando a linha precificada não os traz', () => {
+    const pricing: CartPricing = {
+      lines: [
+        {
+          productId: 'p1',
+          variationId: 'v1',
+          quantity: 1,
+          name: personalizedProduct.name,
+          slug: personalizedProduct.slug,
+          sku: 'SKU-RM-P',
+          image: '',
+          size: 'P',
+          unitPrice: 159.9,
+          addonsUnitTotal: 30,
+          lineMerchandiseTotal: 189.9,
+          maxStock: 10,
+        },
+      ],
+      merchandiseSubtotal: 189.9,
+      addonsSubtotal: 30,
+      commercialDiscount: 0,
+      cartTotal: 189.9,
+    }
+
+    const items = [
+      {
+        productId: 'p1',
+        variationId: 'v1',
+        quantity: 1,
+        addons: {
+          personalization: {
+            name: 'Jefferson Andrade',
+            number: '10',
+            notes: 'testando',
+          },
+        },
+      },
+    ]
+
+    const enriched = enrichPricingWithCartItems(pricing, items)
+    const intent = buildPurchaseIntentFromCart(enriched, 'https://loja-unitsports')!
+    const message = buildWhatsAppMessage(intent)
+
+    expect(enriched.lines[0].addons?.personalization?.name).toBe('Jefferson Andrade')
+    expect(message).toContain('Nome na camisa: Jefferson Andrade')
   })
 })
 
