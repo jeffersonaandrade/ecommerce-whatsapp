@@ -2,6 +2,8 @@ import { AdminOnboardingProvider } from '@/components/admin/onboarding/admin-onb
 import { computeOnboardingProgress } from '@/lib/admin/onboarding/detect-progress'
 import { getOnboardingState } from '@/lib/admin/onboarding/get-onboarding-repository'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminLayout({
   children,
 }: {

@@ -21,38 +21,71 @@ import {
   type ProductVariationRow,
 } from './supabase-mappers'
 
+type ProductRowWithVariations = ProductRow & { product_variations: ProductVariationRow[] }
+
 async function fetchProducts(status?: ProductStatus): Promise<Product[]> {
   const supabase = createAdminClient()
-  let productsQuery = supabase.from('products').select('*').order('id')
-  if (status) {
-    productsQuery = productsQuery.eq('status', status)
+  const pageSize = 500
+  const products: Product[] = []
+  let from = 0
+
+  while (true) {
+    let qb = supabase
+      .from('products')
+      .select('*, product_variations(*)')
+      .order('id')
+      .range(from, from + pageSize - 1)
+
+    if (status) {
+      qb = qb.eq('status', status)
+    }
+
+    const { data, error } = await qb
+
+    if (error) throw new Error(`products read failed: ${error.message}`)
+    if (!data?.length) break
+
+    products.push(
+      ...(data as ProductRowWithVariations[]).map((row) =>
+        rowsToProduct(row, row.product_variations ?? [])
+      )
+    )
+
+    if (data.length < pageSize) break
+    from += pageSize
   }
 
-  const { data: productRows, error: productsError } = await productsQuery
+  return products
+}
 
-  if (productsError) throw new Error(`products read failed: ${productsError.message}`)
-  if (!productRows?.length) return []
+async function fetchProductById(id: string): Promise<Product | undefined> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_variations(*)')
+    .eq('id', id)
+    .maybeSingle()
 
-  const productIds = (productRows as ProductRow[]).map((row) => row.id)
-  const { data: variationRows, error: variationsError } = await supabase
-    .from('product_variations')
-    .select('*')
-    .in('product_id', productIds)
+  if (error) throw new Error(`product read failed: ${error.message}`)
+  if (!data) return undefined
 
-  if (variationsError) {
-    throw new Error(`product_variations read failed: ${variationsError.message}`)
-  }
+  const row = data as ProductRowWithVariations
+  return rowsToProduct(row, row.product_variations ?? [])
+}
 
-  const byProduct = new Map<string, ProductVariationRow[]>()
-  for (const row of (variationRows ?? []) as ProductVariationRow[]) {
-    const list = byProduct.get(row.product_id) ?? []
-    list.push(row)
-    byProduct.set(row.product_id, list)
-  }
+async function fetchProductBySlug(slug: string): Promise<Product | undefined> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('products')
+    .select('*, product_variations(*)')
+    .eq('slug', slug)
+    .maybeSingle()
 
-  return (productRows as ProductRow[]).map((row) =>
-    rowsToProduct(row, byProduct.get(row.id) ?? [])
-  )
+  if (error) throw new Error(`product read failed: ${error.message}`)
+  if (!data) return undefined
+
+  const row = data as ProductRowWithVariations
+  return rowsToProduct(row, row.product_variations ?? [])
 }
 
 async function fetchAllProducts(): Promise<Product[]> {
@@ -130,11 +163,11 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async getById(id: string): Promise<Product | undefined> {
-    return (await fetchAllProducts()).find((p) => p.id === id)
+    return fetchProductById(id)
   },
 
   async getBySlug(slug: string): Promise<Product | undefined> {
-    return (await fetchAllProducts()).find((p) => p.slug === slug)
+    return fetchProductBySlug(slug)
   },
 
   async create(input: ProductInput): Promise<Product> {

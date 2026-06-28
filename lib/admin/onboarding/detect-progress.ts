@@ -9,7 +9,7 @@ import { normalizeBannerVisibility } from '@/lib/banners/banner-viewport'
 import { classifyProductImagesInitial, normalizeSupabaseBaseUrl } from '@/lib/catalog/media/classify-url'
 import { getAllBannerSlides } from '@/lib/banners'
 import { getAllCategoriesAdmin } from '@/lib/categories'
-import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
+import { getAllProductsAdmin } from '@/lib/products'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import {
   OPTIONAL_ONBOARDING_STEP,
@@ -114,13 +114,14 @@ export type OnboardingSnapshot = {
 }
 
 export async function loadOnboardingSnapshot(): Promise<OnboardingSnapshot> {
-  const [settings, allProducts, activeProducts, categories, slides] = await Promise.all([
+  const [settings, allProducts, categories, slides] = await Promise.all([
     getStoreSettings(),
     getAllProductsAdmin(),
-    getAllProducts(),
     getAllCategoriesAdmin(),
     getAllBannerSlides(),
   ])
+
+  const activeProducts = allProducts.filter((product) => product.status === 'active')
 
   return {
     settings,
