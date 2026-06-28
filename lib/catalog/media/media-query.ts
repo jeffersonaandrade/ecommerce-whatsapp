@@ -11,6 +11,7 @@ export function toMediaProductSummary(
     slug: product.slug,
     sku: product.sku,
     images: product.images.filter(Boolean),
+    productStatus: product.productStatus ?? 'draft',
     initialStatus: classifyProductImagesInitial(product.images, supabaseUrl),
   }
 }

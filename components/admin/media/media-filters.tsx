@@ -27,6 +27,7 @@ export function MediaFilters({ value, onChange, search, onSearchChange }: MediaF
         placeholder="Buscar por nome, slug ou SKU..."
         className="w-full rounded-lg border border-hairline bg-canvas px-4 py-2 text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none"
       />
+      <p className="text-xs font-medium uppercase tracking-wide text-mute">Mídia</p>
       <div className="flex flex-wrap gap-2">
         {FILTERS.map((filter) => (
           <button

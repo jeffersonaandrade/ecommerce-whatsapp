@@ -4,6 +4,9 @@ import { MediaCenter } from '@/components/admin/media/media-center'
 import { getAllProductsAdmin, queryProductsAdmin } from '@/lib/products'
 import { getSupabaseUrl } from '@/lib/supabase/env'
 import type { ProductQuery } from '@/lib/query'
+import type { ProductStatus } from '@/types/product'
+
+const VALID_STATUSES = new Set<ProductStatus>(['active', 'draft', 'unavailable'])
 
 export const metadata: Metadata = {
   title: 'Admin - Central de Mídia',
@@ -20,8 +23,14 @@ export default async function AdminProductsMediaPage({
     ? Number(params.size)
     : 25
 
+  const rawStatus = params.status as ProductStatus | undefined
+  const status = rawStatus && VALID_STATUSES.has(rawStatus) ? [rawStatus] : undefined
+
   const query: ProductQuery = {
-    filters: { search: params.q || undefined },
+    filters: {
+      search: params.q || undefined,
+      status,
+    },
     sort: { by: 'name', dir: 'asc' },
     pagination: {
       page: Math.max(1, parseInt(params.page ?? '1', 10) || 1),
@@ -44,12 +53,20 @@ export default async function AdminProductsMediaPage({
     supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
   }
 
+  const productStatusCounts: Record<string, number> = {
+    all: result.counts.all,
+    active: result.counts.active,
+    draft: result.counts.draft,
+    unavailable: result.counts.unavailable,
+  }
+
   const mapProduct = (p: (typeof result.products)[number]) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
     sku: p.variations[0]?.sku ?? null,
     images: p.images,
+    productStatus: p.status,
   })
 
   const mapProducts = result.products.map(mapProduct)
@@ -73,6 +90,7 @@ export default async function AdminProductsMediaPage({
           total={result.total}
           totalPages={result.totalPages}
           currentParams={currentParams}
+          productStatusCounts={productStatusCounts}
         />
       </div>
     </div>

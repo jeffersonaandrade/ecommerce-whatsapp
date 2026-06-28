@@ -1,3 +1,5 @@
+import type { ProductStatus } from '@/types/product'
+
 export type MediaStatus = 'empty' | 'external' | 'storage' | 'broken' | 'checking'
 
 export type MediaFilter = 'all' | 'empty' | 'external' | 'broken' | 'storage'
@@ -8,6 +10,7 @@ export type MediaProductSummary = {
   slug: string
   sku: string | null
   images: string[]
+  productStatus: ProductStatus
   initialStatus: MediaStatus
 }
 
@@ -19,6 +22,7 @@ export type MediaMapProduct = {
   slug: string
   sku: string | null
   images: string[]
+  productStatus?: ProductStatus
 }
 
 export type ImageUpdateMode = 'replace' | 'append'

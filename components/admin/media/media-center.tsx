@@ -2,12 +2,19 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { AdminPagination } from '@/components/admin/admin-pagination'
+import { StatusTabs } from '@/components/admin/status-tabs'
 import { filterMediaProducts, toMediaProductSummary } from '@/lib/catalog/media/media-query'
 import { useImageProbe } from '@/lib/catalog/media/use-image-probe'
 import { MediaFilter, MediaMapProduct, MediaProductSummary } from '@/lib/catalog/media/types'
 import { MediaFilters } from './media-filters'
 import { MediaProductRow } from './media-product-row'
 import { MediaUploadWizard } from './media-upload-wizard'
+
+const PRODUCT_STATUS_LABELS: Record<string, string> = {
+  active: 'Ativos',
+  draft: 'Rascunho',
+  unavailable: 'Indisponível',
+}
 
 type MediaCenterProps = {
   pageProducts: MediaMapProduct[]
@@ -18,6 +25,7 @@ type MediaCenterProps = {
   total: number
   totalPages: number
   currentParams: URLSearchParams
+  productStatusCounts: Record<string, number>
 }
 
 type Tab = 'inventory' | 'upload'
@@ -31,6 +39,7 @@ export function MediaCenter({
   total,
   totalPages,
   currentParams,
+  productStatusCounts,
 }: MediaCenterProps) {
   const [tab, setTab] = useState<Tab>('inventory')
   const [filter, setFilter] = useState<MediaFilter>('all')
@@ -84,6 +93,11 @@ export function MediaCenter({
             onSearchChange={setSearch}
           />
 
+          <div className="space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-mute">Catálogo</p>
+            <StatusTabs counts={productStatusCounts} labels={PRODUCT_STATUS_LABELS} />
+          </div>
+
           <div className="overflow-x-auto rounded-lg border border-hairline bg-canvas">
             <table className="min-w-full text-sm">
               <thead className="bg-soft-cloud text-left text-xs uppercase tracking-wide text-mute">
@@ -92,7 +106,8 @@ export function MediaCenter({
                   <th className="px-4 py-3">Produto</th>
                   <th className="px-4 py-3">SKU</th>
                   <th className="px-4 py-3">Qtd</th>
-                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Catálogo</th>
+                  <th className="px-4 py-3">Mídia</th>
                   <th className="px-4 py-3 text-right">Ações</th>
                 </tr>
               </thead>

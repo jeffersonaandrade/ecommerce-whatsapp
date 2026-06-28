@@ -1,9 +1,23 @@
 'use client'
 
 import { ProductImage } from '@/components/product/product-image'
+import { Badge } from '@/components/ui/badge'
 import { getResolvedStatus } from '@/lib/catalog/media/media-query'
 import { ImageProbeMap, MediaProductSummary, MediaStatus } from '@/lib/catalog/media/types'
+import type { ProductStatus } from '@/types/product'
 import Link from 'next/link'
+
+const PRODUCT_STATUS_LABEL: Record<ProductStatus, string> = {
+  active: 'Ativo',
+  draft: 'Rascunho',
+  unavailable: 'Indisponível',
+}
+
+function productStatusVariant(status: ProductStatus): 'success' | 'warning' | 'default' {
+  if (status === 'active') return 'success'
+  if (status === 'draft') return 'warning'
+  return 'default'
+}
 
 const STATUS_LABEL: Record<MediaStatus, string> = {
   empty: 'Sem imagem',
@@ -50,6 +64,11 @@ export function MediaProductRow({ item, probe, probing }: MediaProductRowProps) 
       </td>
       <td className="px-4 py-3 text-sm text-mute">{item.sku ?? '—'}</td>
       <td className="px-4 py-3 text-sm text-ink">{item.images.length}</td>
+      <td className="px-4 py-3">
+        <Badge variant={productStatusVariant(item.productStatus)}>
+          {PRODUCT_STATUS_LABEL[item.productStatus]}
+        </Badge>
+      </td>
       <td className="px-4 py-3">
         <span
           className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_CLASS[status]}`}
