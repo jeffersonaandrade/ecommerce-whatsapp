@@ -74,10 +74,20 @@ export async function createProductAction(
 
   try {
     const repo = getProductRepository()
+    const categoryRepo = getCategoryRepository()
     const input = toProductInput(payload)
-    const catalog = await repo.getAll()
-    const categories = await getCategoryRepository().getAll()
-    const errors = validateProductInput(input, catalog, undefined, categories)
+    const skus = input.variations.map((v) => v.sku.trim()).filter(Boolean)
+    const [conflictingSkus, categories] = await Promise.all([
+      repo.findConflictingSkus(skus),
+      categoryRepo.getAll(),
+    ])
+    const errors = validateProductInput(
+      input,
+      [],
+      undefined,
+      categories,
+      conflictingSkus
+    )
     if (errors.length > 0) {
       return { ok: false, errors }
     }
@@ -101,10 +111,14 @@ export async function updateProductAction(
   }
 
   const repo = getProductRepository()
+  const categoryRepo = getCategoryRepository()
   const input = toProductInput(payload)
-  const catalog = await repo.getAll()
-  const categories = await getCategoryRepository().getAll()
-  const errors = validateProductInput(input, catalog, id, categories)
+  const skus = input.variations.map((v) => v.sku.trim()).filter(Boolean)
+  const [conflictingSkus, categories] = await Promise.all([
+    repo.findConflictingSkus(skus, id),
+    categoryRepo.getAll(),
+  ])
+  const errors = validateProductInput(input, [], id, categories, conflictingSkus)
   if (errors.length > 0) {
     return { ok: false, errors }
   }

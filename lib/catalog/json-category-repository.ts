@@ -142,6 +142,10 @@ export const jsonCategoryRepository: CategoryRepository = {
     persistCategories(categories.filter((c) => c.id !== id))
   },
 
+  async getSlugIndex(): Promise<Array<Pick<Category, 'id' | 'slug'>>> {
+    return ensureCategoriesLoaded().map((c) => ({ id: c.id, slug: c.slug }))
+  },
+
   async query(q: CategoryQuery): Promise<CategoryQueryResult> {
     const { filters = {}, pagination = {} } = q
     const page = Math.max(1, pagination.page ?? 1)

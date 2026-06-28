@@ -171,6 +171,50 @@ async function queryViaAdminRpc(q: ProductQuery): Promise<ProductQueryResult> {
   return { products, total, page, pageSize, totalPages, counts }
 }
 
+async function queryStorefrontViaRpc(
+  categoryParam: string,
+  page: number,
+  pageSize: number,
+  fields: StorefrontProductQuery['fields']
+): Promise<ProductQueryResult> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.rpc('query_storefront_products_page', {
+    p_category_param: categoryParam,
+    p_page: page,
+    p_page_size: pageSize,
+  })
+
+  if (error) throw new Error(`query_storefront_products_page failed: ${error.message}`)
+
+  const payload = (data ?? { total: 0, products: [] }) as {
+    total: number
+    products: RpcProductRow[]
+  }
+
+  let products = mapRpcProducts(payload.products ?? []).filter((p) =>
+    p.variations.some((v) => v.stock >= 0)
+  )
+
+  if (fields === 'list') {
+    products = products.map((product) => ({
+      ...product,
+      longDescription: product.shortDescription,
+    }))
+  }
+
+  const total = payload.total ?? products.length
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const emptyCounts: ProductStatusCounts = {
+    all: total,
+    active: total,
+    draft: 0,
+    unavailable: 0,
+    noStock: 0,
+  }
+
+  return { products, total, page, pageSize, totalPages, counts: emptyCounts }
+}
+
 
 function buildProduct(input: ProductInput, existing: Pick<Product, 'id' | 'slug'>[], id: string): Product {
   const slug = slugifyUnique(input.slug ?? input.name, existing as Product[])
@@ -230,6 +274,35 @@ export const supabaseProductRepository: ProductRepository = {
 
   async getBySlug(slug: string): Promise<Product | undefined> {
     return fetchProductBySlug(slug)
+  },
+
+  async getByIds(ids: string[], fields: ProductQuery['fields'] = 'list'): Promise<Product[]> {
+    const uniqueIds = [...new Set(ids.map((id) => id.trim()).filter(Boolean))]
+    if (!uniqueIds.length) return []
+
+    const supabase = createAdminClient()
+    const selectClause = productSelect(fields)
+    const products: Product[] = []
+
+    await runInChunks(uniqueIds, CHUNK_SIZE, async (chunk) => {
+      const { data, error } = await supabase
+        .from('products')
+        .select(selectClause)
+        .in('id', chunk)
+        .eq('status', 'active')
+
+      if (error) throw new Error(`products by ids failed: ${error.message}`)
+
+      products.push(
+        ...(
+          (data ?? []) as unknown as (ProductRow & {
+            product_variations: ProductVariationRow[]
+          })[]
+        ).map((row) => rowsToProduct(row, row.product_variations ?? []))
+      )
+    })
+
+    return products
   },
 
   async create(input: ProductInput): Promise<Product> {
@@ -377,21 +450,19 @@ export const supabaseProductRepository: ProductRepository = {
   async bulkSetStatus(ids: string[], status: ProductStatus): Promise<void> {
     if (!ids.length) return
     const supabase = createAdminClient()
-    const { error } = await supabase
-      .from('products')
-      .update({ status })
-      .in('id', ids)
-    if (error) throw new Error(`bulkSetStatus failed: ${error.message}`)
+    await runInChunks(ids, CHUNK_SIZE, async (chunk) => {
+      const { error } = await supabase.from('products').update({ status }).in('id', chunk)
+      if (error) throw new Error(`bulkSetStatus failed: ${error.message}`)
+    })
   },
 
   async bulkSetCategory(ids: string[], category: string): Promise<void> {
     if (!ids.length) return
     const supabase = createAdminClient()
-    const { error } = await supabase
-      .from('products')
-      .update({ category })
-      .in('id', ids)
-    if (error) throw new Error(`bulkSetCategory failed: ${error.message}`)
+    await runInChunks(ids, CHUNK_SIZE, async (chunk) => {
+      const { error } = await supabase.from('products').update({ category }).in('id', chunk)
+      if (error) throw new Error(`bulkSetCategory failed: ${error.message}`)
+    })
   },
 
   async deleteMany(ids: string[]): Promise<void> {
@@ -421,22 +492,44 @@ export const supabaseProductRepository: ProductRepository = {
     }
   },
 
-  async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
+  async findConflictingSkus(skus: string[], excludeProductId?: string): Promise<string[]> {
+    const normalized = [...new Set(skus.map((sku) => sku.trim()).filter(Boolean))]
+    if (!normalized.length) return []
+
     const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from('product_variations')
+      .select('sku, product_id')
+      .in('sku', normalized)
+
+    if (error) throw new Error(`findConflictingSkus failed: ${error.message}`)
+
+    return [
+      ...new Set(
+        (data ?? [])
+          .filter((row) => row.product_id !== excludeProductId)
+          .map((row) => row.sku as string)
+      ),
+    ]
+  },
+
+  async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
     const { category, pagination = {}, fields = 'list' } = q
     const page = Math.max(1, pagination.page ?? 1)
     const pageSize = pagination.pageSize ?? 24
+
+    if (category) {
+      return queryStorefrontViaRpc(category, page, pageSize, fields)
+    }
+
     const offset = (page - 1) * pageSize
     const selectClause = productSelect(fields)
+    const supabase = createAdminClient()
 
     let qb = supabase
       .from('products')
       .select(selectClause, { count: 'exact' })
       .eq('status', 'active')
-
-    if (category) {
-      qb = qb.or(`category.ilike.${category},category.ilike.%${category}%`)
-    }
 
     const { data, error, count } = await qb
       .order('name', { ascending: true })

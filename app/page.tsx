@@ -13,6 +13,8 @@ import { buildPageMetadata } from '@/lib/store/build-metadata'
 import { getActiveBannerSlides } from '@/lib/banners'
 import type { Metadata } from 'next'
 
+export const revalidate = 60
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getStoreSettings()
   return buildPageMetadata(settings, settings.storeName, settings.description, '/')

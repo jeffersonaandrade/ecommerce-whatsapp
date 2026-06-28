@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import { loadCartItems, saveCartItems } from '@/lib/cart-storage'
-import { setCatalogCache } from '@/lib/catalog/client-catalog-cache'
+import { fetchCatalogProductsByIds } from '@/lib/catalog/client-catalog-cache'
 import {
   calculateItemCount,
   calculateSubtotal,
@@ -65,21 +65,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     let cancelled = false
 
     async function hydrate() {
-      try {
-        const res = await fetch('/api/products')
-        if (res.ok) {
-          const products = (await res.json()) as Product[]
-          if (!cancelled) setCatalogCache(products)
+      const stored = loadCartItems()
+      const productIds = [...new Set(stored.map((item) => item.productId))]
+
+      if (productIds.length > 0) {
+        try {
+          await fetchCatalogProductsByIds(productIds)
+        } catch {
+          // catálogo indisponível — carrinho segue com itens já validados
         }
-      } catch {
-        // catálogo indisponível — carrinho segue com itens já validados
       }
 
       if (cancelled) return
-      const stored = sanitizeItems(loadCartItems())
-      setItems(stored)
-      if (stored.length !== loadCartItems().length) {
-        saveCartItems(stored)
+      const sanitized = sanitizeItems(stored)
+      setItems(sanitized)
+      if (sanitized.length !== stored.length) {
+        saveCartItems(sanitized)
       }
       setIsHydrated(true)
     }

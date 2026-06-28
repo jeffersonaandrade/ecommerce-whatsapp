@@ -1,10 +1,15 @@
 import { cache } from 'react'
+import { unstable_cache } from 'next/cache'
 import { Product } from '@/types/product'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
 import type { ProductQuery, ProductQueryResult, StorefrontProductQuery } from '@/lib/query'
-import { productMatchesCategoryFilter } from '@/lib/catalog/category-utils'
+import type { ProductCartLite } from '@/lib/products-types'
+import { cartLiteToProduct as cartLiteToProductMapper } from '@/lib/catalog/cart-lite-mapper'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
-import { getStorefrontCategories } from '@/lib/categories'
+
+export type { ProductCartLite } from '@/lib/products-types'
+
+const STOREFRONT_REVALIDATE_SECONDS = 60
 
 async function loadStorefrontCatalog(): Promise<Product[]> {
   return getProductRepository().getActive()
@@ -31,10 +36,18 @@ export const getAllProductsAdmin = cache(async (): Promise<Product[]> => {
 })
 
 export async function getFeaturedProducts(limit: number = 6): Promise<Product[]> {
-  const repo = getProductRepository()
-  const products = await repo.getStorefrontFeatured(limit)
-  return products.filter(isStorefrontProduct)
+  return getCachedFeaturedProducts(limit)
 }
+
+const getCachedFeaturedProducts = unstable_cache(
+  async (limit: number) => {
+    const repo = getProductRepository()
+    const products = await repo.getStorefrontFeatured(limit)
+    return products.filter(isStorefrontProduct)
+  },
+  ['storefront-featured'],
+  { revalidate: STOREFRONT_REVALIDATE_SECONDS, tags: ['storefront'] }
+)
 
 export async function queryStorefrontProducts(
   q: StorefrontProductQuery
@@ -51,10 +64,21 @@ export async function queryStorefrontProducts(
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  return getCachedProductBySlug(slug)
+}
+
+async function fetchProductBySlugUncached(slug: string): Promise<Product | undefined> {
   const product = await getProductRepository().getBySlug(slug)
   if (!product || !isStorefrontProduct(product)) return undefined
   return product
 }
+
+const getCachedProductBySlug = (slug: string) =>
+  unstable_cache(
+    () => fetchProductBySlugUncached(slug),
+    ['storefront-product-slug', slug],
+    { revalidate: STOREFRONT_REVALIDATE_SECONDS, tags: ['storefront', `product-${slug}`] }
+  )()
 
 export async function getProductById(id: string): Promise<Product | undefined> {
   const product = await getProductRepository().getById(id)
@@ -67,14 +91,12 @@ export async function getProductByIdAdmin(id: string): Promise<Product | undefin
 }
 
 export async function getProductsByCategory(categoryParam: string): Promise<Product[]> {
-  const categories = await getStorefrontCategories()
   const result = await queryStorefrontProducts({
+    category: categoryParam,
     pagination: { page: 1, pageSize: 5000 },
     fields: 'list',
   })
-  return result.products.filter((p) =>
-    productMatchesCategoryFilter(p.category, categoryParam, categories)
-  )
+  return result.products
 }
 
 export async function getCategories(): Promise<string[]> {
@@ -93,22 +115,6 @@ export async function queryProductsAdmin(q: ProductQuery): Promise<ProductQueryR
   return getProductRepository().query(q)
 }
 
-export type ProductCartLite = {
-  id: string
-  slug: string
-  name: string
-  price: number
-  promotionalPrice?: number
-  images: string[]
-  variations: Array<{
-    id: string
-    sku: string
-    stock: number
-    size?: string
-    color?: string
-  }>
-}
-
 export function toProductCartLite(product: Product): ProductCartLite {
   return {
     id: product.id,
@@ -125,6 +131,18 @@ export function toProductCartLite(product: Product): ProductCartLite {
       color: v.color,
     })),
   }
+}
+
+export function cartLiteToProduct(lite: ProductCartLite): Product {
+  return cartLiteToProductMapper(lite)
+}
+
+export async function getStorefrontProductsLiteByIds(ids: string[]): Promise<ProductCartLite[]> {
+  const uniqueIds = [...new Set(ids.map((id) => id.trim()).filter(Boolean))]
+  if (!uniqueIds.length) return []
+
+  const products = await getProductRepository().getByIds(uniqueIds, 'list')
+  return products.filter(isStorefrontProduct).map(toProductCartLite)
 }
 
 export async function getStorefrontProductsLite(): Promise<ProductCartLite[]> {

@@ -11,6 +11,8 @@ import type { StorefrontProductQuery } from '@/lib/query/storefront-query'
 import { classifyProductImagesInitial } from '@/lib/catalog/media/classify-url'
 import type { MediaFilter } from '@/lib/catalog/media/types'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
+import { getStorefrontCategories } from '@/lib/categories'
+import { productMatchesCategoryFilter } from './category-utils'
 import { loadCatalogFromDisk, persistCatalog } from './catalog-storage'
 import {
   assignVariationIds,
@@ -62,6 +64,11 @@ export const jsonProductRepository: ProductRepository = {
 
   async getBySlug(slug: string): Promise<Product | undefined> {
     return loadCatalogFromDisk().find((p) => p.slug === slug)
+  },
+
+  async getByIds(ids: string[], _fields?: ProductQuery['fields']): Promise<Product[]> {
+    const idSet = new Set(ids)
+    return loadCatalogFromDisk().filter((p) => idSet.has(p.id) && p.status === 'active')
   },
 
   async create(input: ProductInput): Promise<Product> {
@@ -233,6 +240,16 @@ export const jsonProductRepository: ProductRepository = {
     }
   },
 
+  async findConflictingSkus(skus: string[], excludeProductId?: string): Promise<string[]> {
+    const normalized = [...new Set(skus.map((sku) => sku.trim()).filter(Boolean))]
+    if (!normalized.length) return []
+
+    const products = loadCatalogFromDisk().filter((p) => p.id !== excludeProductId)
+    return normalized.filter((sku) =>
+      products.some((p) => p.variations.some((v) => v.sku === sku))
+    )
+  },
+
   async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
     const all = loadCatalogFromDisk().filter(isStorefrontProduct)
     const { category, pagination = {} } = q
@@ -241,8 +258,10 @@ export const jsonProductRepository: ProductRepository = {
 
     let filtered = all
     if (category) {
-      const cat = category.toLowerCase()
-      filtered = filtered.filter((p) => p.category.toLowerCase().includes(cat))
+      const categories = await getStorefrontCategories()
+      filtered = all.filter((p) =>
+        productMatchesCategoryFilter(p.category, category, categories)
+      )
     }
 
     const total = filtered.length

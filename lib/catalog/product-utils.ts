@@ -64,7 +64,8 @@ export function validateProductInput(
   input: ProductInput,
   allProducts: Product[],
   excludeId?: string,
-  categories?: Category[]
+  categories?: Category[],
+  conflictingSkus?: string[]
 ): ProductValidationError[] {
   const errors: ProductValidationError[] = []
 
@@ -130,16 +131,19 @@ export function validateProductInput(
     }
   }
 
-  for (const sku of skus) {
-    const exists = allProducts
-      .filter((p) => p.id !== excludeId)
-      .some((p) => p.variations.some((v) => v.sku === sku))
-    if (exists) {
-      errors.push({
-        field: 'variations',
-        message: `SKU "${sku}" já existe no catálogo`,
-      })
-    }
+  const skuConflicts =
+    conflictingSkus ??
+    skus.filter((sku) =>
+      allProducts
+        .filter((p) => p.id !== excludeId)
+        .some((p) => p.variations.some((v) => v.sku === sku))
+    )
+
+  for (const sku of skuConflicts) {
+    errors.push({
+      field: 'variations',
+      message: `SKU "${sku}" já existe no catálogo`,
+    })
   }
 
   const validStatuses: ProductStatus[] = ['active', 'draft', 'unavailable']

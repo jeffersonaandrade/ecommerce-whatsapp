@@ -8,6 +8,9 @@ import { brandingAssetUrl } from '@/lib/store/branding-url'
 import { getStorefrontCategories } from '@/lib/categories'
 import { resolveCategoryDisplayName } from '@/lib/catalog/category-utils'
 import { stripHtml } from '@/lib/catalog/product-utils'
+import { CartCatalogSeeder } from '@/components/product/cart-catalog-seeder'
+
+export const revalidate = 60
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -81,6 +84,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="w-full">
+      <CartCatalogSeeder products={[product]} />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {/* DS §5 PDP: 1 col mobile, 2 col desktop; gap-8 lg:gap-12 */}
         <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-2 lg:gap-12">

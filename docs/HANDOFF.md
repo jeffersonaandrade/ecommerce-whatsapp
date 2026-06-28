@@ -615,7 +615,11 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 
 **Status implantação UnitSports:** ambas aplicadas via MCP (2026-06-28).
 
-**Documentação:** [`docs/PERFORMANCE_AUDIT.md`](PERFORMANCE_AUDIT.md) (tabela Antes/Depois + TTFB) · DDL canônico em [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql) · registro em [`docs/DATABASE_PLAN.md`](DATABASE_PLAN.md).
+**Documentação:** [`docs/PERFORMANCE_AUDIT.md`](PERFORMANCE_AUDIT.md) · [`docs/PROJECT_READINESS.md`](PROJECT_READINESS.md) · DDL em [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql) · [`docs/DATABASE_PLAN.md`](DATABASE_PLAN.md).
+
+**Migration adicional (Sprint D — PLP categoria):** `20260629120000_sprint_c_storefront_category_query` — `query_storefront_products_page`, `product_matches_storefront_category`.
+
+**Pós-auditoria (2026-06):** API carrinho por `?ids=`; import/export/upload mídia sem `getAll()` FULL; `next/image` + cache vitrine `revalidate=60`.
 
 **Mudanças de código (resumo):**
 

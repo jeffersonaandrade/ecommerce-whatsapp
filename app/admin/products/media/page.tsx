@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { MediaCenter } from '@/components/admin/media/media-center'
 import { fetchMediaStatusCounts } from '@/lib/catalog/product-aggregates'
-import { getAllProductsAdmin, queryProductsAdmin } from '@/lib/products'
+import { queryProductsAdmin } from '@/lib/products'
 import { getSupabaseUrl } from '@/lib/supabase/env'
 import type { ProductQuery } from '@/lib/query'
 import type { MediaFilter } from '@/lib/catalog/media/types'
@@ -81,9 +81,6 @@ export default async function AdminProductsMediaPage({
   })
 
   const mapProducts = result.products.map(mapProduct)
-  const allProducts = isUploadTab
-    ? (await getAllProductsAdmin()).map(mapProduct)
-    : []
 
   return (
     <div className="w-full">
@@ -97,7 +94,6 @@ export default async function AdminProductsMediaPage({
         <MediaCenter
           initialTab={isUploadTab ? 'upload' : 'inventory'}
           pageProducts={mapProducts}
-          allProducts={allProducts}
           supabaseUrl={supabaseUrl}
           page={result.page}
           pageSize={result.pageSize}

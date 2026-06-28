@@ -5,7 +5,7 @@ import { getButtonClassName } from '@/components/ui/button'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { ProductsCategoryFilter } from '@/components/commerce/products-category-filter'
 import { ProductsCategoryChips } from '@/components/commerce/products-category-chips'
-import { queryStorefrontProducts, getProductsByCategory } from '@/lib/products'
+import { queryStorefrontProducts } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
   hasStorefrontCategoryImages,
@@ -15,6 +15,8 @@ import {
 } from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
+
+export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getStoreSettings()
@@ -39,20 +41,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const showVisualCategories = hasStorefrontCategoryImages(categories)
 
   const result = category
-    ? await (async () => {
-        const products = await getProductsByCategory(category)
-        const total = products.length
-        const totalPages = Math.max(1, Math.ceil(total / pageSize))
-        const offset = (page - 1) * pageSize
-        return {
-          products: products.slice(offset, offset + pageSize),
-          total,
-          page,
-          pageSize,
-          totalPages,
-          counts: { all: total, active: total, draft: 0, unavailable: 0, noStock: 0 },
-        }
-      })()
+    ? await queryStorefrontProducts({
+        category,
+        pagination: { page, pageSize },
+        fields: 'list',
+      })
     : await queryStorefrontProducts({
         pagination: { page, pageSize },
         fields: 'list',

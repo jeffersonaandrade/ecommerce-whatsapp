@@ -46,6 +46,7 @@ const sampleCategory = {
 describe('category-actions', () => {
   const repo = {
     getAll: vi.fn(),
+    getSlugIndex: vi.fn(),
     getById: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
@@ -57,6 +58,7 @@ describe('category-actions', () => {
     mockGetCategoryRepository.mockReset()
     mockFetchProductCountForCategory.mockReset()
     repo.getAll.mockReset()
+    repo.getSlugIndex.mockReset()
     repo.getById.mockReset()
     repo.create.mockReset()
     repo.update.mockReset()
@@ -65,6 +67,7 @@ describe('category-actions', () => {
     mockRequireAdmin.mockResolvedValue({ ok: true })
     mockFetchProductCountForCategory.mockResolvedValue({ total: 0, active: 0 })
     repo.getAll.mockResolvedValue([sampleCategory])
+    repo.getSlugIndex.mockResolvedValue([{ id: sampleCategory.id, slug: sampleCategory.slug }])
   })
 
   it('createCategoryAction exige admin', async () => {
@@ -87,9 +90,9 @@ describe('category-actions', () => {
   })
 
   it('updateCategoryAction bloqueia slug duplicado', async () => {
-    repo.getAll.mockResolvedValue([
-      sampleCategory,
-      { ...sampleCategory, id: 'cat-2', slug: 'shorts', name: 'Shorts' },
+    repo.getSlugIndex.mockResolvedValue([
+      { id: sampleCategory.id, slug: sampleCategory.slug },
+      { id: 'cat-2', slug: 'shorts' },
     ])
     const result = await updateCategoryAction('cat-2', {
       name: 'Shorts',

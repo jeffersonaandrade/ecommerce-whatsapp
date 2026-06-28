@@ -17,8 +17,11 @@ Catálogo de referência: **~3.438 produtos** (UnitSports, jun/2026).
 | Home `/` | `getAllProducts()` → slice(10) | `getStorefrontFeatured(LIMIT)` no SQL |
 | `/products` | grid sem paginação | Paginação server-side (24/página) |
 | `/api/products` | JSON completo ~3400 produtos | Payload lite (`ProductCartLite`) |
-| create/update produto | `fetchAllProducts()` | slug index + `MAX(id)` pontual |
-| bulk delete/saveAll | `.in()` sem chunk | Chunks de 150 IDs |
+| `/products?category=` | 5000 lite + filtro memória | RPC `query_storefront_products_page` paginado |
+| create/update produto (actions) | `repo.getAll()` FULL | `findConflictingSkus()` pontual |
+| Admin produtos listagem | `select('*')` com long_description | `fields: 'list'` |
+| Admin categorias tabs | `queryCategoriesAdmin({ pageSize: 999 })` | `fetchCategoryVisibilityCounts()` |
+| bulkSetStatus/Category | `.in()` sem chunk | Chunks de 150 IDs |
 | counts fallback query | `fetchAllProducts()` se RPC falhar | Erro explícito (sem full scan) |
 | Produtos por request (mídia inventário) | ~6800 (2× FULL) | ~25 + RPCs |
 
@@ -57,9 +60,30 @@ _Preencher coluna "medido" após deploy em produção._
 | `query_admin_products_page()` | Filtros mídia + hasStock paginados |
 | `count_products_by_category()` | Lista categorias admin |
 | `count_products_for_category(text)` | Editar/excluir categoria |
+| `query_storefront_products_page(text, int, int)` | PLP `/products?category=` paginada |
+| `product_matches_storefront_category(text, text)` | Helper filtro categoria vitrine |
 
-## Pendências conhecidas (fora deste sprint)
+## Sprints concluídos
 
-- `/products?category=` ainda usa `getProductsByCategory()` com pool até 5000 itens (lite) para matching correto de slug legado — evoluir para RPC com mesma heurística de `productMatchesCategoryFilter`.
-- Import preview/confirm: `repo.getAll()` aceitável (1× por operação).
-- `exportMediaMapCsvAction`: export manual OK.
+- **Sprint A** (0a–0d): lazy upload, layout RPC, React.cache, query lite mídia
+- **Sprint A2** (0e–0f): filtros mídia server-side, probe otimizado
+- **Sprint B** (parcial): hasStock SQL, create/update repo sem fetchAll, chunk bulk, category getById direto, actions sem getAll
+- **Sprint C** (parcial): home LIMIT, PLP paginada, API lite, PLP categoria via RPC
+
+## Pendências conhecidas (próximos sprints)
+
+- Medir TTFB/LCP em produção (coluna "medido" abaixo).
+- `pg_trgm` / materialização mídia — adiado até ~30k–50k produtos ([PROJECT_READINESS.md](./PROJECT_READINESS.md)).
+
+## Auditoria pós-Sprint A/A2/C + D (implementado)
+
+| Fluxo | Antes | Depois |
+|-------|-------|--------|
+| `/api/products` | Até 5000 produtos lite em toda visita | `?ids=` — só IDs do carrinho; vazio = sem fetch |
+| `/products?category=` | 5000 lite + filtro memória | RPC `query_storefront_products_page` paginado |
+| Import preview/confirm | `repo.getAll()` FULL | `fetchImportCatalogSnapshot()` paginado lite |
+| Export mapa mídia | `repo.getAll()` | Query paginada lite |
+| Upload tab mídia | `getAllProductsAdmin()` no SSR | `fetchMediaUploadCatalogAction()` client lazy |
+| Vitrine cache | Sem revalidate | `revalidate = 60` + `unstable_cache` home/PDP |
+| Imagens produto | `<img>` nativo full-size | `next/image` + Shopify CDN |
+| API cache headers | Nenhum | `s-maxage=60, stale-while-revalidate=300` |

@@ -94,13 +94,16 @@ describe('validateProductInput', () => {
     expect(errors.some((e) => e.field === 'promotionalPrice')).toBe(true)
   })
 
-  it('rejeita SKU duplicado no catálogo', () => {
+  it('rejeita SKU duplicado via conflictingSkus', () => {
     const errors = validateProductInput(
       {
         ...validInput,
         variations: [{ sku: 'SKU-1', stock: 1 }],
       },
-      [baseProduct]
+      [],
+      undefined,
+      undefined,
+      ['SKU-1']
     )
     expect(errors.some((e) => e.message.includes('SKU-1'))).toBe(true)
   })

@@ -24,6 +24,11 @@ vi.mock('@/lib/catalog/get-product-repository', () => ({
 
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
+  unstable_cache: (fn: () => unknown) => fn,
+}))
+
+vi.mock('@/lib/catalog/media/fetch-upload-catalog', () => ({
+  fetchMediaUploadCatalog: vi.fn(async () => []),
 }))
 
 import { bulkSetProductImagesAction, setProductImagesAction } from './actions'

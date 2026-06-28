@@ -23,7 +23,6 @@ type Tab = 'inventory' | 'upload'
 type MediaCenterProps = {
   initialTab: Tab
   pageProducts: MediaMapProduct[]
-  allProducts: MediaMapProduct[]
   supabaseUrl: string
   page: number
   pageSize: number
@@ -49,7 +48,6 @@ function tabHref(tab: Tab, currentParams: URLSearchParams): string {
 export function MediaCenter({
   initialTab,
   pageProducts,
-  allProducts,
   supabaseUrl,
   page,
   pageSize,
@@ -150,7 +148,7 @@ export function MediaCenter({
           />
         </>
       ) : (
-        <MediaUploadWizard products={allProducts} supabaseUrl={supabaseUrl} />
+        <MediaUploadWizard supabaseUrl={supabaseUrl} />
       )}
     </div>
   )

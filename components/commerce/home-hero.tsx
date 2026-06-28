@@ -16,11 +16,14 @@ export function HomeHero({ slides, fallback }: HomeHeroProps) {
   const { isMobile, isReady } = useDeviceBreakpoint()
 
   const visibleSlides = useMemo(() => {
-    if (!isReady) return []
-    return filterSlidesForViewport(slides, isMobile)
+    if (!slides.length) return []
+    return filterSlidesForViewport(slides, isReady ? isMobile : false)
   }, [slides, isMobile, isReady])
 
-  if (!isReady) {
+  if (!visibleSlides.length) {
+    if (isReady) {
+      return <SportsHero content={fallback} />
+    }
     return (
       <div
         className="relative aspect-[4/5] max-h-[88vh] w-full bg-ink sm:aspect-[16/9] lg:aspect-[21/9]"
@@ -28,10 +31,6 @@ export function HomeHero({ slides, fallback }: HomeHeroProps) {
         aria-label="Carregando banner"
       />
     )
-  }
-
-  if (visibleSlides.length === 0) {
-    return <SportsHero content={fallback} />
   }
 
   return <BannerCarousel slides={visibleSlides} />

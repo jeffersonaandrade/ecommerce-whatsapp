@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
+import { fetchMediaUploadCatalog } from '@/lib/catalog/media/fetch-upload-catalog'
 import { buildMediaMapCsvRows } from '@/lib/catalog/media/filename-association'
 import { mergeImages, normalizeImageInputs } from '@/lib/catalog/media/validate-image-path'
 import { BulkImageItem, ImageUpdateMode } from '@/lib/catalog/media/types'
@@ -19,19 +20,35 @@ function revalidateMediaPaths(slugs: string[]) {
   }
 }
 
+export async function fetchMediaUploadCatalogAction(): Promise<
+  { ok: true; products: Awaited<ReturnType<typeof fetchMediaUploadCatalog>> } | { ok: false; error: string }
+> {
+  const auth = await requireAdmin()
+  if (!auth.ok) return { ok: false, error: auth.error }
+
+  try {
+    const products = await fetchMediaUploadCatalog()
+    return { ok: true, products }
+  } catch (err) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Falha ao carregar catálogo',
+    }
+  }
+}
+
 export async function exportMediaMapCsvAction(): Promise<
   { ok: true; csv: string } | { ok: false; error: string }
 > {
   const auth = await requireAdmin()
   if (!auth.ok) return { ok: false, error: auth.error }
 
-  const repo = getProductRepository()
-  const products = await repo.getAll()
+  const products = await fetchMediaUploadCatalog()
   const rows = products.map((p) => ({
     id: p.id,
     name: p.name,
     slug: p.slug,
-    sku: p.variations[0]?.sku ?? null,
+    sku: p.sku,
     images: p.images,
   }))
 

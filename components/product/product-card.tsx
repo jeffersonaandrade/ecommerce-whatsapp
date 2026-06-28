@@ -30,6 +30,7 @@ export function ProductCard({ product }: ProductCardProps) {
           src={product.images[0] ?? ''}
           alt={product.name}
           fill
+          sizes="(max-width: 768px) 50vw, 25vw"
           className="transition-opacity duration-200 group-hover:opacity-95"
         />
         {!hasStock && (

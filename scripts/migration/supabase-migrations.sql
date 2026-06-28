@@ -1147,3 +1147,129 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.store_onboarding TO authenticated
 INSERT INTO public.store_onboarding (id)
 VALUES ('default')
 ON CONFLICT (id) DO NOTHING;
+
+
+-- -----------------------------------------------------------------------------
+-- 20260629120000_sprint_c_storefront_category_query
+-- PLP ?category= paginada no SQL (sem pool de 5000 produtos em memória).
+-- -----------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION public.product_matches_storefront_category(
+  p_product_category text,
+  p_filter_param text
+)
+RETURNS boolean
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  SELECT CASE
+    WHEN p_filter_param IS NULL OR btrim(p_filter_param) = '' THEN true
+    WHEN btrim(COALESCE(p_product_category, '')) = '' THEN false
+    ELSE (
+      lower(trim(p_product_category)) = lower(trim(p_filter_param))
+      OR lower(trim(p_product_category)) = lower(trim(
+        regexp_replace(
+          regexp_replace(lower(trim(p_filter_param)), '[^a-z0-9]+', '-', 'g'),
+          '(^-|-$)', '', 'g'
+        )
+      ))
+      OR lower(trim(
+        regexp_replace(
+          regexp_replace(lower(trim(p_product_category)), '[^a-z0-9]+', '-', 'g'),
+          '(^-|-$)', '', 'g'
+        )
+      )) = lower(trim(
+        regexp_replace(
+          regexp_replace(lower(trim(p_filter_param)), '[^a-z0-9]+', '-', 'g'),
+          '(^-|-$)', '', 'g'
+        )
+      ))
+      OR EXISTS (
+        SELECT 1
+        FROM public.categories c
+        WHERE c.visible = true
+          AND (
+            lower(trim(c.slug)) = lower(trim(p_filter_param))
+            OR lower(trim(c.name)) = lower(trim(p_filter_param))
+            OR lower(trim(c.slug)) = lower(trim(
+              regexp_replace(
+                regexp_replace(lower(trim(p_filter_param)), '[^a-z0-9]+', '-', 'g'),
+                '(^-|-$)', '', 'g'
+              )
+            ))
+          )
+          AND (
+            lower(trim(p_product_category)) = lower(trim(c.slug))
+            OR lower(trim(p_product_category)) = lower(trim(c.name))
+            OR lower(trim(
+              regexp_replace(
+                regexp_replace(lower(trim(p_product_category)), '[^a-z0-9]+', '-', 'g'),
+                '(^-|-$)', '', 'g'
+              )
+            )) = lower(trim(c.slug))
+          )
+      )
+    )
+  END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.query_storefront_products_page(
+  p_category_param text DEFAULT NULL,
+  p_page int DEFAULT 1,
+  p_page_size int DEFAULT 24
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_offset int := GREATEST(p_page - 1, 0) * p_page_size;
+  v_total int;
+  v_rows jsonb;
+BEGIN
+  SELECT COUNT(*)::int INTO v_total
+  FROM public.products p
+  WHERE p.status = 'active'
+    AND public.product_matches_storefront_category(p.category, p_category_param);
+
+  SELECT COALESCE(jsonb_agg(row_to_json(sub.*)), '[]'::jsonb) INTO v_rows
+  FROM (
+    SELECT
+      p.id,
+      p.slug,
+      p.name,
+      p.short_description,
+      p.price,
+      p.promotional_price,
+      p.category,
+      p.club,
+      p.images,
+      p.status,
+      p.import_batch_id,
+      COALESCE((
+        SELECT jsonb_agg(jsonb_build_object(
+          'id', v.id,
+          'sku', v.sku,
+          'stock', v.stock,
+          'size', v.size,
+          'color', v.color
+        ) ORDER BY v.sku)
+        FROM public.product_variations v
+        WHERE v.product_id = p.id
+      ), '[]'::jsonb) AS product_variations
+    FROM public.products p
+    WHERE p.status = 'active'
+      AND public.product_matches_storefront_category(p.category, p_category_param)
+    ORDER BY p.name ASC, p.id ASC
+    LIMIT p_page_size
+    OFFSET v_offset
+  ) sub;
+
+  RETURN jsonb_build_object('total', v_total, 'products', v_rows);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.product_matches_storefront_category(text, text) TO authenticated, service_role, anon;
+GRANT EXECUTE ON FUNCTION public.query_storefront_products_page(text, int, int) TO authenticated, service_role, anon;

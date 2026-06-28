@@ -8,7 +8,7 @@ import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
-import { queryCategoriesAdmin } from '@/lib/categories'
+import { queryCategoriesAdmin, fetchCategoryVisibilityCounts } from '@/lib/categories'
 import { fetchProductsByCategoryCounts } from '@/lib/catalog/product-aggregates'
 import { normalizeCategorySlug } from '@/lib/catalog/category-utils'
 import type { CategoryQuery } from '@/lib/query'
@@ -49,20 +49,15 @@ export default async function AdminCategoriesPage({
     },
   }
 
-  const [result, categoryCounts] = await Promise.all([
+  const [result, categoryCounts, visibilityCounts] = await Promise.all([
     queryCategoriesAdmin(query),
     fetchProductsByCategoryCounts(),
+    fetchCategoryVisibilityCounts(),
   ])
 
   const currentParams = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v != null) as [string, string][]
   )
-
-  // counts for visibility tabs
-  const allResult = await queryCategoriesAdmin({ pagination: { pageSize: 999 } })
-  const visibleCount = allResult.categories.filter((c) => c.visible).length
-  const hiddenCount = allResult.categories.filter((c) => !c.visible).length
-  const visibilityCounts = { visible: visibleCount, hidden: hiddenCount }
 
   return (
     <div className="w-full">

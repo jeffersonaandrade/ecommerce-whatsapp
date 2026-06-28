@@ -54,6 +54,7 @@ export default async function AdminProductsPage({
   }
 
   const query: ProductQuery = {
+    fields: 'list',
     filters,
     sort: {
       by: sortBy,

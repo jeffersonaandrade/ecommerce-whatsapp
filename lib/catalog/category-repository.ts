@@ -10,4 +10,5 @@ export interface CategoryRepository {
   update(id: string, input: CategoryInput): Promise<Category>
   delete(id: string): Promise<void>
   query(q: CategoryQuery): Promise<CategoryQueryResult>
+  getSlugIndex(): Promise<Array<Pick<Category, 'id' | 'slug'>>>
 }

@@ -1,9 +1,13 @@
 'use client'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Alert } from '@/components/ui/alert'
 import { getButtonClassName } from '@/components/ui/button'
-import { bulkSetProductImagesAction, exportMediaMapCsvAction } from '@/lib/catalog/media/actions'
+import {
+  bulkSetProductImagesAction,
+  exportMediaMapCsvAction,
+  fetchMediaUploadCatalogAction,
+} from '@/lib/catalog/media/actions'
 import { runUploadQueue } from '@/lib/catalog/media/client-upload'
 import {
   AssociationMatch,
@@ -23,7 +27,6 @@ type ProductUploadState = {
 }
 
 type MediaUploadWizardProps = {
-  products: MediaMapProduct[]
   supabaseUrl: string
 }
 
@@ -35,7 +38,10 @@ function buildReportCsv(rows: UploadReportRow[]): string {
   return [header, ...body].join('\n')
 }
 
-export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardProps) {
+export function MediaUploadWizard({ supabaseUrl }: MediaUploadWizardProps) {
+  const [products, setProducts] = useState<MediaMapProduct[]>([])
+  const [catalogLoading, setCatalogLoading] = useState(true)
+  const [catalogError, setCatalogError] = useState<string | null>(null)
   const [files, setFiles] = useState<File[]>([])
   const [association, setAssociation] = useState<ReturnType<typeof matchFilesToProducts> | null>(
     null
@@ -46,6 +52,29 @@ export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardPr
   const [report, setReport] = useState<UploadReportRow[] | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const supabaseEnabled = isSupabaseAuthMode() && Boolean(supabaseUrl)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadCatalog() {
+      setCatalogLoading(true)
+      setCatalogError(null)
+      const result = await fetchMediaUploadCatalogAction()
+      if (cancelled) return
+      if (!result.ok) {
+        setCatalogError(result.error)
+        setProducts([])
+      } else {
+        setProducts(result.products)
+      }
+      setCatalogLoading(false)
+    }
+
+    void loadCatalog()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const groupedMatches = useMemo(() => {
     if (!association) return new Map<string, AssociationMatch[]>()
@@ -317,6 +346,18 @@ export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardPr
           type="info"
           message="Upload direto requer Supabase (NEXT_PUBLIC_DATA_PROVIDER=supabase)."
         />
+      )}
+
+      {catalogLoading && (
+        <p className="text-sm text-mute">Carregando catálogo para associação…</p>
+      )}
+
+      {catalogError && (
+        <Alert type="error" message={`Não foi possível carregar o catálogo: ${catalogError}`} />
+      )}
+
+      {!catalogLoading && !catalogError && products.length === 0 && (
+        <Alert type="info" message="Nenhum produto encontrado no catálogo." />
       )}
 
       {error && <Alert type="error" message={error} />}

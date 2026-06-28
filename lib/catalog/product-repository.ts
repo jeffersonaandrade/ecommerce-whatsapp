@@ -1,6 +1,5 @@
 import { Product, ProductStatus } from '@/types/product'
-import type { ProductQuery, ProductQueryResult } from '@/lib/query'
-import type { StorefrontProductQuery } from '@/lib/query/storefront-query'
+import type { ProductQuery, ProductQueryResult, StorefrontProductQuery } from '@/lib/query'
 
 export type VariationInput = {
   id?: string
@@ -24,6 +23,7 @@ export interface ProductRepository {
   getActive(): Promise<Product[]>
   getById(id: string): Promise<Product | undefined>
   getBySlug(slug: string): Promise<Product | undefined>
+  getByIds(ids: string[], fields?: ProductQuery['fields']): Promise<Product[]>
   create(input: ProductInput): Promise<Product>
   update(id: string, input: ProductInput): Promise<Product>
   delete(id: string): Promise<void>
@@ -36,4 +36,5 @@ export interface ProductRepository {
   deleteMany(ids: string[]): Promise<void>
   setProductImages(id: string, images: string[]): Promise<Product>
   bulkSetProductImages(items: { id: string; images: string[] }[]): Promise<void>
+  findConflictingSkus(skus: string[], excludeProductId?: string): Promise<string[]>
 }

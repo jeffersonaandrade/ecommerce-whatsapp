@@ -110,6 +110,13 @@ export const supabaseCategoryRepository: CategoryRepository = {
     if (error) throw new Error(`category delete failed: ${error.message}`)
   },
 
+  async getSlugIndex(): Promise<Array<Pick<Category, 'id' | 'slug'>>> {
+    const supabase = createAdminClient()
+    const { data, error } = await supabase.from('categories').select('id, slug')
+    if (error) throw new Error(`categories slug index failed: ${error.message}`)
+    return (data ?? []) as Array<Pick<Category, 'id' | 'slug'>>
+  },
+
   async query(q: CategoryQuery): Promise<CategoryQueryResult> {
     const supabase = createAdminClient()
     const { filters = {}, pagination = {} } = q

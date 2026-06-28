@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getCategoryRepository } from '@/lib/catalog/get-category-repository'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
+import { fetchImportCatalogSnapshot } from '@/lib/catalog/import-catalog-snapshot'
 import { getDataProvider } from '@/lib/data/provider'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { applyImport } from './apply-import'
@@ -72,10 +73,9 @@ export async function parseImportCsvAction(
     }
 
     const text = await file.text()
-    const repo = getProductRepository()
     const categoryRepo = getCategoryRepository()
     const [catalog, categories] = await Promise.all([
-      repo.getAll(),
+      fetchImportCatalogSnapshot(),
       categoryRepo.getAll(),
     ])
     const preview = buildImportPreview(text, file.name, catalog, categories)
@@ -127,10 +127,9 @@ export async function confirmImportAction(
       }
     }
 
-    const repo = getProductRepository()
     const categoryRepo = getCategoryRepository()
     const [catalog, categories, settings] = await Promise.all([
-      repo.getAll(),
+      fetchImportCatalogSnapshot(),
       categoryRepo.getAll(),
       getStoreSettings(),
     ])
@@ -146,6 +145,7 @@ export async function confirmImportAction(
     const batchId = crypto.randomUUID()
     const policy = settings.importStatusPolicy ?? 'draft'
     const started = performance.now()
+    const repo = getProductRepository()
     const result =
       getDataProvider() === 'supabase'
         ? await applySupabaseImport(normalizedProducts, {

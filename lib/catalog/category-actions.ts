@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getCategoryRepository } from './get-category-repository'
 import { CategoryInput } from '@/types/category'
+import type { Category } from '@/types/category'
 import { fetchProductCountForCategory } from '@/lib/catalog/product-aggregates'
 import {
   validateCategoryInput,
@@ -51,8 +52,8 @@ export async function createCategoryAction(
   try {
     const repo = getCategoryRepository()
     const input = toCategoryInput(payload)
-    const existing = await repo.getAll()
-    const errors = validateCategoryInput(input, existing)
+    const existing = await repo.getSlugIndex()
+    const errors = validateCategoryInput(input, existing as Category[])
     if (errors.length > 0) {
       return { ok: false, errors: errors.map((e) => e.message) }
     }
@@ -81,8 +82,8 @@ export async function updateCategoryAction(
     }
 
     const input = toCategoryInput(payload)
-    const existing = await repo.getAll()
-    const errors = validateCategoryInput(input, existing, id)
+    const existing = await repo.getSlugIndex()
+    const errors = validateCategoryInput(input, existing as Category[], id)
     if (errors.length > 0) {
       return { ok: false, errors: errors.map((e) => e.message) }
     }
