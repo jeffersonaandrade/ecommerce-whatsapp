@@ -12,12 +12,12 @@ Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`DOMAIN_MODEL.md`](DOMAIN_M
 |------|------|--------|------|
 | 1 | Foundation | ✅ Concluída | Next.js, tipos, UI base, mocks |
 | 2 | Cart | ✅ Concluída | Context + localStorage, PDP, testes |
-| 3 | Domínio enxuto | ✅ Esta fase | DOMAIN_MODEL, ARCHITECTURE, skeleton admin |
-| **4** | **Catálogo Admin** | ✅ Concluída | CRUD, galeria, variações, categorias |
-| **5** | **Import Pipeline** | ✅ Concluída | CSV-1…4 — [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
+| 3 | Domínio enxuto | ✅ Concluída | DOMAIN_MODEL, ARCHITECTURE, skeleton admin |
+| **4** | **Catálogo Admin** | ✅ Concluída | CRUD, galeria, variações, categorias CRUD v1.1 |
+| **5** | **Import Pipeline** | ✅ Concluída | CSV-1…4 + RPC transacional — [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
 | **6** | **WhatsApp + Purchase Intent** | ✅ Concluída | Mensagem estruturada, `#TEMP-...` |
-| **6.5** | **Go Live** | 📅 **Em andamento** | [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md) — 3 sprints |
-| 7 | Supabase | 📅 Planejada | Persistência + `DATABASE_PLAN` |
+| **6.5** | **Go Live** | 🟡 **Quase** | Produção Netlify OK — onboarding 1º cliente (imagens/catálogo) |
+| 7 | Supabase | ✅ Concluída | Persistência produção + `DATABASE_PLAN` |
 | 8 | Pedidos | 📅 V2 | Gestão real (após checkout ou registro manual) |
 | 9 | Checkout Online | 📅 V2 | Gateway, pagamento, entrega no site |
 
@@ -83,8 +83,8 @@ Importar dezenas/centenas de produtos em **< 15 minutos** — dor #1 do lojista.
 | CSV-1 | Tela upload + wizard (template, selecionar, próximo) |
 | CSV-2 | Parser + validação (sem persistir) |
 | CSV-3 | Preview (totais, tabela, erros) |
-| CSV-4 | Importação → `ProductRepository` + rollback |
-| CSV-5 | Relatório + histórico `/admin/import/history` |
+| CSV-4 | Importação → RPC `apply_product_import_batch` + rollback |
+| CSV-5 | Relatório + histórico `/admin/import/history` — **adiado** |
 
 ### Dependências
 
@@ -96,13 +96,12 @@ Importar dezenas/centenas de produtos em **< 15 minutos** — dor #1 do lojista.
 - Template exemplo importa sem erros bloqueantes
 - Preview obrigatório antes de gravar
 - Produtos WhatsApp-ready (slug, SKU, preço, variações, imagens URL)
-- Histórico consultável
+- Histórico consultável — **CSV-5 adiado**
 
 ### Fora de escopo Fase 5
 
-- Download de imagens para storage (V2+)
+- Download automático de imagens no parse (feito via Central de Mídia / scripts operacionais)
 - Exportação CSV (pós CSV-5, sprint separada)
-- Supabase (Fase 7)
 
 ---
 
@@ -136,26 +135,28 @@ Transformar carrinho em solicitação estruturada no WhatsApp.
 
 ---
 
-## Fase 7 — Persistência (Supabase)
+## Fase 7 — Persistência (Supabase) ✅
 
 ### Objetivo
 
-Substituir mock por banco real.
+Substituir mock por banco real — **concluído em produção** (Netlify + Supabase).
 
 ### Entregáveis
 
-- `DATABASE_PLAN.md` + migrations
-- Repositórios em `lib/products.ts` e módulos adjacentes
+- `DATABASE_PLAN.md` + migrations (incl. RPC import transacional)
+- Repositórios Supabase via `getProductRepository()`
 - `StoreSettings` persistido
-- Storage para imagens `UPLOAD`
+- Storage para imagens `UPLOAD` (branding + products)
+- Auth admin + middleware + RLS
 
 ### Dependências
 
-- Catálogo e import já validados em mock (Fases 4–5)
+- Catálogo e import validados (Fases 4–5) ✅
 
-### Fora de escopo
+### Pendente operacional
 
-- Checkout online (Fase 9)
+- Onboarding 1º cliente — validação imagens e publicação catálogo
+- Desligar `ENABLE_MIGRATION_TOOLS` após onboarding
 
 ---
 

@@ -108,9 +108,11 @@ export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardPr
       id: `${match.productId}-${match.order}-${index}`,
       productId: match.productId,
       file: match.file,
+      order: match.order,
     }))
+    const orderByQueueId = new Map(queueItems.map((item) => [item.id, item.order]))
 
-    const uploadsByProduct = new Map<string, string[]>()
+    const uploadsByProduct = new Map<string, Array<{ order: number; path: string }>>()
 
     await runUploadQueue({
       supabase,
@@ -126,9 +128,9 @@ export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardPr
           return next
         })
       },
-      onItemComplete: (_id, productId, result) => {
+      onItemComplete: (id, productId, result) => {
         const list = uploadsByProduct.get(productId) ?? []
-        list.push(result.path)
+        list.push({ order: orderByQueueId.get(id) ?? Number.MAX_SAFE_INTEGER, path: result.path })
         uploadsByProduct.set(productId, list)
         setProductStates((prev) => {
           const next = new Map(prev)
@@ -154,7 +156,10 @@ export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardPr
 
     const reportRows: UploadReportRow[] = []
 
-    for (const [productId, paths] of uploadsByProduct) {
+    for (const [productId, uploads] of uploadsByProduct) {
+      const paths = uploads
+        .sort((a, b) => a.order - b.order)
+        .map((upload) => upload.path)
       const state = states.get(productId)
       if (!paths.length) {
         reportRows.push({
@@ -325,15 +330,7 @@ export function MediaUploadWizard({ products, supabaseUrl }: MediaUploadWizardPr
           onChange={(e) => handleFilesSelected(e.target.files)}
           className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
         />
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          {...({ webkitdirectory: 'true', directory: 'true' } as React.InputHTMLAttributes<HTMLInputElement>)}
-          onChange={(e) => handleFilesSelected(e.target.files)}
-          className="block w-full text-sm text-mute file:mr-4 file:rounded-full file:border-0 file:bg-soft-cloud file:px-4 file:py-2 file:text-sm file:font-medium file:text-ink"
-        />
-        <p className="text-xs text-mute">Selecione arquivos individuais ou uma pasta inteira.</p>
+        <p className="text-xs text-mute">Selecione uma ou mais imagens.</p>
       </div>
 
       {association && (

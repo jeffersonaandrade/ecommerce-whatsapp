@@ -23,30 +23,32 @@ Template single-client: catálogo + carrinho + WhatsApp na V1. Checkout online n
 - [`docs/MODULE_ROADMAP.md`](docs/MODULE_ROADMAP.md)
 - Admin skeleton, copy carrinho, `/order-intent/demo`
 
-### Fase 4: Catálogo Admin — Próxima
+### Fase 4: Catálogo Admin — Concluída
 
 - Lista, criar, editar produto
-- Galeria (1–5 imagens, principal)
-- Variações, SKU, estoque, categorias
-- Status rascunho/ativo
+- Galeria (1–5 imagens, ordem por posição)
+- Variações, SKU, estoque, categorias CRUD v1.1
+- Status rascunho/ativo · upload Supabase Storage
 
-### Fase 5: Importação CSV
+### Fase 5: Importação CSV — Concluída
 
-- Parser, preview, validação, importação
+- Parser, preview, validação, RPC transacional Supabase
 - Spec: [`docs/CSV_IMPORT_SPEC.md`](docs/CSV_IMPORT_SPEC.md)
+- Central de Mídia pós-import · migração imagens operacional
 
-### Fase 6: Finalização via WhatsApp
+### Fase 6: Finalização via WhatsApp — Concluída
 
 - Mensagem estruturada (SKU, links PDP, total)
 - Config telefone da loja
 - Botão Finalizar Pedido ativo
 
-### Fase 7: Supabase
+### Fase 7: Supabase — Concluída (produção)
 
 - ✅ Persistência + [`DATABASE_PLAN.md`](docs/DATABASE_PLAN.md)
-- ✅ Storage de imagens (branding)
+- ✅ Storage de imagens (branding + products)
 - ✅ Auth admin + middleware
-- Migração produção: `DATA_PROVIDER=supabase` na Netlify
+- ✅ `DATA_PROVIDER=supabase` na Netlify — https://loja-whats.netlify.app
+- 🟡 Onboarding 1º cliente (validação catálogo/imagens)
 
 ### Fase 8: Pedidos
 
@@ -60,11 +62,12 @@ Template single-client: catálogo + carrinho + WhatsApp na V1. Checkout online n
 
 | Marco | Status |
 |-------|--------|
-| MVP vitrine + carrinho | Concluído |
-| Domínio documentado | Concluído |
-| Catálogo operacional | Próximo |
-| CSV + WhatsApp | Planejado |
-| Supabase | Implementado (ativar por env) |
+| MVP vitrine + carrinho | ✅ Concluído |
+| Domínio documentado | ✅ Concluído |
+| Catálogo operacional | ✅ Concluído |
+| CSV + WhatsApp | ✅ Concluído |
+| Supabase produção | ✅ Ativo (onboarding cliente em andamento) |
+| Sprint 4+ CMS | 📅 Após feedback 1º cliente |
 
 ## Fora do escopo
 
