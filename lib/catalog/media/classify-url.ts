@@ -61,7 +61,6 @@ export function resolveMediaStatus(
   const results = urls.map((url) => probe[url])
 
   if (results.some((ok) => ok === false)) return 'broken'
-  if (results.some((ok) => ok === undefined)) return 'checking'
   return initial
 }
 

@@ -1,13 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
-import { toMediaProductSummary } from '@/lib/catalog/media/media-query'
+import { getResolvedStatus, toMediaProductSummary } from '@/lib/catalog/media/media-query'
 import { useImageProbe } from '@/lib/catalog/media/use-image-probe'
-import { MediaMapProduct, MediaProductSummary } from '@/lib/catalog/media/types'
+import { MediaFilter, MediaMapProduct, MediaProductSummary } from '@/lib/catalog/media/types'
 import { MediaFilters } from './media-filters'
 import { MediaProductRow } from './media-product-row'
 import { MediaUploadWizard } from './media-upload-wizard'
@@ -58,19 +59,46 @@ export function MediaCenter({
   mediaStatusCounts,
   searchDefault = '',
 }: MediaCenterProps) {
+  const searchParams = useSearchParams()
+  const mediaFilter = (searchParams.get('media') as MediaFilter | null) ?? 'all'
   const tab = initialTab
-  const { probe, probingIds, probeAll } = useImageProbe({ concurrency: 5, supabaseUrl })
+  const { probe, probingIds, reportImageResult } = useImageProbe({ supabaseUrl })
 
   const summaries: MediaProductSummary[] = useMemo(
     () => pageProducts.map((p) => toMediaProductSummary(p, supabaseUrl)),
     [pageProducts, supabaseUrl]
   )
 
-  useEffect(() => {
-    if (tab === 'inventory') {
-      void probeAll(pageProducts)
+  const resolvedSummaries = useMemo(
+    () =>
+      summaries.map((item) => ({
+        item,
+        status: getResolvedStatus(item, probe, probingIds.has(item.id)),
+      })),
+    [summaries, probe, probingIds]
+  )
+
+  const pageBrokenCount = useMemo(
+    () => resolvedSummaries.filter(({ status }) => status === 'broken').length,
+    [resolvedSummaries]
+  )
+
+  const displaySummaries = useMemo(() => {
+    if (mediaFilter !== 'broken') {
+      return resolvedSummaries.map(({ item }) => item)
     }
-  }, [tab, pageProducts, probeAll])
+    return resolvedSummaries
+      .filter(({ status }) => status === 'broken')
+      .map(({ item }) => item)
+  }, [mediaFilter, resolvedSummaries])
+
+  const filterCounts = useMemo(
+    () => ({
+      ...mediaStatusCounts,
+      broken: pageBrokenCount,
+    }),
+    [mediaStatusCounts, pageBrokenCount]
+  )
 
   return (
     <div className="space-y-6" data-onboarding="media-center">
@@ -100,7 +128,14 @@ export function MediaCenter({
             defaultValue={searchDefault}
           />
 
-          <MediaFilters counts={mediaStatusCounts} searchDefault={searchDefault} />
+          <MediaFilters counts={filterCounts} searchDefault={searchDefault} />
+
+          {mediaFilter === 'broken' && (
+            <p className="text-xs text-mute">
+              Filtro &quot;Quebradas&quot; aplica-se à página atual após o carregamento das
+              miniaturas. Contagem global indisponível sem verificação persistente.
+            </p>
+          )}
 
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-mute">Catálogo</p>
@@ -121,17 +156,18 @@ export function MediaCenter({
                 </tr>
               </thead>
               <tbody className="divide-y divide-hairline">
-                {summaries.map((item) => (
+                {displaySummaries.map((item) => (
                   <MediaProductRow
                     key={item.id}
                     item={item}
                     probe={probe}
                     probing={probingIds.has(item.id)}
+                    onImageResult={reportImageResult}
                   />
                 ))}
               </tbody>
             </table>
-            {!summaries.length && (
+            {!displaySummaries.length && (
               <p className="px-4 py-8 text-center text-sm text-mute">
                 Nenhum produto corresponde ao filtro nesta página.
               </p>

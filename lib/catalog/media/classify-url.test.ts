@@ -47,4 +47,25 @@ describe('classify-url', () => {
     )
     expect(status).toBe('broken')
   })
+
+  it('mantém external sem probe confirmado', () => {
+    const status = resolveMediaStatus(
+      'external',
+      ['https://cdn.example.com/a.jpg'],
+      {},
+      false
+    )
+    expect(status).toBe('external')
+  })
+
+  it('mostra checking apenas enquanto probing', () => {
+    expect(
+      resolveMediaStatus(
+        'external',
+        ['https://cdn.example.com/a.jpg'],
+        {},
+        true
+      )
+    ).toBe('checking')
+  })
 })

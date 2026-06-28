@@ -39,9 +39,10 @@ type MediaProductRowProps = {
   item: MediaProductSummary
   probe: ImageProbeMap
   probing: boolean
+  onImageResult?: (url: string, ok: boolean) => void
 }
 
-export function MediaProductRow({ item, probe, probing }: MediaProductRowProps) {
+export function MediaProductRow({ item, probe, probing, onImageResult }: MediaProductRowProps) {
   const status = getResolvedStatus(item, probe, probing)
   const thumb = item.images[0]
 
@@ -50,7 +51,14 @@ export function MediaProductRow({ item, probe, probing }: MediaProductRowProps) 
       <td className="px-4 py-3">
         <div className="relative h-14 w-14 overflow-hidden rounded-md bg-soft-cloud">
           {thumb ? (
-            <ProductImage src={thumb} alt={item.name} fill className="rounded-md" />
+            <ProductImage
+              src={thumb}
+              alt={item.name}
+              fill
+              className="rounded-md"
+              onLoadSuccess={() => onImageResult?.(thumb, true)}
+              onLoadError={() => onImageResult?.(thumb, false)}
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center text-[10px] text-mute">
               —

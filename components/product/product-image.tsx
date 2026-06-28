@@ -10,6 +10,8 @@ type ProductImageProps = {
   fill?: boolean
   sizes?: string
   priority?: boolean
+  onLoadSuccess?: () => void
+  onLoadError?: () => void
 }
 
 function isOptimizableSrc(src: string): boolean {
@@ -29,8 +31,19 @@ export function ProductImage({
   fill = false,
   sizes = '(max-width: 768px) 50vw, 25vw',
   priority = false,
+  onLoadSuccess,
+  onLoadError,
 }: ProductImageProps) {
   const [failed, setFailed] = useState(false)
+
+  const handleError = () => {
+    setFailed(true)
+    onLoadError?.()
+  }
+
+  const handleLoad = () => {
+    onLoadSuccess?.()
+  }
 
   if (!src || failed || !isOptimizableSrc(src)) {
     if (src && !failed && !isOptimizableSrc(src)) {
@@ -40,7 +53,8 @@ export function ProductImage({
           src={src}
           alt={alt}
           loading={priority ? 'eager' : 'lazy'}
-          onError={() => setFailed(true)}
+          onLoad={handleLoad}
+          onError={handleError}
           className={`object-cover ${fill ? 'absolute inset-0 h-full w-full' : 'h-full w-full'} ${className}`}
         />
       )
@@ -64,7 +78,8 @@ export function ProductImage({
         fill
         sizes={sizes}
         priority={priority}
-        onError={() => setFailed(true)}
+        onError={handleError}
+        onLoad={handleLoad}
         className={`object-cover ${className}`}
       />
     )
@@ -78,7 +93,8 @@ export function ProductImage({
         fill
         sizes={sizes}
         priority={priority}
-        onError={() => setFailed(true)}
+        onError={handleError}
+        onLoad={handleLoad}
         className="object-cover"
       />
     </div>

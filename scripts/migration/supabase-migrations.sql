@@ -505,7 +505,8 @@ AS $$
   SELECT CASE
     WHEN p_media IS NULL OR p_media = 'all' THEN true
     WHEN p_media = 'empty' THEN COALESCE(cardinality(p_images), 0) = 0
-    WHEN p_media IN ('external', 'broken') THEN public.images_has_external(p_images)
+    WHEN p_media = 'external' THEN public.images_has_external(p_images)
+    WHEN p_media = 'broken' THEN public.images_has_external(p_images)
     WHEN p_media = 'storage' THEN
       COALESCE(cardinality(p_images), 0) > 0
       AND NOT public.images_has_external(p_images)
@@ -530,10 +531,7 @@ AS $$
       SELECT COUNT(*)::int FROM public.products
       WHERE public.images_has_external(images)
     ),
-    'broken', (
-      SELECT COUNT(*)::int FROM public.products
-      WHERE public.images_has_external(images)
-    ),
+    'broken', 0,
     'storage', (
       SELECT COUNT(*)::int FROM public.products
       WHERE COALESCE(cardinality(images), 0) > 0

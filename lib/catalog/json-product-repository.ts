@@ -293,6 +293,7 @@ export const jsonProductRepository: ProductRepository = {
 function matchesMediaStatus(images: string[], filter: MediaFilter): boolean {
   if (filter === 'all') return true
   const status = classifyProductImagesInitial(images)
+  // "broken" não é inferível server-side; retorna candidatos externos para filtro client-side.
   if (filter === 'broken') return status === 'external'
   return status === filter
 }

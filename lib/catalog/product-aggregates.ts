@@ -49,10 +49,8 @@ export async function fetchMediaStatusCounts(): Promise<MediaStatusCounts> {
     for (const p of products) {
       const status = classifyProductImagesInitial(p.images)
       if (status === 'empty') counts.empty++
-      else if (status === 'external') {
-        counts.external++
-        counts.broken++
-      } else if (status === 'storage') counts.storage++
+      else if (status === 'external') counts.external++
+      else if (status === 'storage') counts.storage++
     }
     return counts
   }
@@ -67,7 +65,7 @@ export async function fetchMediaStatusCounts(): Promise<MediaStatusCounts> {
     all: raw.all ?? 0,
     empty: raw.empty ?? 0,
     external: raw.external ?? 0,
-    broken: raw.broken ?? raw.external ?? 0,
+    broken: raw.broken ?? 0,
     storage: raw.storage ?? 0,
   }
 }

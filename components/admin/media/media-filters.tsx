@@ -4,11 +4,11 @@ import Link from 'next/link'
 import { useSearchParams, usePathname } from 'next/navigation'
 import { MediaFilter } from '@/lib/catalog/media/types'
 
-const FILTERS: { value: MediaFilter; label: string }[] = [
+const FILTERS: { value: MediaFilter; label: string; pageScopedCount?: boolean }[] = [
   { value: 'all', label: 'Todos' },
   { value: 'empty', label: 'Sem imagem' },
   { value: 'external', label: 'URLs externas' },
-  { value: 'broken', label: 'Quebradas' },
+  { value: 'broken', label: 'Quebradas', pageScopedCount: true },
   { value: 'storage', label: 'No Supabase' },
 ]
 
@@ -56,6 +56,11 @@ export function MediaFilters({ counts, searchDefault = '' }: MediaFiltersProps) 
                 className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
                   isActive ? 'bg-canvas/20 text-canvas' : 'bg-ink/10 text-ink'
                 }`}
+                title={
+                  filter.pageScopedCount
+                    ? 'Contagem apenas da página atual após carregar miniaturas'
+                    : undefined
+                }
               >
                 {count}
               </span>
