@@ -39,6 +39,7 @@
 | `coreVersionInstalled` | Semver do core em produção |
 | `status` | `draft` \| `onboarding` \| `production` \| `paused` |
 | `features` | Módulos habilitados (referência) |
+| Branding | `deploy/clients/<slug>/branding/logo.jpeg` — por implantação |
 
 ---
 
@@ -62,6 +63,10 @@ Atualizar **sempre** após deploy + smoke bem-sucedido.
 
 ---
 
-## Decisão pendente
+## Branding por implantação
 
-Logos: manter [`deploy/branding/`](../branding/) único no repo ou mover para `deploy/clients/<slug>/branding/`?
+Cada slug possui pasta própria: `deploy/clients/<slug>/branding/logo.jpeg`.
+
+- Referência preenchida: [`deploy/clients/unitsports/branding/`](../clients/unitsports/branding/)
+- Legacy (scripts atuais): [`deploy/branding/`](../branding/) — bancada temporária; ver [`deploy/branding/README.md`](../branding/README.md)
+- **Não** copiar logo da UnitSports para novas lojas

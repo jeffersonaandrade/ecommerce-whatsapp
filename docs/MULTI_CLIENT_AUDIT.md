@@ -32,7 +32,7 @@
 | 8 | Categorias Camisas/Shorts/… | `config/site.ts` | 2 legado | Fallback JSON/footer; futuro: só categorias Supabase ([`COMPATIBILITY.md`](COMPATIBILITY.md)) |
 | 9 | Defaults “Sports Store” | `lib/store/settings-defaults.ts` | 1 | Genérico — correto |
 | 10 | Preset visual | `deploy/netlify/default-storefront-preset.json` | 1 | Genérico — correto |
-| 11 | Branding logo único | `deploy/branding/logo.*` | 4 | Por implantação; hoje pasta única no repo — decisão pendente (ver [`deploy/registry/README.md`](../deploy/registry/README.md)) |
+| 11 | Branding logo único | `deploy/branding/logo.*` (legacy) | 4 | **Resolvido (docs):** canônico em `deploy/clients/<slug>/branding/`; legacy em [`deploy/branding/README.md`](../deploy/branding/README.md) |
 | 12 | CSVs scraping UnitSports | `test-data/`, `public/templates/import-scraping-validado-ab.csv` | 6 | Dados operador/teste — não remover |
 | 13 | README “single-client” | `README.md` | 3 | Atualizar intro multi-deploy |
 | 14 | ARCHITECTURE “single-client” | `docs/ARCHITECTURE.md` | 3 | Reescrita parcial |

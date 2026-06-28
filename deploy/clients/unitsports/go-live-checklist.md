@@ -16,8 +16,10 @@ Template genérico: [`../template/go-live-checklist.md`](../template/go-live-che
 
 ## Branding
 
-- [x] Logo, favicon e OG via implantação operador ([`deploy/branding/`](../../branding/) + `npm run branding:sync`)
+- [x] Logo canônica em [`branding/logo.jpeg`](branding/logo.jpeg)
+- [x] Favicon e OG gerados e publicados no Storage (implantação operador)
 - [x] Nome, WhatsApp e contatos em `/admin/settings`
+- Sync: hoje via [`deploy/branding/`](../../branding/) (legacy) + `npm run branding:sync`; futuro: `npm run branding:sync -- --client unitsports`
 
 ## Catálogo e conteúdo
 

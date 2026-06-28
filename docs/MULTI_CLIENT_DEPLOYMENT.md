@@ -44,7 +44,58 @@ main (core)
 | Nome, logo, cores, textos | `store_settings` + Storage |
 | Produtos, categorias, banners | Postgres + Storage |
 | WhatsApp, e-mail | `store_settings` |
+| Branding (repo) | `deploy/clients/<slug>/branding/logo.jpeg` |
+| Branding (runtime) | Supabase Storage bucket `branding` |
 | `ENABLE_MIGRATION_TOOLS` | Env (fase onboarding) |
+
+---
+
+## Branding por cliente
+
+O core **não** possui logo global. Cada implantação mantém sua fonte em:
+
+```text
+deploy/clients/<slug>/branding/logo.jpeg
+```
+
+### Processo recomendado (operador)
+
+1. Identificar slug (ex.: `unitsports`)
+2. Colocar/atualizar logo em `deploy/clients/<slug>/branding/logo.jpeg`
+3. Confirmar env apontando para o Supabase **desse** cliente
+4. Sincronizar derivados (favicon, OG) para o Storage da implantação
+5. Validar header, favicon e OG na URL pública
+
+### Hoje (scripts legacy)
+
+Os scripts leem [`deploy/branding/logo.*`](../deploy/branding/) — **bancada temporária**, não branding permanente:
+
+```text
+deploy/clients/unitsports/branding/logo.jpeg
+  → copiar manualmente para deploy/branding/logo.jpeg
+  → npm run branding:sync
+  → Supabase Storage (env do cliente ativo)
+```
+
+**Riscos:** logo errada no path global; sync no Supabase de outro cliente; favicon/OG cruzados.
+
+Ver [`deploy/branding/README.md`](../deploy/branding/README.md).
+
+### Futuro (documentado, não implementado)
+
+```bash
+npm run branding:sync -- --client unitsports
+```
+
+Comportamento esperado:
+
+- Ler `deploy/clients/<slug>/branding/logo.jpeg`
+- Validar arquivo (formato, tamanho)
+- Gerar favicon, OG e derivados
+- Publicar **somente** no Supabase Storage da implantação `<slug>`
+- Não depender de `deploy/branding/` como fonte global
+
+**Nunca** copiar logo da UnitSports para outras lojas. O template genérico **não** inclui pasta `branding/`.
 
 ---
 
@@ -164,6 +215,7 @@ Core (main)
 | Env template | [`env.example`](../deploy/clients/unitsports/env.example) |
 | Go-live status | [`go-live-checklist.md`](../deploy/clients/unitsports/go-live-checklist.md) |
 | Notas operacionais | [`notes.md`](../deploy/clients/unitsports/notes.md) |
+| Branding | [`branding/logo.jpeg`](../deploy/clients/unitsports/branding/logo.jpeg) |
 
 **Fluxo recomendado para nova loja:**
 

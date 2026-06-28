@@ -38,7 +38,7 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 | Domínio | DNS / URL pública |
 | Env vars | Painel Netlify + `.env.local` local |
 | Storage | Buckets `branding` e `products` no Supabase do cliente |
-| Branding | Logo, favicon, OG, cores |
+| Branding | Logo, favicon, OG — [`branding/logo.jpeg`](branding/logo.jpeg) (por implantação) |
 | Dados | `store_settings`, produtos, categorias, banners |
 
 ---
@@ -63,6 +63,7 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 | [`notes.md`](notes.md) | Ficha operacional — versão core, pendências, suporte |
 | [`go-live-checklist.md`](go-live-checklist.md) | Status conhecido do go-live (histórico + pendências) |
 | [`env.example`](env.example) | Variáveis Netlify — **somente placeholders** |
+| [`branding/logo.jpeg`](branding/logo.jpeg) | Logo canônica desta implantação |
 
 ---
 
@@ -70,7 +71,7 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 
 1. **Nova loja:** copie [`../template/`](../template/) → `deploy/clients/<slug>/`
 2. **Consulte** esta pasta para ver exemplos de checklist e notes preenchidos
-3. **Não** reutilize dados de catálogo, imagens ou branding da UnitSports
+3. **Não** reutilize dados de catálogo, imagens ou **logo/branding** da UnitSports em outras lojas
 4. Registre refs sensíveis em `deploy/clients/clients.local.json` (gitignored)
 
 ---
@@ -90,7 +91,8 @@ Supabase project ref: registrar em `clients.local.json` — não versionar nesta
 - Release baseline: [`docs/releases/v1.0.0.md`](../../../docs/releases/v1.0.0.md)
 - Migrations aplicadas: [`docs/DATABASE_PLAN.md`](../../../docs/DATABASE_PLAN.md) § implantação UnitSports
 - Registry: [`deploy/registry/README.md`](../../registry/README.md)
-- Branding operador: [`deploy/branding/`](../../branding/) + `npm run branding:sync`
+- Branding operador: [`branding/logo.jpeg`](branding/logo.jpeg) — ver [`branding/README.md`](branding/README.md)
+- Legacy (scripts atuais): [`deploy/branding/`](../../branding/) — área de trabalho temporária; ver [`deploy/branding/README.md`](../../branding/README.md)
 
 ---
 
@@ -98,4 +100,4 @@ Supabase project ref: registrar em `clients.local.json` — não versionar nesta
 
 - Migração de imagens: **56** produtos no Storage · **35** ambíguos pendentes validação cliente
 - `ENABLE_MIGRATION_TOOLS`: ligar durante onboarding; desligar após catálogo estável
-- Logo/branding: implantação via operador — upload self-service de logo fora do MVP admin
+- Logo/branding: [`branding/logo.jpeg`](branding/logo.jpeg) — sync via operador; upload self-service de logo fora do MVP admin

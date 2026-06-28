@@ -63,10 +63,35 @@ Cliente muda por DADOS e ENV — nunca por código específico.
 - `store_settings` (nome, WhatsApp, cores, textos)
 - Produtos, categorias, banners, benefícios
 - Storage (logo, imagens produto)
+- **Assets de branding no repo:** `deploy/clients/<slug>/branding/logo.jpeg` (por implantação)
 - Feature flags de env (`ENABLE_MIGRATION_TOOLS` na fase onboarding)
 
 Configuração de conteúdo → **`store_settings`** e tabelas de conteúdo.  
 Disponibilidade de módulo → **feature flag** (env ou futuro `store_features`) — ver [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md).
+
+---
+
+## Branding por cliente
+
+O core **não** deve depender de uma logo de cliente como padrão global.
+
+| Local | Papel |
+|-------|-------|
+| `deploy/clients/<slug>/branding/logo.jpeg` | **Canônico** — logo da implantação |
+| `deploy/branding/logo.*` | **Legacy / bancada** — lido pelos scripts atuais; uso temporário com cuidado |
+| Supabase Storage `branding/` | **Runtime** — favicon, OG, logo servidos na loja |
+
+```text
+deploy/clients/unitsports/branding/logo.jpeg
+  ↓ (hoje: cópia manual para deploy/branding/)
+  ↓ npm run branding:sync
+  ↓ (futuro: --client unitsports)
+Supabase Storage da implantação unitsports
+```
+
+**Nunca** copiar logo da UnitSports para outra loja. **Nunca** tratar `deploy/branding/` como branding permanente do core.
+
+Ver [`deploy/branding/README.md`](../deploy/branding/README.md) e [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md) § Branding por cliente.
 
 ---
 

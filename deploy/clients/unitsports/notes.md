@@ -51,6 +51,18 @@ Schema inicial + categorias, import transacional, banners e onboarding guiado j�
 
 ---
 
+## Branding
+
+| Campo | Valor |
+|-------|-------|
+| Logo canônica | [`branding/logo.jpeg`](branding/logo.jpeg) |
+| Sync | `npm run branding:sync` (hoje: copiar logo para `deploy/branding/` antes — ver [`deploy/branding/README.md`](../../../branding/README.md)) |
+| Futuro | `npm run branding:sync -- --client unitsports` |
+
+**Não** copiar esta logo para outras implantações.
+
+---
+
 ## Onboarding / migração
 
 | Item | Status |

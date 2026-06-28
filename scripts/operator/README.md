@@ -21,10 +21,17 @@ scripts/operator/
 |------------|-------------------|--------|
 | `deploy/` | — | `deploy-all-clients.mjs`, smoke por slug |
 | `migration/` | [`scripts/migration/`](../migration/) | wrapper multi-Supabase |
-| `branding/` | [`scripts/deploy/`](../deploy/) | sync logo por `deploy/clients/<slug>/` |
+| `branding/` | [`scripts/deploy/sync-branding-logo.mjs`](../deploy/sync-branding-logo.mjs) | `branding:sync -- --client <slug>` lendo `deploy/clients/<slug>/branding/` |
 | `restore/` | — | reset operador documentado |
 
 Registry de lojas: [`deploy/registry/README.md`](../../deploy/registry/README.md). Manifesto operacional: `deploy/clients/clients.local.json` (gitignored).
+
+## Branding por cliente
+
+- **Canônico:** `deploy/clients/<slug>/branding/logo.jpeg`
+- **Hoje:** `npm run branding:sync` lê `deploy/branding/` (legacy — copiar logo do slug antes)
+- **Futuro:** `npm run branding:sync -- --client unitsports`
+- Ver [`deploy/branding/README.md`](../../deploy/branding/README.md)
 
 ## Quando usar
 

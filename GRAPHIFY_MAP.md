@@ -11,9 +11,29 @@ Ferramenta de **desenvolvimento** ([Graphify](https://github.com/safishamsi/grap
 | [graphify-out/graph.json](graphify-out/graph.json) | Grafo completo para consultas CLI |
 | [.cursor/rules/graphify.mdc](.cursor/rules/graphify.mdc) | Regra Cursor (`alwaysApply`) para consultar o grafo antes de explorar código |
 
-**Última geração:** 2026-06-25 (pós Supabase + upload) · **652 nós · 1553 arestas · 28 comunidades** · extração AST (sem API)
+**Última geração:** 2026-06-27 (pós arquitetura multi-cliente + branding por slug) · **1614 nós · 4146 arestas · 83 comunidades** · extração AST (sem API)
 
-Novos hubs: `requireAdmin`, `product-image-storage`, `uploadProductImageAction`, `getProductRepository`.
+God nodes: `getButtonClassName`, `requireAdmin`, `getDataProvider`, `getStoreSettings`, `Product`, `Category`.
+
+Hubs recentes (catálogo/admin): `ProductGallery`, `stripHtml`, `local-image-migration`, `isMigrationToolsEnabled`, `apply_product_import_batch`.
+
+## Arquitetura multi-cliente (deploy)
+
+```text
+Core (main) — app/, lib/, supabase/migrations/
+  ↓
+deploy/
+  ├── branding/              # legacy: bancada operador (scripts atuais)
+  ├── clients/
+  │   ├── template/            # nova loja (sem branding/)
+  │   └── unitsports/          # implantação referência
+  │       ├── branding/logo.jpeg
+  │       ├── env.example, notes.md, go-live-checklist.md
+  ├── registry/                # índice de slugs
+  └── netlify/                 # preset demo
+```
+
+Docs: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · [`docs/MULTI_CLIENT_DEPLOYMENT.md`](docs/MULTI_CLIENT_DEPLOYMENT.md) · [`deploy/clients/unitsports/`](deploy/clients/unitsports/)
 
 ## Árvore do projeto (rotas e módulos)
 
@@ -27,19 +47,31 @@ ecommerce-sports/
 │   ├── api/products/route.ts     # cache catálogo (carrinho)
 │   └── admin/
 │       ├── page.tsx
-│       ├── products/             # lista, new, [id]/edit
+│       ├── products/             # lista, new, [id]/edit, media/
 │       ├── categories/
-│       ├── import/, orders/, settings/, login/
+│       ├── import/               # ENABLE_MIGRATION_TOOLS
+│       ├── orders/, settings/, login/
+│       ├── banners/, content/benefits/
 ├── components/
-│   ├── admin/    AdminAccessButton, admin-login-form, demo-logout-button, product-form
-│   ├── cart/, product/, layout/, commerce/, ui/
+│   ├── admin/    product-form, image-gallery-field, media/*, import/*
+│   ├── product/  product-gallery.tsx
+│   ├── cart/, layout/, commerce/, ui/
 ├── lib/
-│   ├── products.ts               # fachada server-only
-│   ├── products-client.ts        # carrinho (browser)
-│   ├── catalog/                  # ProductRepository, actions, utils
+│   ├── catalog/                  # import/, media/local-image-migration/, category-utils
+│   ├── store/                    # generate-branding, branding-logo-source
+│   ├── env/migration-tools.ts
+│   ├── supabase/
 │   ├── cart-utils.ts, cart-storage.ts
 │   ├── admin/demo-session.ts
 │   └── formatters.ts, colors.ts
+├── deploy/
+│   ├── branding/                 # legacy operador (logo.jpeg)
+│   ├── clients/template|unitsports/
+│   └── registry/
+├── scripts/
+│   ├── deploy/                   # sync-branding-logo, prepare-netlify-build
+│   ├── migration/                # migrate:images:*
+│   └── operator/                 # convenção futura
 ├── storage/
 │   ├── catalog.seed.json
 │   └── catalog.json              # gitignored (runtime dev)
@@ -48,15 +80,14 @@ ecommerce-sports/
 └── types/product.ts
 ```
 
-### Hubs principais (god nodes)
+### Hubs principais (god nodes — ver GRAPH_REPORT)
 
-1. `Product` — tipo central do domínio
-2. `Button` — UI reutilizada
-3. `getAllProducts()` / `getAllProductsAdmin()` — leitura do catálogo
-4. `formatPrice()` — formatação
-5. `resolveCartLines()` / `useCart()` — carrinho
-6. `getProductRepository()` — persistência JSON
-7. `mockProducts` — seed de referência
+1. `getButtonClassName()` / `Button` — UI base
+2. `requireAdmin()` — proteção rotas admin
+3. `getDataProvider()` / `getStoreSettings()` — persistência e config
+4. `Product` / `Category` — domínio catálogo
+5. `getProductRepository()` — JSON local / demo
+6. `resolveCartLines()` / `useCart()` — carrinho
 
 ## Comandos
 

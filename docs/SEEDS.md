@@ -27,7 +27,8 @@ Exceção consciente: **Restaurar aparência padrão** no admin (ferramenta de o
 | Defaults código | [`lib/store/settings-defaults.ts`](../lib/store/settings-defaults.ts) | Fallback quando DB vazio | Código — merge, não overwrite |
 | Demo Netlify JSON | [`deploy/netlify/store-settings.json`](../deploy/netlify/store-settings.json) | Build demo sem Supabase | Por deploy demo |
 | Import CSV | `/admin/import` | Catálogo do **cliente** | Por lote import — não é seed global |
-| Branding assets | [`deploy/branding/`](../deploy/branding/) | Implantação logo/favicon | `npm run branding:sync` — operador |
+| Branding assets | `deploy/clients/<slug>/branding/logo.jpeg` | Implantação logo/favicon | `npm run branding:sync` — operador (futuro: `--client <slug>`) |
+| Branding legacy | [`deploy/branding/`](../deploy/branding/) | Bancada temporária para scripts atuais | Copiar logo do slug antes do sync — ver README |
 
 ---
 
@@ -37,7 +38,7 @@ Exceção consciente: **Restaurar aparência padrão** no admin (ferramenta de o
 2. Aplicar migrations do core (schema; seeds SQL só se projeto novo)
 3. Configurar env Netlify + domínio
 4. Criar admin; configurar `store_settings` via admin ou migrate script
-5. Implantar logo (`deploy/branding/` ou pasta por slug — decisão pendente)
+5. Implantar logo em `deploy/clients/<slug>/branding/logo.jpeg` (não reutilizar logo de outra loja)
 6. Onboarding guiado + import CSV do cliente
 7. **Não** re-rodar seed SQL em produção após go-live
 
@@ -49,6 +50,8 @@ Exceção consciente: **Restaurar aparência padrão** no admin (ferramenta de o
 |------|-------|
 | Re-executar `seed_products_batch_*` | Duplica ou conflita produtos |
 | Re-aplicar preset em settings existentes | Sobrescreve textos/cores do cliente |
+| Usar `deploy/branding/` como logo permanente de um cliente | Risco de favicon/OG errado em outra implantação |
+| Copiar logo UnitSports para novo slug | Branding cruzado entre clientes |
 | Migration com `INSERT` não idempotente | Falha ou duplicata em segundo apply |
 
 ---
