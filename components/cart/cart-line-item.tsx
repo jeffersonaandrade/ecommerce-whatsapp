@@ -3,8 +3,14 @@
 import Link from 'next/link'
 import { useCart } from '@/context/cart-context'
 import { formatPrice } from '@/lib/formatters'
+import { getProductById } from '@/lib/products-client'
+import {
+  buildPersonalizationPdpUrl,
+  canShowPersonalizationShortcut,
+} from '@/lib/cart/personalization-shortcut'
 import type { PricedCartLine } from '@/types/cart-pricing'
 import { ProductImage } from '@/components/product/product-image'
+import { getButtonClassName } from '@/components/ui/button'
 import { hasPersonalizationAddons } from '@/lib/personalization/validate-personalization'
 
 const qtyButtonClass =
@@ -15,11 +21,18 @@ interface CartLineItemProps {
 }
 
 export function CartLineItem({ line }: CartLineItemProps) {
-  const { updateQuantity, removeItem } = useCart()
+  const { updateQuantity, removeItem, personalizationSettings, isHydrated } = useCart()
+  const product = getProductById(line.productId)
 
   const variationLabel = [line.size, line.color].filter(Boolean).join(' · ')
   const isPersonalized = hasPersonalizationAddons(line.addons)
   const personalization = line.addons?.personalization
+  const showPersonalizationShortcut = canShowPersonalizationShortcut({
+    globalEnabled: personalizationSettings.enabled,
+    product,
+    line,
+    isCatalogReady: isHydrated,
+  })
 
   return (
     <article className="flex gap-4 py-6">
@@ -59,6 +72,22 @@ export function CartLineItem({ line }: CartLineItemProps) {
               </span>
             )}
           </p>
+          {showPersonalizationShortcut && (
+            <div className="mt-2 space-y-2 rounded-lg border border-hairline bg-soft-cloud p-3">
+              <p className="text-sm font-medium text-ink">
+                Quer adicionar nome e número?
+              </p>
+              <p className="text-xs text-mute">
+                Você será levado ao produto para preencher a personalização.
+              </p>
+              <Link
+                href={buildPersonalizationPdpUrl(line.slug, line.variationId)}
+                className={getButtonClassName('outline', 'sm', 'inline-flex')}
+              >
+                Adicionar nome e número
+              </Link>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3 sm:gap-4">

@@ -8,6 +8,9 @@ import { Product } from '@/types/product'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 
 const mockAddItem = vi.fn()
+const mockSearchParams = vi.hoisted(() => ({
+  get: vi.fn(() => null as string | null),
+}))
 
 const mockSettings = vi.hoisted(() => ({
   current: {
@@ -20,6 +23,12 @@ const mockSettings = vi.hoisted(() => ({
     notesMaxLength: 200,
     updatedAt: '',
   } satisfies PersonalizationSettings,
+}))
+
+vi.mock('next/navigation', () => ({
+  useSearchParams: () => ({
+    get: (key: string) => mockSearchParams.get(key),
+  }),
 }))
 
 vi.mock('@/context/cart-context', () => ({
@@ -52,7 +61,10 @@ describe('ProductPurchasePanel — personalização', () => {
   beforeEach(() => {
     cleanup()
     mockAddItem.mockReset()
+    mockSearchParams.get.mockReset()
+    mockSearchParams.get.mockReturnValue(null)
     mockSettings.current.enabled = true
+    Element.prototype.scrollIntoView = vi.fn()
   })
 
   it('renderiza bloco quando config global e produto estão ativos', () => {
@@ -88,5 +100,29 @@ describe('ProductPurchasePanel — personalização', () => {
     )
 
     expect(screen.getByText(/R\$ 25,00/)).toBeTruthy()
+  })
+
+  it('abre personalização automaticamente com ?personalizar=1', () => {
+    mockSearchParams.get.mockImplementation((key: string) =>
+      key === 'personalizar' ? '1' : null
+    )
+
+    render(<ProductPurchasePanel product={baseProduct} />)
+
+    expect(screen.getByLabelText('Nome na camisa')).toBeTruthy()
+    expect(screen.getByLabelText('Número')).toBeTruthy()
+  })
+
+  it('pré-seleciona variação com ?variation=', () => {
+    mockSearchParams.get.mockImplementation((key: string) => {
+      if (key === 'personalizar') return '1'
+      if (key === 'variation') return 'v1'
+      return null
+    })
+
+    render(<ProductPurchasePanel product={baseProduct} />)
+
+    const sizeButton = screen.getByRole('button', { name: 'M' })
+    expect(sizeButton.getAttribute('aria-pressed')).toBe('true')
   })
 })

@@ -1,9 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useCart, useProductPersonalizationPrice } from '@/context/cart-context'
 import {
   findDefaultVariation,
+  findVariation,
   resolveVariationBySelection,
 } from '@/lib/cart-utils'
 import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
@@ -26,18 +28,49 @@ function optionClass(selected: boolean): string {
 }
 
 export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
+  const searchParams = useSearchParams()
   const { addItem, personalizationSettings } = useCart()
   const personalizationUnitPrice = useProductPersonalizationPrice(product)
+  const personalizationRef = useRef<HTMLDivElement>(null)
+
+  const personalizarIntent = searchParams.get('personalizar') === '1'
+  const variationParam = searchParams.get('variation')?.trim() ?? ''
+
+  const presetVariation = useMemo(() => {
+    if (!variationParam) return undefined
+    const variation = findVariation(product, variationParam)
+    if (!variation || variation.stock <= 0) return undefined
+    return variation
+  }, [product, variationParam])
+
   const [selectedSize, setSelectedSize] = useState<string | undefined>(
-    () => findDefaultVariation(product)?.size
+    () => presetVariation?.size ?? findDefaultVariation(product)?.size
   )
   const [selectedColor, setSelectedColor] = useState<string | undefined>(
-    () => findDefaultVariation(product)?.color
+    () => presetVariation?.color ?? findDefaultVariation(product)?.color
   )
   const [addedFeedback, setAddedFeedback] = useState(false)
-  const [addonEnabled, setAddonEnabled] = useState(false)
+  const [addonEnabled, setAddonEnabled] = useState(
+    () => personalizarIntent && personalizationSettings.enabled && product.personalizationEnabled
+  )
   const [personalization, setPersonalization] = useState<PersonalizationAddon | null>(null)
   const [addonError, setAddonError] = useState<string | null>(null)
+
+  const showPersonalization =
+    personalizationSettings.enabled && product.personalizationEnabled
+  const openPersonalizationOnLoad = personalizarIntent && showPersonalization
+
+  useEffect(() => {
+    if (!presetVariation) return
+    if (presetVariation.size) setSelectedSize(presetVariation.size)
+    if (presetVariation.color) setSelectedColor(presetVariation.color)
+  }, [presetVariation])
+
+  useEffect(() => {
+    if (!openPersonalizationOnLoad) return
+    setAddonEnabled(true)
+    personalizationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }, [openPersonalizationOnLoad])
 
   const sizes = Array.from(
     new Set(product.variations.map((v) => v.size).filter(Boolean))
@@ -53,14 +86,15 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   )
   const hasStock = product.variations.some((v) => v.stock > 0)
   const canAdd = hasStock && selectedVariation && selectedVariation.stock > 0
-  const showPersonalization =
-    personalizationSettings.enabled && product.personalizationEnabled
 
-  function handleAddonsChange(enabled: boolean, addon: PersonalizationAddon | null) {
-    setAddonEnabled(enabled)
-    setPersonalization(addon)
-    setAddonError(null)
-  }
+  const handleAddonsChange = useCallback(
+    (enabled: boolean, addon: PersonalizationAddon | null) => {
+      setAddonEnabled(enabled)
+      setPersonalization(addon)
+      setAddonError(null)
+    },
+    []
+  )
 
   function handleAddToCart() {
     if (!selectedVariation) return
@@ -131,12 +165,15 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       )}
 
       {showPersonalization && (
-        <ProductAddonsFields
-          settings={personalizationSettings}
-          unitPrice={personalizationUnitPrice}
-          onChange={handleAddonsChange}
-          error={addonError}
-        />
+        <div ref={personalizationRef}>
+          <ProductAddonsFields
+            settings={personalizationSettings}
+            unitPrice={personalizationUnitPrice}
+            initialEnabled={openPersonalizationOnLoad}
+            onChange={handleAddonsChange}
+            error={addonError}
+          />
+        </div>
       )}
 
       <div className="space-y-3 pt-2">

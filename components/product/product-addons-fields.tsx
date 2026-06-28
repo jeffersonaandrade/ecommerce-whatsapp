@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { PersonalizationAddon } from '@/types/cart-addons'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 import { formatPrice } from '@/lib/formatters'
@@ -8,6 +8,7 @@ import { formatPrice } from '@/lib/formatters'
 type ProductAddonsFieldsProps = {
   settings: PersonalizationSettings
   unitPrice: number
+  initialEnabled?: boolean
   onChange: (enabled: boolean, addon: PersonalizationAddon | null) => void
   error?: string | null
 }
@@ -15,13 +16,22 @@ type ProductAddonsFieldsProps = {
 export function ProductAddonsFields({
   settings,
   unitPrice,
+  initialEnabled = false,
   onChange,
   error,
 }: ProductAddonsFieldsProps) {
-  const [enabled, setEnabled] = useState(false)
+  const [enabled, setEnabled] = useState(initialEnabled)
   const [name, setName] = useState('')
   const [number, setNumber] = useState('')
   const [notes, setNotes] = useState('')
+  const didApplyInitial = useRef(false)
+
+  useEffect(() => {
+    if (!initialEnabled || didApplyInitial.current) return
+    didApplyInitial.current = true
+    setEnabled(true)
+    onChange(true, { name: '', number: '', notes: undefined })
+  }, [initialEnabled, onChange])
 
   function emit(nextEnabled: boolean, nextName: string, nextNumber: string, nextNotes: string) {
     if (!nextEnabled) {
