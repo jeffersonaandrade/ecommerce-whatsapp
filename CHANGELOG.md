@@ -2,6 +2,8 @@
 
 Formato baseado em entradas por fase/sessão. Não remover decisões ou versões anteriores.
 
+**Releases do core (semver):** notas por versão em [`docs/releases/`](docs/releases/README.md). Rastreio por implantação e rollout seletivo em [`docs/CORE_VERSION.md`](docs/CORE_VERSION.md). Este arquivo continua como log detalhado de desenvolvimento — não duplicar release notes aqui.
+
 ## [Unreleased]
 
 ### Admin produto — UX cadastro manual BRL — 2026-06-26

@@ -2,6 +2,8 @@
 
 Checklist para customizar o projeto para um novo cliente esportivo.
 
+> **Go-live por cliente:** use o checklist em [`deploy/clients/template/go-live-checklist.md`](../../deploy/clients/template/go-live-checklist.md) (copie para `deploy/clients/<slug>/` ao onboardar). Este documento resume o fluxo no repositório.
+
 ## 📋 Checklist de Configuração
 
 ### 1. Informações Básicas

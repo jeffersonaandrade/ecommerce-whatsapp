@@ -69,3 +69,6 @@ skills-lock.json
 /test-data/e2e/*.json
 /test-data/e2e/debug-logo-out.webp
 /test-data/e2e/logo-unit-local-header.png
+
+# Multi-client registry operacional (secrets/refs reais)
+/deploy/clients/clients.local.json

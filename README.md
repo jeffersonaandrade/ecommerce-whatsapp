@@ -1,10 +1,23 @@
-﻿# Sports Store - E-commerce MVP
+﻿# Sports Store — Plataforma reutilizável para lojas esportivas
 
-Uma loja esportiva moderna construída com Next.js, TypeScript e Tailwind CSS. Mobile-first, com foco em vender primeiro e depois otimizar.
+Plataforma **white-label**: um core Next.js + Supabase compartilhado, com **um deploy Netlify e um projeto Supabase por loja** (não multi-tenant no mesmo banco).
+
+**Primeira implantação de referência:** [UnitSports](deploy/clients/unitsports/) (`loja-whats.netlify.app`).
+
+## Arquitetura multi-cliente
+
+| Documento | Conteúdo |
+|-----------|----------|
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Core vs deploy, anti-padrões |
+| [`docs/CORE_VERSION.md`](docs/CORE_VERSION.md) | Semver do core, rollout por loja |
+| [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) | Migrations, defaults, breaking changes |
+| [`docs/MULTI_CLIENT_DEPLOYMENT.md`](docs/MULTI_CLIENT_DEPLOYMENT.md) | Fluxo operacional N lojas |
+| [`docs/MULTI_CLIENT_AUDIT.md`](docs/MULTI_CLIENT_AUDIT.md) | Acoplamentos classificados |
+| [`deploy/registry/README.md`](deploy/registry/README.md) | Cadastro de implantações |
 
 ## 🎯 Objetivo
 
-Criar a base inicial de um e-commerce esportivo single-client com:
+Base de e-commerce esportivo **reutilizável** entre clientes:
 - ✅ Estrutura limpa e reaproveitável
 - ✅ Mobile-first design
 - ✅ Dados mockados inicialmente

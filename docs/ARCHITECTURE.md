@@ -1,19 +1,83 @@
-# Arquitetura — Sports Store
+# Arquitetura — Sports Commerce (core compartilhado)
 
-Template e-commerce **single-client**: catálogo (manual + CSV) + carrinho + finalização via WhatsApp na V1.
+Produto reutilizável de e-commerce: **um código**, **várias implantações** (Netlify + Supabase + domínio por cliente).
 
-Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.md`](MODULE_ROADMAP.md), [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md), [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md).
+Documentos relacionados:
+
+- [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md) — fluxo deploy N lojas
+- [`CORE_VERSION.md`](CORE_VERSION.md) — semver e rollout
+- [`COMPATIBILITY.md`](COMPATIBILITY.md) — migrations e compatibilidade
+- [`MULTI_CLIENT_AUDIT.md`](MULTI_CLIENT_AUDIT.md) — acoplamentos mapeados
+- [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.md`](MODULE_ROADMAP.md), [`DATABASE_PLAN.md`](DATABASE_PLAN.md)
 
 ---
 
-## Visão geral
+## Modelo multi-cliente (não multi-tenant)
+
+```text
+1 código (GitHub main)
+  ↓
+vários deploys Netlify
+  ↓
+1 Supabase por cliente
+  ↓
+dados + branding + domínio próprios
+```
+
+| Abordagem | Este projeto |
+|-----------|--------------|
+| Multi-tenant (1 DB, `store_id`) | **Não** |
+| Fork por cliente | **Não** |
+| Core + deploy isolado | **Sim** |
+
+**UnitSports** = primeira **implantação de referência**, não o produto inteiro. Ficha: [`deploy/clients/unitsports/`](../deploy/clients/unitsports/).
+
+---
+
+## Regra de ouro
+
+```text
+Cliente muda por DADOS e ENV — nunca por código específico.
+```
+
+- **Nunca** `if (storeName === 'UnitSports') { ... }`
+- **Nunca** branch permanente por cliente
+- **Nunca** copiar o repositório por loja
+
+---
+
+## O que é compartilhado (core)
+
+- Código: `app/`, `components/`, `lib/`
+- Migrations: `supabase/migrations/`
+- Scripts operador: `scripts/`
+- Admin, import CSV, banners, onboarding, Central de Mídia
+- Bugfixes e novas features — uma vez, distribuídas via deploy
+
+---
+
+## O que é específico por cliente (implantação)
+
+- Supabase URL + keys (env Netlify)
+- Domínio
+- `store_settings` (nome, WhatsApp, cores, textos)
+- Produtos, categorias, banners, benefícios
+- Storage (logo, imagens produto)
+- Feature flags de env (`ENABLE_MIGRATION_TOOLS` na fase onboarding)
+
+Configuração de conteúdo → **`store_settings`** e tabelas de conteúdo.  
+Disponibilidade de módulo → **feature flag** (env ou futuro `store_features`) — ver [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md).
+
+---
+
+## Visão geral técnica
 
 | Aspecto | Decisão |
 |---------|---------|
-| Tipo | Loja por cliente, não SaaS |
-| V1 comercial | Cadastrar produtos · importar CSV · vender via WhatsApp |
-| V1 técnica | Next.js 16, TypeScript, Tailwind, mock + localStorage |
-| Persistência | Supabase (Sprint HANDOFF) — `DATA_PROVIDER=json|supabase`; ver [`DATABASE_PLAN.md`](DATABASE_PLAN.md) |
+| Tipo | Produto white-label / multi-deploy |
+| V1 comercial | Catálogo + carrinho + WhatsApp |
+| Stack | Next.js 16, TypeScript, Tailwind, Supabase |
+| Persistência | 1 projeto Supabase **por cliente** |
 
 ---
 
@@ -21,13 +85,15 @@ Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.
 
 | Módulo | Responsabilidade | Status |
 |--------|------------------|--------|
-| **Catalog** | Produtos, imagens, variações, categorias | Mock; admin Fase 4 |
-| **Cart** | Carrinho local | ✅ Funcional |
-| **CSV Import** | Carga em massa (módulo Catálogo) | Spec + template; pipeline [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) |
-| **Order Completion** | Finalização do pedido (estratégias) | Documentado; WhatsApp Fase 6 |
-| **Admin** | Gestão da loja | Visual parcial |
-| **Settings** | Config da loja | Placeholder |
-| **Orders / Checkout / Payment** | Pedidos e pagamento online | V2+ (Fases 8–9) |
+| **Catalog** | Produtos, imagens, variações, categorias | Supabase + admin |
+| **Cart** | Carrinho local | Funcional |
+| **CSV Import** | Carga em massa | Wizard + RPC |
+| **Media Center** | Imagens onboarding | Flag `ENABLE_MIGRATION_TOOLS` |
+| **Onboarding** | Tour + Centro de Implantação | Funcional |
+| **Order Completion** | WhatsApp V1 | Funcional |
+| **Admin** | Gestão da loja | Funcional |
+| **Settings** | Config da loja | `store_settings` |
+| **Orders / Checkout** | V2+ | Placeholder |
 
 ---
 
@@ -41,43 +107,29 @@ Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.
                   │
 ┌─────────────────▼───────────────────────┐
 │  Domínio — types/, lib/                 │
-│  Funções puras, regras de negócio       │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────▼───────────────────────┐
-│  Dados — mock → lib/products.ts → DB    │
-│  Carrinho: localStorage (cliente)       │
+│  Dados — Supabase por cliente           │
+│  Carrinho: localStorage (browser)       │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────▼───────────────────────┐
-│  Integrações — WhatsApp (V1), gateway   │
-│  e frete (V2+)                          │
+│  Integrações — WhatsApp (V1)            │
 └─────────────────────────────────────────┘
 ```
 
-### UI (`app/`, `components/`)
+---
 
-- Páginas públicas, admin, carrinho.
-- Sem formulários de endereço/pagamento na V1.
-- Regra de negócio pesada evitada — delegar a `lib/`.
+## Persistência
 
-### Domínio (`types/`, `lib/`)
+| Provider | Uso |
+|----------|-----|
+| `json` | Dev local, demo Netlify sem Supabase |
+| `supabase` | Produção por implantação |
 
-- Hoje: tipos em [`types/product.ts`](../types/product.ts), utilitários em `lib/`.
-- Futuro: subpastas por módulo (`lib/catalog/`, `lib/order-completion/`) quando houver volume.
-
-### Dados
-
-| Fonte | Uso atual |
-|-------|-----------|
-| [`data/mock-products.ts`](../data/mock-products.ts) | Catálogo |
-| [`lib/products.ts`](../lib/products.ts) | Abstração — único ponto de troca para DB |
-| `localStorage` | Itens do carrinho |
-
-### Integrações
-
-- **V1:** deep link WhatsApp (`wa.me`) — Fase 6.
-- **V2+:** gateway, frete, webhooks.
+Factory: [`lib/data/provider.ts`](../lib/data/provider.ts) via `DATA_PROVIDER`.  
+Schema: [`DATABASE_PLAN.md`](DATABASE_PLAN.md).
 
 ---
 
@@ -85,168 +137,53 @@ Documentos relacionados: [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`MODULE_ROADMAP.
 
 ```text
 Dashboard                    /admin
-Produtos
-    Lista                    /admin/products
-    Novo Produto             /admin/products/new
-    Importar CSV             /admin/import
+Produtos                     /admin/products
+Importar CSV                 /admin/import (flag)
+Central de Mídia             /admin/products/media (flag)
 Categorias                   /admin/categories
-Pedidos                      /admin/orders (placeholder até V2)
+Banners                      /admin/banners
 Configurações                /admin/settings
 ```
 
-Fase 3: skeleton de navegação. Fase 4: catálogo funcional.
+---
+
+## Decisões arquiteturais
+
+- Server Components por padrão; `'use client'` onde necessário
+- Carrinho: Context + localStorage
+- Produtos: abstração [`lib/products.ts`](../lib/products.ts)
+- PurchaseIntent efêmero V1 — sem pedido no banco
+- CSV: [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md)
 
 ---
 
-## O que é mock hoje
+## Anti-padrões
 
-- Pedidos admin (sem domínio `Order`)
-- Checkout (placeholder)
-- Categorias admin (somente leitura — derivadas do catálogo)
-
-## Persistência (implementado)
-
-| Provider | Uso | Implementação |
-|----------|-----|---------------|
-| `json` (default) | Dev local, demo Netlify | `JsonProductRepository`, `JsonSettingsRepository`, `storage/` |
-| `supabase` | Produção por cliente | `SupabaseProductRepository`, `SupabaseSettingsRepository`, Storage |
-
-Factory: [`lib/data/provider.ts`](../lib/data/provider.ts) via env `DATA_PROVIDER`.  
-Schema e SQL: [`DATABASE_PLAN.md`](DATABASE_PLAN.md).
+- Marketplace, multi-tenant no mesmo DB, ERP, filas prematuras
+- Fork por cliente, branch permanente por cliente
+- Feature flag para branding/nome/cores
+- Re-seed automático em loja existente ([`SEEDS.md`](SEEDS.md))
 
 ---
 
-## Decisões arquiteturais atuais
+## Order Completion (V1)
 
-- **Server Components** por padrão; `'use client'` só onde necessário (carrinho).
-- **Carrinho:** React Context + `localStorage` — sem Redux/Zustand.
-- **Produtos:** toda leitura via [`lib/products.ts`](../lib/products.ts).
-- **PurchaseIntent efêmero** na V1 — sem pedido no banco.
-- **CSV:** formato planilha de carga em massa — [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
+Modo ativo: **WhatsApp** via `StoreSettings` (telefone, prefixo mensagem, `siteUrl`).
 
----
+Fluxo: Catálogo → Carrinho → Mensagem WhatsApp → negociação fora do site.
 
-## Decisões adiadas
-
-- Parser CSV runtime adicional
-- Entidade `Order`, gateway, frete no site
-- CMS (banners, categorias CRUD, menus) — Sprint 4+
-
----
-
-## Anti-overengineering
-
-Não construir agora:
-
-- Marketplace, multi-tenant, ERP, filas complexas
-- Abstrações genéricas sem segundo uso
-- Checkout completo antes do catálogo operacional
-
-Construir com estratégia plugável apenas onde necessário: **Order Completion**.
-
----
-
-## Order Completion
-
-### Conceito
-
-**Finalização do pedido** substitui a ideia de “checkout único”. O modo ativo vem de `StoreSettings.completionMode`:
-
-| Modo | Quando |
-|------|--------|
-| `WHATSAPP` | V1 — padrão do template |
-| `CHECKOUT` | V2+ — pagamento online |
-| `BOTH` | Futuro — loja escolhe |
-
-### PurchaseIntent vs Order
-
-- **PurchaseIntent:** oportunidade de venda; V1 = mensagem WhatsApp estruturada.
-- **Order:** transação confirmada; **não existe na V1**.
-
-### Fluxo V1
-
-```text
-Catálogo → Carrinho → Finalizar Pedido → PurchaseIntent (resumo)
-  → WhatsApp da loja → Negociação manual (fora do site)
-  → Loja coleta endereço, entrega, pagamento
-```
-
-O site **não participa** da negociação comercial.
-
-### O que a V1 não coleta
-
-Endereço, CEP, CPF, pagamento, frete — todos no WhatsApp.
-
-### Payload da mensagem WhatsApp (Fase 6)
-
-Por item: nome, tamanho, cor, SKU, quantidade, subtotal da linha, **link da PDP**.  
-Rodapé: **total do carrinho**.
-
-Exemplo:
-
-```text
-Olá! Gostaria de solicitar este pedido.
-
-• Camisa Flamengo
-  Tamanho: G | Cor: Vermelha | SKU: CAM-FLA-G
-  Qtd: 2 | Subtotal: R$ 379,80
-  https://loja.exemplo.com/products/camisa-flamengo
-
-Total: R$ 539,70
-
-Aguardo retorno.
-```
-
-### Canal confiável vs protótipo
-
-| Artefato | Papel |
-|----------|-------|
-| Mensagem WhatsApp | Canal de produção V1 |
-| `/order-intent/demo` | Protótipo UX do atendente (mock, sem link entre dispositivos) |
-
-### Estratégias (futuro)
-
-```text
-OrderCompletionStrategy
-  ├── WhatsappStrategy
-  ├── CheckoutStrategy
-  └── (extensível)
-```
-
-### StoreSettings (planejado)
-
-- `whatsappPhone`, `whatsappMessageTemplate`, `completionButtonLabel`, `completionMode`
-- Admin: `/admin/settings` → seção Finalização do Pedido
-
-### Evolução
-
-| Versão | Escopo |
-|--------|--------|
-| V1 | WhatsApp + demo mock |
-| V1.5 | PurchaseIntent persistido → `/order-intent/[id]` |
-| V2 | Order + Checkout + Pagamento |
-
-### Proibições V1
-
-Gateway, PIX, pedidos no banco, API de intent persistente, formulários de checkout.
-
----
-
-## Proibido na Fase 3
-
-Migrations, Supabase, parser CSV, gateway, webhooks, alteração de tipos de domínio em código.
+Detalhes de payload e evolução V2: seções históricas em commits anteriores; entidade `Order` = V2+.
 
 ---
 
 ## Mapa de código (Graphify)
 
-Hubs principais: `Product`, `getAllProducts()`, `useCart()`, `resolveCartLines()`.
+Hubs: `Product`, `getAllProducts()`, `useCart()`, onboarding tour.
 
-| Módulo | Arquivos |
-|--------|----------|
-| Catalog | `types/product.ts`, `lib/products.ts`, `app/products/` |
-| Cart | `context/cart-context.tsx`, `lib/cart-*.ts`, `components/cart/` |
-| Import | `docs/CSV_IMPORT_SPEC.md`, `app/admin/import/` |
-| Admin | `app/admin/*` |
+Consulta: [`graphify-out/GRAPH_REPORT.md`](../graphify-out/GRAPH_REPORT.md)
 
-Consulta: [`graphify-out/GRAPH_REPORT.md`](../graphify-out/GRAPH_REPORT.md) — sem `graphify update` sem autorização.
+---
+
+## Codinome do repositório
+
+`ecommerce-sports` (package) / `ecommerce-whatsapp` (GitHub) = nomes internos. Adiar rename formal — ver [`MULTI_CLIENT_AUDIT.md`](MULTI_CLIENT_AUDIT.md).

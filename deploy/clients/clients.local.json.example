@@ -1,0 +1,19 @@
+{
+  "_comment": "Copie para clients.local.json — arquivo gitignored. Registry operacional real.",
+  "updatedAt": "2026-06-27",
+  "clients": [
+    {
+      "slug": "unitsports",
+      "name": "UnitSports",
+      "netlifySite": "loja-whats",
+      "domain": "https://loja-whats.netlify.app",
+      "supabaseProjectRef": "PREENCHER",
+      "coreVersionInstalled": "1.0.0",
+      "lastDeployAt": "2026-06-27",
+      "lastMigrationApplied": "20260627210000_store_onboarding",
+      "status": "production",
+      "features": ["catalog", "import_csv", "media_center", "banners", "onboarding"],
+      "notes": "Primeira implantação de referência"
+    }
+  ]
+}

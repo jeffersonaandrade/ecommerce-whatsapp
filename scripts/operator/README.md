@@ -1,8 +1,30 @@
 # Ferramentas operador — migração de imagens e import
 
-Scripts npm documentados em [`scripts/README.md`](../scripts/README.md).
+Scripts npm documentados em [`scripts/README.md`](../README.md).
 
 **Status UnitSports (jun/2026):** 56 produtos com imagem no Storage · 35 associações ambíguas pendentes validação cliente.
+
+## Convenção de pastas (alvo)
+
+Estrutura documentada para scripts futuros — **não reorganizar arquivos existentes nesta fase**:
+
+```text
+scripts/operator/
+  deploy/       # deploy-all-clients.mjs (futuro), smoke pós-deploy
+  migration/    # apply migrations em lote (futuro)
+  branding/     # sync logo, generate assets (hoje em scripts/deploy/)
+  restore/      # ferramentas de reset operador
+  README.md     # este índice
+```
+
+| Pasta alvo | O que existe hoje | Futuro |
+|------------|-------------------|--------|
+| `deploy/` | — | `deploy-all-clients.mjs`, smoke por slug |
+| `migration/` | [`scripts/migration/`](../migration/) | wrapper multi-Supabase |
+| `branding/` | [`scripts/deploy/`](../deploy/) | sync logo por `deploy/clients/<slug>/` |
+| `restore/` | — | reset operador documentado |
+
+Registry de lojas: [`deploy/registry/README.md`](../../deploy/registry/README.md). Manifesto operacional: `deploy/clients/clients.local.json` (gitignored).
 
 ## Quando usar
 
@@ -23,3 +45,9 @@ ENABLE_MIGRATION_TOOLS=false
 ```
 
 Rotas `/admin/import` e `/admin/products/media` retornam 404. Dashboard oculta os cards. Código permanece no repo para futuros clientes.
+
+## Documentação relacionada
+
+- [`docs/MULTI_CLIENT_DEPLOYMENT.md`](../../docs/MULTI_CLIENT_DEPLOYMENT.md) — fluxo N lojas
+- [`docs/SEEDS.md`](../../docs/SEEDS.md) — seed vs preset (uma vez na criação)
+- [`docs/CORE_VERSION.md`](../../docs/CORE_VERSION.md) — versão do core por implantação

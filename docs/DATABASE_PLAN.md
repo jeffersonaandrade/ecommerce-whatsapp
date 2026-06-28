@@ -1,6 +1,6 @@
 # DATABASE_PLAN — Sports Store (Supabase)
 
-**Modelo:** single-tenant — 1 projeto Supabase por cliente.  
+**Modelo:** 1 projeto Supabase por cliente (core compartilhado, bancos isolados). Ver [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md), [`SEEDS.md`](SEEDS.md) e [`COMPATIBILITY.md`](COMPATIBILITY.md).  
 **Referências:** [`HANDOFF.md`](HANDOFF.md), [`DOMAIN_MODEL.md`](DOMAIN_MODEL.md), [`types/product.ts`](../types/product.ts), [`types/store-settings.ts`](../types/store-settings.ts)
 
 ---
@@ -42,9 +42,11 @@ Storage buckets (não relacional):
 
 **Arquivo canônico (DDL):** [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql)
 
-Aplicar novas migrations via **MCP Supabase** (`apply_migration`). Após aplicar, adicionar o bloco SQL no arquivo acima com o nome/version da migration.
+Aplicar novas migrations via **MCP Supabase** (`apply_migration`) **em cada projeto Supabase** do cliente. Após aplicar, adicionar o bloco SQL no arquivo acima com o nome/version da migration. Política de compatibilidade: [`COMPATIBILITY.md`](COMPATIBILITY.md).
 
-### Registro aplicado (produção UnitSports)
+### Registro aplicado (implantação UnitSports — referência)
+
+Projeto Supabase isolado (`unitsports`). Outras lojas replicam o mesmo schema via migrations do core; seeds de implantação inicial: [`SEEDS.md`](SEEDS.md).
 
 | Version | Nome | Descrição |
 |---------|------|-----------|

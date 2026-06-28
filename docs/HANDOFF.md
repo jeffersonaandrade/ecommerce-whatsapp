@@ -6,6 +6,21 @@
 **Produção:** https://loja-whats.netlify.app  
 **Posicionamento:** MVP funcional (não “demo”)
 
+**UnitSports** = primeira **implantação** de referência (`deploy/clients/unitsports/`), não o nome do produto.
+
+---
+
+## Estratégia multi-cliente
+
+```text
+1 código (core) → vários deploys Netlify → 1 Supabase por loja
+```
+
+- **Não** multi-tenant no mesmo banco · **Não** fork por cliente · **Não** `if (storeName === 'UnitSports')`
+- Config por loja: `store_settings` + env Netlify · Versão do core: [`CORE_VERSION.md`](CORE_VERSION.md)
+- Novo cliente: [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md) + [`deploy/clients/template/go-live-checklist.md`](../deploy/clients/template/go-live-checklist.md)
+- Auditoria de acoplamentos: [`MULTI_CLIENT_AUDIT.md`](MULTI_CLIENT_AUDIT.md)
+
 ---
 
 ## 1. Estado atual do produto
@@ -43,7 +58,7 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 - Checkout online / gateway
 - Upload self-service de logo no admin (fora do MVP — ver §1.1)
 
-### 1.1 Logo e identidade visual (MVP UnitSports)
+### 1.1 Logo e identidade visual (implantação UnitSports)
 
 **Escopo cliente (admin):** produtos, CSV, fotos de produto, hero/banner, textos e contatos em `/admin/settings`. **Sem** upload de logo pelo lojista.
 

@@ -4,6 +4,10 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
+## Core multi-cliente
+
+Um **único código** (core) alimenta várias lojas: cada implantação tem seu Supabase e seu deploy Netlify. **UnitSports** é a primeira implantação de referência — não é o nome do produto. Não adicionar `if (storeName === 'UnitSports')` nem lógica por cliente no código. Configuração por loja via `store_settings` e env por deploy. Ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/CORE_VERSION.md`](docs/CORE_VERSION.md) e [`docs/MULTI_CLIENT_AUDIT.md`](docs/MULTI_CLIENT_AUDIT.md).
+
 ## Supabase (banco de dados)
 
 Alterações de schema e consultas no Postgres remoto devem usar o **MCP Supabase** do projeto (`project-0-ecommerce-sports-supabase`):

@@ -1,0 +1,25 @@
+{
+  "$schema": "Formato documentação — NÃO usar como registry operacional. Ver clients.local.json",
+  "clients": [
+    {
+      "slug": "unitsports",
+      "name": "UnitSports",
+      "netlifySite": "loja-whats",
+      "domain": "https://loja-whats.netlify.app",
+      "supabaseProjectRef": "your-project-ref-here",
+      "coreVersionInstalled": "1.0.0",
+      "status": "production",
+      "features": ["catalog", "import_csv", "media_center", "banners", "onboarding", "whatsapp_cart"]
+    },
+    {
+      "slug": "example-store",
+      "name": "Loja Exemplo",
+      "netlifySite": "example-store-netlify",
+      "domain": "https://example-store.netlify.app",
+      "supabaseProjectRef": "example-ref",
+      "coreVersionInstalled": "1.0.0",
+      "status": "draft",
+      "features": ["catalog", "whatsapp_cart"]
+    }
+  ]
+}
