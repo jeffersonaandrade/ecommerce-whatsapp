@@ -107,14 +107,19 @@ export function PersonalizationSettingsForm({
         </label>
       </div>
 
-      <label className="flex items-center gap-2 text-sm font-medium text-ink">
+      <label className="flex items-start gap-2 text-sm font-medium text-ink">
         <input
           type="checkbox"
           checked={notesRequired}
           onChange={(e) => setNotesRequired(e.target.checked)}
-          className="h-4 w-4 rounded border-hairline"
+          className="mt-0.5 h-4 w-4 rounded border-hairline"
         />
-        Observação obrigatória
+        <span>
+          Exigir observação na personalização
+          <span className="mt-0.5 block text-xs font-normal text-mute">
+            Desmarcado por padrão. O cliente usa observação só para detalhes extras além do nome e número.
+          </span>
+        </span>
       </label>
 
       {error && <p className="text-sm text-error">{error}</p>}

@@ -100,7 +100,7 @@ export function ProductAddonsFields({
 
           <div>
             <label htmlFor="perso-notes" className="mb-1 block text-sm font-medium text-ink">
-              Observação{settings.notesRequired ? ' *' : ''}
+              Observação
             </label>
             <textarea
               id="perso-notes"
@@ -112,12 +112,11 @@ export function ProductAddonsFields({
                 emit(true, name, number, e.target.value)
               }}
               className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-              placeholder={
-                settings.notesRequired
-                  ? 'Obrigatório'
-                  : 'Opcional — detalhes para a confecção'
-              }
+              placeholder="Opcional — detalhes extras que não couberem no nome ou número"
             />
+            <p className="mt-1 text-xs text-mute">
+              Use apenas se precisar informar algo além do nome e número.
+            </p>
           </div>
         </div>
       )}
