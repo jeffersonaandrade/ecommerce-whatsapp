@@ -5,7 +5,6 @@ import { DemoAdminToolbar } from '@/components/admin/demo-admin-toolbar'
 import { DeploymentCenterCard } from '@/components/admin/onboarding/deployment-center-card'
 import { OnboardingMenuActions } from '@/components/admin/onboarding/onboarding-menu-actions'
 import { getButtonClassName } from '@/components/ui/button'
-import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
 
 export const metadata: Metadata = {
@@ -56,7 +55,6 @@ function NavCard({
 }
 
 export default async function AdminPage() {
-  const migrationTools = isMigrationToolsEnabled()
   const allProducts = await getAllProductsAdmin()
   const activeProducts = await getAllProducts()
   const totalProducts = allProducts.length
@@ -121,24 +119,20 @@ export default async function AdminPage() {
               description="Cadastro manual — Fase 4"
               buttonLabel="Criar produto"
             />
-            {migrationTools ? (
-              <>
-                <NavCard
-                  href="/admin/products/media"
-                  emoji="🖼️"
-                  title="Central de Mídia"
-                  description="Inventário e migração de imagens em lote"
-                  buttonLabel="Abrir central"
-                />
-                <NavCard
-                  href="/admin/import"
-                  emoji="📥"
-                  title="Importar CSV"
-                  description="Carga em massa via planilha"
-                  buttonLabel="Importar"
-                />
-              </>
-            ) : null}
+            <NavCard
+              href="/admin/import"
+              emoji="📥"
+              title="Importar CSV"
+              description="Carga em massa via planilha"
+              buttonLabel="Importar"
+            />
+            <NavCard
+              href="/admin/products/media"
+              emoji="🖼️"
+              title="Central de Mídia"
+              description="Inventário e upload de imagens em lote"
+              buttonLabel="Abrir central"
+            />
           </div>
         </section>
 

@@ -10,7 +10,6 @@ import {
   isFinalTourStep,
   resolveApplicableSteps,
   resolveNavigationAfterStep,
-  type TourNavigationContext,
   type TourStepDef,
   type TourStepId,
 } from './tour-steps'
@@ -38,7 +37,6 @@ export type TourControllerCallbacks = {
   onResumeFailed: (stepId: TourStepId) => void
   onTourComplete: (message: string) => void
   reducedMotion: boolean
-  migrationToolsEnabled: boolean
 }
 
 export type TourController = {
@@ -50,10 +48,6 @@ export type TourController = {
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined'
-}
-
-function getNavigationContext(callbacks: TourControllerCallbacks): TourNavigationContext {
-  return { migrationToolsEnabled: callbacks.migrationToolsEnabled }
 }
 
 export function readTourResume(): TourResumePayload | null {
@@ -131,17 +125,15 @@ function buildDriverSteps(
   visibleSteps: TourStepDef[],
   callbacks: TourControllerCallbacks
 ): DriveStep[] {
-  const ctx = getNavigationContext(callbacks)
-
   return visibleSteps.map((stepDef, index) => {
-    const isFinalStep = isFinalTourStep(stepDef, ctx)
+    const isFinalStep = isFinalTourStep(stepDef)
     const isFirst = index === 0
 
     const driveStep: DriveStep = {
       element: stepDef.target,
       popover: {
         title: stepDef.title,
-        description: formatStepDescription(stepDef, ctx),
+        description: formatStepDescription(stepDef),
         showButtons: ['previous', 'next', 'close'],
         nextBtnText: isFinalStep ? 'Concluir' : 'Próximo',
         prevBtnText: 'Voltar',
@@ -158,7 +150,7 @@ function buildDriverSteps(
                 driverInstance.moveNext()
               }
             : (_element, _step, { driver: driverInstance }) => {
-                const target = resolveNavigationAfterStep(stepDef.id, ctx)
+                const target = resolveNavigationAfterStep(stepDef.id)
                 if (!target) {
                   tourDebug('navigate skipped', { from: stepDef.id, reason: 'no-next-step' })
                   return
@@ -227,8 +219,7 @@ export function createTourController(callbacks: TourControllerCallbacks): TourCo
   }
 
   function driveAtStepId(stepId: TourStepId) {
-    const ctx = getNavigationContext(callbacks)
-    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS, ctx)
+    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS)
     const visibleSteps = resolveVisibleSteps(applicable)
     const stepDef = getStepById(stepId, visibleSteps)
     if (!stepDef) {

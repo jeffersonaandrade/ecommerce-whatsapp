@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { ImportWizard } from '@/components/admin/import/import-wizard'
-import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 
 export const metadata: Metadata = {
@@ -11,8 +9,6 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminImportPage() {
-  if (!isMigrationToolsEnabled()) notFound()
-
   const settings = await getStoreSettings()
 
   return (

@@ -38,31 +38,20 @@ describe('tour-steps', () => {
     }
   })
 
-  it('skips migration-only steps when flag is off', () => {
-    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS, { migrationToolsEnabled: false })
-    expect(applicable.map((s) => s.id)).not.toContain('import-wizard')
-    expect(applicable.map((s) => s.id)).not.toContain('media-center')
-    expect(applicable.map((s) => s.id)).toContain('categories-list')
-    expect(applicable).toHaveLength(6)
-  })
-
-  it('includes migration steps when flag is on', () => {
-    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS, { migrationToolsEnabled: true })
+  it('includes import and media in applicable steps', () => {
+    const applicable = resolveApplicableSteps(FULL_TOUR_STEPS)
+    expect(applicable.map((s) => s.id)).toContain('import-wizard')
+    expect(applicable.map((s) => s.id)).toContain('media-center')
     expect(applicable).toHaveLength(8)
   })
 
-  it('navigates from settings to import when migration tools enabled', () => {
-    const target = resolveNavigationAfterStep('settings-form', { migrationToolsEnabled: true })
+  it('navigates from settings to import', () => {
+    const target = resolveNavigationAfterStep('settings-form')
     expect(target).toEqual({ path: '/admin/import', resumeStepId: 'import-wizard' })
   })
 
-  it('navigates from settings to categories when migration tools disabled', () => {
-    const target = resolveNavigationAfterStep('settings-form', { migrationToolsEnabled: false })
-    expect(target).toEqual({ path: '/admin/categories', resumeStepId: 'categories-list' })
-  })
-
-  it('navigates from import to media when migration tools enabled', () => {
-    const target = resolveNavigationAfterStep('import-wizard', { migrationToolsEnabled: true })
+  it('navigates from import to media', () => {
+    const target = resolveNavigationAfterStep('import-wizard')
     expect(target).toEqual({ path: '/admin/products/media', resumeStepId: 'media-center' })
   })
 })

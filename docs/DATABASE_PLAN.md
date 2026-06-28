@@ -375,7 +375,6 @@ DROP POLICY IF EXISTS "products_authenticated_write" ON storage.objects;
 | `SUPABASE_SERVICE_ROLE_KEY` | Netlify + local (server only) | Service role — **nunca** expor no client |
 | `DATA_PROVIDER` | Netlify + local | `json` (default) ou `supabase` |
 | `NEXT_PUBLIC_DATA_PROVIDER` | Netlify + local | Espelho público para Auth no browser |
-| `ENABLE_MIGRATION_TOOLS` | Netlify + local | `true` habilita Import CSV e Central de Mídia no admin (onboarding). Default: desligado (`notFound()` nas rotas) |
 
 Copie [`.env.local.example`](../.env.local.example) para `.env.local`.
 
@@ -425,12 +424,11 @@ Lê `storage/catalog.json` (ou `catalog.seed.json`) + `storage/store-settings.js
 ## Onboarding 1º cliente
 
 1. Identidade — nome, WhatsApp, logo via `/admin/settings`
-2. `ENABLE_MIGRATION_TOOLS=true` — habilitar Import CSV + Central de Mídia durante onboarding
-3. Import CSV — catálogo real (RPC transacional)
-4. Migração imagens — dry-run → upload seguros → validação manual (`scripts/README.md`)
+2. Import CSV — catálogo em lote via `/admin/import`
+3. Central de Mídia — revisar/associar imagens via `/admin/products/media`
+4. Migração imagens (operador) — dry-run → upload seguros → validação manual (`scripts/README.md`)
 5. Publicar produtos aprovados (`draft` → `active`)
 6. Validar pedido WhatsApp em produção
-7. Desligar `ENABLE_MIGRATION_TOOLS` quando catálogo estiver estável
 8. Registrar fricções → backlog Sprint 4+
 
 ---

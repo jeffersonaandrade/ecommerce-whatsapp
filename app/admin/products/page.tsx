@@ -10,7 +10,6 @@ import { FilterBar } from '@/components/admin/filter-bar'
 import { ProductsTable } from '@/components/admin/products-table'
 import { queryProductsAdmin } from '@/lib/products'
 import { getAllCategoriesAdmin } from '@/lib/categories'
-import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import type { ProductQuery, ProductFilters, ProductSort } from '@/lib/query'
 import type { ProductStatus } from '@/types/product'
 
@@ -34,7 +33,6 @@ export default async function AdminProductsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>
 }) {
-  const migrationTools = isMigrationToolsEnabled()
   const params = await searchParams
 
   const rawStatus = params.status as ProductStatus | undefined
@@ -87,14 +85,18 @@ export default async function AdminProductsPage({
         subtitle={`${result.total} produto${result.total !== 1 ? 's' : ''} encontrado${result.total !== 1 ? 's' : ''}`}
         actions={
           <div className="flex flex-wrap gap-3">
-            {migrationTools ? (
-              <Link
-                href="/admin/products/media"
-                className={getButtonClassName('secondary', 'md', '!text-ink')}
-              >
-                Central de Mídia
-              </Link>
-            ) : null}
+            <Link
+              href="/admin/import"
+              className={getButtonClassName('secondary', 'md', '!text-ink')}
+            >
+              Importar CSV
+            </Link>
+            <Link
+              href="/admin/products/media"
+              className={getButtonClassName('secondary', 'md', '!text-ink')}
+            >
+              Central de Mídia
+            </Link>
             <Link
               href="/admin/products/new"
               className={getButtonClassName('secondary', 'md', '!text-ink')}

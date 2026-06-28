@@ -13,22 +13,14 @@ Todos assumem execução na raiz do repositório.
 | **QA** | Smoke, E2E, verificação de regressão | `qa/e2e-qa-playwright.mjs`, `qa/smoke-supabase-local.mjs` |
 | **Legacy/Dev** | JSON local, utilitários de desenvolvimento | `migration/migrate-json-to-supabase.mjs`, `dev/start-headroom-cursor.ps1` |
 
-### Feature flag `ENABLE_MIGRATION_TOOLS`
+### Catálogo em lote (admin)
 
-Controla rotas admin de onboarding:
+Sempre disponíveis no painel:
 
 - `/admin/import` — wizard CSV
 - `/admin/products/media` — Central de Mídia
-- Cards correspondentes no dashboard admin
 
-Implementação: [`lib/env/migration-tools.ts`](../lib/env/migration-tools.ts).
-
-| Ambiente | Valor recomendado |
-|----------|-------------------|
-| Onboarding / migração UnitSports | `ENABLE_MIGRATION_TOOLS=true` |
-| Produção estável pós-validação cliente | `ENABLE_MIGRATION_TOOLS=false` (ou omitir) |
-
-**Não remover** o código — apenas desligar via env após o cliente validar imagens e catálogo.
+Scripts operador (`migrate:images:*`) em [`operator/README.md`](operator/README.md).
 
 ## `operator/` (referência)
 

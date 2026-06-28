@@ -1,8 +1,6 @@
 import { Metadata } from 'next'
-import { notFound } from 'next/navigation'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { MediaCenter } from '@/components/admin/media/media-center'
-import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllProductsAdmin, queryProductsAdmin } from '@/lib/products'
 import { getSupabaseUrl } from '@/lib/supabase/env'
 import type { ProductQuery } from '@/lib/query'
@@ -17,8 +15,6 @@ export default async function AdminProductsMediaPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>
 }) {
-  if (!isMigrationToolsEnabled()) notFound()
-
   const params = await searchParams
   const pageSize = [25, 50, 100, 200].includes(Number(params.size))
     ? Number(params.size)

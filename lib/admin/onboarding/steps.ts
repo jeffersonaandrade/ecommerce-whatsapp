@@ -24,6 +24,6 @@ export const OPTIONAL_ONBOARDING_STEP: WeightedStepDef = {
   weight: 0,
 }
 
-export function productsHref(migrationTools: boolean): string {
-  return migrationTools ? '/admin/import' : '/admin/products/new'
+export function productsHref(): string {
+  return '/admin/import'
 }

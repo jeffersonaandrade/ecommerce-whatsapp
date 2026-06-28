@@ -81,7 +81,6 @@ describe('createTourController resume failure', () => {
     const onResumeFailed = vi.fn()
     const controller = createTourController({
       reducedMotion: true,
-      migrationToolsEnabled: false,
       onNavigate: vi.fn(),
       onTourActiveChange: vi.fn(),
       onResumeFailed,

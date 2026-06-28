@@ -36,14 +36,12 @@ const AdminOnboardingContext = createContext<AdminOnboardingContextValue | null>
 type AdminOnboardingProviderProps = {
   initialState: AdminOnboardingState
   initialProgress: OnboardingProgress
-  migrationToolsEnabled: boolean
   children: ReactNode
 }
 
 export function AdminOnboardingProvider({
   initialState,
   initialProgress,
-  migrationToolsEnabled,
   children,
 }: AdminOnboardingProviderProps) {
   const pathname = usePathname()
@@ -124,7 +122,6 @@ export function AdminOnboardingProvider({
     <AdminOnboardingContext.Provider value={value}>
       {children}
       <AdminTourDriver
-        migrationToolsEnabled={migrationToolsEnabled}
         onActiveChange={setIsTourActive}
         onTourComplete={handleTourComplete}
         startTourRef={startTourRef}

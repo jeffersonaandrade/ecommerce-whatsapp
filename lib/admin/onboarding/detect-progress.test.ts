@@ -72,7 +72,6 @@ function snapshot(overrides: Partial<OnboardingSnapshot> = {}): OnboardingSnapsh
     activeProducts: [],
     categories: [],
     slides: [],
-    migrationTools: false,
     supabaseUrl: 'https://example.supabase.co',
     ...overrides,
   }
@@ -189,10 +188,10 @@ describe('computeOnboardingProgressFromSnapshot', () => {
     expect(progress.storeMature).toBe(true)
   })
 
-  it('includes optional media step when migration tools enabled', () => {
+  it('includes optional media step', () => {
     const progress = computeOnboardingProgressFromSnapshot(
       createDefaultOnboardingState(),
-      snapshot({ migrationTools: true, allProducts: [product({ status: 'active', images: [] })] })
+      snapshot({ allProducts: [product({ status: 'active', images: [] })] })
     )
 
     expect(progress.items.some((i) => i.id === 'review-media')).toBe(true)

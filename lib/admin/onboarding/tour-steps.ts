@@ -14,7 +14,6 @@ export type TourStepDef = {
   route: string
   title: string
   description: string
-  requiresMigrationTools?: boolean
   skipIfMissing?: boolean
 }
 
@@ -75,7 +74,6 @@ export const OPERATIONS_TOUR_STEPS: TourStepDef[] = [
     title: 'Importar produtos',
     description:
       'Envie uma planilha CSV para cadastrar produtos em massa. Baixe o template de exemplo na página.',
-    requiresMigrationTools: true,
     skipIfMissing: true,
   },
   {
@@ -84,8 +82,7 @@ export const OPERATIONS_TOUR_STEPS: TourStepDef[] = [
     route: '/admin/products/media',
     title: 'Central de Mídia',
     description:
-      'Revise e migre imagens dos produtos importados antes de publicar na vitrine.',
-    requiresMigrationTools: true,
+      'Revise e associe imagens dos produtos importados antes de publicar na vitrine.',
     skipIfMissing: true,
   },
   {
@@ -120,25 +117,15 @@ export const FULL_TOUR_STEPS: TourStepDef[] = [...INTRO_TOUR_STEPS, ...OPERATION
 /** Intro-only steps (legacy alias) */
 export const PHASE_2_TOUR_STEPS = INTRO_TOUR_STEPS
 
-export type TourNavigationContext = {
-  migrationToolsEnabled: boolean
-}
-
-export function resolveApplicableSteps(
-  steps: TourStepDef[] = FULL_TOUR_STEPS,
-  ctx: TourNavigationContext
-): TourStepDef[] {
-  return steps.filter(
-    (step) => !step.requiresMigrationTools || ctx.migrationToolsEnabled
-  )
+export function resolveApplicableSteps(steps: TourStepDef[] = FULL_TOUR_STEPS): TourStepDef[] {
+  return steps
 }
 
 export function resolveNavigationAfterStep(
   fromStepId: TourStepId,
-  ctx: TourNavigationContext,
   steps: TourStepDef[] = FULL_TOUR_STEPS
 ): { path: string; resumeStepId: TourStepId } | null {
-  const applicable = resolveApplicableSteps(steps, ctx)
+  const applicable = resolveApplicableSteps(steps)
   let nextId = getNextStepId(fromStepId, applicable)
   while (nextId) {
     const step = getStepById(nextId, applicable)
@@ -150,10 +137,9 @@ export function resolveNavigationAfterStep(
 
 export function formatStepDescription(
   stepDef: TourStepDef,
-  ctx: TourNavigationContext,
   steps: TourStepDef[] = FULL_TOUR_STEPS
 ): string {
-  const applicable = resolveApplicableSteps(steps, ctx)
+  const applicable = resolveApplicableSteps(steps)
   const index = findStepIndex(stepDef.id, applicable)
   if (index < 0) return stepDef.description
   return `${stepDef.description}\n\nEtapa ${index + 1} de ${applicable.length}`
@@ -186,10 +172,9 @@ export function getNextStepId(
 
 export function isFinalTourStep(
   stepDef: TourStepDef,
-  ctx: TourNavigationContext,
   steps: TourStepDef[] = FULL_TOUR_STEPS
 ): boolean {
-  const applicable = resolveApplicableSteps(steps, ctx)
+  const applicable = resolveApplicableSteps(steps)
   const last = applicable[applicable.length - 1]
   return last != null && stepDef.id === last.id
 }

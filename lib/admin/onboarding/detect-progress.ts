@@ -7,7 +7,6 @@ import type { Product } from '@/types/product'
 import type { StoreSettings } from '@/types/store-settings'
 import { normalizeBannerVisibility } from '@/lib/banners/banner-viewport'
 import { classifyProductImagesInitial, normalizeSupabaseBaseUrl } from '@/lib/catalog/media/classify-url'
-import { isMigrationToolsEnabled } from '@/lib/env/migration-tools'
 import { getAllBannerSlides } from '@/lib/banners'
 import { getAllCategoriesAdmin } from '@/lib/categories'
 import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
@@ -111,7 +110,6 @@ export type OnboardingSnapshot = {
   activeProducts: Product[]
   categories: Category[]
   slides: BannerSlide[]
-  migrationTools: boolean
   supabaseUrl: string
 }
 
@@ -130,7 +128,6 @@ export async function loadOnboardingSnapshot(): Promise<OnboardingSnapshot> {
     activeProducts,
     categories,
     slides,
-    migrationTools: isMigrationToolsEnabled(),
     supabaseUrl: normalizeSupabaseBaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL),
   }
 }
@@ -139,8 +136,7 @@ export function computeOnboardingProgressFromSnapshot(
   state: AdminOnboardingState,
   snapshot: OnboardingSnapshot
 ): OnboardingProgress {
-  const { settings, allProducts, activeProducts, categories, slides, migrationTools, supabaseUrl } =
-    snapshot
+  const { settings, allProducts, activeProducts, categories, slides, supabaseUrl } = snapshot
 
   const weightedItems: OnboardingProgressItem[] = WEIGHTED_ONBOARDING_STEPS.map((step) => {
     let completed = false
@@ -153,7 +149,7 @@ export function computeOnboardingProgressFromSnapshot(
         completed = isProductsStepComplete(activeProducts)
         autoCompleted = completed
         context = productsContext(allProducts, activeProducts)
-        href = productsHref(migrationTools)
+        href = productsHref()
         break
       case 'store-settings':
         completed = isStoreSettingsComplete(settings)
@@ -203,23 +199,21 @@ export function computeOnboardingProgressFromSnapshot(
   })
 
   const optionalItems: OnboardingProgressItem[] = []
-  if (migrationTools) {
-    const mediaIssues = countMediaIssues(allProducts, supabaseUrl)
-    optionalItems.push({
-      id: OPTIONAL_ONBOARDING_STEP.id,
-      label: OPTIONAL_ONBOARDING_STEP.label,
-      href: OPTIONAL_ONBOARDING_STEP.href,
-      weight: 0,
-      completed: mediaIssues === 0 && allProducts.length > 0,
-      autoCompleted: true,
-      context:
-        allProducts.length === 0
-          ? 'Cadastre produtos primeiro'
-          : mediaIssues === 0
-            ? 'Imagens associadas'
-            : `${mediaIssues} produto${mediaIssues === 1 ? '' : 's'} com imagem pendente`,
-    })
-  }
+  const mediaIssues = countMediaIssues(allProducts, supabaseUrl)
+  optionalItems.push({
+    id: OPTIONAL_ONBOARDING_STEP.id,
+    label: OPTIONAL_ONBOARDING_STEP.label,
+    href: OPTIONAL_ONBOARDING_STEP.href,
+    weight: 0,
+    completed: mediaIssues === 0 && allProducts.length > 0,
+    autoCompleted: true,
+    context:
+      allProducts.length === 0
+        ? 'Cadastre produtos primeiro'
+        : mediaIssues === 0
+          ? 'Imagens associadas'
+          : `${mediaIssues} produto${mediaIssues === 1 ? '' : 's'} com imagem pendente`,
+  })
 
   const items = [...weightedItems, ...optionalItems]
   const percentComplete = weightedItems.reduce(

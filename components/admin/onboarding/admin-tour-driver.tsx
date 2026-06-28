@@ -15,14 +15,12 @@ import './admin-tour-theme.css'
 const RESUME_FAILED_MESSAGE = 'Não foi possível continuar o tutorial.'
 
 type AdminTourDriverProps = {
-  migrationToolsEnabled: boolean
   onActiveChange: (active: boolean) => void
   onTourComplete: (message: string) => void
   startTourRef: MutableRefObject<((stepId?: TourStepId) => void) | null>
 }
 
 export function AdminTourDriver({
-  migrationToolsEnabled,
   onActiveChange,
   onTourComplete,
   startTourRef,
@@ -64,7 +62,6 @@ export function AdminTourDriver({
   useEffect(() => {
     const controller = createTourController({
       reducedMotion: prefersReducedMotion,
-      migrationToolsEnabled,
       onNavigate: (path) => router.push(path),
       onTourActiveChange: onActiveChange,
       onResumeFailed: () => showToast(RESUME_FAILED_MESSAGE),
@@ -80,7 +77,7 @@ export function AdminTourDriver({
       controller.destroy()
       controllerRef.current = null
     }
-  }, [migrationToolsEnabled, onActiveChange, onTourComplete, prefersReducedMotion, router, showToast])
+  }, [onActiveChange, onTourComplete, prefersReducedMotion, router, showToast])
 
   useEffect(() => {
     const resume = readTourResume()

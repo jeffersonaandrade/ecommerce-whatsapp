@@ -36,8 +36,8 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **WhatsApp** | ✅ | `buildWhatsAppMessage` + `#TEMP-YYYYMMDD-NNNN` + testes |
 | **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; ordem fotos (posição 1 = destaque); redirect pós-create → edit `?created=1`; banner visibilidade na loja |
 | **Categorias** | ✅ | CRUD v1.1 (`/admin/categories`); PLP/home com slugs; select no produto; CSV `CSV_E008` |
-| **Importação CSV** | ✅ | Wizard (`/admin/import`); RPC transacional `apply_product_import_batch`; revalidação SKU pós-upsert; **sem** histórico (CSV-5). Rota oculta quando `ENABLE_MIGRATION_TOOLS≠true` |
-| **Central de Mídia** | 🟡 | `/admin/products/media` — inventário URL, wizard upload, associação por filename. Oculta por default (`ENABLE_MIGRATION_TOOLS`). Migração local→Storage: **56** OK · **35** ambíguos pendentes validação cliente |
+| **Importação CSV** | ✅ | Wizard (`/admin/import`); RPC transacional `apply_product_import_batch`; revalidação SKU pós-upsert; **sem** histórico (CSV-5). Sempre disponível no admin |
+| **Central de Mídia** | 🟡 | `/admin/products/media` — inventário URL, wizard upload, associação por filename. Sempre disponível no admin. Migração local→Storage: **56** OK · **35** ambíguos pendentes validação cliente |
 | **Branding** | ✅ | Logo/favicon/OG via Storage + `/api/branding/*`; **upload self-service de logo fora do MVP** (implantação/suporte) |
 | **Hero configurável** | ✅ | 1 hero em `StoreSettings`; grid de produtos removido do hero (Fase 0) |
 | **Institucional** | ✅ | `/sobre`, `/contato`, `/politica-de-trocas` via settings |
@@ -367,16 +367,14 @@ Sem aprovação explícita, **não implementar**:
 
 ---
 
-## 7.1 `ENABLE_MIGRATION_TOOLS` (operador)
+## 7.1 Ferramentas de catálogo em lote (admin)
 
-| Variável | Efeito |
-|----------|--------|
-| `true` | Exibe `/admin/import`, `/admin/products/media` e cards no dashboard |
-| `false` / omitida | Rotas retornam 404; cards ocultos — **padrão produção estável** |
+| Rota | Disponibilidade |
+|------|-----------------|
+| `/admin/import` | Sempre — importação CSV |
+| `/admin/products/media` | Sempre — Central de Mídia |
 
-Código: [`lib/env/migration-tools.ts`](../lib/env/migration-tools.ts). Scripts: [`scripts/README.md`](../scripts/README.md) · [`scripts/operator/README.md`](../scripts/operator/README.md).
-
-**Pós-validação cliente UnitSports:** definir `ENABLE_MIGRATION_TOOLS=false` no Netlify. Manter scripts `migrate:images:*` no repo.
+Scripts operador de migração local→Storage: [`scripts/README.md`](../scripts/README.md) · [`scripts/operator/README.md`](../scripts/operator/README.md).
 
 ## 7.2 Auditorias futuras (ref. jun/2026)
 
