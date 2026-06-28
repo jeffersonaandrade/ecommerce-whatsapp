@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useCart, useProductPersonalizationPrice } from '@/context/cart-context'
+import { hasPersonalizationAddons } from '@/lib/personalization/validate-personalization'
+import {
+  FROM_CART_PARAM,
+  shouldReplaceUnpersonalizedCartLine,
+} from '@/lib/cart/personalization-shortcut'
 import {
   findDefaultVariation,
   findVariation,
@@ -29,11 +34,13 @@ function optionClass(selected: boolean): string {
 
 export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   const searchParams = useSearchParams()
-  const { addItem, personalizationSettings } = useCart()
+  const { addItem, removeItem, updateQuantity, items, personalizationSettings } =
+    useCart()
   const personalizationUnitPrice = useProductPersonalizationPrice(product)
   const personalizationRef = useRef<HTMLDivElement>(null)
 
   const personalizarIntent = searchParams.get('personalizar') === '1'
+  const fromCartIntent = searchParams.get(FROM_CART_PARAM) === '1'
   const variationParam = searchParams.get('variation')?.trim() ?? ''
 
   const presetVariation = useMemo(() => {
@@ -103,6 +110,34 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
       addonEnabled && personalization
         ? { personalization }
         : undefined
+
+    if (
+      shouldReplaceUnpersonalizedCartLine({
+        fromCartIntent,
+        personalizarIntent,
+        hasPersonalization: hasPersonalizationAddons(addons),
+      })
+    ) {
+      const unpersonalizedLine = items.find(
+        (item) =>
+          item.productId === product.id &&
+          item.variationId === selectedVariation.id &&
+          !hasPersonalizationAddons(item.addons)
+      )
+
+      if (unpersonalizedLine) {
+        if (unpersonalizedLine.quantity <= 1) {
+          removeItem(product.id, selectedVariation.id, undefined)
+        } else {
+          updateQuantity(
+            product.id,
+            selectedVariation.id,
+            unpersonalizedLine.quantity - 1,
+            undefined
+          )
+        }
+      }
+    }
 
     const error = addItem(product.id, selectedVariation.id, 1, addons)
     if (error) {

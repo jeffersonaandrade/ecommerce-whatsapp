@@ -82,7 +82,9 @@ describe('CartLineItem — atalho de personalização', () => {
       screen.getByText('Você será levado ao produto para preencher a personalização.')
     ).toBeTruthy()
     const link = screen.getByRole('link', { name: 'Adicionar nome e número' })
-    expect(link.getAttribute('href')).toBe('/products/camisa-x?personalizar=1&variation=v1')
+    expect(link.getAttribute('href')).toBe(
+      '/products/camisa-x?personalizar=1&fromCart=1&variation=v1'
+    )
   })
 
   it('não mostra atalho quando item já tem personalização', () => {

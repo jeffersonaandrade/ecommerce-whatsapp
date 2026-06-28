@@ -8,6 +8,16 @@ import { Product } from '@/types/product'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 
 const mockAddItem = vi.fn()
+const mockRemoveItem = vi.fn()
+const mockUpdateQuantity = vi.fn()
+const mockItems = vi.hoisted(() => ({
+  current: [] as Array<{
+    productId: string
+    variationId: string
+    quantity: number
+    addons?: { personalization?: { name: string; number: string } }
+  }>,
+}))
 const mockSearchParams = vi.hoisted(() => ({
   get: vi.fn(() => null as string | null),
 }))
@@ -34,6 +44,9 @@ vi.mock('next/navigation', () => ({
 vi.mock('@/context/cart-context', () => ({
   useCart: () => ({
     addItem: mockAddItem,
+    removeItem: mockRemoveItem,
+    updateQuantity: mockUpdateQuantity,
+    items: mockItems.current,
     personalizationSettings: mockSettings.current,
   }),
   useProductPersonalizationPrice: (product: Product) =>
@@ -61,6 +74,9 @@ describe('ProductPurchasePanel — personalização', () => {
   beforeEach(() => {
     cleanup()
     mockAddItem.mockReset()
+    mockRemoveItem.mockReset()
+    mockUpdateQuantity.mockReset()
+    mockItems.current = []
     mockSearchParams.get.mockReset()
     mockSearchParams.get.mockReturnValue(null)
     mockSettings.current.enabled = true
@@ -124,5 +140,63 @@ describe('ProductPurchasePanel — personalização', () => {
 
     const sizeButton = screen.getByRole('button', { name: 'M' })
     expect(sizeButton.getAttribute('aria-pressed')).toBe('true')
+  })
+
+  it('substitui linha sem personalização ao adicionar via atalho do carrinho', async () => {
+    mockSearchParams.get.mockImplementation((key: string) => {
+      if (key === 'personalizar') return '1'
+      if (key === 'fromCart') return '1'
+      if (key === 'variation') return 'v1'
+      return null
+    })
+    mockItems.current = [
+      { productId: '1', variationId: 'v1', quantity: 1 },
+    ]
+    mockAddItem.mockReturnValue(null)
+
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const user = userEvent.setup()
+
+    render(<ProductPurchasePanel product={baseProduct} />)
+
+    await user.type(screen.getByLabelText('Nome na camisa'), 'Jeff')
+    await user.type(screen.getByLabelText('Número'), '10')
+    await user.click(screen.getByRole('button', { name: 'Adicionar ao Carrinho' }))
+
+    expect(mockRemoveItem).toHaveBeenCalledWith('1', 'v1', undefined)
+    expect(mockUpdateQuantity).not.toHaveBeenCalled()
+    expect(mockAddItem).toHaveBeenCalledWith(
+      '1',
+      'v1',
+      1,
+      expect.objectContaining({
+        personalization: expect.objectContaining({ name: 'Jeff', number: '10' }),
+      })
+    )
+  })
+
+  it('decrementa qty da linha sem personalização quando qty > 1', async () => {
+    mockSearchParams.get.mockImplementation((key: string) => {
+      if (key === 'personalizar') return '1'
+      if (key === 'fromCart') return '1'
+      if (key === 'variation') return 'v1'
+      return null
+    })
+    mockItems.current = [
+      { productId: '1', variationId: 'v1', quantity: 3 },
+    ]
+    mockAddItem.mockReturnValue(null)
+
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const user = userEvent.setup()
+
+    render(<ProductPurchasePanel product={baseProduct} />)
+
+    await user.type(screen.getByLabelText('Nome na camisa'), 'Jeff')
+    await user.type(screen.getByLabelText('Número'), '10')
+    await user.click(screen.getByRole('button', { name: 'Adicionar ao Carrinho' }))
+
+    expect(mockUpdateQuantity).toHaveBeenCalledWith('1', 'v1', 2, undefined)
+    expect(mockRemoveItem).not.toHaveBeenCalled()
   })
 })

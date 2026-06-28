@@ -21,10 +21,25 @@ export function canShowPersonalizationShortcut(
   return true
 }
 
+export const FROM_CART_PARAM = 'fromCart'
+
 export function buildPersonalizationPdpUrl(slug: string, variationId: string): string {
   const params = new URLSearchParams({
     personalizar: '1',
+    fromCart: '1',
     variation: variationId,
   })
   return `/products/${slug}?${params.toString()}`
+}
+
+export function shouldReplaceUnpersonalizedCartLine(input: {
+  fromCartIntent: boolean
+  personalizarIntent: boolean
+  hasPersonalization: boolean
+}): boolean {
+  return (
+    input.fromCartIntent &&
+    input.personalizarIntent &&
+    input.hasPersonalization
+  )
 }

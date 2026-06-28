@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildPersonalizationPdpUrl,
   canShowPersonalizationShortcut,
+  shouldReplaceUnpersonalizedCartLine,
 } from './personalization-shortcut'
 import { Product } from '@/types/product'
 
@@ -102,9 +103,41 @@ describe('canShowPersonalizationShortcut', () => {
 })
 
 describe('buildPersonalizationPdpUrl', () => {
-  it('monta URL com personalizar e variation', () => {
+  it('monta URL com personalizar, fromCart e variation', () => {
     expect(buildPersonalizationPdpUrl('camisa-x', 'v1')).toBe(
-      '/products/camisa-x?personalizar=1&variation=v1'
+      '/products/camisa-x?personalizar=1&fromCart=1&variation=v1'
     )
+  })
+})
+
+describe('shouldReplaceUnpersonalizedCartLine', () => {
+  it('retorna true quando fluxo veio do carrinho com personalização', () => {
+    expect(
+      shouldReplaceUnpersonalizedCartLine({
+        fromCartIntent: true,
+        personalizarIntent: true,
+        hasPersonalization: true,
+      })
+    ).toBe(true)
+  })
+
+  it('retorna false sem intent fromCart', () => {
+    expect(
+      shouldReplaceUnpersonalizedCartLine({
+        fromCartIntent: false,
+        personalizarIntent: true,
+        hasPersonalization: true,
+      })
+    ).toBe(false)
+  })
+
+  it('retorna false sem personalização', () => {
+    expect(
+      shouldReplaceUnpersonalizedCartLine({
+        fromCartIntent: true,
+        personalizarIntent: true,
+        hasPersonalization: false,
+      })
+    ).toBe(false)
   })
 })
