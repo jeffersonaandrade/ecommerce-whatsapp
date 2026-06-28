@@ -40,14 +40,32 @@ type MediaProductRowProps = {
   probe: ImageProbeMap
   probing: boolean
   onImageResult?: (url: string, ok: boolean) => void
+  selected?: boolean
+  onToggle?: () => void
 }
 
-export function MediaProductRow({ item, probe, probing, onImageResult }: MediaProductRowProps) {
+export function MediaProductRow({
+  item,
+  probe,
+  probing,
+  onImageResult,
+  selected = false,
+  onToggle,
+}: MediaProductRowProps) {
   const status = getResolvedStatus(item, probe, probing)
   const thumb = item.images[0]
 
   return (
-    <tr>
+    <tr className={selected ? 'bg-soft-cloud' : undefined}>
+      <td className="px-4 py-3">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggle}
+          aria-label={`Selecionar ${item.name}`}
+          className="h-4 w-4 rounded border-hairline accent-ink"
+        />
+      </td>
       <td className="px-4 py-3">
         <div className="relative h-14 w-14 overflow-hidden rounded-md bg-soft-cloud">
           {thumb ? (
