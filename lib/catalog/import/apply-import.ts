@@ -1,22 +1,13 @@
 import { ParsedProduct, ImportApplyResult } from './types'
 import { ProductInput, ProductRepository, VariationInput } from '@/lib/catalog/product-repository'
 import { deriveShortDescription, deriveShortFromHtml, stripHtml } from '@/lib/catalog/product-utils'
-import { Product, ProductStatus } from '@/types/product'
+import { resolveImportStatus } from './resolve-import-status'
+import { Product } from '@/types/product'
 
 type ApplyImportOptions = {
   policy: 'active' | 'draft'
   batchId: string
   existingBySlug: Map<string, Product>
-}
-
-function resolveStatus(
-  parsed: ParsedProduct,
-  existing: Product | undefined,
-  policy: 'active' | 'draft'
-): ProductStatus {
-  if (parsed.statusFromCsv) return parsed.statusFromCsv
-  if (existing) return existing.status
-  return policy
 }
 
 function toProductInput(parsed: ParsedProduct, options: ApplyImportOptions): ProductInput {
@@ -38,7 +29,7 @@ function toProductInput(parsed: ParsedProduct, options: ApplyImportOptions): Pro
       size: v.size,
       color: v.color,
     })),
-    status: resolveStatus(parsed, existing, options.policy),
+    status: resolveImportStatus(parsed, existing, options.policy),
     importBatchId: options.batchId,
   }
 }

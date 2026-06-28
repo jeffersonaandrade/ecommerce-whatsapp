@@ -26,10 +26,6 @@ type ImportWizardProps = {
   importStatusPolicy?: 'active' | 'draft'
 }
 
-const POLICY_LABEL: Record<string, string> = {
-  active: 'Ativar automaticamente',
-  draft: 'Manter como Rascunho',
-}
 
 export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps) {
   const router = useRouter()
@@ -163,12 +159,8 @@ export function ImportWizard({ importStatusPolicy = 'draft' }: ImportWizardProps
               CSV para continuar.
             </p>
             <p className="mt-2 text-xs text-mute">
-              Política atual:{' '}
-              <span className="font-medium text-ink">
-                {POLICY_LABEL[importStatusPolicy] ?? 'Rascunho'}
-              </span>{' '}
-              (para alterar, acesse{' '}
-              <a href="/admin/settings" className="underline">Configurações</a>)
+              Produtos <strong>novos</strong> entram sempre como rascunho. Ative na lista de produtos
+              após validar imagens na Central de Mídia.
             </p>
           </div>
 

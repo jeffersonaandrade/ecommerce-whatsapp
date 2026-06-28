@@ -6,6 +6,45 @@ Formato baseado em entradas por fase/sessão. Não remover decisões ou versões
 
 ## [Unreleased]
 
+### Import transacional, PDP galeria e migração de imagens — 2026-06-26
+
+#### fix(db): revalidação SKU pós-upsert na RPC de import
+
+- Migration `20260626224221_import_batch_post_upsert_sku_check` — após upsert de `products`, revalida SKU antes de `product_variations`; conflito → rollback integral
+- Smoke remoto: lote válido OK; SKU de outro produto → exception + contagens inalteradas
+- `scripts/migration/supabase-migrations.sql` + registro em `docs/DATABASE_PLAN.md`
+
+#### fix(storefront): PDP sem HTML cru + galeria interativa
+
+- `stripHtml()` em resumo/descrição/SEO na vitrine (`app/products/[slug]/page.tsx`)
+- `components/product/product-gallery.tsx` — miniaturas clicáveis, setas prev/next, indicador `N/M`
+- Categoria legível via `resolveCategoryDisplayName` (`lib/catalog/category-utils.ts`)
+- Import futuro limpa HTML em `prepare-import-batch.ts` e `apply-import.ts`
+
+#### feat(admin): ordem das fotos na vitrine
+
+- `components/admin/image-gallery-field.tsx` — select "Posição na loja" (1 = destaque)
+- Helper `moveImageToPosition()` exportado + testes `image-gallery-field.test.tsx`
+
+#### feat(catalog): migração operacional de imagens locais → Storage
+
+- `lib/catalog/media/local-image-migration/` — match por URL exata + nome exato + verificação de cor (**nunca** por similaridade de nome)
+- Scripts: `migrate:images:dry-run`, `migrate:images:pilot`, `migrate:images:remaining`, `migrate:images:all-safe`
+- Relatórios: `test-data/reports/LOCAL_IMAGE_MIGRATION_*.md/json`
+- Estado produção UnitSports (2026-06-26): **56** produtos com URLs Storage · **35** ambíguos pendentes validação manual
+
+#### feat(admin): feature flag ferramentas de onboarding
+
+- `lib/env/migration-tools.ts` — `ENABLE_MIGRATION_TOOLS=true` habilita `/admin/import` e `/admin/products/media`; default desligado (`notFound()`)
+
+#### Comandos
+
+- `npm run test` — **207 passed** (47 arquivos)
+- `npm run build:netlify` — OK
+- `graphify update .` — **1410 nós · 3507 arestas · 72 comunidades**
+
+---
+
 ### Admin produto — UX cadastro manual BRL — 2026-06-26
 
 #### fix(admin): preço BRL, validação e publicação na loja

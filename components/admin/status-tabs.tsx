@@ -30,7 +30,10 @@ export function StatusTabs({ counts, labels, paramName = 'status' }: StatusTabsP
   return (
     <div className="flex flex-wrap gap-1">
       {entries.map(([value, label]) => {
-        const count = value === '' ? Object.values(counts).reduce((a, b) => a + b, 0) : (counts[value] ?? 0)
+        const count =
+          value === ''
+            ? (counts.all ?? Object.values(counts).reduce((a, b) => a + b, 0))
+            : (counts[value] ?? 0)
         const isActive = current === value
         return (
           <Link

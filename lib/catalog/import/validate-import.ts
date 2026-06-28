@@ -11,6 +11,7 @@ import {
 import { validateProductImageUrlsLocal } from './check-image-urls'
 import { canonicalImportSlug } from './canonical-import-slug'
 import { csvToRecords } from './parse-csv'
+import { resolveImportStatusForPreview } from './resolve-import-status'
 import {
   CsvRow,
   ImportIssue,
@@ -22,18 +23,12 @@ import {
 export function computeStatusBreakdown(
   products: ParsedProduct[],
   policy: 'active' | 'draft',
-  existingBySlug?: Map<string, { status: string }>
+  existingBySlug?: Map<string, { status: Product['status'] }>
 ): ImportStatusBreakdown {
   return products.reduce(
     (acc, p) => {
-      let status: string
-      if (p.statusFromCsv) {
-        status = p.statusFromCsv
-      } else if (existingBySlug?.has(p.slug)) {
-        status = existingBySlug.get(p.slug)!.status
-      } else {
-        status = policy
-      }
+      const existingStatus = existingBySlug?.get(p.slug)?.status
+      const status = resolveImportStatusForPreview(p, existingStatus, policy)
       if (status === 'active') acc.active++
       else if (status === 'unavailable') acc.unavailable++
       else acc.draft++

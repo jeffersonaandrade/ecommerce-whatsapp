@@ -86,3 +86,15 @@ scripts/migration/upload-local-images-pilot.mjs
 ```
 
 Histórico (CSV-5) adiado — prioridade: validação cliente + publicação catálogo.
+
+## Importação em lote (operacional)
+
+Script para subir vários CSVs PStoom direto no Supabase (RPC `apply_product_import_batch`):
+
+```bash
+npm run import:pstoom
+npm run import:pstoom -- --from 2 --through 10
+npm run import:pstoom -- --dry-run
+```
+
+Por padrão ignora lotes já registrados em `import_batches`, importa em modo parcial (pula SKUs conflitantes) e exige `.env.local` com credenciais Supabase. Relatório: `test-data/reports/PSTOOM_BULK_IMPORT_REPORT.json`.

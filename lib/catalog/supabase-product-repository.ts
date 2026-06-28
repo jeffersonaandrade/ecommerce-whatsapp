@@ -59,6 +59,16 @@ async function fetchAllProducts(): Promise<Product[]> {
   return fetchProducts()
 }
 
+function productTotalStock(product: Product): number {
+  return product.variations.reduce((sum, variation) => sum + variation.stock, 0)
+}
+
+function filterProductsByStock(products: Product[], hasStock: boolean): Product[] {
+  return products.filter((product) =>
+    hasStock ? productTotalStock(product) > 0 : productTotalStock(product) === 0
+  )
+}
+
 function nextProductId(products: Product[]): string {
   const numeric = products
     .map((p) => parseInt(p.id, 10))
@@ -198,6 +208,8 @@ export const supabaseProductRepository: ProductRepository = {
           : 'id'
     const ascending = sort.dir === 'asc'
 
+    const useStockFilter = filters.hasStock !== undefined
+
     let qb = supabase
       .from('products')
       .select('*, product_variations(*)', { count: 'exact' })
@@ -211,9 +223,10 @@ export const supabaseProductRepository: ProductRepository = {
       qb = qb.ilike('name', `%${filters.search}%`)
     }
 
-    qb = qb
-      .order(orderCol, { ascending })
-      .range(offset, offset + pageSize - 1)
+    qb = qb.order(orderCol, { ascending })
+    if (!useStockFilter) {
+      qb = qb.range(offset, offset + pageSize - 1)
+    }
 
     const { data, error, count } = await qb
 
@@ -245,11 +258,13 @@ export const supabaseProductRepository: ProductRepository = {
       }
     }
 
-    // hasStock filter (post-fetch, requires variation data)
-    if (filters.hasStock === true) {
-      products = products.filter(
-        (p) => p.variations.reduce((s, v) => s + v.stock, 0) > 0
-      )
+    let total: number
+    if (useStockFilter) {
+      products = filterProductsByStock(products, filters.hasStock!)
+      total = products.length
+      products = products.slice(offset, offset + pageSize)
+    } else {
+      total = count ?? products.length
     }
 
     // counts: one GROUP BY query ignoring status filter
@@ -275,7 +290,6 @@ export const supabaseProductRepository: ProductRepository = {
       counts = countsResult.data as ProductStatusCounts
     }
 
-    const total = count ?? products.length
     const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
     return { products, total, page, pageSize, totalPages, counts }

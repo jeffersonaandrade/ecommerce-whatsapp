@@ -470,36 +470,12 @@ export function StoreSettingsForm({
         <section className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
           <h2 className="text-lg font-semibold text-ink">Importação</h2>
           <p className="text-sm text-mute">
-            Define o status padrão dos produtos criados via importação CSV quando o CSV não especifica status.
+            Produtos novos importados via CSV entram sempre como <strong>Rascunho</strong>. Ative
+            manualmente na lista de produtos após validar imagens na Central de Mídia. A coluna{' '}
+            <code className="text-xs">status</code> no CSV só rebaixa produtos existentes (rascunho /
+            indisponível).
           </p>
-          <div className="space-y-3">
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="radio"
-                name="importStatusPolicy"
-                value="draft"
-                defaultChecked={settings.importStatusPolicy !== 'active'}
-                className="mt-0.5"
-              />
-              <div>
-                <span className="text-sm font-medium text-ink">Manter como Rascunho (recomendado)</span>
-                <p className="text-xs text-mute">Revisar e ativar manualmente antes de publicar</p>
-              </div>
-            </label>
-            <label className="flex items-start gap-3 cursor-pointer">
-              <input
-                type="radio"
-                name="importStatusPolicy"
-                value="active"
-                defaultChecked={settings.importStatusPolicy === 'active'}
-                className="mt-0.5"
-              />
-              <div>
-                <span className="text-sm font-medium text-ink">Ativar automaticamente</span>
-                <p className="text-xs text-mute">Produtos ficam visíveis na vitrine imediatamente após a importação</p>
-              </div>
-            </label>
-          </div>
+          <input type="hidden" name="importStatusPolicy" value="draft" />
         </section>
 
         <button

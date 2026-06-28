@@ -217,6 +217,7 @@ describe('applyImport', () => {
     expect(result.created).toBe(1)
     expect(result.durationMs).toBeGreaterThanOrEqual(0)
     expect(products).toHaveLength(1)
+    expect(products[0].status).toBe('draft')
     expect(products[0].category).toBe('camisas')
     expect(products[0].variations).toHaveLength(2)
   })

@@ -35,14 +35,19 @@ export default async function AdminProductsPage({
 }) {
   const params = await searchParams
 
-  const rawStatus = params.status as ProductStatus | undefined
-  const status = rawStatus && VALID_STATUSES.has(rawStatus) ? [rawStatus] : undefined
+  const rawStatus = params.status as string | undefined
+  const isNoStockFilter = rawStatus === 'noStock'
+  const status =
+    rawStatus && VALID_STATUSES.has(rawStatus as ProductStatus)
+      ? [rawStatus as ProductStatus]
+      : undefined
 
   const rawSort = params.sort as ProductSort['by'] | undefined
   const sortBy = rawSort && VALID_SORT.has(rawSort) ? rawSort : 'createdAt'
 
   const filters: ProductFilters = {
     status,
+    hasStock: isNoStockFilter ? false : undefined,
     category: params.category || undefined,
     search: params.q || undefined,
     batchId: params.batch || undefined,
@@ -72,6 +77,7 @@ export default async function AdminProductsPage({
   )
 
   const statusCounts: Record<string, number> = {
+    all: result.counts.all,
     active: result.counts.active,
     draft: result.counts.draft,
     unavailable: result.counts.unavailable,

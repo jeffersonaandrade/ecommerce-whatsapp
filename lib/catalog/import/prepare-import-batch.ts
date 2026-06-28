@@ -1,7 +1,8 @@
 import { deriveShortDescription, deriveShortFromHtml, stripHtml } from '@/lib/catalog/product-utils'
 import { canonicalImportSlug } from './canonical-import-slug'
+import { resolveImportStatus } from './resolve-import-status'
 import type { ParsedProduct } from './types'
-import type { Product, ProductStatus, ProductVariation } from '@/types/product'
+import type { Product, ProductVariation } from '@/types/product'
 
 type PrepareImportBatchOptions = {
   batchId: string
@@ -19,14 +20,6 @@ export type PreparedImportBatch = {
   created: number
   updated: number
   skipped: number
-}
-
-function resolveStatus(
-  parsed: ParsedProduct,
-  existing: Product | undefined,
-  policy: 'active' | 'draft'
-): ProductStatus {
-  return parsed.statusFromCsv ?? existing?.status ?? policy
 }
 
 function buildVariations(
@@ -78,7 +71,7 @@ function buildProduct(
     club: parsed.brand?.trim() || undefined,
     images: parsed.images.filter(Boolean).slice(0, 5),
     variations: buildVariations(parsed, existing, idFactory),
-    status: resolveStatus(parsed, existing, options.policy),
+    status: resolveImportStatus(parsed, existing, options.policy),
     importBatchId: options.batchId,
   }
 }

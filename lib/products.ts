@@ -17,6 +17,10 @@ function isStorefrontProduct(product: Product): boolean {
   return product.status === 'active' && !isStorefrontTestResidue(product)
 }
 
+export function isProductInStock(product: Product): boolean {
+  return product.variations.some((v) => v.stock > 0)
+}
+
 export async function getAllProducts(): Promise<Product[]> {
   return (await loadStorefrontCatalog()).filter(isStorefrontProduct)
 }
@@ -26,7 +30,7 @@ export async function getAllProductsAdmin(): Promise<Product[]> {
 }
 
 export async function getFeaturedProducts(limit: number = 6): Promise<Product[]> {
-  return (await getAllProducts()).slice(0, limit)
+  return (await getAllProducts()).filter(isProductInStock).slice(0, limit)
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {

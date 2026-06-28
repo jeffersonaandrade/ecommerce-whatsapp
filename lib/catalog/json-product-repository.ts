@@ -143,6 +143,10 @@ export const jsonProductRepository: ProductRepository = {
       filtered = filtered.filter(
         (p) => p.variations.reduce((s, v) => s + v.stock, 0) > 0
       )
+    } else if (filters.hasStock === false) {
+      filtered = filtered.filter(
+        (p) => p.variations.reduce((s, v) => s + v.stock, 0) === 0
+      )
     }
     if (filters.hasDiscount === true) {
       filtered = filtered.filter(
