@@ -1,5 +1,28 @@
 # Notas operacionais — unitsports
 
+Ficha operacional da primeira implantação de referência. **Sem secrets** — refs sensíveis em `deploy/clients/clients.local.json` (gitignored).
+
+---
+
+## Identidade
+
+| Campo | Valor |
+|-------|-------|
+| slug | `unitsports` |
+| Nome comercial | UnitSports |
+| Domínio público | https://loja-whats.netlify.app |
+| Netlify site | `loja-whats` |
+| Status | production |
+
+---
+
+## Supabase
+
+| Campo | Valor |
+|-------|-------|
+| supabaseProjectRef | Registrar em `clients.local.json` — **não versionar** |
+| Projeto | Isolado (nome operacional: `unitsports`) |
+
 ---
 
 ## Versão do core
@@ -10,41 +33,55 @@
 | lastDeployAt | 2026-06-27 |
 | lastMigrationApplied | 20260627210000_store_onboarding |
 
----
-
-## Supabase / Netlify
-
-| Campo | Valor |
-|-------|-------|
-| netlifySite | loja-whats |
-| domain | https://loja-whats.netlify.app |
-| supabaseProjectRef | (registrar em clients.local.json — não versionar) |
-| status | production |
+Release baseline: [`docs/releases/v1.0.0.md`](../../../docs/releases/v1.0.0.md)
 
 ---
 
-## Migrations aplicadas (referência)
+## Migrations relevantes (resumo)
 
-Registro completo: [`docs/DATABASE_PLAN.md`](../../../docs/DATABASE_PLAN.md) — seção implantação unitsports.
+Últimas migrations aplicadas — registro completo em [`docs/DATABASE_PLAN.md`](../../../docs/DATABASE_PLAN.md):
+
+| Version | Nome |
+|---------|------|
+| `20260626224221` | `import_batch_post_upsert_sku_check` |
+| `20260627153700` | `banner_slide_visibility` |
+| `20260627210000` | `store_onboarding` |
+
+Schema inicial + categorias, import transacional, banners e onboarding guiado já aplicados (ver tabela completa no DATABASE_PLAN).
 
 ---
 
 ## Onboarding / migração
 
-- Import CSV: operacional
-- Central de Mídia: 56 produtos Storage OK · 35 ambíguos pendentes (2026-06-26)
-- Tour guiado: 8 passos (Fase 3)
+| Item | Status |
+|------|--------|
+| Import CSV | Operacional |
+| Central de Mídia | 56 produtos Storage OK · 35 ambíguos pendentes (2026-06-26) |
+| Tour guiado | Fase 3 — 8 passos |
+| `ENABLE_MIGRATION_TOOLS` | Ligado durante onboarding — desligar após validação final |
+
+---
+
+## Relatórios operacionais (referência)
+
+Links internos — não copiar conteúdo para esta ficha:
+
+- [`test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md)
+- [`test-data/reports/LOCAL_IMAGE_MIGRATION_PILOT_UPLOAD.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_PILOT_UPLOAD.md)
+- [`test-data/reports/LOCAL_IMAGE_MIGRATION_REMAINING_UPLOAD.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_REMAINING_UPLOAD.md)
 
 ---
 
 ## Pendências
 
-- Validar 35 associações de imagem ambíguas com cliente
+- Validar **35** associações de imagem ambíguas com cliente
 - Desligar `ENABLE_MIGRATION_TOOLS` após go-live estável
-- Domínio próprio (quando contratado)
+- Domínio customizado (quando contratado)
 
 ---
 
-## Contato operacional
+## Observações de suporte
 
-Registrar observações de suporte aqui (sem dados sensíveis).
+Registrar aqui notas de atendimento, decisões com cliente e follow-ups — **sem dados sensíveis** (CPF, senhas, keys, tokens).
+
+<!-- Exemplo: "2026-06-27 — Cliente validará lista de 35 SKUs ambíguos na próxima reunião." -->

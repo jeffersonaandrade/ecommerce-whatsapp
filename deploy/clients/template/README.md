@@ -4,6 +4,20 @@ Copie esta pasta para `deploy/clients/<slug>/` ao onboardar um cliente.
 
 ---
 
+## Exemplo preenchido — UnitSports
+
+A primeira loja implantada tem ficha completa em [`../unitsports/`](../unitsports/):
+
+| O que copiar | O que **não** copiar |
+|--------------|----------------------|
+| Estrutura (README, env.example, checklist, notes) | Catálogo, produtos, imagens |
+| Formato de preenchimento de status | Branding, logo, cores |
+| Referência de pendências operacionais | Dados de `store_settings` |
+
+**Fluxo:** copie **template** para `<slug>` → consulte **unitsports** para ver como documentar status real.
+
+---
+
 ## Arquivos
 
 | Arquivo | Uso |
@@ -17,6 +31,7 @@ Copie esta pasta para `deploy/clients/<slug>/` ao onboardar um cliente.
 
 ## Links
 
+- Exemplo real: [`deploy/clients/unitsports/`](../unitsports/)
 - Registry: [`deploy/registry/README.md`](../../registry/README.md)
 - Arquitetura: [`docs/ARCHITECTURE.md`](../../../docs/ARCHITECTURE.md)
 - Deploy: [`docs/MULTI_CLIENT_DEPLOYMENT.md`](../../../docs/MULTI_CLIENT_DEPLOYMENT.md)
@@ -26,4 +41,4 @@ Copie esta pasta para `deploy/clients/<slug>/` ao onboardar um cliente.
 
 ## Slug
 
-Substituir `<slug>` em todos os paths — ex.: `loja-joao`, `time-x`.
+Substituir `<slug>` em todos os paths — ex.: `loja-joao`, `time-x` (kebab-case, minúsculas).

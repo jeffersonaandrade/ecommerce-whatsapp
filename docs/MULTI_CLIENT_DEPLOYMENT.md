@@ -141,4 +141,35 @@ Ver [`deploy/registry/README.md`](../deploy/registry/README.md).
 
 ## Nova loja
 
-Checklist: [`deploy/clients/template/go-live-checklist.md`](../deploy/clients/template/go-live-checklist.md)
+1. Copiar checklist: [`deploy/clients/template/go-live-checklist.md`](../deploy/clients/template/go-live-checklist.md)
+2. Consultar referência preenchida: [`deploy/clients/unitsports/`](../deploy/clients/unitsports/)
+
+---
+
+## Implantação de referência — UnitSports
+
+[`deploy/clients/unitsports/`](../deploy/clients/unitsports/) documenta a **primeira loja real** em produção. Serve como exemplo de como preencher ficha operacional — **não** como fonte de dados para outras lojas.
+
+```text
+Core (main)
+  ↓ deploy Netlify
+  ├─ UnitSports — Supabase A — loja-whats.netlify.app
+  ├─ Cliente B   — Supabase B — dominio-b.com.br
+  └─ Cliente C   — Supabase C — dominio-c.com.br
+```
+
+| Recurso | UnitSports (referência) |
+|---------|-------------------------|
+| Ficha | [`README.md`](../deploy/clients/unitsports/README.md) |
+| Env template | [`env.example`](../deploy/clients/unitsports/env.example) |
+| Go-live status | [`go-live-checklist.md`](../deploy/clients/unitsports/go-live-checklist.md) |
+| Notas operacionais | [`notes.md`](../deploy/clients/unitsports/notes.md) |
+
+**Fluxo recomendado para nova loja:**
+
+1. Copiar [`deploy/clients/template/`](../deploy/clients/template/) → `deploy/clients/<slug>/`
+2. Consultar `unitsports/` para ver exemplos de checklist e notes preenchidos
+3. Criar Supabase + Netlify isolados; env real só no painel Netlify
+4. Registrar slug em [`deploy/registry/README.md`](../deploy/registry/README.md) e `clients.local.json`
+
+**Nunca** commitar secrets, project refs ou dados de catálogo/branding de outro cliente nesta pasta.

@@ -8,10 +8,11 @@
 
 1. Escolher **slug** (ver convenções abaixo)
 2. Copiar [`deploy/clients/template/`](../clients/template/) → `deploy/clients/<slug>/`
-3. Copiar [`clients.local.json.example`](../clients/clients.local.json.example) → `clients.local.json` e adicionar entrada
-4. Criar projeto Supabase + site Netlify
-5. Seguir [`go-live-checklist.md`](../clients/template/go-live-checklist.md)
-6. Registrar `coreVersionInstalled` após primeiro deploy ([`CORE_VERSION.md`](../../docs/CORE_VERSION.md))
+3. Consultar [`deploy/clients/unitsports/`](../clients/unitsports/) como **referência estrutural** (como preencher checklist/notes — não copiar dados do cliente)
+4. Copiar [`clients.local.json.example`](../clients/clients.local.json.example) → `clients.local.json` e adicionar entrada (inclui `supabaseProjectRef` — **não versionar**)
+5. Criar projeto Supabase + site Netlify
+6. Seguir [`go-live-checklist.md`](../clients/template/go-live-checklist.md)
+7. Registrar `coreVersionInstalled` após primeiro deploy ([`CORE_VERSION.md`](../../docs/CORE_VERSION.md))
 
 ---
 
@@ -53,9 +54,11 @@ Atualizar **sempre** após deploy + smoke bem-sucedido.
 
 ## Implantações documentadas
 
-| slug | Ficha | Status |
-|------|-------|--------|
-| unitsports | [`deploy/clients/unitsports/`](../clients/unitsports/) | production (referência) |
+| slug | Ficha | Status | Notas |
+|------|-------|--------|-------|
+| unitsports | [`deploy/clients/unitsports/`](../clients/unitsports/) | production | **Referência operacional real** — primeira loja; consultar estrutura preenchida ao onboardar novas lojas |
+
+`supabaseProjectRef` e env reais: apenas em `clients.local.json` (gitignored).
 
 ---
 

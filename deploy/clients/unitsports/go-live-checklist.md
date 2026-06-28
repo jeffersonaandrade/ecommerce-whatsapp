@@ -1,29 +1,50 @@
 # Go-live — UnitSports
 
-Implantação de referência. Itens já concluídos marcados para histórico.
+Implantação de referência — status conhecido documentado em [`docs/HANDOFF.md`](../../../docs/HANDOFF.md) e [`docs/DATABASE_PLAN.md`](../../../docs/DATABASE_PLAN.md).
 
-Ver template genérico: [`../template/go-live-checklist.md`](../template/go-live-checklist.md)
+Template genérico: [`../template/go-live-checklist.md`](../template/go-live-checklist.md)
 
 ---
 
 ## Infraestrutura
 
-- [x] Projeto Supabase
-- [x] Migrations core aplicadas (ver [`notes.md`](notes.md))
-- [x] Site Netlify `loja-whats`
-- [x] `DATA_PROVIDER=supabase`
-- [ ] Domínio customizado (futuro — hoje Netlify subdomain)
+- [x] Projeto Supabase criado (isolado — ref em `clients.local.json`, não versionado)
+- [x] Migrations core aplicadas (lista completa: [`DATABASE_PLAN.md`](../../../docs/DATABASE_PLAN.md) § implantação UnitSports)
+- [x] Site Netlify `loja-whats` configurado
+- [x] `DATA_PROVIDER=supabase` em produção
+- [ ] Domínio customizado (futuro — hoje https://loja-whats.netlify.app)
+
+## Branding
+
+- [x] Logo, favicon e OG via implantação operador ([`deploy/branding/`](../../branding/) + `npm run branding:sync`)
+- [x] Nome, WhatsApp e contatos em `/admin/settings`
 
 ## Catálogo e conteúdo
 
-- [x] Settings configurados (WhatsApp, nome)
 - [x] Import CSV utilizado
-- [x] Banners desktop/mobile
-- [x] Categorias
-- [ ] Migração imagens: 35 ambíguos pendentes (jun/2026)
+- [x] Categorias configuradas (CRUD v1.1)
+- [x] Banners desktop e mobile ativos
+
+## Imagens
+
+- [x] Migração local → Storage: **56** produtos com URLs Supabase Storage
+- [ ] **35** associações ambíguas pendentes validação manual com cliente
+- Relatório dry-run (referência operacional): [`test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md)
+
+## Onboarding
+
+- [x] Tour guiado Fase 3 concluído (8 passos — settings → import → mídia → categorias → banners → review)
+- [ ] Desligar `ENABLE_MIGRATION_TOOLS` após validação final do catálogo/imagens
 
 ## Validação
 
-- [x] Smoke produção 2026-06-26
-- [x] Onboarding tour Fase 3
-- [ ] Desligar `ENABLE_MIGRATION_TOOLS` após validação final cliente
+- [x] Smoke produção 2026-06-26 ([`HANDOFF.md`](../../../docs/HANDOFF.md) §9.4)
+- [x] `coreVersionInstalled` registrado em `notes.md` (1.0.0)
+
+---
+
+## Pendências conhecidas
+
+1. Validar 35 imagens ambíguas com cliente
+2. Desligar ferramentas de migração (`ENABLE_MIGRATION_TOOLS=false`) após go-live estável
+3. Domínio próprio quando contratado
