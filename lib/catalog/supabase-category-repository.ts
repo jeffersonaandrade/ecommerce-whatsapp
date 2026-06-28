@@ -35,14 +35,20 @@ export const supabaseCategoryRepository: CategoryRepository = {
   },
 
   async getById(id: string): Promise<Category | undefined> {
-    return (await fetchAllCategories()).find((c) => c.id === id)
+    const supabase = createAdminClient()
+    const { data, error } = await supabase.from('categories').select('*').eq('id', id).maybeSingle()
+    if (error) throw new Error(`category read failed: ${error.message}`)
+    if (!data) return undefined
+    return rowToCategory(data as CategoryRow)
   },
 
   async getBySlug(slug: string): Promise<Category | undefined> {
     const normalized = normalizeCategorySlug(slug)
-    return (await fetchAllCategories()).find(
-      (c) => normalizeCategorySlug(c.slug) === normalized
-    )
+    const supabase = createAdminClient()
+    const { data, error } = await supabase.from('categories').select('*').eq('slug', normalized).maybeSingle()
+    if (error) throw new Error(`category read failed: ${error.message}`)
+    if (!data) return undefined
+    return rowToCategory(data as CategoryRow)
   },
 
   async getStorefront(): Promise<Category[]> {

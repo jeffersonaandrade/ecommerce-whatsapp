@@ -3,19 +3,18 @@ import 'server-only'
 import type { AdminOnboardingState, OnboardingProgress, OnboardingProgressItem } from '@/types/admin-onboarding'
 import type { BannerSlide } from '@/types/banner-slide'
 import type { Category } from '@/types/category'
-import type { Product } from '@/types/product'
 import type { StoreSettings } from '@/types/store-settings'
 import { normalizeBannerVisibility } from '@/lib/banners/banner-viewport'
-import { classifyProductImagesInitial, normalizeSupabaseBaseUrl } from '@/lib/catalog/media/classify-url'
 import { getAllBannerSlides } from '@/lib/banners'
 import { getAllCategoriesAdmin } from '@/lib/categories'
-import { getAllProductsAdmin } from '@/lib/products'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import {
   OPTIONAL_ONBOARDING_STEP,
   WEIGHTED_ONBOARDING_STEPS,
   productsHref,
 } from './steps'
+import { fetchOnboardingAggregates, type OnboardingProductCounts } from './fetch-aggregates'
+import { normalizeSupabaseBaseUrl } from '@/lib/catalog/media/classify-url'
 
 export function isStoreSettingsComplete(settings: StoreSettings): boolean {
   const storeNameOk = settings.storeName.trim().length >= 2
@@ -35,21 +34,14 @@ export function storeSettingsContext(settings: StoreSettings): string {
   return `Falta: ${missing.join(', ')}`
 }
 
-export function isProductsStepComplete(products: Product[]): boolean {
-  return products.some((p) => p.status === 'active')
+export function isProductsStepComplete(productCounts: OnboardingProductCounts): boolean {
+  return productCounts.active > 0
 }
 
-export function productsContext(allProducts: Product[], activeProducts: Product[]): string {
-  if (allProducts.length === 0) return 'Nenhum produto cadastrado'
-  if (activeProducts.length === 0) return `${allProducts.length} cadastrados · nenhum ativo`
-  return `${allProducts.length} cadastrados · ${activeProducts.length} ativos`
-}
-
-export function countMediaIssues(products: Product[], supabaseUrl: string): number {
-  return products.filter((p) => {
-    const status = classifyProductImagesInitial(p.images, supabaseUrl)
-    return status === 'empty' || status === 'external'
-  }).length
+export function productsContext(productCounts: OnboardingProductCounts): string {
+  if (productCounts.all === 0) return 'Nenhum produto cadastrado'
+  if (productCounts.active === 0) return `${productCounts.all} cadastrados · nenhum ativo`
+  return `${productCounts.all} cadastrados · ${productCounts.active} ativos`
 }
 
 export function isCategoriesStepComplete(categories: Category[]): boolean {
@@ -106,27 +98,25 @@ function isManualStepComplete(state: AdminOnboardingState, stepId: AdminOnboardi
 
 export type OnboardingSnapshot = {
   settings: StoreSettings
-  allProducts: Product[]
-  activeProducts: Product[]
+  productCounts: OnboardingProductCounts
+  mediaIssueCount: number
   categories: Category[]
   slides: BannerSlide[]
   supabaseUrl: string
 }
 
 export async function loadOnboardingSnapshot(): Promise<OnboardingSnapshot> {
-  const [settings, allProducts, categories, slides] = await Promise.all([
+  const [settings, aggregates, categories, slides] = await Promise.all([
     getStoreSettings(),
-    getAllProductsAdmin(),
+    fetchOnboardingAggregates(),
     getAllCategoriesAdmin(),
     getAllBannerSlides(),
   ])
 
-  const activeProducts = allProducts.filter((product) => product.status === 'active')
-
   return {
     settings,
-    allProducts,
-    activeProducts,
+    productCounts: aggregates.productCounts,
+    mediaIssueCount: aggregates.mediaIssueCount,
     categories,
     slides,
     supabaseUrl: normalizeSupabaseBaseUrl(process.env.NEXT_PUBLIC_SUPABASE_URL),
@@ -137,7 +127,7 @@ export function computeOnboardingProgressFromSnapshot(
   state: AdminOnboardingState,
   snapshot: OnboardingSnapshot
 ): OnboardingProgress {
-  const { settings, allProducts, activeProducts, categories, slides, supabaseUrl } = snapshot
+  const { settings, productCounts, mediaIssueCount, categories, slides } = snapshot
 
   const weightedItems: OnboardingProgressItem[] = WEIGHTED_ONBOARDING_STEPS.map((step) => {
     let completed = false
@@ -147,9 +137,9 @@ export function computeOnboardingProgressFromSnapshot(
 
     switch (step.id) {
       case 'products':
-        completed = isProductsStepComplete(activeProducts)
+        completed = isProductsStepComplete(productCounts)
         autoCompleted = completed
-        context = productsContext(allProducts, activeProducts)
+        context = productsContext(productCounts)
         href = productsHref()
         break
       case 'store-settings':
@@ -200,20 +190,19 @@ export function computeOnboardingProgressFromSnapshot(
   })
 
   const optionalItems: OnboardingProgressItem[] = []
-  const mediaIssues = countMediaIssues(allProducts, supabaseUrl)
   optionalItems.push({
     id: OPTIONAL_ONBOARDING_STEP.id,
     label: OPTIONAL_ONBOARDING_STEP.label,
     href: OPTIONAL_ONBOARDING_STEP.href,
     weight: 0,
-    completed: mediaIssues === 0 && allProducts.length > 0,
+    completed: mediaIssueCount === 0 && productCounts.all > 0,
     autoCompleted: true,
     context:
-      allProducts.length === 0
+      productCounts.all === 0
         ? 'Cadastre produtos primeiro'
-        : mediaIssues === 0
+        : mediaIssueCount === 0
           ? 'Imagens associadas'
-          : `${mediaIssues} produto${mediaIssues === 1 ? '' : 's'} com imagem pendente`,
+          : `${mediaIssueCount} produto${mediaIssueCount === 1 ? '' : 's'} com imagem pendente`,
   })
 
   const items = [...weightedItems, ...optionalItems]
@@ -223,7 +212,7 @@ export function computeOnboardingProgressFromSnapshot(
   )
 
   const storeMature =
-    isStoreSettingsComplete(settings) && isProductsStepComplete(activeProducts)
+    isStoreSettingsComplete(settings) && isProductsStepComplete(productCounts)
 
   const headline =
     percentComplete >= 100

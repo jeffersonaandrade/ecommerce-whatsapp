@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+import { useSearchParams, usePathname } from 'next/navigation'
 import { MediaFilter } from '@/lib/catalog/media/types'
 
 const FILTERS: { value: MediaFilter; label: string }[] = [
@@ -11,38 +13,55 @@ const FILTERS: { value: MediaFilter; label: string }[] = [
 ]
 
 type MediaFiltersProps = {
-  value: MediaFilter
-  onChange: (value: MediaFilter) => void
-  search: string
-  onSearchChange: (value: string) => void
+  counts: Record<string, number>
+  searchDefault?: string
 }
 
-export function MediaFilters({ value, onChange, search, onSearchChange }: MediaFiltersProps) {
+export function MediaFilters({ counts, searchDefault = '' }: MediaFiltersProps) {
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const current = (searchParams.get('media') as MediaFilter | null) ?? 'all'
+
+  function tabUrl(value: MediaFilter) {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value === 'all') {
+      params.delete('media')
+    } else {
+      params.set('media', value)
+    }
+    params.delete('page')
+    return `${pathname}?${params.toString()}`
+  }
+
   return (
     <div className="space-y-3">
-      <input
-        type="search"
-        value={search}
-        onChange={(e) => onSearchChange(e.target.value)}
-        placeholder="Buscar por nome, slug ou SKU..."
-        className="w-full rounded-lg border border-hairline bg-canvas px-4 py-2 text-sm text-ink placeholder:text-mute focus:border-ink focus:outline-none"
-      />
       <p className="text-xs font-medium uppercase tracking-wide text-mute">Mídia</p>
       <div className="flex flex-wrap gap-2">
-        {FILTERS.map((filter) => (
-          <button
-            key={filter.value}
-            type="button"
-            onClick={() => onChange(filter.value)}
-            className={`rounded-full px-3 py-1 text-sm ${
-              value === filter.value
-                ? 'bg-ink text-canvas'
-                : 'bg-soft-cloud text-mute hover:text-ink'
-            }`}
-          >
-            {filter.label}
-          </button>
-        ))}
+        {FILTERS.map((filter) => {
+          const count =
+            filter.value === 'all'
+              ? (counts.all ?? 0)
+              : (counts[filter.value] ?? 0)
+          const isActive = current === filter.value
+          return (
+            <Link
+              key={filter.value}
+              href={tabUrl(filter.value)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm ${
+                isActive ? 'bg-ink text-canvas' : 'bg-soft-cloud text-mute hover:text-ink'
+              }`}
+            >
+              {filter.label}
+              <span
+                className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${
+                  isActive ? 'bg-canvas/20 text-canvas' : 'bg-ink/10 text-ink'
+                }`}
+              >
+                {count}
+              </span>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

@@ -3,8 +3,7 @@ import { notFound } from 'next/navigation'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { CategoryForm } from '@/components/admin/category-form'
 import { getCategoryById } from '@/lib/categories'
-import { getAllProductsAdmin } from '@/lib/products'
-import { countProductsForCategory } from '@/lib/catalog/category-utils'
+import { fetchProductCountForCategory } from '@/lib/catalog/product-aggregates'
 
 export const metadata: Metadata = {
   title: 'Editar Categoria',
@@ -20,8 +19,7 @@ export default async function AdminEditCategoryPage({ params }: EditCategoryPage
   const category = await getCategoryById(id)
   if (!category) notFound()
 
-  const products = await getAllProductsAdmin()
-  const { count } = countProductsForCategory(category, products)
+  const { total: count } = await fetchProductCountForCategory(category.slug)
 
   return (
     <div className="w-full">

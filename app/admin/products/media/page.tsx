@@ -1,12 +1,15 @@
 import { Metadata } from 'next'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { MediaCenter } from '@/components/admin/media/media-center'
+import { fetchMediaStatusCounts } from '@/lib/catalog/product-aggregates'
 import { getAllProductsAdmin, queryProductsAdmin } from '@/lib/products'
 import { getSupabaseUrl } from '@/lib/supabase/env'
 import type { ProductQuery } from '@/lib/query'
+import type { MediaFilter } from '@/lib/catalog/media/types'
 import type { ProductStatus } from '@/types/product'
 
 const VALID_STATUSES = new Set<ProductStatus>(['active', 'draft', 'unavailable'])
+const VALID_MEDIA = new Set<MediaFilter>(['empty', 'external', 'broken', 'storage'])
 
 export const metadata: Metadata = {
   title: 'Admin - Central de Mídia',
@@ -19,6 +22,7 @@ export default async function AdminProductsMediaPage({
   searchParams: Promise<Record<string, string | undefined>>
 }) {
   const params = await searchParams
+  const isUploadTab = params.tab === 'upload'
   const pageSize = [25, 50, 100, 200].includes(Number(params.size))
     ? Number(params.size)
     : 25
@@ -26,10 +30,16 @@ export default async function AdminProductsMediaPage({
   const rawStatus = params.status as ProductStatus | undefined
   const status = rawStatus && VALID_STATUSES.has(rawStatus) ? [rawStatus] : undefined
 
+  const rawMedia = params.media as MediaFilter | undefined
+  const mediaStatus =
+    rawMedia && VALID_MEDIA.has(rawMedia) ? rawMedia : undefined
+
   const query: ProductQuery = {
+    fields: 'list',
     filters: {
       search: params.q || undefined,
       status,
+      mediaStatus,
     },
     sort: { by: 'name', dir: 'asc' },
     pagination: {
@@ -38,10 +48,11 @@ export default async function AdminProductsMediaPage({
     },
   }
 
-  const [result, allProductsRaw] = await Promise.all([
+  const [result, mediaStatusCounts] = await Promise.all([
     queryProductsAdmin(query),
-    getAllProductsAdmin(),
+    fetchMediaStatusCounts(),
   ])
+
   const currentParams = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v != null) as [string, string][]
   )
@@ -70,7 +81,9 @@ export default async function AdminProductsMediaPage({
   })
 
   const mapProducts = result.products.map(mapProduct)
-  const allProducts = allProductsRaw.map(mapProduct)
+  const allProducts = isUploadTab
+    ? (await getAllProductsAdmin()).map(mapProduct)
+    : []
 
   return (
     <div className="w-full">
@@ -82,6 +95,7 @@ export default async function AdminProductsMediaPage({
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <MediaCenter
+          initialTab={isUploadTab ? 'upload' : 'inventory'}
           pageProducts={mapProducts}
           allProducts={allProducts}
           supabaseUrl={supabaseUrl}
@@ -91,6 +105,8 @@ export default async function AdminProductsMediaPage({
           totalPages={result.totalPages}
           currentParams={currentParams}
           productStatusCounts={productStatusCounts}
+          mediaStatusCounts={mediaStatusCounts}
+          searchDefault={params.q ?? ''}
         />
       </div>
     </div>

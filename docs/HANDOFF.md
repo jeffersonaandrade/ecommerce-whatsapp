@@ -30,14 +30,14 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | Área | Status | Evidência / observação |
 |------|--------|------------------------|
 | **Home** | ✅ | `app/page.tsx` — hero, chips mobile, categorias desktop, destaques deduplicados (Fase 0 `25ef567`) |
-| **PLP** | ✅ | `app/products/page.tsx` — filtros dinâmicos do catálogo, metadata |
+| **PLP** | ✅ | `app/products/page.tsx` — paginação server-side (24/página), filtros por categoria, metadata |
 | **PDP** | ✅ | `app/products/[slug]/page.tsx` — variações, metadata, canonical; `ProductGallery` (miniaturas + setas); textos sem HTML cru (`stripHtml`) |
 | **Carrinho** | ✅ | `context/cart-context.tsx` + localStorage + testes |
 | **WhatsApp** | ✅ | `buildWhatsAppMessage` + `#TEMP-YYYYMMDD-NNNN` + testes |
 | **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; ordem fotos (posição 1 = destaque); redirect pós-create → edit `?created=1`; banner visibilidade na loja |
 | **Categorias** | ✅ | CRUD v1.1 (`/admin/categories`); PLP/home com slugs; select no produto; CSV `CSV_E008` |
 | **Importação CSV** | ✅ | Wizard (`/admin/import`); RPC transacional `apply_product_import_batch`; revalidação SKU pós-upsert; **sem** histórico (CSV-5). Sempre disponível no admin |
-| **Central de Mídia** | 🟡 | `/admin/products/media` — inventário URL, wizard upload, associação por filename. Sempre disponível no admin. Migração local→Storage: **56** OK · **35** ambíguos pendentes validação cliente |
+| **Central de Mídia** | ✅ | `/admin/products/media` — filtros mídia server-side (`?media=`), inventário paginado, wizard upload lazy (`?tab=upload`). Migração local→Storage: **56** OK · **35** ambíguos pendentes validação cliente |
 | **Branding** | ✅ | Logo/favicon/OG via Storage + `/api/branding/*`; **upload self-service de logo fora do MVP** (implantação/suporte) |
 | **Hero configurável** | ✅ | 1 hero em `StoreSettings`; grid de produtos removido do hero (Fase 0) |
 | **Institucional** | ✅ | `/sobre`, `/contato`, `/politica-de-trocas` via settings |
@@ -599,6 +599,32 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 **Relatórios:** `test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md`, `LOCAL_IMAGE_MIGRATION_PILOT_UPLOAD.md`, `LOCAL_IMAGE_MIGRATION_REMAINING_UPLOAD.md`
 
 **Próximo passo:** cliente valida produto a produto; corrigir no admin ou re-associar via Central de Mídia.
+
+---
+
+### 9.9 Performance — consultas Supabase (2026-06-28)
+
+**Contexto:** catálogo UnitSports ~3.400 produtos; filtros da Central de Mídia e layout admin carregavam o catálogo inteiro por request.
+
+**Migrations (aplicar em cada Supabase via MCP `apply_migration`):**
+
+| Versão | Nome | RPCs / efeito |
+|--------|------|----------------|
+| `20260628230000` | `admin_query_optimizations` | `images_has_external`, `get_media_issue_count` — onboarding sem full scan |
+| `20260628240000` | `sprint_a2_media_filters` | `get_media_status_counts`, `query_admin_products_page`, `count_products_by_category`, `count_products_for_category` |
+
+**Status implantação UnitSports:** ambas aplicadas via MCP (2026-06-28).
+
+**Documentação:** [`docs/PERFORMANCE_AUDIT.md`](PERFORMANCE_AUDIT.md) (tabela Antes/Depois + TTFB) · DDL canônico em [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql) · registro em [`docs/DATABASE_PLAN.md`](DATABASE_PLAN.md).
+
+**Mudanças de código (resumo):**
+
+- Admin: RPC counts no layout/dashboard/categorias; Central de Mídia com `fields: 'list'` e filtros `?media=`
+- Repositório: `hasStock` e filtros mídia via SQL; `create`/`update` sem `fetchAllProducts`; bulk `.in()` em chunks
+- Vitrine: home com `getStorefrontFeatured(LIMIT)`; PLP paginada; `/api/products` retorna `ProductCartLite` (sem `long_description`)
+- **PDP inalterada:** `getProductBySlug` → `getBySlug` com `select('*')` — `long_description` continua no detalhe
+
+**Smoke test recomendado antes do commit:** admin (produtos, mídia, categorias, dashboard) + loja (home, PLP, PDP, `/api/products`).
 
 ---
 

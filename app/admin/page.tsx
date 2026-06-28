@@ -5,7 +5,7 @@ import { DemoAdminToolbar } from '@/components/admin/demo-admin-toolbar'
 import { DeploymentCenterCard } from '@/components/admin/onboarding/deployment-center-card'
 import { OnboardingMenuActions } from '@/components/admin/onboarding/onboarding-menu-actions'
 import { getButtonClassName } from '@/components/ui/button'
-import { getAllProducts, getAllProductsAdmin } from '@/lib/products'
+import { fetchProductStatusCounts } from '@/lib/catalog/product-aggregates'
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard',
@@ -55,9 +55,9 @@ function NavCard({
 }
 
 export default async function AdminPage() {
-  const allProducts = await getAllProductsAdmin()
-  const activeProducts = await getAllProducts()
-  const totalProducts = allProducts.length
+  const counts = await fetchProductStatusCounts()
+  const totalProducts = counts.all
+  const activeProducts = counts.active
 
   return (
     <div className="w-full">
@@ -88,7 +88,7 @@ export default async function AdminPage() {
           </div>
           <div className="bg-canvas border border-hairline rounded-lg p-6">
             <div className="text-3xl font-bold text-accent mb-2">
-              {activeProducts.length}
+              {activeProducts}
             </div>
             <p className="text-mute">Produtos Ativos</p>
           </div>

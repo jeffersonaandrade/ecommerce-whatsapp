@@ -3,11 +3,11 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const {
   mockRequireAdmin,
   mockGetCategoryRepository,
-  mockGetAllProductsAdmin,
+  mockFetchProductCountForCategory,
 } = vi.hoisted(() => ({
   mockRequireAdmin: vi.fn(),
   mockGetCategoryRepository: vi.fn(),
-  mockGetAllProductsAdmin: vi.fn(),
+  mockFetchProductCountForCategory: vi.fn(),
 }))
 
 vi.mock('@/lib/auth/require-admin', () => ({
@@ -18,8 +18,8 @@ vi.mock('./get-category-repository', () => ({
   getCategoryRepository: mockGetCategoryRepository,
 }))
 
-vi.mock('@/lib/products', () => ({
-  getAllProductsAdmin: mockGetAllProductsAdmin,
+vi.mock('@/lib/catalog/product-aggregates', () => ({
+  fetchProductCountForCategory: mockFetchProductCountForCategory,
 }))
 
 vi.mock('next/cache', () => ({
@@ -55,7 +55,7 @@ describe('category-actions', () => {
   beforeEach(() => {
     mockRequireAdmin.mockReset()
     mockGetCategoryRepository.mockReset()
-    mockGetAllProductsAdmin.mockReset()
+    mockFetchProductCountForCategory.mockReset()
     repo.getAll.mockReset()
     repo.getById.mockReset()
     repo.create.mockReset()
@@ -63,7 +63,7 @@ describe('category-actions', () => {
     repo.delete.mockReset()
     mockGetCategoryRepository.mockReturnValue(repo)
     mockRequireAdmin.mockResolvedValue({ ok: true })
-    mockGetAllProductsAdmin.mockResolvedValue([])
+    mockFetchProductCountForCategory.mockResolvedValue({ total: 0, active: 0 })
     repo.getAll.mockResolvedValue([sampleCategory])
   })
 
@@ -100,9 +100,7 @@ describe('category-actions', () => {
 
   it('updateCategoryAction bloqueia mudança de slug com produtos vinculados', async () => {
     repo.getById.mockResolvedValue(sampleCategory)
-    mockGetAllProductsAdmin.mockResolvedValue([
-      { category: 'Camisas', status: 'active' },
-    ])
+    mockFetchProductCountForCategory.mockResolvedValue({ total: 1, active: 1 })
     const result = await updateCategoryAction('cat-1', {
       name: 'Camisas',
       slug: 'camisetas',
@@ -116,9 +114,7 @@ describe('category-actions', () => {
 
   it('deleteCategoryAction bloqueia quando há produtos', async () => {
     repo.getById.mockResolvedValue(sampleCategory)
-    mockGetAllProductsAdmin.mockResolvedValue([
-      { category: 'Camisas', status: 'active' },
-    ])
+    mockFetchProductCountForCategory.mockResolvedValue({ total: 1, active: 1 })
     const result = await deleteCategoryAction('cat-1')
     expect(result).toEqual({
       ok: false,
@@ -128,7 +124,7 @@ describe('category-actions', () => {
 
   it('deleteCategoryAction permite quando sem produtos', async () => {
     repo.getById.mockResolvedValue(sampleCategory)
-    mockGetAllProductsAdmin.mockResolvedValue([])
+    mockFetchProductCountForCategory.mockResolvedValue({ total: 0, active: 0 })
     const result = await deleteCategoryAction('cat-1')
     expect(result).toEqual({ ok: true })
     expect(repo.delete).toHaveBeenCalledWith('cat-1')

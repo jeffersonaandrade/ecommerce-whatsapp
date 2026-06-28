@@ -4,13 +4,12 @@ import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getCategoryRepository } from './get-category-repository'
 import { CategoryInput } from '@/types/category'
+import { fetchProductCountForCategory } from '@/lib/catalog/product-aggregates'
 import {
   validateCategoryInput,
-  countProductsForCategory,
   normalizeCategorySlug,
   generateCategorySlug,
 } from './category-utils'
-import { getAllProductsAdmin } from '@/lib/products'
 import { writeCategoryImage, deleteCategoryImage } from './category-image-storage'
 import {
   LOGO_IMAGE_MAX_BYTES,
@@ -93,8 +92,7 @@ export async function updateCategoryAction(
     )
     const currentSlug = normalizeCategorySlug(category.slug)
     if (newSlug !== currentSlug) {
-      const products = await getAllProductsAdmin()
-      const { count } = countProductsForCategory(category, products)
+      const { total: count } = await fetchProductCountForCategory(category.slug)
       if (count > 0) {
         return {
           ok: false,
@@ -125,8 +123,7 @@ export async function deleteCategoryAction(
     const category = await repo.getById(id)
     if (!category) return { ok: false, error: 'Categoria não encontrada' }
 
-    const products = await getAllProductsAdmin()
-    const { count } = countProductsForCategory(category, products)
+    const { total: count } = await fetchProductCountForCategory(category.slug)
     if (count > 0) {
       return {
         ok: false,

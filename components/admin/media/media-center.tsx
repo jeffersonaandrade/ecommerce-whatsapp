@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { useEffect, useMemo } from 'react'
 import { AdminPagination } from '@/components/admin/admin-pagination'
+import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
-import { filterMediaProducts, toMediaProductSummary } from '@/lib/catalog/media/media-query'
+import { toMediaProductSummary } from '@/lib/catalog/media/media-query'
 import { useImageProbe } from '@/lib/catalog/media/use-image-probe'
-import { MediaFilter, MediaMapProduct, MediaProductSummary } from '@/lib/catalog/media/types'
+import { MediaMapProduct, MediaProductSummary } from '@/lib/catalog/media/types'
 import { MediaFilters } from './media-filters'
 import { MediaProductRow } from './media-product-row'
 import { MediaUploadWizard } from './media-upload-wizard'
@@ -16,7 +18,10 @@ const PRODUCT_STATUS_LABELS: Record<string, string> = {
   unavailable: 'Indisponível',
 }
 
+type Tab = 'inventory' | 'upload'
+
 type MediaCenterProps = {
+  initialTab: Tab
   pageProducts: MediaMapProduct[]
   allProducts: MediaMapProduct[]
   supabaseUrl: string
@@ -26,11 +31,23 @@ type MediaCenterProps = {
   totalPages: number
   currentParams: URLSearchParams
   productStatusCounts: Record<string, number>
+  mediaStatusCounts: Record<string, number>
+  searchDefault?: string
 }
 
-type Tab = 'inventory' | 'upload'
+function tabHref(tab: Tab, currentParams: URLSearchParams): string {
+  const params = new URLSearchParams(currentParams)
+  if (tab === 'upload') {
+    params.set('tab', 'upload')
+  } else {
+    params.delete('tab')
+  }
+  const qs = params.toString()
+  return qs ? `/admin/products/media?${qs}` : '/admin/products/media'
+}
 
 export function MediaCenter({
+  initialTab,
   pageProducts,
   allProducts,
   supabaseUrl,
@@ -40,20 +57,15 @@ export function MediaCenter({
   totalPages,
   currentParams,
   productStatusCounts,
+  mediaStatusCounts,
+  searchDefault = '',
 }: MediaCenterProps) {
-  const [tab, setTab] = useState<Tab>('inventory')
-  const [filter, setFilter] = useState<MediaFilter>('all')
-  const [search, setSearch] = useState('')
-  const { probe, probingIds, probeAll } = useImageProbe({ concurrency: 5 })
+  const tab = initialTab
+  const { probe, probingIds, probeAll } = useImageProbe({ concurrency: 5, supabaseUrl })
 
   const summaries: MediaProductSummary[] = useMemo(
     () => pageProducts.map((p) => toMediaProductSummary(p, supabaseUrl)),
     [pageProducts, supabaseUrl]
-  )
-
-  const filtered = useMemo(
-    () => filterMediaProducts(summaries, filter, probe, probingIds, search),
-    [summaries, filter, probe, probingIds, search]
   )
 
   useEffect(() => {
@@ -71,27 +83,26 @@ export function MediaCenter({
             ['upload', 'Upload em lote'],
           ] as const
         ).map(([value, label]) => (
-          <button
+          <Link
             key={value}
-            type="button"
-            onClick={() => setTab(value)}
+            href={tabHref(value, currentParams)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium ${
               tab === value ? 'bg-ink text-canvas' : 'bg-soft-cloud text-mute hover:text-ink'
             }`}
           >
             {label}
-          </button>
+          </Link>
         ))}
       </div>
 
       {tab === 'inventory' ? (
         <>
-          <MediaFilters
-            value={filter}
-            onChange={setFilter}
-            search={search}
-            onSearchChange={setSearch}
+          <SearchBar
+            placeholder="Buscar por nome, slug ou SKU..."
+            defaultValue={searchDefault}
           />
+
+          <MediaFilters counts={mediaStatusCounts} searchDefault={searchDefault} />
 
           <div className="space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-mute">Catálogo</p>
@@ -112,7 +123,7 @@ export function MediaCenter({
                 </tr>
               </thead>
               <tbody className="divide-y divide-hairline">
-                {filtered.map((item) => (
+                {summaries.map((item) => (
                   <MediaProductRow
                     key={item.id}
                     item={item}
@@ -122,7 +133,7 @@ export function MediaCenter({
                 ))}
               </tbody>
             </table>
-            {!filtered.length && (
+            {!summaries.length && (
               <p className="px-4 py-8 text-center text-sm text-mute">
                 Nenhum produto corresponde ao filtro nesta página.
               </p>

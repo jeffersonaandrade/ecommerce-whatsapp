@@ -8,6 +8,8 @@ import type {
   ProductQueryResult,
   ProductStatusCounts,
 } from '@/lib/query'
+import type { StorefrontProductQuery } from '@/lib/query/storefront-query'
+import { CHUNK_SIZE, runInChunks } from './supabase-chunk'
 import {
   assignVariationIds,
   deriveShortDescription,
@@ -20,6 +22,13 @@ import {
   type ProductRow,
   type ProductVariationRow,
 } from './supabase-mappers'
+
+const PRODUCT_LIST_SELECT =
+  'id, slug, name, short_description, price, promotional_price, category, club, images, status, import_batch_id, product_variations(id, sku, stock, size, color)'
+
+function productSelect(fields: ProductQuery['fields']): string {
+  return fields === 'list' ? PRODUCT_LIST_SELECT : '*, product_variations(*)'
+}
 
 type ProductRowWithVariations = ProductRow & { product_variations: ProductVariationRow[] }
 
@@ -92,29 +101,82 @@ async function fetchAllProducts(): Promise<Product[]> {
   return fetchProducts()
 }
 
-function productTotalStock(product: Product): number {
-  return product.variations.reduce((sum, variation) => sum + variation.stock, 0)
+type RpcProductRow = ProductRow & {
+  product_variations: ProductVariationRow[]
 }
 
-function filterProductsByStock(products: Product[], hasStock: boolean): Product[] {
-  return products.filter((product) =>
-    hasStock ? productTotalStock(product) > 0 : productTotalStock(product) === 0
-  )
+function mapRpcProducts(rows: RpcProductRow[]): Product[] {
+  return rows.map((row) => rowsToProduct(row, row.product_variations ?? []))
 }
 
-function nextProductId(products: Product[]): string {
-  const numeric = products
-    .map((p) => parseInt(p.id, 10))
+async function fetchSlugIndex(): Promise<Pick<Product, 'id' | 'slug'>[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.from('products').select('id, slug')
+  if (error) throw new Error(`products slug index failed: ${error.message}`)
+  return (data ?? []) as Pick<Product, 'id' | 'slug'>[]
+}
+
+async function nextProductIdFromDb(): Promise<string> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.from('products').select('id').order('id', { ascending: false }).limit(500)
+  if (error) throw new Error(`products id scan failed: ${error.message}`)
+  const numeric = (data ?? [])
+    .map((row) => parseInt(row.id, 10))
     .filter((n) => !Number.isNaN(n))
   const max = numeric.length ? Math.max(...numeric) : 0
   return String(max + 1)
 }
 
-function buildProduct(input: ProductInput, existing: Product[]): Product {
-  const slug = slugifyUnique(input.slug ?? input.name, existing)
+async function fetchProductStatusCounts(): Promise<ProductStatusCounts> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase.rpc('get_product_status_counts').maybeSingle()
+  if (error || !data) {
+    throw new Error(`get_product_status_counts failed: ${error?.message ?? 'empty response'}`)
+  }
+  return data as ProductStatusCounts
+}
+
+async function queryViaAdminRpc(q: ProductQuery): Promise<ProductQueryResult> {
+  const supabase = createAdminClient()
+  const { filters = {}, sort = {}, pagination = {} } = q
+  const page = Math.max(1, pagination.page ?? 1)
+  const pageSize = pagination.pageSize ?? 25
+  const orderCol =
+    sort.by === 'name' ? 'name' : sort.by === 'price' ? 'price' : 'id'
+
+  const { data, error } = await supabase.rpc('query_admin_products_page', {
+    p_media:
+      filters.mediaStatus && filters.mediaStatus !== 'all' ? filters.mediaStatus : null,
+    p_status: filters.status?.length ? filters.status : null,
+    p_search: filters.search ?? null,
+    p_has_stock: filters.hasStock ?? null,
+    p_page: page,
+    p_page_size: pageSize,
+    p_order_col: orderCol,
+    p_asc: sort.dir !== 'desc',
+  })
+
+  if (error) throw new Error(`query_admin_products_page failed: ${error.message}`)
+
+  const payload = (data ?? { total: 0, products: [] }) as {
+    total: number
+    products: RpcProductRow[]
+  }
+
+  const products = mapRpcProducts(payload.products ?? [])
+  const total = payload.total ?? products.length
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const counts = await fetchProductStatusCounts()
+
+  return { products, total, page, pageSize, totalPages, counts }
+}
+
+
+function buildProduct(input: ProductInput, existing: Pick<Product, 'id' | 'slug'>[], id: string): Product {
+  const slug = slugifyUnique(input.slug ?? input.name, existing as Product[])
   const longDescription = input.longDescription.trim()
   return {
-    id: nextProductId(existing),
+    id,
     name: input.name.trim(),
     slug,
     shortDescription:
@@ -171,22 +233,21 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async create(input: ProductInput): Promise<Product> {
-    const existing = await fetchAllProducts()
-    const product = buildProduct(input, existing)
+    const [existing, id] = await Promise.all([fetchSlugIndex(), nextProductIdFromDb()])
+    const product = buildProduct(input, existing, id)
     await persistProduct(product)
     return product
   },
 
   async update(id: string, input: ProductInput): Promise<Product> {
-    const products = await fetchAllProducts()
-    const index = products.findIndex((p) => p.id === id)
-    if (index === -1) throw new Error('Produto não encontrado')
+    const current = await fetchProductById(id)
+    if (!current) throw new Error('Produto não encontrado')
 
-    const others = products.filter((p) => p.id !== id)
-    const slug = slugifyUnique(input.slug ?? input.name, others, id)
+    const slugIndex = await fetchSlugIndex()
+    const slug = slugifyUnique(input.slug ?? input.name, slugIndex as Product[], id)
     const longDescription = input.longDescription.trim()
     const updated: Product = {
-      ...products[index],
+      ...current,
       name: input.name.trim(),
       slug,
       shortDescription:
@@ -197,9 +258,9 @@ export const supabaseProductRepository: ProductRepository = {
       category: input.category.trim(),
       club: input.club?.trim() || undefined,
       images: input.images.filter(Boolean).slice(0, 5),
-      variations: assignVariationIds(input.variations, products[index].variations),
+      variations: assignVariationIds(input.variations, current.variations),
       status: input.status,
-      importBatchId: input.importBatchId ?? products[index].importBatchId,
+      importBatchId: input.importBatchId ?? current.importBatchId,
     }
     await persistProduct(updated)
     return updated
@@ -213,12 +274,15 @@ export const supabaseProductRepository: ProductRepository = {
 
   async saveAll(products: Product[]): Promise<void> {
     const supabase = createAdminClient()
-    const current = await fetchAllProducts()
-    const currentIds = current.map((p) => p.id)
+    const { data, error } = await supabase.from('products').select('id')
+    if (error) throw new Error(`products id list failed: ${error.message}`)
+    const currentIds = (data ?? []).map((row) => row.id as string)
 
     if (currentIds.length) {
-      await supabase.from('product_variations').delete().in('product_id', currentIds)
-      await supabase.from('products').delete().in('id', currentIds)
+      await runInChunks(currentIds, CHUNK_SIZE, async (chunk) => {
+        await supabase.from('product_variations').delete().in('product_id', chunk)
+        await supabase.from('products').delete().in('id', chunk)
+      })
     }
 
     for (const product of products) {
@@ -227,8 +291,16 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async query(q: ProductQuery): Promise<ProductQueryResult> {
-    const supabase = createAdminClient()
     const { filters = {}, sort = {}, pagination = {} } = q
+    const useAdvancedFilter =
+      filters.hasStock !== undefined ||
+      (filters.mediaStatus !== undefined && filters.mediaStatus !== 'all')
+
+    if (useAdvancedFilter) {
+      return queryViaAdminRpc(q)
+    }
+
+    const supabase = createAdminClient()
     const page = Math.max(1, pagination.page ?? 1)
     const pageSize = pagination.pageSize ?? 25
     const offset = (page - 1) * pageSize
@@ -241,11 +313,13 @@ export const supabaseProductRepository: ProductRepository = {
           : 'id'
     const ascending = sort.dir === 'asc'
 
-    const useStockFilter = filters.hasStock !== undefined
+    const useStockFilter = false
+
+    const selectClause = productSelect(q.fields)
 
     let qb = supabase
       .from('products')
-      .select('*, product_variations(*)', { count: 'exact' })
+      .select(selectClause, { count: 'exact' })
 
     if (filters.status?.length) qb = qb.in('status', filters.status)
     if (filters.category) qb = qb.ilike('category', filters.category)
@@ -265,9 +339,9 @@ export const supabaseProductRepository: ProductRepository = {
 
     if (error) throw new Error(`products query failed: ${error.message}`)
 
-    let products = ((data ?? []) as (ProductRow & { product_variations: ProductVariationRow[] })[]).map(
-      (row) => rowsToProduct(row, row.product_variations ?? [])
-    )
+    let products = (
+      (data ?? []) as unknown as (ProductRow & { product_variations: ProductVariationRow[] })[]
+    ).map((row) => rowsToProduct(row, row.product_variations ?? []))
 
     // SKU search: find additional products by SKU and merge
     if (filters.search) {
@@ -282,46 +356,18 @@ export const supabaseProductRepository: ProductRepository = {
       if (missing.length) {
         const { data: extra } = await supabase
           .from('products')
-          .select('*, product_variations(*)')
+          .select(selectClause)
           .in('id', missing)
-        const extraProducts = ((extra ?? []) as (ProductRow & { product_variations: ProductVariationRow[] })[]).map(
-          (row) => rowsToProduct(row, row.product_variations ?? [])
-        )
+        const extraProducts = (
+          (extra ?? []) as unknown as (ProductRow & { product_variations: ProductVariationRow[] })[]
+        ).map((row) => rowsToProduct(row, row.product_variations ?? []))
         products = [...products, ...extraProducts]
       }
     }
 
-    let total: number
-    if (useStockFilter) {
-      products = filterProductsByStock(products, filters.hasStock!)
-      total = products.length
-      products = products.slice(offset, offset + pageSize)
-    } else {
-      total = count ?? products.length
-    }
+    let total: number = count ?? products.length
 
-    // counts: one GROUP BY query ignoring status filter
-    const countsResult = await supabase.rpc('get_product_status_counts').maybeSingle()
-
-    let counts: ProductStatusCounts
-    if (countsResult.error || !countsResult.data) {
-      // fallback: derive from full fetch (only if RPC not available)
-      const all = await fetchAllProducts()
-      counts = all.reduce(
-        (acc, p) => {
-          acc.all++
-          if (p.status === 'active') acc.active++
-          else if (p.status === 'draft') acc.draft++
-          else if (p.status === 'unavailable') acc.unavailable++
-          const stock = p.variations.reduce((s, v) => s + v.stock, 0)
-          if (stock === 0) acc.noStock++
-          return acc
-        },
-        { all: 0, active: 0, draft: 0, unavailable: 0, noStock: 0 }
-      )
-    } else {
-      counts = countsResult.data as ProductStatusCounts
-    }
+    const counts = await fetchProductStatusCounts()
 
     const totalPages = Math.max(1, Math.ceil(total / pageSize))
 
@@ -351,9 +397,11 @@ export const supabaseProductRepository: ProductRepository = {
   async deleteMany(ids: string[]): Promise<void> {
     if (!ids.length) return
     const supabase = createAdminClient()
-    await supabase.from('product_variations').delete().in('product_id', ids)
-    const { error } = await supabase.from('products').delete().in('id', ids)
-    if (error) throw new Error(`deleteMany failed: ${error.message}`)
+    await runInChunks(ids, CHUNK_SIZE, async (chunk) => {
+      await supabase.from('product_variations').delete().in('product_id', chunk)
+      const { error } = await supabase.from('products').delete().in('id', chunk)
+      if (error) throw new Error(`deleteMany failed: ${error.message}`)
+    })
   },
 
   async setProductImages(id: string, images: string[]): Promise<Product> {
@@ -371,5 +419,61 @@ export const supabaseProductRepository: ProductRepository = {
     for (const item of items) {
       await supabaseProductRepository.setProductImages(item.id, item.images)
     }
+  },
+
+  async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
+    const supabase = createAdminClient()
+    const { category, pagination = {}, fields = 'list' } = q
+    const page = Math.max(1, pagination.page ?? 1)
+    const pageSize = pagination.pageSize ?? 24
+    const offset = (page - 1) * pageSize
+    const selectClause = productSelect(fields)
+
+    let qb = supabase
+      .from('products')
+      .select(selectClause, { count: 'exact' })
+      .eq('status', 'active')
+
+    if (category) {
+      qb = qb.or(`category.ilike.${category},category.ilike.%${category}%`)
+    }
+
+    const { data, error, count } = await qb
+      .order('name', { ascending: true })
+      .range(offset, offset + pageSize - 1)
+
+    if (error) throw new Error(`storefront query failed: ${error.message}`)
+
+    const products = mapRpcProducts(
+      (data ?? []) as unknown as RpcProductRow[]
+    ).filter((p) => p.variations.some((v) => v.stock >= 0))
+
+    const total = count ?? products.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+    const emptyCounts: ProductStatusCounts = {
+      all: total,
+      active: total,
+      draft: 0,
+      unavailable: 0,
+      noStock: 0,
+    }
+
+    return { products, total, page, pageSize, totalPages, counts: emptyCounts }
+  },
+
+  async getStorefrontFeatured(limit: number): Promise<Product[]> {
+    const supabase = createAdminClient()
+    const { data, error } = await supabase
+      .from('products')
+      .select(PRODUCT_LIST_SELECT)
+      .eq('status', 'active')
+      .order('id', { ascending: false })
+      .limit(Math.max(limit * 4, limit))
+
+    if (error) throw new Error(`storefront featured failed: ${error.message}`)
+
+    return mapRpcProducts((data ?? []) as unknown as RpcProductRow[])
+      .filter((p) => p.variations.some((v) => v.stock > 0))
+      .slice(0, limit)
   },
 }

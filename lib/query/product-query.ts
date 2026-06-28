@@ -1,4 +1,5 @@
 import type { Product, ProductStatus } from '@/types/product'
+import type { MediaFilter } from '@/lib/catalog/media/types'
 
 export type ProductFilters = {
   status?: ProductStatus[]
@@ -7,6 +8,7 @@ export type ProductFilters = {
   hasDiscount?: boolean
   search?: string
   batchId?: string
+  mediaStatus?: MediaFilter
 }
 
 export type ProductSort = {
@@ -19,7 +21,10 @@ export type QueryPagination = {
   pageSize?: number
 }
 
+export type ProductQueryFields = 'full' | 'list'
+
 export type ProductQuery = {
+  fields?: ProductQueryFields
   filters?: ProductFilters
   sort?: ProductSort
   pagination?: QueryPagination

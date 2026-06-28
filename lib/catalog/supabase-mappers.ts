@@ -5,7 +5,7 @@ export type ProductRow = {
   slug: string
   name: string
   short_description: string
-  long_description: string
+  long_description?: string
   price: number
   promotional_price: number | null
   category: string
@@ -35,7 +35,7 @@ export function rowsToProduct(
     slug: row.slug,
     name: row.name,
     shortDescription: row.short_description,
-    longDescription: row.long_description,
+    longDescription: row.long_description ?? '',
     price: Number(row.price),
     promotionalPrice:
       row.promotional_price != null ? Number(row.promotional_price) : undefined,

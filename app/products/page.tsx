@@ -2,9 +2,10 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
+import { AdminPagination } from '@/components/admin/admin-pagination'
 import { ProductsCategoryFilter } from '@/components/commerce/products-category-filter'
 import { ProductsCategoryChips } from '@/components/commerce/products-category-chips'
-import { getAllProducts, getProductsByCategory } from '@/lib/products'
+import { queryStorefrontProducts, getProductsByCategory } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
   hasStorefrontCategoryImages,
@@ -32,14 +33,36 @@ interface ProductsPageProps {
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams
   const { category } = params
+  const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
+  const pageSize = 24
   const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
   const showVisualCategories = hasStorefrontCategoryImages(categories)
 
-  const filteredProducts = category
-    ? await getProductsByCategory(category)
-    : await getAllProducts()
+  const result = category
+    ? await (async () => {
+        const products = await getProductsByCategory(category)
+        const total = products.length
+        const totalPages = Math.max(1, Math.ceil(total / pageSize))
+        const offset = (page - 1) * pageSize
+        return {
+          products: products.slice(offset, offset + pageSize),
+          total,
+          page,
+          pageSize,
+          totalPages,
+          counts: { all: total, active: total, draft: 0, unavailable: 0, noStock: 0 },
+        }
+      })()
+    : await queryStorefrontProducts({
+        pagination: { page, pageSize },
+        fields: 'list',
+      })
 
+  const filteredProducts = result.products
   const heading = resolveCategoryHeading(category, categories)
+  const currentParams = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v != null) as [string, string][]
+  )
 
   return (
     <div className="w-full">
@@ -52,8 +75,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             {heading}
           </h1>
           <p className="mt-2 text-mute">
-            {filteredProducts.length}{' '}
-            {filteredProducts.length === 1 ? 'produto' : 'produtos'} disponíveis
+            {result.total}{' '}
+            {result.total === 1 ? 'produto' : 'produtos'} disponíveis
           </p>
 
           {!showVisualCategories && (
@@ -76,11 +99,25 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+            {result.totalPages > 1 && (
+              <div className="mt-10">
+                <AdminPagination
+                  page={result.page}
+                  pageSize={result.pageSize}
+                  total={result.total}
+                  totalPages={result.totalPages}
+                  basePath="/products"
+                  currentParams={currentParams}
+                />
+              </div>
+            )}
+          </>
         ) : (
           <div className="border border-hairline bg-soft-cloud px-6 py-16 text-center">
             <p className="text-lg font-semibold text-ink">

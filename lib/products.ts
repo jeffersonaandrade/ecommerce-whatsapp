@@ -1,6 +1,7 @@
+import { cache } from 'react'
 import { Product } from '@/types/product'
 import { getProductRepository } from '@/lib/catalog/get-product-repository'
-import type { ProductQuery, ProductQueryResult } from '@/lib/query'
+import type { ProductQuery, ProductQueryResult, StorefrontProductQuery } from '@/lib/query'
 import { productMatchesCategoryFilter } from '@/lib/catalog/category-utils'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
 import { getStorefrontCategories } from '@/lib/categories'
@@ -25,12 +26,28 @@ export async function getAllProducts(): Promise<Product[]> {
   return (await loadStorefrontCatalog()).filter(isStorefrontProduct)
 }
 
-export async function getAllProductsAdmin(): Promise<Product[]> {
+export const getAllProductsAdmin = cache(async (): Promise<Product[]> => {
   return loadAdminCatalog()
-}
+})
 
 export async function getFeaturedProducts(limit: number = 6): Promise<Product[]> {
-  return (await getAllProducts()).filter(isProductInStock).slice(0, limit)
+  const repo = getProductRepository()
+  const products = await repo.getStorefrontFeatured(limit)
+  return products.filter(isStorefrontProduct)
+}
+
+export async function queryStorefrontProducts(
+  q: StorefrontProductQuery
+): Promise<ProductQueryResult> {
+  const result = await getProductRepository().queryStorefront({
+    ...q,
+    fields: q.fields ?? 'list',
+  })
+  return {
+    ...result,
+    products: result.products.filter(isStorefrontProduct),
+    total: result.total,
+  }
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
@@ -51,7 +68,11 @@ export async function getProductByIdAdmin(id: string): Promise<Product | undefin
 
 export async function getProductsByCategory(categoryParam: string): Promise<Product[]> {
   const categories = await getStorefrontCategories()
-  return (await getAllProducts()).filter((p) =>
+  const result = await queryStorefrontProducts({
+    pagination: { page: 1, pageSize: 5000 },
+    fields: 'list',
+  })
+  return result.products.filter((p) =>
     productMatchesCategoryFilter(p.category, categoryParam, categories)
   )
 }
@@ -70,4 +91,46 @@ export async function getCategoriesAdmin(): Promise<string[]> {
 
 export async function queryProductsAdmin(q: ProductQuery): Promise<ProductQueryResult> {
   return getProductRepository().query(q)
+}
+
+export type ProductCartLite = {
+  id: string
+  slug: string
+  name: string
+  price: number
+  promotionalPrice?: number
+  images: string[]
+  variations: Array<{
+    id: string
+    sku: string
+    stock: number
+    size?: string
+    color?: string
+  }>
+}
+
+export function toProductCartLite(product: Product): ProductCartLite {
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    price: product.price,
+    promotionalPrice: product.promotionalPrice,
+    images: product.images,
+    variations: product.variations.map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      stock: v.stock,
+      size: v.size,
+      color: v.color,
+    })),
+  }
+}
+
+export async function getStorefrontProductsLite(): Promise<ProductCartLite[]> {
+  const result = await queryStorefrontProducts({
+    pagination: { page: 1, pageSize: 5000 },
+    fields: 'list',
+  })
+  return result.products.map(toProductCartLite)
 }

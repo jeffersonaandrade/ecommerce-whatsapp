@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { BannerSlide } from '@/types/banner-slide'
 import type { Category } from '@/types/category'
-import type { Product } from '@/types/product'
 import { createDefaultStoreSettings } from '@/lib/store/settings-defaults'
 import type { AdminOnboardingState } from '@/types/admin-onboarding'
 import { createDefaultOnboardingState } from './defaults'
@@ -20,22 +19,6 @@ import {
   type OnboardingSnapshot,
 } from './detect-progress'
 import { WEIGHTED_ONBOARDING_STEPS } from './steps'
-
-function product(overrides: Partial<Product> = {}): Product {
-  return {
-    id: 'p1',
-    name: 'Produto',
-    slug: 'produto',
-    shortDescription: '',
-    longDescription: '',
-    price: 100,
-    category: 'cat',
-    images: [],
-    variations: [],
-    status: 'draft',
-    ...overrides,
-  }
-}
 
 function category(overrides: Partial<Category> = {}): Category {
   return {
@@ -68,8 +51,8 @@ function slide(overrides: Partial<BannerSlide> = {}): BannerSlide {
 function snapshot(overrides: Partial<OnboardingSnapshot> = {}): OnboardingSnapshot {
   return {
     settings: createDefaultStoreSettings(),
-    allProducts: [],
-    activeProducts: [],
+    productCounts: { all: 0, active: 0 },
+    mediaIssueCount: 0,
     categories: [],
     slides: [],
     supabaseUrl: 'https://example.supabase.co',
@@ -102,10 +85,8 @@ describe('store-settings completion', () => {
 
 describe('products completion', () => {
   it('requires at least one active product', () => {
-    const all = [product({ status: 'draft' }), product({ id: 'p2', status: 'active' })]
-    const active = all.filter((p) => p.status === 'active')
-    expect(isProductsStepComplete(active)).toBe(true)
-    expect(productsContext(all, active)).toBe('2 cadastrados · 1 ativos')
+    expect(isProductsStepComplete({ all: 2, active: 1 })).toBe(true)
+    expect(productsContext({ all: 2, active: 1 })).toBe('2 cadastrados · 1 ativos')
   })
 })
 
@@ -143,12 +124,10 @@ describe('computeOnboardingProgressFromSnapshot', () => {
       description: 'Descrição com mais de dez caracteres',
       phone: '11999999999',
     }
-    const allProducts = [product({ status: 'active' })]
     const progress = computeOnboardingProgressFromSnapshot(createDefaultOnboardingState(), {
       ...snapshot({
         settings,
-        allProducts,
-        activeProducts: allProducts,
+        productCounts: { all: 1, active: 1 },
         categories: [category({ visible: true })],
         slides: [slide()],
       }),
@@ -170,8 +149,7 @@ describe('computeOnboardingProgressFromSnapshot', () => {
     const progress = computeOnboardingProgressFromSnapshot(
       state,
       snapshot({
-        allProducts: [product({ status: 'active' })],
-        activeProducts: [product({ status: 'active' })],
+        productCounts: { all: 1, active: 1 },
         categories: [category({ visible: true })],
         slides: [slide()],
         settings: {
@@ -191,7 +169,7 @@ describe('computeOnboardingProgressFromSnapshot', () => {
   it('includes optional media step', () => {
     const progress = computeOnboardingProgressFromSnapshot(
       createDefaultOnboardingState(),
-      snapshot({ allProducts: [product({ status: 'active', images: [] })] })
+      snapshot({ productCounts: { all: 1, active: 1 }, mediaIssueCount: 1 })
     )
 
     expect(progress.items.some((i) => i.id === 'review-media')).toBe(true)

@@ -71,6 +71,8 @@ Projeto Supabase isolado (`unitsports`). Outras lojas replicam o mesmo schema vi
 | `20260626224221` | `import_batch_post_upsert_sku_check` | Revalida SKU após upsert de products na RPC de import |
 | `20260627153700` | `banner_slide_visibility` | Coluna `visibility` (`all` \| `desktop` \| `mobile`); `desktop_image_path` nullable para slides mobile-only |
 | `20260627210000` | `store_onboarding` | Tabela `store_onboarding` — estado da implantação guiada (separado de `store_settings`) |
+| `20260628230000` | `admin_query_optimizations` | RPC `get_media_issue_count()` — onboarding admin sem scan do catálogo |
+| `20260628240000` | `sprint_a2_media_filters` | Filtros mídia server-side, counts categorias, `query_admin_products_page` |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
 

@@ -9,8 +9,8 @@ import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
 import { queryCategoriesAdmin } from '@/lib/categories'
-import { getAllProductsAdmin } from '@/lib/products'
-import { countProductsForCategory } from '@/lib/catalog/category-utils'
+import { fetchProductsByCategoryCounts } from '@/lib/catalog/product-aggregates'
+import { normalizeCategorySlug } from '@/lib/catalog/category-utils'
 import type { CategoryQuery } from '@/lib/query'
 
 export const metadata: Metadata = {
@@ -49,9 +49,9 @@ export default async function AdminCategoriesPage({
     },
   }
 
-  const [result, products] = await Promise.all([
+  const [result, categoryCounts] = await Promise.all([
     queryCategoriesAdmin(query),
-    getAllProductsAdmin(),
+    fetchProductsByCategoryCounts(),
   ])
 
   const currentParams = new URLSearchParams(
@@ -114,7 +114,13 @@ export default async function AdminCategoriesPage({
                   </thead>
                   <tbody>
                     {result.categories.map((category) => {
-                      const { count, activeCount } = countProductsForCategory(category, products)
+                      const key = normalizeCategorySlug(category.slug)
+                      const stats = categoryCounts[key] ?? categoryCounts[category.slug.toLowerCase()] ?? {
+                        total: 0,
+                        active: 0,
+                      }
+                      const count = stats.total
+                      const activeCount = stats.active
                       return (
                         <tr key={category.id} className="border-b border-hairline last:border-0 hover:bg-soft-cloud/50">
                           <td className="py-4 px-4 font-medium text-ink">{category.name}</td>

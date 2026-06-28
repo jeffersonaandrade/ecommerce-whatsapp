@@ -3,7 +3,7 @@ import { CategoryChips } from '@/components/commerce/category-chips'
 import { HomeCategories } from '@/components/commerce/home-categories'
 import { HomeBenefits } from '@/components/commerce/home-benefits'
 import { ProductCard } from '@/components/product/product-card'
-import { getAllProducts } from '@/lib/products'
+import { getFeaturedProducts } from '@/lib/products'
 import { pickHomeProductSections } from '@/lib/products-home-sections'
 import { getStorefrontCategories } from '@/lib/categories'
 import { resolveStorefrontCategoryList } from '@/lib/catalog/storefront-categories'
@@ -19,12 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function Home() {
-  const [settings, allProducts, bannerSlides] = await Promise.all([
+  const [settings, featuredPool, bannerSlides] = await Promise.all([
     getStoreSettings(),
-    getAllProducts(),
+    getFeaturedProducts(10),
     getActiveBannerSlides(),
   ])
-  const { featured, seeAlso } = pickHomeProductSections(allProducts, 6, 4)
+  const { featured, seeAlso } = pickHomeProductSections(featuredPool, 6, 4)
   const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
   const heroImagePath = await resolveExistingBrandingPath(settings.heroImagePath)
 

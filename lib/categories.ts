@@ -1,5 +1,6 @@
 import 'server-only'
 
+import { cache } from 'react'
 import { Category } from '@/types/category'
 import { getCategoryRepository } from './catalog/get-category-repository'
 import type { CategoryQuery, CategoryQueryResult } from '@/lib/query'
@@ -20,9 +21,9 @@ function fallbackCategoriesFromSiteConfig(): Category[] {
   }))
 }
 
-export async function getAllCategoriesAdmin(): Promise<Category[]> {
+export const getAllCategoriesAdmin = cache(async (): Promise<Category[]> => {
   return getCategoryRepository().getAll()
-}
+})
 
 export async function getStorefrontCategories(): Promise<Category[]> {
   const categories = await getCategoryRepository().getStorefront()

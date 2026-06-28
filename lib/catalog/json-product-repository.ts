@@ -7,6 +7,10 @@ import type {
   ProductQueryResult,
   ProductStatusCounts,
 } from '@/lib/query'
+import type { StorefrontProductQuery } from '@/lib/query/storefront-query'
+import { classifyProductImagesInitial } from '@/lib/catalog/media/classify-url'
+import type { MediaFilter } from '@/lib/catalog/media/types'
+import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
 import { loadCatalogFromDisk, persistCatalog } from './catalog-storage'
 import {
   assignVariationIds,
@@ -159,6 +163,9 @@ export const jsonProductRepository: ProductRepository = {
     if (filters.batchId) {
       filtered = filtered.filter((p) => p.importBatchId === filters.batchId)
     }
+    if (filters.mediaStatus && filters.mediaStatus !== 'all') {
+      filtered = filtered.filter((p) => matchesMediaStatus(p.images, filters.mediaStatus!))
+    }
 
     // sort
     const by = sort.by ?? 'createdAt'
@@ -225,6 +232,50 @@ export const jsonProductRepository: ProductRepository = {
       await jsonProductRepository.setProductImages(item.id, item.images)
     }
   },
+
+  async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
+    const all = loadCatalogFromDisk().filter(isStorefrontProduct)
+    const { category, pagination = {} } = q
+    const page = Math.max(1, pagination.page ?? 1)
+    const pageSize = pagination.pageSize ?? 24
+
+    let filtered = all
+    if (category) {
+      const cat = category.toLowerCase()
+      filtered = filtered.filter((p) => p.category.toLowerCase().includes(cat))
+    }
+
+    const total = filtered.length
+    const totalPages = Math.max(1, Math.ceil(total / pageSize))
+    const offset = (page - 1) * pageSize
+    const products = filtered.slice(offset, offset + pageSize)
+    const counts: ProductStatusCounts = {
+      all: total,
+      active: total,
+      draft: 0,
+      unavailable: 0,
+      noStock: 0,
+    }
+    return { products, total, page, pageSize, totalPages, counts }
+  },
+
+  async getStorefrontFeatured(limit: number): Promise<Product[]> {
+    return loadCatalogFromDisk()
+      .filter(isStorefrontProduct)
+      .filter((p) => p.variations.some((v) => v.stock > 0))
+      .slice(0, limit)
+  },
+}
+
+function matchesMediaStatus(images: string[], filter: MediaFilter): boolean {
+  if (filter === 'all') return true
+  const status = classifyProductImagesInitial(images)
+  if (filter === 'broken') return status === 'external'
+  return status === filter
+}
+
+function isStorefrontProduct(product: Product): boolean {
+  return product.status === 'active' && !isStorefrontTestResidue(product)
 }
 
 function matchesSearch(p: Product, search: string): boolean {
