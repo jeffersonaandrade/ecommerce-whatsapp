@@ -5,6 +5,8 @@ import { Footer } from '@/components/layout/footer'
 import { CartProvider } from '@/context/cart-context'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildRootMetadata } from '@/lib/store/build-metadata'
+import { getStorefrontCommercialRules } from '@/lib/commercial/commercial-rules'
+import { storeSettingsToPersonalization } from '@/lib/personalization/personalization-settings'
 import './globals.css'
 
 const inter = Inter({
@@ -36,6 +38,11 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const settings = await getStoreSettings()
+  const commercialRules = await getStorefrontCommercialRules()
+  const pricingConfig = {
+    personalizationSettings: storeSettingsToPersonalization(settings),
+    commercialRules,
+  }
 
   return (
     <html
@@ -49,7 +56,7 @@ export default async function RootLayout({
       }
     >
       <body className="flex min-h-screen flex-col bg-canvas font-sans text-ink">
-        <CartProvider>
+        <CartProvider pricingConfig={pricingConfig}>
           <Header />
           <main className="flex-1">{children}</main>
           <Footer />

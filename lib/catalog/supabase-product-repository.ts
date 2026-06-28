@@ -24,7 +24,7 @@ import {
 } from './supabase-mappers'
 
 const PRODUCT_LIST_SELECT =
-  'id, slug, name, short_description, price, promotional_price, category, club, images, status, import_batch_id, product_variations(id, sku, stock, size, color)'
+  'id, slug, name, short_description, price, promotional_price, category, club, images, status, import_batch_id, personalization_enabled, personalization_price, product_variations(id, sku, stock, size, color)'
 
 function productSelect(fields: ProductQuery['fields']): string {
   return fields === 'list' ? PRODUCT_LIST_SELECT : '*, product_variations(*)'
@@ -234,6 +234,8 @@ function buildProduct(input: ProductInput, existing: Pick<Product, 'id' | 'slug'
     variations: assignVariationIds(input.variations),
     status: input.status,
     importBatchId: input.importBatchId,
+    personalizationEnabled: input.personalizationEnabled ?? false,
+    personalizationPrice: input.personalizationPrice ?? null,
   }
 }
 

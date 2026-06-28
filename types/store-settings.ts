@@ -29,6 +29,13 @@ export type StoreSettings = {
   headerBrandDisplay: HeaderBrandDisplay
   benefitsEyebrow: string
   benefitsTitle: string
+  personalizationEnabled: boolean
+  personalizationDefaultPrice: number
+  personalizationNameMaxLength: number
+  personalizationNumberMin: number
+  personalizationNumberMax: number
+  personalizationNotesRequired: boolean
+  personalizationNotesMaxLength: number
   updatedAt: string
 }
 

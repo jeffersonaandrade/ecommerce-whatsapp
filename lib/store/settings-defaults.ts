@@ -44,6 +44,13 @@ export function createDefaultStoreSettings(): StoreSettings {
     headerBrandDisplay: DEFAULT_HEADER_BRAND_DISPLAY,
     benefitsEyebrow: DEFAULT_BENEFITS_EYEBROW,
     benefitsTitle: DEFAULT_BENEFITS_TITLE,
+    personalizationEnabled: false,
+    personalizationDefaultPrice: 0,
+    personalizationNameMaxLength: 15,
+    personalizationNumberMin: 0,
+    personalizationNumberMax: 99,
+    personalizationNotesRequired: false,
+    personalizationNotesMaxLength: 200,
     updatedAt: new Date(0).toISOString(),
   }
 }

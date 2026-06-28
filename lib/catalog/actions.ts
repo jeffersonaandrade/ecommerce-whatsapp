@@ -38,6 +38,8 @@ export type ProductFormPayload = {
     stock: number
   }>
   status: ProductStatus
+  personalizationEnabled?: boolean
+  personalizationPrice?: number | null
 }
 
 function toProductInput(payload: ProductFormPayload): ProductInput {
@@ -53,6 +55,8 @@ function toProductInput(payload: ProductFormPayload): ProductInput {
     images: payload.images,
     variations: payload.variations,
     status: payload.status,
+    personalizationEnabled: payload.personalizationEnabled ?? false,
+    personalizationPrice: payload.personalizationPrice ?? null,
   }
 }
 

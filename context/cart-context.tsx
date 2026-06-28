@@ -9,47 +9,99 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { loadCartItems, saveCartItems } from '@/lib/cart-storage'
+import { loadCartItems, saveCartItems, cartItemKey } from '@/lib/cart-storage'
 import { fetchCatalogProductsByIds } from '@/lib/catalog/client-catalog-cache'
-import {
-  calculateItemCount,
-  calculateSubtotal,
-  cartItemKey,
-  findVariation,
-  resolveCartLines,
-} from '@/lib/cart-utils'
+import { calculateItemCount, findVariation, cartItemKey as utilsCartItemKey } from '@/lib/cart-utils'
+import { computeTotals } from '@/lib/pricing/compute-totals'
 import { getProductById } from '@/lib/products-client'
+import { CartAddons } from '@/types/cart-addons'
+import { CartPricing } from '@/types/cart-pricing'
+import { CommercialRule } from '@/types/commercial-rule'
+import { PersonalizationSettings } from '@/types/personalization-settings'
 import { CartItem, Product } from '@/types/product'
+import {
+  hasPersonalizationAddons,
+  validatePersonalizationAddon,
+} from '@/lib/personalization/validate-personalization'
+
+export type CartPricingConfig = {
+  personalizationSettings: PersonalizationSettings
+  commercialRules: CommercialRule[]
+}
 
 type CartContextValue = {
   items: CartItem[]
   itemCount: number
+  pricing: CartPricing
   subtotal: number
+  cartTotal: number
   isHydrated: boolean
-  addItem: (productId: string, variationId: string, quantity?: number) => void
-  removeItem: (productId: string, variationId: string) => void
+  personalizationSettings: PersonalizationSettings
+  addItem: (
+    productId: string,
+    variationId: string,
+    quantity?: number,
+    addons?: CartAddons
+  ) => string | null
+  removeItem: (productId: string, variationId: string, addons?: CartAddons) => void
   updateQuantity: (
     productId: string,
     variationId: string,
-    quantity: number
+    quantity: number,
+    addons?: CartAddons
   ) => void
   clearCart: () => void
 }
 
+const emptyPricing: CartPricing = {
+  lines: [],
+  merchandiseSubtotal: 0,
+  addonsSubtotal: 0,
+  commercialDiscount: 0,
+  cartTotal: 0,
+}
+
+const defaultPersonalizationSettings: PersonalizationSettings = {
+  enabled: false,
+  defaultPrice: 0,
+  nameMaxLength: 15,
+  numberMin: 0,
+  numberMax: 99,
+  notesRequired: false,
+  notesMaxLength: 200,
+  updatedAt: new Date(0).toISOString(),
+}
+
 const CartContext = createContext<CartContextValue | null>(null)
 
-function sanitizeItems(items: CartItem[]): CartItem[] {
-  const lines = resolveCartLines(items)
+function buildPricing(
+  items: CartItem[],
+  config: CartPricingConfig
+): CartPricing {
+  if (items.length === 0) return emptyPricing
+  return computeTotals(items, {
+    getProductById,
+    personalizationSettings: config.personalizationSettings,
+    commercialRules: config.commercialRules,
+  })
+}
+
+function sanitizeItems(items: CartItem[], config: CartPricingConfig): CartItem[] {
+  const pricing = buildPricing(items, config)
   const validKeys = new Set(
-    lines.map((line) => cartItemKey(line.productId, line.variationId))
+    pricing.lines.map((line) =>
+      utilsCartItemKey(line.productId, line.variationId, line.addons)
+    )
   )
 
   return items
-    .filter((item) => validKeys.has(cartItemKey(item.productId, item.variationId)))
+    .filter((item) =>
+      validKeys.has(utilsCartItemKey(item.productId, item.variationId, item.addons))
+    )
     .map((item) => {
-      const line = lines.find(
-        (l) =>
-          l.productId === item.productId && l.variationId === item.variationId
+      const key = utilsCartItemKey(item.productId, item.variationId, item.addons)
+      const line = pricing.lines.find(
+        (l) => utilsCartItemKey(l.productId, l.variationId, l.addons) === key
       )
       if (!line) return item
       return { ...item, quantity: Math.min(item.quantity, line.maxStock) }
@@ -57,9 +109,34 @@ function sanitizeItems(items: CartItem[]): CartItem[] {
     .filter((item) => item.quantity > 0)
 }
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({
+  children,
+  pricingConfig,
+}: {
+  children: ReactNode
+  pricingConfig?: CartPricingConfig
+}) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
+  const [commercialRules, setCommercialRules] = useState<CommercialRule[]>(
+    pricingConfig?.commercialRules ?? []
+  )
+
+  const personalizationSettings =
+    pricingConfig?.personalizationSettings ?? defaultPersonalizationSettings
+
+  const config: CartPricingConfig = useMemo(
+    () => ({ personalizationSettings, commercialRules }),
+    [personalizationSettings, commercialRules]
+  )
+
+  useEffect(() => {
+    if (pricingConfig?.commercialRules) return
+    fetch('/api/commercial-rules/active')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((rules: CommercialRule[]) => setCommercialRules(rules))
+      .catch(() => {})
+  }, [pricingConfig?.commercialRules])
 
   useEffect(() => {
     let cancelled = false
@@ -72,12 +149,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         try {
           await fetchCatalogProductsByIds(productIds)
         } catch {
-          // catálogo indisponível — carrinho segue com itens já validados
+          // catálogo indisponível
         }
       }
 
       if (cancelled) return
-      const sanitized = sanitizeItems(stored)
+      const sanitized = sanitizeItems(stored, config)
       setItems(sanitized)
       if (sanitized.length !== stored.length) {
         saveCartItems(sanitized)
@@ -89,75 +166,118 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [config])
 
   useEffect(() => {
     if (!isHydrated) return
     saveCartItems(items)
   }, [items, isHydrated])
 
-  const persist = useCallback((next: CartItem[]) => {
-    setItems(sanitizeItems(next))
-  }, [])
+  const persist = useCallback(
+    (next: CartItem[]) => {
+      setItems(sanitizeItems(next, config))
+    },
+    [config]
+  )
 
   const addItem = useCallback(
-    (productId: string, variationId: string, quantity = 1) => {
+    (
+      productId: string,
+      variationId: string,
+      quantity = 1,
+      addons?: CartAddons
+    ): string | null => {
       const product = getProductById(productId)
       const variation = product ? findVariation(product, variationId) : undefined
-      if (!product || !variation || variation.stock <= 0) return
+      if (!product || !variation || variation.stock <= 0) return null
 
-      const addQty = Math.min(Math.max(1, Math.floor(quantity)), variation.stock)
+      if (addons?.personalization) {
+        const error = validatePersonalizationAddon(
+          addons.personalization,
+          personalizationSettings
+        )
+        if (error) return error
+        if (!product.personalizationEnabled || !personalizationSettings.enabled) {
+          return 'Personalização indisponível para este produto.'
+        }
+      }
+
+      const hasAddons = hasPersonalizationAddons(addons)
+      const addQty = hasAddons
+        ? 1
+        : Math.min(Math.max(1, Math.floor(quantity)), variation.stock)
 
       setItems((current) => {
-        const key = cartItemKey(productId, variationId)
+        const key = cartItemKey(productId, variationId, addons)
         const existing = current.find(
-          (item) => cartItemKey(item.productId, item.variationId) === key
+          (item) => cartItemKey(item.productId, item.variationId, item.addons) === key
         )
 
         if (existing) {
+          if (hasAddons) return current
           const nextQty = Math.min(existing.quantity + addQty, variation.stock)
           return current.map((item) =>
-            cartItemKey(item.productId, item.variationId) === key
+            cartItemKey(item.productId, item.variationId, item.addons) === key
               ? { ...item, quantity: nextQty }
               : item
           )
         }
 
-        return [...current, { productId, variationId, quantity: addQty }]
+        return [
+          ...current,
+          {
+            productId,
+            variationId,
+            quantity: addQty,
+            ...(addons ? { addons } : {}),
+          },
+        ]
       })
+
+      return null
+    },
+    [personalizationSettings]
+  )
+
+  const removeItem = useCallback(
+    (productId: string, variationId: string, addons?: CartAddons) => {
+      const key = cartItemKey(productId, variationId, addons)
+      setItems((current) =>
+        current.filter(
+          (item) => cartItemKey(item.productId, item.variationId, item.addons) !== key
+        )
+      )
     },
     []
   )
 
-  const removeItem = useCallback((productId: string, variationId: string) => {
-    const key = cartItemKey(productId, variationId)
-    setItems((current) =>
-      current.filter(
-        (item) => cartItemKey(item.productId, item.variationId) !== key
-      )
-    )
-  }, [])
-
   const updateQuantity = useCallback(
-    (productId: string, variationId: string, quantity: number) => {
+    (
+      productId: string,
+      variationId: string,
+      quantity: number,
+      addons?: CartAddons
+    ) => {
+      if (hasPersonalizationAddons(addons)) return
+
       if (quantity <= 0) {
-        removeItem(productId, variationId)
+        removeItem(productId, variationId, addons)
         return
       }
 
       const product = getProductById(productId)
       const variation = product ? findVariation(product, variationId) : undefined
       if (!variation) {
-        removeItem(productId, variationId)
+        removeItem(productId, variationId, addons)
         return
       }
 
       const nextQty = Math.min(Math.floor(quantity), variation.stock)
-      const key = cartItemKey(productId, variationId)
+      const key = cartItemKey(productId, variationId, addons)
 
       setItems((current) =>
         current.map((item) =>
-          cartItemKey(item.productId, item.variationId) === key
+          cartItemKey(item.productId, item.variationId, item.addons) === key
             ? { ...item, quantity: nextQty }
             : item
         )
@@ -170,16 +290,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     persist([])
   }, [persist])
 
-  const lines = useMemo(() => resolveCartLines(items), [items])
+  const pricing = useMemo(() => buildPricing(items, config), [items, config])
   const itemCount = useMemo(() => calculateItemCount(items), [items])
-  const subtotal = useMemo(() => calculateSubtotal(lines), [lines])
 
   const value = useMemo(
     () => ({
       items,
       itemCount,
-      subtotal,
+      pricing,
+      subtotal: pricing.merchandiseSubtotal,
+      cartTotal: pricing.cartTotal,
       isHydrated,
+      personalizationSettings,
       addItem,
       removeItem,
       updateQuantity,
@@ -188,8 +310,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [
       items,
       itemCount,
-      subtotal,
+      pricing,
       isHydrated,
+      personalizationSettings,
       addItem,
       removeItem,
       updateQuantity,
@@ -206,4 +329,10 @@ export function useCart(): CartContextValue {
     throw new Error('useCart must be used within CartProvider')
   }
   return context
+}
+
+export function useProductPersonalizationPrice(product: Product): number {
+  const { personalizationSettings } = useCart()
+  if (product.personalizationPrice != null) return product.personalizationPrice
+  return personalizationSettings.defaultPrice
 }

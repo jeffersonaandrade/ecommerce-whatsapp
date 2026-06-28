@@ -1,6 +1,14 @@
 import { formatPrice } from '@/lib/formatters'
 import { PurchaseIntent } from '@/types/purchase-intent'
 
+function formatAddonsLine(intentLine: PurchaseIntent['lines'][number]): string | null {
+  const p = intentLine.addons?.personalization
+  if (!p) return null
+  const parts = [`Nome: ${p.name}`, `Nº: ${p.number}`]
+  if (p.notes?.trim()) parts.push(`Obs: ${p.notes.trim()}`)
+  return parts.join(' | ')
+}
+
 export function buildWhatsAppMessage(
   intent: PurchaseIntent,
   prefix = ''
@@ -23,11 +31,23 @@ export function buildWhatsAppMessage(
       ]
         .filter(Boolean)
         .join(' | '),
-      `Qtd: ${line.quantity} | Subtotal: ${formatPrice(line.lineSubtotal)}`,
+      formatAddonsLine(line),
+      `Qtd: ${line.quantity} | Subtotal: ${formatPrice(line.lineMerchandiseTotal)}`,
       line.productUrl,
-    ].filter(Boolean)
+    ].filter(Boolean) as string[]
 
     lines.push(...parts, '')
+  }
+
+  if (intent.addonsSubtotal > 0) {
+    lines.push(`Personalização: ${formatPrice(intent.addonsSubtotal)}`, '')
+  }
+
+  if (intent.commercialDiscount > 0) {
+    const label = intent.appliedRuleName
+      ? `Desconto (${intent.appliedRuleName})`
+      : 'Desconto'
+    lines.push(`${label}: -${formatPrice(intent.commercialDiscount)}`, '')
   }
 
   lines.push(`Total: ${formatPrice(intent.cartTotal)}`, '', 'Aguardo retorno.')

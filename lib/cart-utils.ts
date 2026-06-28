@@ -1,15 +1,9 @@
 import { getProductById } from '@/lib/products-client'
 import { CartItem, Product, ProductVariation } from '@/types/product'
+import { resolveProductPrice } from '@/lib/pricing/resolve-product-price'
+import { cartItemKey as storageCartItemKey } from '@/lib/cart-storage'
 
-export function resolveProductPrice(product: Product): number {
-  if (
-    product.promotionalPrice != null &&
-    product.promotionalPrice < product.price
-  ) {
-    return product.promotionalPrice
-  }
-  return product.price
-}
+export { resolveProductPrice }
 
 export type CartLine = {
   productId: string
@@ -91,6 +85,10 @@ export function calculateItemCount(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity, 0)
 }
 
-export function cartItemKey(productId: string, variationId: string): string {
-  return `${productId}:${variationId}`
+export function cartItemKey(
+  productId: string,
+  variationId: string,
+  addons?: CartItem['addons']
+): string {
+  return storageCartItemKey(productId, variationId, addons)
 }

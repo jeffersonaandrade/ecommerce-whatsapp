@@ -35,6 +35,13 @@ export type StoreSettingsRow = {
   header_brand_display?: string | null
   benefits_eyebrow?: string | null
   benefits_title?: string | null
+  personalization_enabled?: boolean | null
+  personalization_default_price?: number | null
+  personalization_name_max_length?: number | null
+  personalization_number_min?: number | null
+  personalization_number_max?: number | null
+  personalization_notes_required?: boolean | null
+  personalization_notes_max_length?: number | null
   updated_at: string
 }
 
@@ -68,6 +75,13 @@ export function rowToStoreSettings(row: StoreSettingsRow): StoreSettings {
     headerBrandDisplay: normalizeHeaderBrandDisplay(row.header_brand_display),
     benefitsEyebrow: row.benefits_eyebrow?.trim() || DEFAULT_BENEFITS_EYEBROW,
     benefitsTitle: row.benefits_title?.trim() || DEFAULT_BENEFITS_TITLE,
+    personalizationEnabled: row.personalization_enabled ?? false,
+    personalizationDefaultPrice: Number(row.personalization_default_price ?? 0),
+    personalizationNameMaxLength: row.personalization_name_max_length ?? 15,
+    personalizationNumberMin: row.personalization_number_min ?? 0,
+    personalizationNumberMax: row.personalization_number_max ?? 99,
+    personalizationNotesRequired: row.personalization_notes_required ?? false,
+    personalizationNotesMaxLength: row.personalization_notes_max_length ?? 200,
     updatedAt: row.updated_at,
   }
 }
@@ -103,6 +117,13 @@ export function storeSettingsToRow(settings: StoreSettings): StoreSettingsRow {
     header_brand_display: settings.headerBrandDisplay,
     benefits_eyebrow: settings.benefitsEyebrow,
     benefits_title: settings.benefitsTitle,
+    personalization_enabled: settings.personalizationEnabled,
+    personalization_default_price: settings.personalizationDefaultPrice,
+    personalization_name_max_length: settings.personalizationNameMaxLength,
+    personalization_number_min: settings.personalizationNumberMin,
+    personalization_number_max: settings.personalizationNumberMax,
+    personalization_notes_required: settings.personalizationNotesRequired,
+    personalization_notes_max_length: settings.personalizationNotesMaxLength,
     updated_at: settings.updatedAt,
   }
 }

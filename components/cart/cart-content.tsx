@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useCart } from '@/context/cart-context'
 import { formatPrice } from '@/lib/formatters'
-import { resolveCartLines } from '@/lib/cart-utils'
 import { Button, getButtonClassName } from '@/components/ui/button'
 import { CartLineItem } from '@/components/cart/cart-line-item'
 import { buildPurchaseIntentFromCart } from '@/lib/purchase-intent/build-purchase-intent'
@@ -11,6 +10,7 @@ import {
   buildWhatsAppMessage,
   buildWhatsAppUrl,
 } from '@/lib/purchase-intent/build-whatsapp-message'
+import { cartItemKey } from '@/lib/cart-storage'
 
 type CartContentProps = {
   siteUrl: string
@@ -23,11 +23,10 @@ export function CartContent({
   whatsappPhone,
   whatsappMessagePrefix = '',
 }: CartContentProps) {
-  const { items, itemCount, subtotal, clearCart, isHydrated } = useCart()
-  const lines = resolveCartLines(items)
+  const { pricing, itemCount, clearCart, isHydrated } = useCart()
 
   function handleWhatsAppCheckout() {
-    const intent = buildPurchaseIntentFromCart(lines, siteUrl)
+    const intent = buildPurchaseIntentFromCart(pricing, siteUrl)
     if (!intent) return
 
     const message = buildWhatsAppMessage(intent, whatsappMessagePrefix)
@@ -41,7 +40,7 @@ export function CartContent({
     )
   }
 
-  if (lines.length === 0) {
+  if (pricing.lines.length === 0) {
     return (
       <div className="border border-hairline bg-soft-cloud px-6 py-16 text-center">
         <h2 className="text-2xl font-bold tracking-tight text-ink">
@@ -62,19 +61,17 @@ export function CartContent({
 
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:gap-12">
-      {/* Line items — DS §5 cart list 2 cols span */}
       <div className="lg:col-span-2">
         <div className="divide-y divide-hairline border-y border-hairline">
-          {lines.map((line) => (
+          {pricing.lines.map((line) => (
             <CartLineItem
-              key={`${line.productId}-${line.variationId}`}
+              key={cartItemKey(line.productId, line.variationId, line.addons)}
               line={line}
             />
           ))}
         </div>
       </div>
 
-      {/* Summary — DS §5 sticky; §8 hairline + shadow-sm exception */}
       <div className="lg:col-span-1">
         <aside className="sticky top-24 space-y-5 border border-hairline bg-canvas p-6 shadow-sm">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-ink">
@@ -88,10 +85,34 @@ export function CartContent({
             </span>
           </div>
 
+          <div className="space-y-2 border-t border-hairline pt-4 text-sm">
+            <div className="flex justify-between">
+              <span className="text-mute">Subtotal produtos</span>
+              <span className="text-ink">{formatPrice(pricing.merchandiseSubtotal)}</span>
+            </div>
+            {pricing.addonsSubtotal > 0 && (
+              <div className="flex justify-between">
+                <span className="text-mute">Personalização</span>
+                <span className="text-ink">{formatPrice(pricing.addonsSubtotal)}</span>
+              </div>
+            )}
+            {pricing.commercialDiscount > 0 && (
+              <div className="flex justify-between text-success">
+                <span>
+                  Desconto
+                  {pricing.appliedRule?.ruleName
+                    ? ` (${pricing.appliedRule.ruleName})`
+                    : ''}
+                </span>
+                <span>-{formatPrice(pricing.commercialDiscount)}</span>
+              </div>
+            )}
+          </div>
+
           <div className="flex items-baseline justify-between border-t border-hairline pt-4">
-            <span className="font-semibold text-ink">Subtotal</span>
+            <span className="font-semibold text-ink">Total</span>
             <span className="text-2xl font-bold text-ink">
-              {formatPrice(subtotal)}
+              {formatPrice(pricing.cartTotal)}
             </span>
           </div>
 

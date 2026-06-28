@@ -71,6 +71,8 @@ function productToForm(product: Product, categories: Category[]) {
     category: resolveProductCategorySelectValue(product.category, categories),
     club: product.club ?? '',
     status: product.status,
+    personalizationEnabled: product.personalizationEnabled ?? false,
+    personalizationPrice: product.personalizationPrice ?? null,
     images: [...product.images],
     variations: product.variations.map((v) => ({
       id: v.id,
@@ -88,6 +90,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
   const errorAlertRef = useRef<HTMLDivElement>(null)
   const priceInputRef = useRef<MoneyInputHandle>(null)
   const promotionalPriceInputRef = useRef<MoneyInputHandle>(null)
+  const personalizationPriceInputRef = useRef<MoneyInputHandle>(null)
   const initial = product
     ? productToForm(product, categories)
     : {
@@ -100,6 +103,8 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
         category: defaultCategorySlug(categories),
         club: '',
         status: 'draft' as ProductStatus,
+        personalizationEnabled: false,
+        personalizationPrice: null as number | null,
         images: [] as string[],
         variations: [emptyVariation()],
       }
@@ -115,6 +120,12 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
   const [category, setCategory] = useState(initial.category)
   const [club, setClub] = useState(initial.club)
   const [status, setStatus] = useState<ProductStatus>(initial.status)
+  const [personalizationEnabled, setPersonalizationEnabled] = useState(
+    initial.personalizationEnabled
+  )
+  const [personalizationPrice, setPersonalizationPrice] = useState<number | null>(
+    initial.personalizationPrice
+  )
   const [images, setImages] = useState<string[]>(initial.images)
   const [variations, setVariations] = useState<VariationRow[]>(initial.variations)
   const [errors, setErrors] = useState<string[]>([])
@@ -186,6 +197,8 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
         stock: parseInt(v.stock, 10) || 0,
       })),
       status,
+      personalizationEnabled,
+      personalizationPrice,
     }
   }
 
@@ -202,6 +215,8 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
       images: payload.images,
       variations: payload.variations,
       status: payload.status,
+      personalizationEnabled: payload.personalizationEnabled,
+      personalizationPrice: payload.personalizationPrice ?? null,
     }
   }
 
@@ -215,8 +230,11 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
 
     const committedPrice = priceInputRef.current?.commit() ?? price
     const committedPromo = promotionalPriceInputRef.current?.commit() ?? promotionalPrice
+    const committedPersoPrice =
+      personalizationPriceInputRef.current?.commit() ?? personalizationPrice
     setPrice(committedPrice)
     setPromotionalPrice(committedPromo)
+    setPersonalizationPrice(committedPersoPrice)
 
     if (committedPrice == null || committedPrice <= 0) {
       applyValidationErrors([
@@ -226,6 +244,8 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
     }
 
     const payload = buildPayload(committedPrice, committedPromo)
+    payload.personalizationEnabled = personalizationEnabled
+    payload.personalizationPrice = committedPersoPrice
     const clientErrors = validateProductInput(
       payloadToInput(payload),
       [],
@@ -383,6 +403,33 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               />
               <FieldError message={fieldErrors.promotionalPrice} />
             </label>
+            <div className="space-y-3 sm:col-span-2 rounded-lg border border-hairline p-4">
+              <h3 className="text-sm font-semibold text-ink">Personalização</h3>
+              <label className="flex items-center gap-2 text-sm text-ink">
+                <input
+                  type="checkbox"
+                  checked={personalizationEnabled}
+                  onChange={(e) => setPersonalizationEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-hairline"
+                />
+                Permitir personalização neste produto
+              </label>
+              <label className="block space-y-1">
+                <span className="text-sm font-medium text-ink">
+                  Preço da personalização (opcional)
+                </span>
+                <MoneyInput
+                  ref={personalizationPriceInputRef}
+                  id="product-field-personalizationPrice"
+                  value={personalizationPrice}
+                  onChange={setPersonalizationPrice}
+                  aria-label="Preço personalização"
+                />
+                <p className="text-xs text-mute">
+                  Deixe vazio para usar o preço padrão da loja.
+                </p>
+              </label>
+            </div>
             <label className="block space-y-1 sm:col-span-2">
               <span className="text-sm font-medium text-ink">Status</span>
               <select

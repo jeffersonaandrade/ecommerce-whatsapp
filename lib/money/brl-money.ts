@@ -15,16 +15,19 @@ export function formatBrlMoneyInput(value: number | null | undefined): string {
 
 /**
  * Converte string digitada/colada para reais.
- * - "129,90" / "R$ 129,90" => 129.9
- * - "129.90" => 129.9
- * - Somente dígitos ("12990") => centavos => 129.9 (evita gravar 12990 reais)
+ * - "30"       => 30    (dígitos puros = reais, não centavos)
+ * - "129,90"   => 129.9
+ * - "R$ 129,90"=> 129.9
+ * - "129.90"   => 129.9
+ * Comportamento de centavos (ex.: "3000" → 30,00) fica exclusivamente
+ * no componente MoneyInput, que usa a máscara ATM.
  */
 export function parseBrlMoney(input: string): number | null {
   const trimmed = input.trim()
   if (!trimmed) return null
 
   let normalized = trimmed
-    .replace(/\u00a0/g, ' ')
+    .replace(/ /g, ' ')
     .replace(/R\$\s?/gi, '')
     .trim()
 
@@ -34,8 +37,8 @@ export function parseBrlMoney(input: string): number | null {
   if (!hasComma && !hasDot) {
     const digits = normalized.replace(/\D/g, '')
     if (!digits) return null
-    const cents = Number(digits)
-    return Number.isFinite(cents) ? cents / 100 : null
+    const reais = Number(digits)
+    return Number.isFinite(reais) ? reais : null
   }
 
   normalized = normalized.replace(/[^\d,.-]/g, '')

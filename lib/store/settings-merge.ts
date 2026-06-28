@@ -58,6 +58,20 @@ export function mergeStoreSettings(
     ),
     benefitsEyebrow: input.benefitsEyebrow?.trim() ?? current.benefitsEyebrow,
     benefitsTitle: input.benefitsTitle?.trim() ?? current.benefitsTitle,
+    personalizationEnabled:
+      input.personalizationEnabled ?? current.personalizationEnabled,
+    personalizationDefaultPrice:
+      input.personalizationDefaultPrice ?? current.personalizationDefaultPrice,
+    personalizationNameMaxLength:
+      input.personalizationNameMaxLength ?? current.personalizationNameMaxLength,
+    personalizationNumberMin:
+      input.personalizationNumberMin ?? current.personalizationNumberMin,
+    personalizationNumberMax:
+      input.personalizationNumberMax ?? current.personalizationNumberMax,
+    personalizationNotesRequired:
+      input.personalizationNotesRequired ?? current.personalizationNotesRequired,
+    personalizationNotesMaxLength:
+      input.personalizationNotesMaxLength ?? current.personalizationNotesMaxLength,
     updatedAt: new Date().toISOString(),
   }
 }

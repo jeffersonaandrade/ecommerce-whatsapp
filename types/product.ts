@@ -8,6 +8,8 @@ export type ProductVariation = {
   stock: number
 }
 
+import type { CartAddons } from '@/types/cart-addons'
+
 export type Product = {
   id: string
   name: string
@@ -22,12 +24,15 @@ export type Product = {
   variations: ProductVariation[]
   status: ProductStatus
   importBatchId?: string
+  personalizationEnabled?: boolean
+  personalizationPrice?: number | null
 }
 
 export type CartItem = {
   productId: string
   variationId: string
   quantity: number
+  addons?: CartAddons
 }
 
 export type Cart = {

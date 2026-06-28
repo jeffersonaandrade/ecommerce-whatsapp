@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useCart } from '@/context/cart-context'
+import { useCart, useProductPersonalizationPrice } from '@/context/cart-context'
 import {
   findDefaultVariation,
   resolveVariationBySelection,
@@ -9,6 +9,8 @@ import {
 import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
 import { Product } from '@/types/product'
 import { Button } from '@/components/ui/button'
+import { ProductAddonsFields } from '@/components/product/product-addons-fields'
+import { PersonalizationAddon } from '@/types/cart-addons'
 
 interface ProductPurchasePanelProps {
   product: Product
@@ -24,7 +26,8 @@ function optionClass(selected: boolean): string {
 }
 
 export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
-  const { addItem } = useCart()
+  const { addItem, personalizationSettings } = useCart()
+  const personalizationUnitPrice = useProductPersonalizationPrice(product)
   const [selectedSize, setSelectedSize] = useState<string | undefined>(
     () => findDefaultVariation(product)?.size
   )
@@ -32,6 +35,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     () => findDefaultVariation(product)?.color
   )
   const [addedFeedback, setAddedFeedback] = useState(false)
+  const [addonEnabled, setAddonEnabled] = useState(false)
+  const [personalization, setPersonalization] = useState<PersonalizationAddon | null>(null)
+  const [addonError, setAddonError] = useState<string | null>(null)
 
   const sizes = Array.from(
     new Set(product.variations.map((v) => v.size).filter(Boolean))
@@ -47,10 +53,30 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
   )
   const hasStock = product.variations.some((v) => v.stock > 0)
   const canAdd = hasStock && selectedVariation && selectedVariation.stock > 0
+  const showPersonalization =
+    personalizationSettings.enabled && product.personalizationEnabled
+
+  function handleAddonsChange(enabled: boolean, addon: PersonalizationAddon | null) {
+    setAddonEnabled(enabled)
+    setPersonalization(addon)
+    setAddonError(null)
+  }
 
   function handleAddToCart() {
     if (!selectedVariation) return
-    addItem(product.id, selectedVariation.id, 1)
+
+    const addons =
+      addonEnabled && personalization
+        ? { personalization }
+        : undefined
+
+    const error = addItem(product.id, selectedVariation.id, 1, addons)
+    if (error) {
+      setAddonError(error)
+      return
+    }
+
+    setAddonError(null)
     setAddedFeedback(true)
     window.setTimeout(() => setAddedFeedback(false), 2000)
   }
@@ -102,6 +128,15 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
             ))}
           </div>
         </fieldset>
+      )}
+
+      {showPersonalization && (
+        <ProductAddonsFields
+          settings={personalizationSettings}
+          unitPrice={personalizationUnitPrice}
+          onChange={handleAddonsChange}
+          error={addonError}
+        />
       )}
 
       <div className="space-y-3 pt-2">

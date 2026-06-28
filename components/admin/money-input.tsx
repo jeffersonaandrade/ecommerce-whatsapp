@@ -7,7 +7,7 @@ import {
   useImperativeHandle,
   useState,
 } from 'react'
-import { formatBrlMoneyInput, parseBrlMoney } from '@/lib/money/brl-money'
+import { formatBrlMoneyInput } from '@/lib/money/brl-money'
 
 export type MoneyInputHandle = {
   commit: () => number | null
@@ -22,6 +22,22 @@ type MoneyInputProps = {
   placeholder?: string
   className?: string
   'aria-label'?: string
+}
+
+function reaisToDigits(reais: number | null): string {
+  if (reais == null || !Number.isFinite(reais) || reais <= 0) return ''
+  return String(Math.round(reais * 100))
+}
+
+function digitsToReais(digits: string): number | null {
+  if (!digits) return null
+  const cents = parseInt(digits, 10)
+  return Number.isFinite(cents) ? cents / 100 : null
+}
+
+function digitsToDisplay(digits: string): string {
+  if (!digits) return ''
+  return formatBrlMoneyInput(parseInt(digits, 10) / 100)
 }
 
 export const MoneyInput = forwardRef<MoneyInputHandle, MoneyInputProps>(
@@ -40,43 +56,53 @@ export const MoneyInput = forwardRef<MoneyInputHandle, MoneyInputProps>(
   ) {
     const autoId = useId()
     const inputId = id ?? autoId
-    const [text, setText] = useState(() => formatBrlMoneyInput(value))
+    const [centsStr, setCentsStr] = useState<string>(() => reaisToDigits(value))
     const [focused, setFocused] = useState(false)
 
+    // Sync from parent when not focused (e.g. form reset or initial load)
     useEffect(() => {
       if (!focused) {
-        setText(formatBrlMoneyInput(value))
+        setCentsStr(reaisToDigits(value))
       }
     }, [value, focused])
 
-    function commitInput(): number | null {
-      const parsed = parseBrlMoney(text)
-      onChange(parsed)
-      setText(parsed == null ? text.trim() : formatBrlMoneyInput(parsed))
-      return parsed
+    function updateCents(digits: string) {
+      const capped = digits.slice(0, 10) // max R$ 99.999.999,99
+      setCentsStr(capped)
+      onChange(digitsToReais(capped))
     }
 
     useImperativeHandle(ref, () => ({
-      commit: commitInput,
+      commit: () => digitsToReais(centsStr),
     }))
+
+    function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+      if (e.key === 'Backspace' || e.key === 'Delete') {
+        e.preventDefault()
+        updateCents(centsStr.slice(0, -1))
+      }
+    }
+
+    function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+      const digits = e.target.value.replace(/\D/g, '')
+      updateCents(digits)
+    }
 
     return (
       <input
         id={inputId}
         type="text"
-        inputMode="decimal"
+        inputMode="numeric"
         autoComplete="off"
         required={required}
         disabled={disabled}
         placeholder={placeholder}
         aria-label={ariaLabel}
-        value={text}
+        value={digitsToDisplay(centsStr)}
         onFocus={() => setFocused(true)}
-        onBlur={() => {
-          setFocused(false)
-          commitInput()
-        }}
-        onChange={(e) => setText(e.target.value)}
+        onBlur={() => setFocused(false)}
+        onKeyDown={handleKeyDown}
+        onChange={handleChange}
         className={
           className ??
           'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-600'

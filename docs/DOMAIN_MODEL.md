@@ -117,8 +117,9 @@ Admin: `/admin/categories` — criar, editar, ordenar, ocultar (`visible`). Sele
 | Campo | Descrição |
 |-------|-----------|
 | `productId`, `variationId`, `quantity` | Referência à variação |
+| `addons?` | Ex.: `personalization: { name, number, notes? }` |
 
-**Regras:** persistido em `localStorage` (cliente); `subtotal` derivado via `resolveCartLines()`; não é pedido.
+**Regras:** persistido em `localStorage` v2; totais via `lib/pricing/computeTotals()`; não é pedido.
 
 **Implementação:** [`context/cart-context.tsx`](../context/cart-context.tsx), [`lib/cart-storage.ts`](../lib/cart-storage.ts).
 
@@ -132,8 +133,9 @@ Admin: `/admin/categories` — criar, editar, ordenar, ocultar (`visible`). Sele
 |-------------------|-----------|
 | `productName`, `slug`, `productUrl` | Produto + link PDP |
 | `size`, `color`, `sku` | Variação |
-| `quantity`, `lineSubtotal` | Quantidade e subtotal da linha |
-| `cartTotal` | Total agregado |
+| `quantity`, `lineMerchandiseTotal` | Quantidade e subtotal da linha |
+| `addons?` | Personalização por item |
+| `merchandiseSubtotal`, `commercialDiscount`, `cartTotal` | Totais com desconto comercial |
 
 **Relacionamentos:** derivado de `Cart` → consumido por `WhatsappStrategy` (Fase 6).
 

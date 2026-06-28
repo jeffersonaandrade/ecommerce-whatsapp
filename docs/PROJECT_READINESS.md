@@ -15,8 +15,9 @@ Documentação relacionada: [PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md), [ARC
 | Branding | ✅ | Settings + storage |
 | Multi Cliente | ✅ | Deploy por cliente documentado |
 | Performance | 🟡 | Consultas globais reduzidas; TTFB produção pendente |
-| Carrinho | 🟡 | API por IDs; hydrate condicional |
-| Checkout | 🔴 | Placeholder WhatsApp |
+| Carrinho | 🟡 | Addons personalização; pricing pipeline; promoções por prioridade |
+| Checkout | 🟡 | WhatsApp com desconto comercial + personalização |
+| Comercial | 🟡 | Promoções qty + personalização; cupons/frete futuro |
 | Pedidos | 🔴 | V2 |
 | Analytics | 🔴 | Não implementado |
 

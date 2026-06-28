@@ -46,6 +46,8 @@ function buildProduct(input: ProductInput, existing: Product[]): Product {
     variations: assignVariationIds(input.variations),
     status: input.status,
     importBatchId: input.importBatchId,
+    personalizationEnabled: input.personalizationEnabled ?? false,
+    personalizationPrice: input.personalizationPrice ?? null,
   }
 }
 
@@ -101,6 +103,8 @@ export const jsonProductRepository: ProductRepository = {
       variations: assignVariationIds(input.variations, products[index].variations),
       status: input.status,
       importBatchId: input.importBatchId ?? products[index].importBatchId,
+      personalizationEnabled: input.personalizationEnabled ?? false,
+      personalizationPrice: input.personalizationPrice ?? null,
     }
     const next = [...products]
     next[index] = updated

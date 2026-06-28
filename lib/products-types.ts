@@ -5,6 +5,8 @@ export type ProductCartLite = {
   price: number
   promotionalPrice?: number
   images: string[]
+  personalizationEnabled?: boolean
+  personalizationPrice?: number | null
   variations: Array<{
     id: string
     sku: string

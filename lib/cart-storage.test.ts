@@ -38,8 +38,8 @@ describe('cart-storage', () => {
     expect(loadCartItems()).toEqual([])
   })
 
-  it('loadCartItems retorna [] quando não é array', () => {
-    localStorage.setItem(CART_STORAGE_KEY, '{"items":[]}')
+  it('loadCartItems retorna [] quando não é array legado válido', () => {
+    localStorage.setItem(CART_STORAGE_KEY, '{"foo":[]}')
     expect(loadCartItems()).toEqual([])
   })
 
@@ -61,7 +61,7 @@ describe('cart-storage', () => {
     ])
   })
 
-  it('saveCartItems e loadCartItems persistem apenas campos mínimos', () => {
+  it('saveCartItems e loadCartItems persistem formato v2', () => {
     saveCartItems([
       { productId: '1', variationId: 'v1', quantity: 3 },
       { productId: '2', variationId: 'v9', quantity: 1 },
@@ -69,14 +69,47 @@ describe('cart-storage', () => {
 
     const raw = localStorage.getItem(CART_STORAGE_KEY)
     expect(raw).toBe(
-      JSON.stringify([
-        { productId: '1', variationId: 'v1', quantity: 3 },
-        { productId: '2', variationId: 'v9', quantity: 1 },
-      ])
+      JSON.stringify({
+        version: 2,
+        items: [
+          { productId: '1', variationId: 'v1', quantity: 3 },
+          { productId: '2', variationId: 'v9', quantity: 1 },
+        ],
+      })
     )
     expect(loadCartItems()).toEqual([
       { productId: '1', variationId: 'v1', quantity: 3 },
       { productId: '2', variationId: 'v9', quantity: 1 },
+    ])
+  })
+
+  it('loadCartItems aceita formato legado (array)', () => {
+    localStorage.setItem(
+      CART_STORAGE_KEY,
+      JSON.stringify([{ productId: '1', variationId: 'v1', quantity: 2 }])
+    )
+    expect(loadCartItems()).toEqual([
+      { productId: '1', variationId: 'v1', quantity: 2 },
+    ])
+  })
+
+  it('persiste addons de personalização', () => {
+    saveCartItems([
+      {
+        productId: '1',
+        variationId: 'v1',
+        quantity: 1,
+        addons: { personalization: { name: 'JEFF', number: '10' } },
+      },
+    ])
+
+    expect(loadCartItems()).toEqual([
+      {
+        productId: '1',
+        variationId: 'v1',
+        quantity: 1,
+        addons: { personalization: { name: 'JEFF', number: '10' } },
+      },
     ])
   })
 

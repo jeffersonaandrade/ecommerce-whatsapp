@@ -142,8 +142,15 @@ export default async function AdminPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <NavCard
-              href="/admin/categories"
+              href="/admin/comercial"
               emoji="🏷️"
+              title="Comercial"
+              description="Promoções, personalização e regras"
+              buttonLabel="Comercial"
+            />
+            <NavCard
+              href="/admin/categories"
+              emoji="📂"
               title="Categorias"
               description="Organização do catálogo — Fase 4"
               buttonLabel="Categorias"

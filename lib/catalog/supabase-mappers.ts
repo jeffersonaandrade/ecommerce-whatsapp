@@ -13,6 +13,8 @@ export type ProductRow = {
   images: string[]
   status: ProductStatus
   import_batch_id: string | null
+  personalization_enabled?: boolean | null
+  personalization_price?: number | null
   created_at?: string
   updated_at?: string
 }
@@ -51,6 +53,9 @@ export function rowsToProduct(
     })),
     status: row.status,
     importBatchId: row.import_batch_id ?? undefined,
+    personalizationEnabled: row.personalization_enabled ?? false,
+    personalizationPrice:
+      row.personalization_price != null ? Number(row.personalization_price) : null,
   }
 }
 
@@ -68,6 +73,8 @@ export function productToRow(product: Product): ProductRow {
     images: product.images,
     status: product.status,
     import_batch_id: product.importBatchId ?? null,
+    personalization_enabled: product.personalizationEnabled ?? false,
+    personalization_price: product.personalizationPrice ?? null,
     updated_at: new Date().toISOString(),
   }
 }
