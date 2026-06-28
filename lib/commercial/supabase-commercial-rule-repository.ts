@@ -19,6 +19,15 @@ function nowIso(): string {
   return new Date().toISOString()
 }
 
+function isMissingCommercialRulesTable(message: string): boolean {
+  return (
+    message.includes('commercial_rules') &&
+    (message.includes('schema cache') ||
+      message.includes('does not exist') ||
+      message.includes('Could not find the table'))
+  )
+}
+
 export const supabaseCommercialRuleRepository: CommercialRuleRepository = {
   async getAll(): Promise<CommercialRule[]> {
     const supabase = createAdminClient()
@@ -29,7 +38,15 @@ export const supabaseCommercialRuleRepository: CommercialRuleRepository = {
       .order('priority', { ascending: false })
       .order('created_at', { ascending: true })
 
-    if (error) throw new Error(`commercial_rules read failed: ${error.message}`)
+    if (error) {
+      if (isMissingCommercialRulesTable(error.message)) {
+        console.warn(
+          '[commercial_rules] read: tabela indisponível no PostgREST. Retornando [].'
+        )
+        return []
+      }
+      throw new Error(`commercial_rules read failed: ${error.message}`)
+    }
     return (data as CommercialRuleRow[]).map(rowToCommercialRule)
   },
 
@@ -42,7 +59,15 @@ export const supabaseCommercialRuleRepository: CommercialRuleRepository = {
       .order('priority', { ascending: false })
       .order('created_at', { ascending: true })
 
-    if (error) throw new Error(`commercial_rules storefront read failed: ${error.message}`)
+    if (error) {
+      if (isMissingCommercialRulesTable(error.message)) {
+        console.warn(
+          '[commercial_rules] storefront read: tabela indisponível no PostgREST. Retornando [].'
+        )
+        return []
+      }
+      throw new Error(`commercial_rules storefront read failed: ${error.message}`)
+    }
 
     const now = new Date()
     return (data as CommercialRuleRow[])
@@ -58,7 +83,10 @@ export const supabaseCommercialRuleRepository: CommercialRuleRepository = {
       .eq('id', id)
       .maybeSingle()
 
-    if (error) throw new Error(`commercial_rules getById failed: ${error.message}`)
+    if (error) {
+      if (isMissingCommercialRulesTable(error.message)) return undefined
+      throw new Error(`commercial_rules getById failed: ${error.message}`)
+    }
     if (!data) return undefined
     return rowToCommercialRule(data as CommercialRuleRow)
   },

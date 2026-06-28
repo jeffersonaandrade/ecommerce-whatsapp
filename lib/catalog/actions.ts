@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, updateTag } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
 import { getDataProvider } from '@/lib/data/provider'
 import { getProductsPublicUrl } from '@/lib/supabase/env'
@@ -66,6 +66,13 @@ function revalidateCatalog() {
   revalidatePath('/admin')
   revalidatePath('/admin/products')
   revalidatePath('/admin/categories')
+  updateTag('storefront')
+}
+
+function revalidateProduct(slug: string) {
+  revalidateCatalog()
+  updateTag(`product-${slug}`)
+  revalidatePath(`/products/${slug}`)
 }
 
 export async function createProductAction(
@@ -97,7 +104,7 @@ export async function createProductAction(
     }
 
     const product = await repo.create(input)
-    revalidateCatalog()
+    revalidateProduct(product.slug)
     return { ok: true, id: product.id }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Falha ao criar produto'
@@ -127,8 +134,8 @@ export async function updateProductAction(
     return { ok: false, errors }
   }
 
-  await repo.update(id, input)
-  revalidateCatalog()
+  const product = await repo.update(id, input)
+  revalidateProduct(product.slug)
   return { ok: true }
 }
 

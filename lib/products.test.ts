@@ -65,4 +65,16 @@ describe('products facade', () => {
     expect(mockRepository.getActive).not.toHaveBeenCalled()
     expect(products.map((p) => p.status)).toEqual(['active', 'draft', 'unavailable'])
   })
+
+  it('toProductCartLite inclui campos de personalização para o carrinho', async () => {
+    const { toProductCartLite } = await import('./products')
+    const lite = toProductCartLite({
+      ...product('1', 'active'),
+      personalizationEnabled: true,
+      personalizationPrice: 29.9,
+    })
+
+    expect(lite.personalizationEnabled).toBe(true)
+    expect(lite.personalizationPrice).toBe(29.9)
+  })
 })

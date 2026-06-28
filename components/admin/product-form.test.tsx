@@ -121,3 +121,62 @@ describe('ProductForm create flow', () => {
     expect(alert.textContent).toMatch(/Nome|Preço|Descrição|imagem|Variações/i)
   })
 })
+
+describe('ProductForm edit — personalização', () => {
+  const editProduct = {
+    id: 'prod-edit',
+    slug: 'camisa-edit',
+    name: 'Camisa Edit',
+    shortDescription: 'Resumo',
+    longDescription: 'Descrição longa',
+    price: 150,
+    category: 'camisas',
+    images: ['https://example.com/img.jpg'],
+    variations: [{ id: 'v1', sku: 'SKU-EDIT', stock: 10, size: 'M' }],
+    status: 'active' as const,
+    personalizationEnabled: false,
+    personalizationPrice: null,
+  }
+
+  beforeEach(() => {
+    cleanup()
+    mockUpdateProductAction.mockReset()
+    mockUpdateProductAction.mockResolvedValue({ ok: true })
+  })
+
+  it('envia personalizationEnabled e personalizationPrice no update', async () => {
+    const user = userEvent.setup()
+    render(<ProductForm mode="edit" product={editProduct} categories={categories} />)
+
+    await user.click(screen.getByRole('checkbox', { name: /Permitir nome e número/i }))
+    await user.type(screen.getByLabelText('Preço adicional de nome e número'), '3500')
+    await user.click(screen.getByRole('button', { name: 'Salvar alterações' }))
+
+    await waitFor(() => {
+      expect(mockUpdateProductAction).toHaveBeenCalled()
+    })
+
+    const payload = mockUpdateProductAction.mock.calls[0][1]
+    expect(payload.personalizationEnabled).toBe(true)
+    expect(payload.personalizationPrice).toBe(35)
+  })
+
+  it('exibe valores salvos ao editar produto com personalização', () => {
+    render(
+      <ProductForm
+        mode="edit"
+        product={{
+          ...editProduct,
+          personalizationEnabled: true,
+          personalizationPrice: 40,
+        }}
+        categories={categories}
+      />
+    )
+
+    const checkbox = screen.getByRole('checkbox', { name: /Permitir nome e número/i })
+    expect(checkbox).toHaveProperty('checked', true)
+    const priceInput = screen.getByLabelText('Preço adicional de nome e número') as HTMLInputElement
+    expect(priceInput.value.replace(/\u00a0/g, ' ')).toBe('R$ 40,00')
+  })
+})

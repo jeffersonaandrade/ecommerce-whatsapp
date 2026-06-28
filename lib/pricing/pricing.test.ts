@@ -130,6 +130,15 @@ describe('resolveAddonsUnitTotal', () => {
     )
     expect(total).toBe(25)
   })
+
+  it('trata preço 0 do produto como override gratuito', () => {
+    const total = resolveAddonsUnitTotal(
+      { personalization: { name: 'A', number: '10' } },
+      { ...baseProduct, personalizationPrice: 0 },
+      settings
+    )
+    expect(total).toBe(0)
+  })
 })
 
 describe('computeTotals', () => {

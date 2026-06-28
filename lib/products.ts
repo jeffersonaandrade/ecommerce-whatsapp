@@ -123,6 +123,8 @@ export function toProductCartLite(product: Product): ProductCartLite {
     price: product.price,
     promotionalPrice: product.promotionalPrice,
     images: product.images,
+    personalizationEnabled: product.personalizationEnabled ?? false,
+    personalizationPrice: product.personalizationPrice ?? null,
     variations: product.variations.map((v) => ({
       id: v.id,
       sku: v.sku,

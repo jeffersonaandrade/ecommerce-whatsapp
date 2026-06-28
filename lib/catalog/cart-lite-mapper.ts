@@ -20,7 +20,7 @@ export function cartLiteToProduct(lite: ProductCartLite): Product {
       color: v.color,
     })),
     status: 'active',
-    personalizationEnabled: lite.personalizationEnabled,
+    personalizationEnabled: lite.personalizationEnabled ?? false,
     personalizationPrice: lite.personalizationPrice ?? null,
   }
 }

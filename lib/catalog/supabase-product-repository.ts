@@ -336,6 +336,8 @@ export const supabaseProductRepository: ProductRepository = {
       variations: assignVariationIds(input.variations, current.variations),
       status: input.status,
       importBatchId: input.importBatchId ?? current.importBatchId,
+      personalizationEnabled: input.personalizationEnabled ?? false,
+      personalizationPrice: input.personalizationPrice ?? null,
     }
     await persistProduct(updated)
     return updated

@@ -25,7 +25,9 @@ type MoneyInputProps = {
 }
 
 function reaisToDigits(reais: number | null): string {
-  if (reais == null || !Number.isFinite(reais) || reais <= 0) return ''
+  if (reais == null || !Number.isFinite(reais)) return ''
+  if (reais < 0) return ''
+  if (reais === 0) return '0'
   return String(Math.round(reais * 100))
 }
 

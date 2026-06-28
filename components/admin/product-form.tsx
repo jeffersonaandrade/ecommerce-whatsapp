@@ -404,7 +404,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
               <FieldError message={fieldErrors.promotionalPrice} />
             </label>
             <div className="space-y-3 sm:col-span-2 rounded-lg border border-hairline p-4">
-              <h3 className="text-sm font-semibold text-ink">Personalização</h3>
+              <h3 className="text-sm font-semibold text-ink">Personalização de camisa</h3>
               <label className="flex items-center gap-2 text-sm text-ink">
                 <input
                   type="checkbox"
@@ -412,21 +412,21 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
                   onChange={(e) => setPersonalizationEnabled(e.target.checked)}
                   className="h-4 w-4 rounded border-hairline"
                 />
-                Permitir personalização neste produto
+                Permitir nome e número neste produto
               </label>
               <label className="block space-y-1">
                 <span className="text-sm font-medium text-ink">
-                  Preço da personalização (opcional)
+                  Preço adicional de nome + número
                 </span>
                 <MoneyInput
                   ref={personalizationPriceInputRef}
                   id="product-field-personalizationPrice"
                   value={personalizationPrice}
                   onChange={setPersonalizationPrice}
-                  aria-label="Preço personalização"
+                  aria-label="Preço adicional de nome e número"
                 />
                 <p className="text-xs text-mute">
-                  Deixe vazio para usar o preço padrão da loja.
+                  Deixe vazio para usar o preço padrão configurado em Comercial → Personalização.
                 </p>
               </label>
             </div>
