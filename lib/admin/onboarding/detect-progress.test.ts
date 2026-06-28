@@ -173,5 +173,33 @@ describe('computeOnboardingProgressFromSnapshot', () => {
     )
 
     expect(progress.items.some((i) => i.id === 'review-media')).toBe(true)
+    expect(progress.items.find((i) => i.id === 'review-media')?.completed).toBe(false)
+  })
+
+  it('permite concluir mídia manualmente com pendências', () => {
+    const state: AdminOnboardingState = {
+      ...createDefaultOnboardingState(),
+      manuallyCompletedSteps: ['review-media'],
+    }
+    const progress = computeOnboardingProgressFromSnapshot(
+      state,
+      snapshot({ productCounts: { all: 10, active: 5 }, mediaIssueCount: 3382 })
+    )
+
+    const media = progress.items.find((i) => i.id === 'review-media')
+    expect(media?.completed).toBe(true)
+    expect(media?.context).toContain('concluído manualmente')
+  })
+
+  it('permite concluir etapa ponderada manualmente', () => {
+    const state: AdminOnboardingState = {
+      ...createDefaultOnboardingState(),
+      manuallyCompletedSteps: ['banner-mobile'],
+    }
+    const progress = computeOnboardingProgressFromSnapshot(state, snapshot())
+
+    const step = progress.items.find((i) => i.id === 'banner-mobile')
+    expect(step?.completed).toBe(true)
+    expect(step?.context).toContain('concluído manualmente')
   })
 })

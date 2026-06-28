@@ -130,52 +130,52 @@ export function computeOnboardingProgressFromSnapshot(
   const { settings, productCounts, mediaIssueCount, categories, slides } = snapshot
 
   const weightedItems: OnboardingProgressItem[] = WEIGHTED_ONBOARDING_STEPS.map((step) => {
-    let completed = false
     let autoCompleted = false
     let context = ''
     let href = step.href
 
     switch (step.id) {
       case 'products':
-        completed = isProductsStepComplete(productCounts)
-        autoCompleted = completed
+        autoCompleted = isProductsStepComplete(productCounts)
         context = productsContext(productCounts)
         href = productsHref()
         break
       case 'store-settings':
-        completed = isStoreSettingsComplete(settings)
-        autoCompleted = completed
+        autoCompleted = isStoreSettingsComplete(settings)
         context = storeSettingsContext(settings)
         break
       case 'categories':
-        completed = isCategoriesStepComplete(categories)
-        autoCompleted = completed
+        autoCompleted = isCategoriesStepComplete(categories)
         context = categoriesContext(categories)
         break
       case 'banner-desktop':
-        completed = isDesktopBannerStepComplete(slides)
-        autoCompleted = completed
+        autoCompleted = isDesktopBannerStepComplete(slides)
         context = desktopBannerContext(slides)
         break
       case 'banner-mobile':
-        completed = isMobileBannerStepComplete(slides)
-        autoCompleted = completed
+        autoCompleted = isMobileBannerStepComplete(slides)
         context = mobileBannerContext(slides)
         break
       case 'review-storefront':
-        completed = isManualStepComplete(state, 'review-storefront')
         autoCompleted = false
-        context = completed ? 'Vitrine revisada' : 'Aguardando visita à vitrine'
+        context = isManualStepComplete(state, 'review-storefront')
+          ? 'Vitrine revisada'
+          : 'Aguardando visita à vitrine'
         break
       case 'first-sale':
-        completed = isManualStepComplete(state, 'first-sale')
         autoCompleted = false
-        context = completed
+        context = isManualStepComplete(state, 'first-sale')
           ? 'Link compartilhado'
           : 'Copie o link e compartilhe no WhatsApp'
         break
       default:
         break
+    }
+
+    const manuallyCompleted = isManualStepComplete(state, step.id)
+    const completed = autoCompleted || manuallyCompleted
+    if (manuallyCompleted && !autoCompleted) {
+      context = `${context} · concluído manualmente`
     }
 
     return {
@@ -189,20 +189,28 @@ export function computeOnboardingProgressFromSnapshot(
     }
   })
 
+  const mediaAutoCompleted = mediaIssueCount === 0 && productCounts.all > 0
+  const mediaManuallyCompleted = isManualStepComplete(state, 'review-media')
+  const mediaCompleted = mediaAutoCompleted || mediaManuallyCompleted
+  let mediaContext =
+    productCounts.all === 0
+      ? 'Cadastre produtos primeiro'
+      : mediaIssueCount === 0
+        ? 'Imagens associadas'
+        : `${mediaIssueCount} produto${mediaIssueCount === 1 ? '' : 's'} com imagem pendente`
+  if (mediaManuallyCompleted && !mediaAutoCompleted) {
+    mediaContext = `${mediaContext} · concluído manualmente`
+  }
+
   const optionalItems: OnboardingProgressItem[] = []
   optionalItems.push({
     id: OPTIONAL_ONBOARDING_STEP.id,
     label: OPTIONAL_ONBOARDING_STEP.label,
     href: OPTIONAL_ONBOARDING_STEP.href,
     weight: 0,
-    completed: mediaIssueCount === 0 && productCounts.all > 0,
-    autoCompleted: true,
-    context:
-      productCounts.all === 0
-        ? 'Cadastre produtos primeiro'
-        : mediaIssueCount === 0
-          ? 'Imagens associadas'
-          : `${mediaIssueCount} produto${mediaIssueCount === 1 ? '' : 's'} com imagem pendente`,
+    completed: mediaCompleted,
+    autoCompleted: mediaAutoCompleted,
+    context: mediaContext,
   })
 
   const items = [...weightedItems, ...optionalItems]

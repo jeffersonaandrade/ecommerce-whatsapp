@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireAdmin } from '@/lib/auth/require-admin'
-import type { AdminOnboardingState } from '@/types/admin-onboarding'
+import type { AdminOnboardingState, OnboardingStepId } from '@/types/admin-onboarding'
 import {
   addManualStep,
   resetDeploymentState,
@@ -72,38 +72,35 @@ export async function resetDeploymentAction(): Promise<ActionResult> {
   }
 }
 
-export async function markStorefrontReviewedAction(): Promise<ActionResult> {
+export async function markOnboardingStepCompleteAction(
+  stepId: OnboardingStepId
+): Promise<ActionResult> {
+  if (stepId === 'complete') {
+    return { ok: false, error: 'Etapa inválida' }
+  }
+
   const auth = await requireAdmin()
   if (!auth.ok) return { ok: false, error: auth.error }
 
   try {
     const repo = getOnboardingRepository()
     const current = await repo.get()
-    const next = addManualStep(current, 'review-storefront')
+    const next = addManualStep(current, stepId)
     const state = await repo.update(next)
     revalidatePath('/admin')
     return { ok: true, state }
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Falha ao marcar revisão'
+    const message = err instanceof Error ? err.message : 'Falha ao marcar etapa'
     return { ok: false, error: message }
   }
 }
 
-export async function markFirstSaleStepAction(): Promise<ActionResult> {
-  const auth = await requireAdmin()
-  if (!auth.ok) return { ok: false, error: auth.error }
+export async function markStorefrontReviewedAction(): Promise<ActionResult> {
+  return markOnboardingStepCompleteAction('review-storefront')
+}
 
-  try {
-    const repo = getOnboardingRepository()
-    const current = await repo.get()
-    const next = addManualStep(current, 'first-sale')
-    const state = await repo.update(next)
-    revalidatePath('/admin')
-    return { ok: true, state }
-  } catch (err) {
-    const message = err instanceof Error ? err.message : 'Falha ao marcar primeira venda'
-    return { ok: false, error: message }
-  }
+export async function markFirstSaleStepAction(): Promise<ActionResult> {
+  return markOnboardingStepCompleteAction('first-sale')
 }
 
 export async function completeTourAction(): Promise<ActionResult> {

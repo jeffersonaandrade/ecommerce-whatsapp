@@ -7,8 +7,7 @@ import type { OnboardingProgressItem, OnboardingStepId } from '@/types/admin-onb
 import { getButtonClassName } from '@/components/ui/button'
 import {
   completeOnboardingIfReadyAction,
-  markFirstSaleStepAction,
-  markStorefrontReviewedAction,
+  markOnboardingStepCompleteAction,
 } from '@/lib/admin/onboarding/actions'
 import { useAdminOnboarding } from '@/hooks/use-admin-onboarding'
 
@@ -27,39 +26,53 @@ function ProgressBar({ percent }: { percent: number }) {
   )
 }
 
-function ManualStepActions({
+function MarkStepCompleteButton({
   stepId,
-  siteUrl,
+  label = 'Marcar como concluída',
 }: {
   stepId: OnboardingStepId
-  siteUrl: string
+  label?: string
 }) {
   const router = useRouter()
   const { setState } = useAdminOnboarding()
   const [isPending, startTransition] = useTransition()
 
-  if (stepId === 'review-storefront') {
+  return (
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          const result = await markOnboardingStepCompleteAction(stepId)
+          if (result.ok) {
+            setState(result.state)
+            router.refresh()
+          }
+        })
+      }
+      className={getButtonClassName('outline', 'sm', 'mt-2')}
+    >
+      {label}
+    </button>
+  )
+}
+
+function ManualStepActions({
+  item,
+  siteUrl,
+}: {
+  item: OnboardingProgressItem
+  siteUrl: string
+}) {
+  if (item.completed) return null
+
+  if (item.id === 'review-storefront') {
     return (
-      <button
-        type="button"
-        disabled={isPending}
-        onClick={() =>
-          startTransition(async () => {
-            const result = await markStorefrontReviewedAction()
-            if (result.ok) {
-              setState(result.state)
-              router.refresh()
-            }
-          })
-        }
-        className={getButtonClassName('outline', 'sm', 'mt-2')}
-      >
-        Marquei como revisado
-      </button>
+      <MarkStepCompleteButton stepId="review-storefront" label="Marquei como revisado" />
     )
   }
 
-  if (stepId === 'first-sale') {
+  if (item.id === 'first-sale') {
     return (
       <div className="mt-2 flex flex-wrap gap-2">
         <button
@@ -77,27 +90,26 @@ function ManualStepActions({
         >
           Compartilhar no WhatsApp
         </a>
-        <button
-          type="button"
-          disabled={isPending}
-          onClick={() =>
-            startTransition(async () => {
-              const result = await markFirstSaleStepAction()
-              if (result.ok) {
-                setState(result.state)
-                router.refresh()
-              }
-            })
-          }
-          className={getButtonClassName('default', 'sm')}
-        >
-          Marquei como compartilhado
-        </button>
+        <MarkStepCompleteButton stepId="first-sale" label="Marquei como compartilhado" />
       </div>
     )
   }
 
-  return null
+  if (item.id === 'review-media') {
+    return (
+      <div className="mt-2 space-y-1">
+        <MarkStepCompleteButton
+          stepId="review-media"
+          label="Concluir mesmo assim"
+        />
+        <p className="text-xs text-mute">
+          Você ainda pode migrar imagens depois na Central de Mídia.
+        </p>
+      </div>
+    )
+  }
+
+  return <MarkStepCompleteButton stepId={item.id} />
 }
 
 export function DeploymentCenterCard() {
@@ -162,9 +174,9 @@ export function DeploymentCenterCard() {
                 )}
               </div>
               <p className="mt-1 pl-7 text-sm text-mute">{item.context}</p>
-              {(item.id === 'review-storefront' || item.id === 'first-sale') && !item.completed && (
+              {!item.completed && (
                 <div className="pl-7">
-                  <ManualStepActions stepId={item.id} siteUrl={progress.siteUrl} />
+                  <ManualStepActions item={item} siteUrl={progress.siteUrl} />
                 </div>
               )}
             </div>
