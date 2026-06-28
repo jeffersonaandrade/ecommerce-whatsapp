@@ -8,20 +8,14 @@ import {
   CommercialRuleStatus,
 } from '@/types/commercial-rule'
 import { Button } from '@/components/ui/button'
+import { Alert } from '@/components/ui/alert'
 import { MoneyInput } from '@/components/admin/money-input'
 import { PromotionSimulator } from '@/components/admin/commercial/promotion-simulator'
 import {
   createCommercialRuleAction,
   updateCommercialRuleAction,
 } from '@/lib/commercial/commercial-actions'
-
-const STATUS_OPTIONS: CommercialRuleStatus[] = [
-  'draft',
-  'scheduled',
-  'active',
-  'expired',
-  'archived',
-]
+import { COMMERCIAL_RULE_STATUS_LABELS } from '@/lib/commercial/commercial-rule-labels'
 
 type PromotionFormProps = {
   mode: 'create' | 'edit'
@@ -32,6 +26,7 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
 
   const [name, setName] = useState(rule?.name ?? '')
   const [status, setStatus] = useState<CommercialRuleStatus>(rule?.status ?? 'draft')
@@ -66,6 +61,7 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setSuccess(false)
 
     if (discountAmount == null || discountAmount <= 0) {
       setError('Informe o valor do desconto.')
@@ -80,7 +76,7 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
           setError(result.error)
           return
         }
-        router.push(`/admin/comercial/promocoes/${result.id}`)
+        router.push(`/admin/comercial/promocoes/${result.id}?created=1`)
         router.refresh()
         return
       }
@@ -91,6 +87,7 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
         setError(result.error)
         return
       }
+      setSuccess(true)
       router.refresh()
     })
   }
@@ -98,6 +95,11 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
   return (
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-2">
       <div className="space-y-4 rounded-lg border border-hairline bg-canvas p-6">
+        {error && <Alert type="error" message={error} />}
+        {success && (
+          <Alert type="success" message="Promoção salva com sucesso." />
+        )}
+
         <label className="block space-y-1">
           <span className="text-sm font-medium text-ink">Nome da promoção *</span>
           <input
@@ -116,11 +118,13 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
             onChange={(e) => setStatus(e.target.value as CommercialRuleStatus)}
             className="w-full rounded-lg border border-hairline bg-white px-3 py-2 text-sm"
           >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
+            {(Object.keys(COMMERCIAL_RULE_STATUS_LABELS) as CommercialRuleStatus[]).map(
+              (s) => (
+                <option key={s} value={s}>
+                  {COMMERCIAL_RULE_STATUS_LABELS[s]}
+                </option>
+              )
+            )}
           </select>
         </label>
 
@@ -174,8 +178,6 @@ export function PromotionForm({ mode, rule }: PromotionFormProps) {
             />
           </label>
         </div>
-
-        {error && <p className="text-sm text-error">{error}</p>}
 
         <Button type="submit" disabled={isPending}>
           {isPending ? 'Salvando...' : mode === 'create' ? 'Criar promoção' : 'Salvar alterações'}
