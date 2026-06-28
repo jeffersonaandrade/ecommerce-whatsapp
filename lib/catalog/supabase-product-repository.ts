@@ -497,6 +497,18 @@ export const supabaseProductRepository: ProductRepository = {
     })
   },
 
+  async bulkSetPersonalization(ids: string[], enabled: boolean): Promise<void> {
+    if (!ids.length) return
+    const supabase = createAdminClient()
+    await runInChunks(ids, CHUNK_SIZE, async (chunk) => {
+      const { error } = await supabase
+        .from('products')
+        .update({ personalization_enabled: enabled })
+        .in('id', chunk)
+      if (error) throw new Error(`bulkSetPersonalization failed: ${error.message}`)
+    })
+  },
+
   async deleteMany(ids: string[]): Promise<void> {
     if (!ids.length) return
     const supabase = createAdminClient()

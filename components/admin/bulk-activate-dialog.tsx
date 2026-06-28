@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getButtonClassName } from '@/components/ui/button'
 import {
   bulkValidateForActivationAction,
-  bulkSetProductStatusAction,
+  bulkActivateWithOptionsAction,
 } from '@/lib/catalog/actions'
 import {
   PUBLICATION_ERROR_LABELS,
@@ -15,13 +15,15 @@ import {
 type Props = {
   selectedIds: string[]
   onClose: () => void
+  storePersonalizationEnabled?: boolean
 }
 
-export function BulkActivateDialog({ selectedIds, onClose }: Props) {
+export function BulkActivateDialog({ selectedIds, onClose, storePersonalizationEnabled = false }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [summary, setSummary] = useState<BulkValidationSummary | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [enablePersonalization, setEnablePersonalization] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -41,7 +43,9 @@ export function BulkActivateDialog({ selectedIds, onClose }: Props) {
   function handleActivate() {
     if (!summary?.validIds.length) return
     startTransition(async () => {
-      const result = await bulkSetProductStatusAction(summary.validIds, 'active')
+      const result = await bulkActivateWithOptionsAction(summary.validIds, {
+        enablePersonalization,
+      })
       if (!result.ok) {
         setValidationError(result.error)
         return
@@ -52,6 +56,8 @@ export function BulkActivateDialog({ selectedIds, onClose }: Props) {
   }
 
   const canActivate = (summary?.validIds.length ?? 0) > 0 && !isPending
+  const showPersonalizationOpt =
+    storePersonalizationEnabled && (summary?.validIds.length ?? 0) > 0
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -116,6 +122,31 @@ export function BulkActivateDialog({ selectedIds, onClose }: Props) {
                 <p className="text-sm text-mute">
                   Nenhum produto pode ser publicado. Corrija os problemas acima e tente novamente.
                 </p>
+              )}
+
+              {/* Personalization opt-in */}
+              {showPersonalizationOpt && (
+                <div className="space-y-2 rounded-lg border border-hairline bg-soft-cloud px-4 py-3">
+                  <label className="flex cursor-pointer items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={enablePersonalization}
+                      onChange={(e) => setEnablePersonalization(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-hairline accent-ink"
+                    />
+                    <span className="text-sm font-medium text-ink">
+                      Também permitir nome e número nestes produtos
+                    </span>
+                  </label>
+                  {enablePersonalization && summary.hasMixedCategories && (
+                    <p className="ml-7 text-xs text-amber-700">
+                      Você selecionou produtos de categorias diferentes. Ative essa opção apenas se todos aceitarem nome e número.
+                    </p>
+                  )}
+                  <p className="ml-7 text-xs text-mute">
+                    Produtos sem preço próprio de personalização usarão o valor padrão da loja.
+                  </p>
+                </div>
               )}
             </div>
           )}

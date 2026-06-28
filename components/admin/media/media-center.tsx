@@ -35,6 +35,7 @@ type MediaCenterProps = {
   productStatusCounts: Record<string, number>
   mediaStatusCounts: Record<string, number>
   searchDefault?: string
+  storePersonalizationEnabled?: boolean
 }
 
 function tabHref(tab: Tab, currentParams: URLSearchParams): string {
@@ -60,6 +61,7 @@ export function MediaCenter({
   productStatusCounts,
   mediaStatusCounts,
   searchDefault = '',
+  storePersonalizationEnabled = false,
 }: MediaCenterProps) {
   const searchParams = useSearchParams()
   const mediaFilter = (searchParams.get('media') as MediaFilter | null) ?? 'all'
@@ -258,6 +260,7 @@ export function MediaCenter({
             setShowActivateDialog(false)
             setSelectedIds(new Set())
           }}
+          storePersonalizationEnabled={storePersonalizationEnabled}
         />
       )}
     </div>

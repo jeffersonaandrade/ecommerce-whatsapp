@@ -10,6 +10,7 @@ import { FilterBar } from '@/components/admin/filter-bar'
 import { ProductsTable } from '@/components/admin/products-table'
 import { queryProductsAdmin } from '@/lib/products'
 import { getAllCategoriesAdmin } from '@/lib/categories'
+import { getStoreSettings } from '@/lib/store/settings-repository'
 import type { ProductQuery, ProductFilters, ProductSort } from '@/lib/query'
 import type { ProductStatus } from '@/types/product'
 
@@ -68,9 +69,10 @@ export default async function AdminProductsPage({
     },
   }
 
-  const [result, categories] = await Promise.all([
+  const [result, categories, storeSettings] = await Promise.all([
     queryProductsAdmin(query),
     getAllCategoriesAdmin(),
+    getStoreSettings(),
   ])
 
   const currentParams = new URLSearchParams(
@@ -141,7 +143,7 @@ export default async function AdminProductsPage({
               />
             </div>
           }
-          content={<ProductsTable products={result.products} />}
+          content={<ProductsTable products={result.products} storePersonalizationEnabled={storeSettings.personalizationEnabled} />}
           footer={
             <AdminPagination
               page={result.page}

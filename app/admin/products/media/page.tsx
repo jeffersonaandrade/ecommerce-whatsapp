@@ -3,6 +3,7 @@ import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { MediaCenter } from '@/components/admin/media/media-center'
 import { fetchMediaStatusCounts } from '@/lib/catalog/product-aggregates'
 import { queryProductsAdmin } from '@/lib/products'
+import { getStoreSettings } from '@/lib/store/settings-repository'
 import { getSupabaseUrl } from '@/lib/supabase/env'
 import type { ProductQuery } from '@/lib/query'
 import type { MediaFilter } from '@/lib/catalog/media/types'
@@ -48,9 +49,10 @@ export default async function AdminProductsMediaPage({
     },
   }
 
-  const [result, mediaStatusCounts] = await Promise.all([
+  const [result, mediaStatusCounts, storeSettings] = await Promise.all([
     queryProductsAdmin(query),
     fetchMediaStatusCounts(),
+    getStoreSettings(),
   ])
 
   const currentParams = new URLSearchParams(
@@ -103,6 +105,7 @@ export default async function AdminProductsMediaPage({
           productStatusCounts={productStatusCounts}
           mediaStatusCounts={mediaStatusCounts}
           searchDefault={params.q ?? ''}
+          storePersonalizationEnabled={storeSettings.personalizationEnabled}
         />
       </div>
     </div>

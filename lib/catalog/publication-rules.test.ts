@@ -113,4 +113,23 @@ describe('validateProductsForBulkActivation', () => {
     expect(result.validIds).toHaveLength(0)
     expect(result.invalid).toHaveLength(0)
   })
+
+  it('hasMixedCategories false com categoria única', () => {
+    const result = validateProductsForBulkActivation([valid1, valid2])
+    expect(result.hasMixedCategories).toBe(false)
+  })
+
+  it('hasMixedCategories true com categorias distintas', () => {
+    const short: Product = { ...base, id: '3', slug: 'short', category: 'Shorts' }
+    const result = validateProductsForBulkActivation([valid1, short])
+    expect(result.hasMixedCategories).toBe(true)
+  })
+
+  it('hasMixedCategories ignora inválidos', () => {
+    // noImage has category 'Camisas' but is invalid — should not count
+    const short: Product = { ...base, id: '5', slug: 'short-2', category: 'Shorts' }
+    const result = validateProductsForBulkActivation([valid1, noImage, short])
+    // valid ids: 1 (Camisas) and 5 (Shorts) → mixed
+    expect(result.hasMixedCategories).toBe(true)
+  })
 })

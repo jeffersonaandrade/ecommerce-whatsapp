@@ -12,9 +12,10 @@ import { BulkActivateDialog } from './bulk-activate-dialog'
 type BulkActionsBarProps = {
   selectedIds: string[]
   onClear: () => void
+  storePersonalizationEnabled?: boolean
 }
 
-export function BulkActionsBar({ selectedIds, onClear }: BulkActionsBarProps) {
+export function BulkActionsBar({ selectedIds, onClear, storePersonalizationEnabled = false }: BulkActionsBarProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [showActivateDialog, setShowActivateDialog] = useState(false)
@@ -43,6 +44,7 @@ export function BulkActionsBar({ selectedIds, onClear }: BulkActionsBarProps) {
             setShowActivateDialog(false)
             onClear()
           }}
+          storePersonalizationEnabled={storePersonalizationEnabled}
         />
       )}
 

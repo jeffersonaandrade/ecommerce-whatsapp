@@ -29,6 +29,7 @@ export type BulkValidationSummary = {
   total: number
   validIds: string[]
   invalid: ProductValidationResult[]
+  hasMixedCategories: boolean
 }
 
 export function validateProductForPublication(product: Product): PublicationError[] {
@@ -48,15 +49,22 @@ export function validateProductsForBulkActivation(
 ): BulkValidationSummary {
   const validIds: string[] = []
   const invalid: ProductValidationResult[] = []
+  const validCategories = new Set<string>()
 
   for (const product of products) {
     const errors = validateProductForPublication(product)
     if (errors.length === 0) {
       validIds.push(product.id)
+      if (product.category) validCategories.add(product.category)
     } else {
       invalid.push({ productId: product.id, productName: product.name, errors })
     }
   }
 
-  return { total: products.length, validIds, invalid }
+  return {
+    total: products.length,
+    validIds,
+    invalid,
+    hasMixedCategories: validCategories.size > 1,
+  }
 }

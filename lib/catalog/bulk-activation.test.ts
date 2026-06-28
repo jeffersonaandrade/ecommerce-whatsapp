@@ -10,10 +10,14 @@ vi.mock('@/lib/auth/require-admin', () => ({
 }))
 
 const mockGetByIdsAdmin = vi.fn()
+const mockBulkSetStatus = vi.fn()
+const mockBulkSetPersonalization = vi.fn()
 
 vi.mock('@/lib/catalog/get-product-repository', () => ({
   getProductRepository: vi.fn(() => ({
     getByIdsAdmin: mockGetByIdsAdmin,
+    bulkSetStatus: mockBulkSetStatus,
+    bulkSetPersonalization: mockBulkSetPersonalization,
   })),
 }))
 
@@ -22,7 +26,7 @@ vi.mock('next/cache', () => ({
   updateTag: vi.fn(),
 }))
 
-import { bulkValidateForActivationAction } from './actions'
+import { bulkValidateForActivationAction, bulkActivateWithOptionsAction } from './actions'
 
 const makeProduct = (overrides: Partial<Product> = {}): Product => ({
   id: '1',
@@ -42,6 +46,8 @@ describe('bulkValidateForActivationAction', () => {
   beforeEach(() => {
     mockRequireAdmin.mockReset()
     mockGetByIdsAdmin.mockReset()
+    mockBulkSetStatus.mockReset()
+    mockBulkSetPersonalization.mockReset()
   })
 
   it('retorna erro se lista vazia', async () => {
@@ -104,5 +110,44 @@ describe('bulkValidateForActivationAction', () => {
 
     const result = await bulkValidateForActivationAction(['1'])
     expect(result).toEqual({ ok: false, error: 'DB offline' })
+  })
+})
+
+describe('bulkActivateWithOptionsAction', () => {
+  beforeEach(() => {
+    mockRequireAdmin.mockReset()
+    mockBulkSetStatus.mockReset()
+    mockBulkSetPersonalization.mockReset()
+    mockBulkSetStatus.mockResolvedValue(undefined)
+    mockBulkSetPersonalization.mockResolvedValue(undefined)
+  })
+
+  it('retorna erro se lista vazia', async () => {
+    mockRequireAdmin.mockResolvedValue(undefined)
+    const result = await bulkActivateWithOptionsAction([], { enablePersonalization: false })
+    expect(result).toEqual({ ok: false, error: 'Nenhum produto selecionado.' })
+  })
+
+  it('chama bulkSetStatus e NÃO chama bulkSetPersonalization quando opt-in desmarcado', async () => {
+    mockRequireAdmin.mockResolvedValue(undefined)
+    const result = await bulkActivateWithOptionsAction(['1', '2'], { enablePersonalization: false })
+    expect(result).toEqual({ ok: true, count: 2 })
+    expect(mockBulkSetStatus).toHaveBeenCalledWith(['1', '2'], 'active')
+    expect(mockBulkSetPersonalization).not.toHaveBeenCalled()
+  })
+
+  it('chama bulkSetStatus E bulkSetPersonalization quando opt-in marcado', async () => {
+    mockRequireAdmin.mockResolvedValue(undefined)
+    const result = await bulkActivateWithOptionsAction(['1', '2'], { enablePersonalization: true })
+    expect(result).toEqual({ ok: true, count: 2 })
+    expect(mockBulkSetStatus).toHaveBeenCalledWith(['1', '2'], 'active')
+    expect(mockBulkSetPersonalization).toHaveBeenCalledWith(['1', '2'], true)
+  })
+
+  it('propaga erro do bulkSetStatus', async () => {
+    mockRequireAdmin.mockResolvedValue(undefined)
+    mockBulkSetStatus.mockRejectedValue(new Error('Status update failed'))
+    const result = await bulkActivateWithOptionsAction(['1'], { enablePersonalization: false })
+    expect(result).toEqual({ ok: false, error: 'Status update failed' })
   })
 })

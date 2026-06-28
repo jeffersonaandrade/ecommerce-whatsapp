@@ -258,3 +258,26 @@ export async function bulkValidateForActivationAction(
     return { ok: false, error: err instanceof Error ? err.message : 'Erro ao validar produtos.' }
   }
 }
+
+export type BulkActivateOptions = {
+  enablePersonalization: boolean
+}
+
+export async function bulkActivateWithOptionsAction(
+  ids: string[],
+  opts: BulkActivateOptions
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
+  try {
+    const repo = getProductRepository()
+    await repo.bulkSetStatus(ids, 'active')
+    if (opts.enablePersonalization) {
+      await repo.bulkSetPersonalization(ids, true)
+    }
+    revalidateCatalog()
+    return { ok: true, count: ids.length }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao publicar produtos.' }
+  }
+}

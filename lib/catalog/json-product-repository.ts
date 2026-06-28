@@ -223,6 +223,14 @@ export const jsonProductRepository: ProductRepository = {
     )
   },
 
+  async bulkSetPersonalization(ids: string[], enabled: boolean): Promise<void> {
+    const products = loadCatalogFromDisk()
+    const idSet = new Set(ids)
+    persistCatalog(
+      products.map((p) => (idSet.has(p.id) ? { ...p, personalizationEnabled: enabled } : p))
+    )
+  },
+
   async deleteMany(ids: string[]): Promise<void> {
     const products = loadCatalogFromDisk()
     const idSet = new Set(ids)

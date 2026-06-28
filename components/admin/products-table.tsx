@@ -10,6 +10,7 @@ import type { Product } from '@/types/product'
 
 type ProductsTableProps = {
   products: Product[]
+  storePersonalizationEnabled?: boolean
 }
 
 function statusLabel(status: string): string {
@@ -24,7 +25,7 @@ function statusVariant(status: string): 'success' | 'warning' | 'default' {
   return 'default'
 }
 
-export function ProductsTable({ products }: ProductsTableProps) {
+export function ProductsTable({ products, storePersonalizationEnabled = false }: ProductsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const allSelected = products.length > 0 && products.every((p) => selectedIds.has(p.id))
@@ -172,6 +173,7 @@ export function ProductsTable({ products }: ProductsTableProps) {
       <BulkActionsBar
         selectedIds={[...selectedIds]}
         onClear={() => setSelectedIds(new Set())}
+        storePersonalizationEnabled={storePersonalizationEnabled}
       />
     </>
   )
