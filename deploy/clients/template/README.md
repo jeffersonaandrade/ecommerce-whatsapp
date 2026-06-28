@@ -23,9 +23,12 @@ A primeira loja implantada tem ficha completa em [`../unitsports/`](../unitsport
 | Arquivo | Uso |
 |---------|-----|
 | `README.md` | Resumo da implantação |
-| `env.example` | Variáveis Netlify (sem valores reais) |
+| `env.example` | Modelo versionado (placeholders) — copiar para `.env.local` |
+| `.env.local` | **Gitignored** — credenciais reais do cliente (não incluído no template) |
 | `go-live-checklist.md` | Passos até produção |
 | `notes.md` | Observações operacionais + `coreVersionInstalled` |
+
+**Env local:** após copiar o template, criar `deploy/clients/<slug>/.env.local` a partir de `env.example`. Ativar na raiz: `npm run env:use -- <slug>`. **Nunca** versionar `.env.local` nem `.env.production`.
 
 **Branding:** cada loja cria `deploy/clients/<slug>/branding/logo.jpeg` após onboarding — **não** incluído no template genérico. Ver exemplo em [`../unitsports/branding/`](../unitsports/branding/).
 

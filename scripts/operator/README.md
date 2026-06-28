@@ -26,6 +26,23 @@ scripts/operator/
 
 Registry de lojas: [`deploy/registry/README.md`](../../deploy/registry/README.md). Manifesto operacional: `deploy/clients/clients.local.json` (gitignored).
 
+## Env por cliente
+
+Cada loja: `deploy/clients/<slug>/.env.local` (gitignored). Ativar na raiz:
+
+```bash
+npm run env:use -- unitsports
+```
+
+| Comportamento | Detalhe |
+|---------------|---------|
+| Ativar | Copia `deploy/clients/<slug>/.env.local` → `.env.local` raiz |
+| Backup | Sobrescreve raiz → salva `.env.local.backup` antes |
+| Init | Se env do slug não existe e raiz existe → prompt `[y/N]` |
+| Segurança | Nunca imprime valores de env |
+
+Script: [`use-client-env.mjs`](use-client-env.mjs)
+
 ## Branding por cliente
 
 - **Canônico:** `deploy/clients/<slug>/branding/logo.jpeg`

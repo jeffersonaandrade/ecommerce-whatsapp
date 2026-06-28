@@ -50,6 +50,46 @@ main (core)
 
 ---
 
+## Env local por cliente
+
+Cada implantação guarda credenciais em `deploy/clients/<slug>/.env.local` (**gitignored**). A `.env.local` na **raiz** é apenas a env **ativa** do cliente em que você está trabalhando.
+
+| Arquivo | Versionado | Papel |
+|---------|------------|-------|
+| `deploy/clients/<slug>/env.example` | Sim | Modelo seguro (placeholders) |
+| `deploy/clients/<slug>/.env.local` | **Não** | Env real da implantação |
+| `.env.local` (raiz) | **Não** | Env ativa — lida por Next.js e scripts |
+| `.env.local.backup` | **Não** | Backup ao trocar de cliente |
+
+### Trocar de cliente
+
+```bash
+# UnitSports
+npm run env:use -- unitsports
+
+# Outro cliente
+npm run env:use -- cliente-2
+```
+
+Manual: `cp deploy/clients/<slug>/.env.local .env.local`
+
+### Primeira vez (inicializar env do slug)
+
+1. Copiar `env.example` → `deploy/clients/<slug>/.env.local` e preencher
+2. Ou `npm run env:use -- <slug>` — se existir `.env.local` na raiz, o script pergunta: inicializar pasta do cliente com esse conteúdo? `[y/N]`
+
+### Riscos
+
+| Risco | Mitigação |
+|-------|-----------|
+| Misturar Supabase de clientes | Uma `.env.local` por slug; `env:use` antes de scripts |
+| Perder env ao trocar cliente | Backup automático em `.env.local.backup` |
+| Commitar secrets | `.gitignore` explícito; só `env.example` versionado |
+
+Runtime **inalterado** — a aplicação continua lendo `.env.local` na raiz.
+
+---
+
 ## Branding por cliente
 
 O core **não** possui logo global. Cada implantação mantém sua fonte em:

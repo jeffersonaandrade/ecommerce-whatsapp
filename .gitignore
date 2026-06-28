@@ -33,6 +33,16 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# Env por cliente (secrets — nunca versionar)
+deploy/clients/*/.env.local
+deploy/clients/*/.env.production
+deploy/clients/*/*.env
+!deploy/clients/*/env.example
+.env.local
+.env.production
+.env.local.backup
+deploy/clients/*/.env.local.backup
+
 # vercel
 .vercel
 

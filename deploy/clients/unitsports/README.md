@@ -62,8 +62,40 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 |---------|-----|
 | [`notes.md`](notes.md) | Ficha operacional — versão core, pendências, suporte |
 | [`go-live-checklist.md`](go-live-checklist.md) | Status conhecido do go-live (histórico + pendências) |
-| [`env.example`](env.example) | Variáveis Netlify — **somente placeholders** |
+| [`env.example`](env.example) | Modelo versionado — **somente placeholders** |
+| `.env.local` | Env real desta loja — **gitignored**, nunca commitar |
 | [`branding/logo.jpeg`](branding/logo.jpeg) | Logo canônica desta implantação |
+
+---
+
+## Env local
+
+| Arquivo | Versionado | Uso |
+|---------|------------|-----|
+| [`env.example`](env.example) | Sim | Modelo seguro — copiar e preencher |
+| `.env.local` | **Não** (gitignore) | Credenciais reais desta implantação |
+| `.env.local` (raiz do repo) | **Não** | Env **ativa** — a que `npm run dev` e scripts leem |
+
+### Trabalhar na UnitSports
+
+**Script (recomendado):**
+
+```bash
+npm run env:use -- unitsports
+```
+
+**Manual:**
+
+```bash
+cp deploy/clients/unitsports/.env.local .env.local
+```
+
+### Primeira vez
+
+1. Copiar `env.example` → `deploy/clients/unitsports/.env.local` e preencher valores reais
+2. Ou rodar `npm run env:use -- unitsports` — se a raiz já tiver `.env.local`, o script pergunta se deseja inicializar a pasta do cliente `[y/N]`
+
+Ao trocar de cliente, a env anterior da raiz é salva em `.env.local.backup` (gitignored).
 
 ---
 
@@ -80,7 +112,7 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 
 **Nunca** commitar keys Supabase, service role ou `.env` com valores reais.
 
-Env de produção: exclusivamente no **painel Netlify** do site `loja-whats`. Desenvolvimento local: `.env.local` (gitignored).
+Env de produção: exclusivamente no **painel Netlify** do site `loja-whats`. Desenvolvimento local: `deploy/clients/unitsports/.env.local` (gitignored) — ativar na raiz com `npm run env:use -- unitsports`.
 
 Supabase project ref: registrar em `clients.local.json` — não versionar nesta pasta.
 

@@ -16,6 +16,7 @@
     "migrate:images:remaining": "node scripts/migration/upload-local-images-pilot.mjs --remaining",
     "migrate:images:all-safe": "node scripts/migration/upload-local-images-pilot.mjs --all-safe",
     "branding:sync": "node scripts/deploy/sync-branding-logo.mjs",
+    "env:use": "node scripts/operator/use-client-env.mjs",
     "headroom:cursor": "headroom wrap cursor"
   },
   "dependencies": {
