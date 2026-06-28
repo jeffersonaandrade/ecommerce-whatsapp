@@ -41,9 +41,10 @@
 | 17 | Repo GitHub `ecommerce-whatsapp` | HANDOFF | 3 | Documentar; adiar rename |
 | 18 | `ENABLE_MIGRATION_TOOLS` | `lib/env/migration-tools.ts` | 6 | Flag operador/onboarding — padrão documentado |
 | 19 | `DATA_PROVIDER` | `.env.local.example` | 4 | Env por deploy — correto |
-| 20 | `store_settings` singleton | `lib/store/supabase-settings-repository.ts` | 2 | Config por loja — correto |
-| 21 | Netlify.toml | `netlify.toml` | 4 | Compartilhado — build igual por cliente; env difere no painel |
-| 22 | Sem multi-tenant | código | — | **Manter** — não introduzir `store_id` |
+| 20 | `.env.local` global na raiz | `.env.local` (raiz) | 4 + 6 | **Mitigado (docs):** env por slug em `deploy/clients/<slug>/.env.local`; `npm run env:use -- <slug>` |
+| 21 | `store_settings` singleton | `lib/store/supabase-settings-repository.ts` | 2 | Config por loja — correto |
+| 22 | Netlify.toml | `netlify.toml` | 4 | Compartilhado — build igual por cliente; env difere no painel |
+| 23 | Sem multi-tenant | código | — | **Manter** — não introduzir `store_id` |
 
 ---
 
@@ -64,6 +65,7 @@
 | Cliente A atualizado, B não | [`CORE_VERSION.md`](CORE_VERSION.md) |
 | Migration quebra loja antiga | [`COMPATIBILITY.md`](COMPATIBILITY.md) |
 | Secrets no manifesto | `clients.local.json` gitignored |
+| Env misturada entre clientes | Env por slug + `env:use` |
 
 ---
 
