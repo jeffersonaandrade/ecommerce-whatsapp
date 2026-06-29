@@ -100,4 +100,60 @@ describe('jsonCategoryRepository', () => {
     expect(created.slug).toBe('jaquetas')
     expect(categoriesState.categories.some((c) => c.slug === 'jaquetas')).toBe(true)
   })
+
+  it('recalcula paths dos descendentes ao mover categoria pai', async () => {
+    categoriesState.categories = [
+      {
+        id: 'e',
+        name: 'Esportes',
+        slug: 'esportes',
+        description: '',
+        sortOrder: 10,
+        visible: true,
+        parentId: null,
+        depth: 0,
+        path: 'esportes',
+        createdAt: '',
+        updatedAt: '',
+      },
+      {
+        id: 'c',
+        name: 'Camisas',
+        slug: 'camisas',
+        description: '',
+        sortOrder: 20,
+        visible: true,
+        parentId: null,
+        depth: 0,
+        path: 'camisas',
+        createdAt: '',
+        updatedAt: '',
+      },
+      {
+        id: 'm',
+        name: 'Manga Longa',
+        slug: 'manga-longa',
+        description: '',
+        sortOrder: 30,
+        visible: true,
+        parentId: 'c',
+        depth: 1,
+        path: 'camisas/manga-longa',
+        createdAt: '',
+        updatedAt: '',
+      },
+    ]
+
+    await jsonCategoryRepository.update('c', {
+      name: 'Camisas',
+      slug: 'camisas',
+      parentId: 'e',
+      visible: true,
+      sortOrder: 20,
+    })
+
+    const all = await jsonCategoryRepository.getAll()
+    expect(all.find((c) => c.id === 'c')?.path).toBe('esportes/camisas')
+    expect(all.find((c) => c.id === 'm')?.path).toBe('esportes/camisas/manga-longa')
+  })
 })

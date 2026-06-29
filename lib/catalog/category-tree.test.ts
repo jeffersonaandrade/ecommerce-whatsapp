@@ -2,12 +2,15 @@ import { describe, expect, it } from 'vitest'
 import { Category } from '@/types/category'
 import {
   assertValidParent,
+  assertSubtreeFitsMaxDepth,
   buildCategoryTree,
   computeCategoryPath,
+  formatCategoryOptionLabel,
   getCategoryBreadcrumb,
   getDescendantIds,
   isLeafCategory,
   productMatchesCategorySubtree,
+  recomputeDescendantPaths,
 } from './category-tree'
 
 function cat(
@@ -94,6 +97,101 @@ describe('category-tree', () => {
 
   it('impede ciclo', () => {
     expect(() => assertValidParent(categories, '2', '1')).toThrow(/descendente/)
+  })
+
+  describe('cascade path/depth', () => {
+    it('recalcula descendentes após mover pai', () => {
+      const esportes = cat({ id: 'e', name: 'Esportes', slug: 'esportes', path: 'esportes' })
+      const camisas = cat({
+        id: 'c',
+        name: 'Camisas',
+        slug: 'camisas',
+        path: 'camisas',
+      })
+      const mangaLonga = cat({
+        id: 'm',
+        name: 'Manga Longa',
+        slug: 'manga-longa',
+        parentId: 'c',
+        depth: 1,
+        path: 'camisas/manga-longa',
+      })
+      const tree = [esportes, camisas, mangaLonga]
+
+      const movedCamisas = {
+        ...camisas,
+        parentId: 'e',
+        depth: 1,
+        path: 'esportes/camisas',
+      }
+      const afterMove = recomputeDescendantPaths(
+        tree.map((c) => (c.id === 'c' ? movedCamisas : c)),
+        'c'
+      )
+
+      expect(afterMove.find((c) => c.id === 'e')?.path).toBe('esportes')
+      expect(afterMove.find((c) => c.id === 'c')?.path).toBe('esportes/camisas')
+      expect(afterMove.find((c) => c.id === 'm')?.path).toBe('esportes/camisas/manga-longa')
+    })
+
+    it('rejeita mover subárvore que excede profundidade máxima', () => {
+      const esportes = cat({ id: 'e', name: 'Esportes', slug: 'esportes' })
+      const deepTree = [...categories, esportes]
+      expect(() => assertSubtreeFitsMaxDepth(deepTree, '1', 1)).toThrow(/3 níveis/)
+    })
+
+    it('recalcula descendentes após renomear slug do pai', () => {
+      const renamed = {
+        ...categories[0],
+        slug: 'camisas-esportivas',
+        path: 'camisas-esportivas',
+      }
+      const afterRename = recomputeDescendantPaths(
+        categories.map((c) => (c.id === '1' ? renamed : c)),
+        '1'
+      )
+      expect(afterRename.find((c) => c.id === '2')?.path).toBe('camisas-esportivas/brasileiro')
+      expect(afterRename.find((c) => c.id === '3')?.path).toBe(
+        'camisas-esportivas/brasileiro/santa-cruz'
+      )
+    })
+
+    it('vitrine encontra produto após cascade de path', () => {
+      const esportes = cat({ id: 'e', name: 'Esportes', slug: 'esportes', path: 'esportes' })
+      const camisas = cat({ id: 'c', name: 'Camisas', slug: 'camisas', path: 'camisas' })
+      const mangaLonga = cat({
+        id: 'm',
+        name: 'Manga Longa',
+        slug: 'manga-longa',
+        parentId: 'c',
+        depth: 1,
+        path: 'camisas/manga-longa',
+      })
+      const stale = [esportes, camisas, mangaLonga]
+      const product = { categoryId: 'm', category: 'manga-longa' }
+
+      expect(productMatchesCategorySubtree(product, 'esportes', stale)).toBe(false)
+
+      const movedCamisas = {
+        ...camisas,
+        parentId: 'e',
+        depth: 1,
+        path: 'esportes/camisas',
+      }
+      const fresh = recomputeDescendantPaths(
+        stale.map((c) => (c.id === 'c' ? movedCamisas : c)),
+        'c'
+      )
+      expect(productMatchesCategorySubtree(product, 'esportes', fresh)).toBe(true)
+    })
+  })
+
+  it('formatCategoryOptionLabel indenta por depth', () => {
+    expect(formatCategoryOptionLabel({ name: 'Raiz', depth: 0, visible: true })).toBe('Raiz')
+    expect(formatCategoryOptionLabel({ name: 'Filho', depth: 1, visible: true })).toBe('— Filho')
+    expect(formatCategoryOptionLabel({ name: 'Oculta', depth: 0, visible: false })).toBe(
+      'Oculta (oculta)'
+    )
   })
 
   it('filtra produtos por subárvore', () => {
