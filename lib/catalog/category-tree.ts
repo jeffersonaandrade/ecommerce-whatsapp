@@ -236,3 +236,67 @@ export function countProductsInSubtree(
 export function formatCategoryBreadcrumb(categories: Category[]): string {
   return categories.map((c) => c.name).join(' › ')
 }
+
+export function formatCategoryOptionLabel(
+  category: Pick<Category, 'name' | 'depth' | 'visible'>
+): string {
+  const indent = `${'—'.repeat(category.depth)}${category.depth > 0 ? ' ' : ''}`
+  const hidden = category.visible === false ? ' (oculta)' : ''
+  return `${indent}${category.name}${hidden}`
+}
+
+export function getSubtreeRelativeMaxDepth(categories: Category[], nodeId: string): number {
+  const byParent = new Map<string | null, Category[]>()
+  for (const category of categories) {
+    const key = category.parentId ?? null
+    const list = byParent.get(key) ?? []
+    list.push(category)
+    byParent.set(key, list)
+  }
+
+  let maxRel = 0
+  const walk = (id: string, rel: number) => {
+    if (rel > maxRel) maxRel = rel
+    for (const child of byParent.get(id) ?? []) {
+      walk(child.id, rel + 1)
+    }
+  }
+  walk(nodeId, 0)
+  return maxRel
+}
+
+export function assertSubtreeFitsMaxDepth(
+  categories: Category[],
+  nodeId: string,
+  newDepth: number
+): void {
+  const relative = getSubtreeRelativeMaxDepth(categories, nodeId)
+  if (newDepth + relative > MAX_CATEGORY_DEPTH) {
+    throw new Error('Profundidade máxima de 3 níveis atingida')
+  }
+}
+
+export function recomputeDescendantPaths(
+  categories: Category[],
+  rootId: string
+): Category[] {
+  const next = categories.map((c) => ({ ...c }))
+  const byId = new Map(next.map((c) => [c.id, c]))
+  const root = byId.get(rootId)
+  if (!root) return next
+
+  const walk = (parent: Category) => {
+    for (const child of next.filter((c) => c.parentId === parent.id)) {
+      const treeFields = computeCategoryPath(child.slug, parent)
+      const index = next.findIndex((c) => c.id === child.id)
+      next[index] = {
+        ...child,
+        depth: treeFields.depth,
+        path: treeFields.path,
+      }
+      walk(next[index])
+    }
+  }
+  walk(root)
+  return next
+}

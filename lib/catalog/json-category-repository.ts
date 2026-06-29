@@ -12,8 +12,10 @@ import {
 } from './category-utils'
 import {
   assertValidParent,
+  assertSubtreeFitsMaxDepth,
   computeCategoryPath,
   getChildren,
+  recomputeDescendantPaths,
 } from './category-tree'
 import { CategoryRepository } from './category-repository'
 import {
@@ -118,20 +120,7 @@ function buildCategory(
 }
 
 function refreshDescendantPaths(categories: Category[], parentId: string): Category[] {
-  const parent = categories.find((c) => c.id === parentId)
-  if (!parent) return categories
-
-  return categories.map((category) => {
-    if (category.parentId !== parentId) return category
-    const treeFields = computeCategoryPath(category.slug, parent)
-    const updated = {
-      ...category,
-      depth: treeFields.depth,
-      path: treeFields.path,
-      updatedAt: nowIso(),
-    }
-    return updated
-  })
+  return recomputeDescendantPaths(categories, parentId)
 }
 
 export const jsonCategoryRepository: CategoryRepository = {
@@ -180,6 +169,7 @@ export const jsonCategoryRepository: CategoryRepository = {
     const name = input.name.trim()
     const slug = normalizeCategorySlug(input.slug?.trim() || generateCategorySlug(name))
     const treeFields = computeCategoryPath(slug, parent)
+    assertSubtreeFitsMaxDepth(categories, id, treeFields.depth)
     const updated: Category = {
       ...categories[index],
       name,
@@ -201,7 +191,7 @@ export const jsonCategoryRepository: CategoryRepository = {
     next[index] = updated
     const withChildren = refreshDescendantPaths(next, updated.id)
     persistCategories(withChildren)
-    return updated
+    return withChildren.find((c) => c.id === id) ?? updated
   },
 
   async delete(id: string): Promise<void> {
