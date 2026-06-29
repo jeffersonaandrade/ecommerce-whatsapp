@@ -9,6 +9,7 @@ import { generateCategorySlug } from '@/lib/catalog/category-utils'
 import {
   buildCategoryTree,
   flattenCategoryTree,
+  formatCategoryOptionLabel,
   getDescendantIds,
   MAX_CATEGORY_DEPTH,
 } from '@/lib/catalog/category-tree'
@@ -254,8 +255,7 @@ export function CategoryForm({
               <option value="">Nenhuma (raiz)</option>
               {parentOptions.map((item) => (
                 <option key={item.id} value={item.id}>
-                  {'—'.repeat(item.depth)} {item.depth > 0 ? ' ' : ''}
-                  {item.name}
+                  {formatCategoryOptionLabel(item)}
                 </option>
               ))}
             </select>

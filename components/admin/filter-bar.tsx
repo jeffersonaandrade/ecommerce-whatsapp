@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import type { Category } from '@/types/category'
-import { buildCategoryTree, flattenCategoryTree } from '@/lib/catalog/category-tree'
+import { buildCategoryTree, flattenCategoryTree, formatCategoryOptionLabel } from '@/lib/catalog/category-tree'
 
 type FilterBarProps = {
   categories?: Category[]
@@ -37,8 +37,7 @@ export function FilterBar({ categories, showSort = true }: FilterBarProps) {
           <option value="">Todas as categorias</option>
           {flattenCategoryTree(buildCategoryTree(categories)).map((c) => (
             <option key={c.id} value={c.slug}>
-              {'—'.repeat(c.depth)} {c.depth > 0 ? ' ' : ''}
-              {c.name}
+              {formatCategoryOptionLabel(c)}
             </option>
           ))}
         </select>

@@ -1,8 +1,14 @@
 'use client'
 
 import { Category } from '@/types/category'
-import { buildCategoryTree, flattenCategoryTree, isLeafCategory } from '@/lib/catalog/category-tree'
-import { formatCategoryBreadcrumb, getCategoryBreadcrumb } from '@/lib/catalog/category-tree'
+import {
+  buildCategoryTree,
+  flattenCategoryTree,
+  formatCategoryBreadcrumb,
+  formatCategoryOptionLabel,
+  getCategoryBreadcrumb,
+  isLeafCategory,
+} from '@/lib/catalog/category-tree'
 
 type CategoryTreePickerProps = {
   categories: Category[]
@@ -46,9 +52,7 @@ export function CategoryTreePicker({
         <option value="">Selecione uma categoria</option>
         {options.map((category) => (
           <option key={category.id} value={category.id}>
-            {'—'.repeat(category.depth)} {category.depth > 0 ? ' ' : ''}
-            {category.name}
-            {!category.visible ? ' (oculta)' : ''}
+            {formatCategoryOptionLabel(category)}
           </option>
         ))}
       </select>
