@@ -77,3 +77,60 @@ O MCP usa o proxy em `http://127.0.0.1:8787` quando ele estiver ativo.
 
 - Repositório: https://github.com/headroomlabs-ai/headroom
 - Docs: https://headroom-docs.vercel.app/docs/quickstart
+
+## Diretrizes de Desenvolvimento (Karpathy Guidelines) — OBRIGATÓRIO
+
+Estas regras se aplicam a **todo desenvolvimento** neste projeto. Não são opcionais.
+
+### 1. Pense Antes de Codificar
+
+**Não assuma. Não esconda confusão. Explicite trade-offs.**
+
+Antes de implementar:
+- Declare suas suposições explicitamente. Se incerto, pergunte.
+- Se existem múltiplas interpretações, apresente-as — não escolha silenciosamente.
+- Se existir uma abordagem mais simples, diga. Questione quando necessário.
+- Se algo não estiver claro, pare. Nomeie o que está confuso. Pergunte.
+
+### 2. Simplicidade Primeiro
+
+**O mínimo de código que resolve o problema. Nada especulativo.**
+
+- Sem features além do que foi pedido.
+- Sem abstrações para código de uso único.
+- Sem "flexibilidade" ou "configurabilidade" não solicitadas.
+- Sem tratamento de erros para cenários impossíveis.
+- Se escrever 200 linhas e poderia ser 50, reescreva.
+
+Pergunte-se: "Um engenheiro sênior diria que isso está complicado demais?" Se sim, simplifique.
+
+### 3. Mudanças Cirúrgicas
+
+**Toque apenas o que é necessário. Limpe apenas sua própria bagunça.**
+
+Ao editar código existente:
+- Não "melhore" código, comentários ou formatação adjacentes.
+- Não refatore coisas que não estão quebradas.
+- Mantenha o estilo existente, mesmo que você faria diferente.
+- Se notar código morto não relacionado, mencione — não delete.
+
+Ao fazer suas mudanças criarem órfãos:
+- Remova imports/variáveis/funções que SUAS mudanças tornaram não utilizados.
+- Não remova código morto pré-existente, a menos que solicitado.
+
+O teste: cada linha alterada deve rastrear diretamente para o pedido do usuário.
+
+### 4. Execução Orientada a Objetivos
+
+**Defina critérios de sucesso. Execute em loop até verificado.**
+
+Transforme tarefas em objetivos verificáveis:
+- "Adicionar validação" → "Escrever testes para inputs inválidos, depois fazê-los passar"
+- "Corrigir o bug" → "Escrever um teste que reproduza, depois fazê-lo passar"
+- "Refatorar X" → "Garantir que os testes passem antes e depois"
+
+Para tarefas multi-etapa, declare um plano breve:
+```
+1. [Etapa] → verificar: [check]
+2. [Etapa] → verificar: [check]
+```
