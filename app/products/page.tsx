@@ -81,7 +81,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             searchParams={params}
           />
 
-          <div className="mt-4 max-w-md">
+          <div className="mt-4 w-full max-w-lg">
             <Suspense fallback={<div className="h-9 rounded-lg border border-hairline bg-soft-cloud" />}>
               <ProductsSearchInput initialValue={q ?? ''} />
             </Suspense>
