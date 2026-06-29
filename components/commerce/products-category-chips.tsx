@@ -10,17 +10,25 @@ type ProductsCategoryChipsProps = {
   categories: Category[]
   activeCategory?: string
   searchParams?: Record<string, string | undefined>
+  sectionLabel?: string | null
 }
 
 export function ProductsCategoryChips({
   categories,
   activeCategory,
   searchParams = {},
+  sectionLabel,
 }: ProductsCategoryChipsProps) {
   const preserve = searchParams
 
   return (
-    <nav className="mt-6 flex flex-wrap gap-2" aria-label="Filtrar por categoria">
+    <div className="mt-6">
+      {sectionLabel && (
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-mute">
+          {sectionLabel}
+        </p>
+      )}
+      <nav className="flex flex-wrap gap-2" aria-label="Filtrar por categoria">
       <Link
         href={productsPageHref({ preserve })}
         className={getButtonClassName(activeCategory ? 'secondary' : 'default', 'sm')}
@@ -39,6 +47,7 @@ export function ProductsCategoryChips({
           {cat.name}
         </Link>
       ))}
-    </nav>
+      </nav>
+    </div>
   )
 }

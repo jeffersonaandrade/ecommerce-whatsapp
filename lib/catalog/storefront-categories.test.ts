@@ -9,6 +9,7 @@ import {
   resolveCategoryHeading,
   resolveStorefrontCategories,
   resolveStorefrontCategoryList,
+  resolveStorefrontNavCategories,
 } from './storefront-categories'
 import { Category } from '@/types/category'
 
@@ -146,5 +147,99 @@ describe('resolveCategoryHeading', () => {
     expect(resolveCategoryHeading('camisas', sampleCategories)).toBe('Camisas')
     expect(resolveCategoryHeading('Camisas', sampleCategories)).toBe('Camisas')
     expect(resolveCategoryHeading(undefined, sampleCategories)).toBe('Todos os produtos')
+  })
+})
+
+const treeCategories: Category[] = [
+  {
+    id: 'c1',
+    name: 'Camisas',
+    slug: 'camisas',
+    description: '',
+    sortOrder: 10,
+    visible: true,
+    parentId: null,
+    depth: 0,
+    path: 'camisas',
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    id: 'c2',
+    name: 'Brasileiro',
+    slug: 'brasileiro',
+    description: '',
+    sortOrder: 10,
+    visible: true,
+    parentId: 'c1',
+    depth: 1,
+    path: 'camisas/brasileiro',
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    id: 'c3',
+    name: 'Retrô',
+    slug: 'retro',
+    description: '',
+    sortOrder: 10,
+    visible: true,
+    parentId: 'c2',
+    depth: 2,
+    path: 'camisas/brasileiro/retro',
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    id: 'c4',
+    name: 'Santa Cruz',
+    slug: 'santa-cruz',
+    description: '',
+    sortOrder: 10,
+    visible: true,
+    parentId: 'c3',
+    depth: 3,
+    path: 'camisas/brasileiro/retro/santa-cruz',
+    createdAt: '',
+    updatedAt: '',
+  },
+  {
+    id: 'c5',
+    name: 'Sport',
+    slug: 'sport',
+    description: '',
+    sortOrder: 20,
+    visible: true,
+    parentId: 'c3',
+    depth: 3,
+    path: 'camisas/brasileiro/retro/sport',
+    createdAt: '',
+    updatedAt: '',
+  },
+]
+
+describe('resolveStorefrontNavCategories (4 níveis)', () => {
+  it('mostra raízes sem categoria ativa', () => {
+    expect(resolveStorefrontNavCategories(treeCategories).map((c) => c.slug)).toEqual(['camisas'])
+  })
+
+  it('drill-down por nível', () => {
+    expect(resolveStorefrontNavCategories(treeCategories, 'camisas').map((c) => c.slug)).toEqual([
+      'brasileiro',
+    ])
+    expect(resolveStorefrontNavCategories(treeCategories, 'brasileiro').map((c) => c.slug)).toEqual([
+      'retro',
+    ])
+    expect(resolveStorefrontNavCategories(treeCategories, 'retro').map((c) => c.slug)).toEqual([
+      'santa-cruz',
+      'sport',
+    ])
+  })
+
+  it('em folha mostra irmãos', () => {
+    expect(resolveStorefrontNavCategories(treeCategories, 'santa-cruz').map((c) => c.slug)).toEqual([
+      'santa-cruz',
+      'sport',
+    ])
   })
 })

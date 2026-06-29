@@ -632,4 +632,50 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 
 ---
 
+### 9.10 Categorias hierárquicas UnitSports — árvore + bulk move (2026-06)
+
+**Contexto:** ~3.438 produtos em rascunho; 13 categorias flat no banco. Hierarquia suporta **4 níveis** (`depth` 0–3). Detalhes em [`docs/DOMAIN_MODEL.md`](DOMAIN_MODEL.md) §Category.
+
+#### Árvore alvo (reparent no admin)
+
+| Slug | Novo pai | Nível |
+|------|----------|-------|
+| `brasileiro` | `camisas` | 1 |
+| `europeu` | `camisas` | 1 |
+| `nba` | `camisas` | 1 |
+| `selecao-brasileira` | `camisas` | 1 |
+| `retro` | `camisas/brasileiro` (ou sob região adequada) | 2 |
+| `versao-jogador` | `camisas` → região | 2 |
+| `feminina` | `camisas` → região | 2 |
+| `kit-infantil` | `camisas` ou `conjuntos` | 2 |
+| `colecao-de-inverno` | `camisas` (sub: manga longa) | 1–2 |
+
+Raízes que permanecem: `camisas`, `chuteiras`, `conjuntos`, `shorts`.
+
+**SQL de reparent (copiar no Supabase — ajustar IDs reais):**
+
+```sql
+-- Exemplo: mover brasileiro sob camisas
+UPDATE categories SET parent_id = (SELECT id FROM categories WHERE slug = 'camisas')
+WHERE slug = 'brasileiro';
+-- Triggers recalculam path/depth automaticamente
+```
+
+#### Bulk move por filtro (admin)
+
+Fluxo pós-import / organização em massa:
+
+1. `/admin/products?batch=<uuid>` ou `?category=camisas&status=draft`
+2. Banner **"Mover todos os X resultados"** → escolher categoria no tree picker
+3. Confirmação obrigatória se `X > 50` ou catálogo inteiro sem filtro
+4. Publicar lotes válidos após classificação
+
+**Caso manual documentado:** import CSV → filtrar por `batch` → mover 500+ produtos numa operação → ativar em lote.
+
+#### PLP drill-down
+
+Navegação: `Camisas → Brasileiro → Retrô → Santa Cruz` via `?category=` + breadcrumb + `CategoryTreeNav` (mobile) / chips (desktop).
+
+---
+
 *Próxima revisão deste handoff: após validação cliente (imagens) ou onboarding 1º cliente concluído.*

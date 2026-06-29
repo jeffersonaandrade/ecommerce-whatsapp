@@ -13,11 +13,13 @@ import { queryStorefrontProducts } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
   hasStorefrontCategoryImages,
+  isCategoryFilterActive,
   productsPageHref,
   resolveCategoryHeading,
   resolveStorefrontCategoryList,
   resolveStorefrontNavCategories,
 } from '@/lib/catalog/storefront-categories'
+import { getVisibleChildCategories } from '@/lib/catalog/category-tree'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 
@@ -46,6 +48,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const categories = resolveStorefrontCategoryList(allCategories)
   const navCategories = resolveStorefrontNavCategories(allCategories, category)
   const showVisualCategories = hasStorefrontCategoryImages(allCategories)
+  const activeNode = category
+    ? allCategories.find((c) => isCategoryFilterActive(category, c))
+    : undefined
+  const navSectionLabel = activeNode
+    ? getVisibleChildCategories(allCategories, activeNode.id).length > 0
+      ? `Dentro de ${activeNode.name}`
+      : activeNode.parentId
+        ? `Mais em ${allCategories.find((c) => c.id === activeNode.parentId)?.name ?? 'categoria'}`
+        : null
+    : null
 
   const result = await queryStorefrontProducts({
     category,
@@ -98,6 +110,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               categories={navCategories}
               activeCategory={category}
               searchParams={params}
+              sectionLabel={navSectionLabel}
             />
           )}
         </div>
