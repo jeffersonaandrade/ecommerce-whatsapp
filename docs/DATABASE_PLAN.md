@@ -10,7 +10,7 @@
 ```text
 store_settings (singleton id = 'default')
 
-categories (hierárquica: parent_id, depth, path — máx. 3 níveis)
+categories (hierárquica: parent_id, depth, path — máx. 4 níveis visuais, depth 0–3)
     │
     └──< products.category_id (FK opcional; products.category = slug legado sincronizado)
 
@@ -28,6 +28,19 @@ Storage buckets (não relacional):
 **Aplicado em produção:** tabela `categories` com hierarquia (`parent_id`, `depth`, `path`); `products.category_id` FK opcional. `products.category` (slug) mantido para compatibilidade e import CSV.
 
 **Limitação MVP:** slug de categoria único globalmente (futuro: `UNIQUE(parent_id, slug)`).
+
+### Benchmark árvore (referência — não é SLA)
+
+Medição em **2026-06-29** com ~300 categorias (4 níveis) e movimentação de um nó de linha (nível 2) entre regiões.
+
+| Camada | Operação | Tempo |
+|--------|----------|-------|
+| **SQL (Supabase prod)** | INSERT 300 categorias (trigger `path`/`depth`) | ~85 ms |
+| **SQL** | UPDATE `parent_id` + cascade trigger | ~5 ms |
+| **SQL** | Query subárvore por prefixo `path` | ~0,5 ms |
+| **TypeScript** | `recomputeDescendantPaths` + filtro 1000 produtos | ver [`category-tree-load.test.ts`](../lib/catalog/category-tree-load.test.ts) |
+
+Sem otimização adicional nesta fase — baseline para regressão futura.
 
 ---
 
@@ -79,6 +92,8 @@ Projeto Supabase isolado (`unitsports`). Outras lojas replicam o mesmo schema vi
 | `20260628240000` | `sprint_a2_media_filters` | Filtros mídia server-side, counts categorias, `query_admin_products_page` |
 | `20260629120000` | `sprint_c_storefront_category_query` | RPC `query_storefront_products_page` — PLP `?category=` paginada no SQL |
 | `20260702120000` | `category_hierarchy` | `categories.parent_id/depth/path`, `products.category_id`, RPCs subárvore |
+| `20260730120000` | `category_path_cascade` | Cascade `path`/`depth` em descendentes ao mover/renomear pai |
+| `20260731120000` | `category_depth_four_levels` | Limite `depth` 0–3 (4 níveis visuais); ex.: Camisas › Brasileiro › Retrô › Santa Cruz |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
 

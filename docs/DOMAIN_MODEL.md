@@ -90,24 +90,43 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 
 ## Category
 
-**Responsabilidade:** organização do catálogo em árvore (máx. 3 níveis).
+**Responsabilidade:** organização do catálogo em árvore (**máx. 4 níveis visuais**, `depth` 0–3). Não é árvore ilimitada.
 
 | Campo | Descrição |
 |-------|-----------|
 | `parentId` | FK opcional para categoria pai (`null` = raiz) |
-| `depth` | 0–2 (raiz → intermediário → folha) |
-| `path` | Caminho materializado (`camisas/brasileiro/santa-cruz`) |
+| `depth` | 0–3 (tipo → liga → linha → time/clube) |
+| `path` | Caminho materializado (`camisas/brasileiro/retro/santa-cruz`) |
 | `slug` | **Único global** no MVP (limitação documentada) |
 
-`Product.categoryId` referencia o nó escolhido; `Product.category` (slug) permanece sincronizado para compatibilidade com RPCs legados e import CSV.
+**Modelo sugerido (cliente):**
 
-**Vitrine:** `/products?category={slug}` lista produtos do nó **e descendentes**. Nó oculto (`visible = false`) oculta subárvore.
+| Nível | `depth` | Exemplos |
+|-------|---------|----------|
+| Tipo de produto | 0 | Camisas, Chuteiras, Conjuntos, Shorts |
+| Liga / região | 1 | Brasileiro, Europeu, NBA, Seleções |
+| Linha / variante | 2 | Retrô, Versão Jogador, Feminina, Kit infantil, Manga Longa |
+| Time / clube | 3 | Santa Cruz, Sport, Real Madrid, Brasil |
 
-**Admin:** `/admin/categories` — CRUD em árvore (lista indentada, select de pai). Formulário de produto e ação em lote usam tree picker. **Clube/time** (`Product.club`) é campo separado.
+`Product.categoryId` referencia o nó escolhido (folha recomendada); `Product.category` (slug) permanece sincronizado para compatibilidade com RPCs legados e import CSV.
 
-**Import CSV:** inalterado — hierarquia organizada pelo admin após import (mover em lote + publicar).
+**Vitrine:** `/products?category={slug}` lista produtos do nó **e descendentes**. Nó oculto (`visible = false`) oculta subárvore. **Mobile:** drill-down por nível (`CategoryTreeNav`), não lista plana de todos os nós.
+
+**Admin:** `/admin/categories` — CRUD em árvore (lista indentada, select de pai). Formulário de produto e ação em lote usam tree picker. **Clube/time** (`Product.club`) é campo separado (legado; preferir folha na árvore).
+
+**Import CSV:** inalterado — sem path hierárquico, sem auto-criação de categorias; hierarquia organizada pelo admin após import (mover em lote + publicar).
 
 **Rollout folha:** Fase 1 (MVP) permite produto em raiz/intermediário; Fase 2 aviso no admin; Fase 3 bloqueio de publicação em não-folha.
+
+**Depreciação `products.category` (slug legado):**
+
+| Fase | Comportamento |
+|------|----------------|
+| v1 (atual) | `category_id` + `category` sincronizados; import CSV grava slug |
+| v2 | `category` somente leitura; escrita apenas em `category_id` |
+| v3 | Remover coluna `category` após migração completa |
+
+**Busca PLP (roadmap):** `?q=` deve considerar nome do produto, categoria folha e breadcrumbs (ex.: busca `Santa` encontra camisa em `Camisas › Brasileiro › Retrô › Santa Cruz`).
 
 ---
 
