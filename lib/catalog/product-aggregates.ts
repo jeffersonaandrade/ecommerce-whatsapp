@@ -105,6 +105,9 @@ export async function fetchProductCountForCategory(
       description: '',
       sortOrder: 0,
       visible: true,
+      parentId: null,
+      depth: 0,
+      path: category,
       createdAt: '',
       updatedAt: '',
     }

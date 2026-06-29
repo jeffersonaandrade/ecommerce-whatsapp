@@ -9,6 +9,7 @@ import {
   normalizeCategorySlug,
   sortCategories,
 } from './category-utils'
+import { assertValidParent, getChildren } from './category-tree'
 import { CategoryRepository } from './category-repository'
 import {
   buildCategoryUpdatePayload,
@@ -27,6 +28,14 @@ async function fetchAllCategories(): Promise<Category[]> {
 
   if (error) throw new Error(`categories read failed: ${error.message}`)
   return sortCategories((data ?? []).map((row) => rowToCategory(row as CategoryRow)))
+}
+
+function resolveParent(
+  categories: Category[],
+  parentId: string | null | undefined
+): Category | null {
+  if (!parentId) return null
+  return categories.find((c) => c.id === parentId) ?? null
 }
 
 export const supabaseCategoryRepository: CategoryRepository = {
@@ -70,8 +79,11 @@ export const supabaseCategoryRepository: CategoryRepository = {
   },
 
   async create(input: CategoryInput): Promise<Category> {
+    const categories = await fetchAllCategories()
+    assertValidParent(categories, input.parentId ?? null)
+    const parent = resolveParent(categories, input.parentId ?? null)
+    const row = categoryInputToRow(input, parent)
     const supabase = createAdminClient()
-    const row = categoryInputToRow(input)
     const { data, error } = await supabase
       .from('categories')
       .insert({
@@ -80,6 +92,9 @@ export const supabaseCategoryRepository: CategoryRepository = {
         description: row.description,
         sort_order: row.sort_order,
         visible: row.visible,
+        parent_id: row.parent_id,
+        depth: row.depth,
+        path: row.path,
       })
       .select('*')
       .single()
@@ -89,13 +104,18 @@ export const supabaseCategoryRepository: CategoryRepository = {
   },
 
   async update(id: string, input: CategoryInput): Promise<Category> {
-    const existing = await this.getById(id)
+    const categories = await fetchAllCategories()
+    const existing = categories.find((c) => c.id === id)
     if (!existing) throw new Error('Categoria não encontrada')
+
+    const parentId = input.parentId !== undefined ? input.parentId : existing.parentId ?? null
+    assertValidParent(categories, parentId, id)
+    const parent = resolveParent(categories, parentId)
 
     const supabase = createAdminClient()
     const { data, error } = await supabase
       .from('categories')
-      .update(buildCategoryUpdatePayload(input, existing))
+      .update(buildCategoryUpdatePayload(input, existing, parent))
       .eq('id', id)
       .select('*')
       .single()
@@ -105,6 +125,11 @@ export const supabaseCategoryRepository: CategoryRepository = {
   },
 
   async delete(id: string): Promise<void> {
+    const categories = await fetchAllCategories()
+    if (getChildren(categories, id).length > 0) {
+      throw new Error('Não é possível excluir categoria com subcategorias')
+    }
+
     const supabase = createAdminClient()
     const { error } = await supabase.from('categories').delete().eq('id', id)
     if (error) throw new Error(`category delete failed: ${error.message}`)
@@ -127,6 +152,7 @@ export const supabaseCategoryRepository: CategoryRepository = {
     let qb = supabase
       .from('categories')
       .select('*', { count: 'exact' })
+      .order('depth', { ascending: true })
       .order('sort_order', { ascending: true })
       .order('name', { ascending: true })
 

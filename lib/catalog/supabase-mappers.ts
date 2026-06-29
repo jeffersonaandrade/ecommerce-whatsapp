@@ -9,6 +9,7 @@ export type ProductRow = {
   price: number
   promotional_price: number | null
   category: string
+  category_id: string | null
   club: string | null
   images: string[]
   status: ProductStatus
@@ -42,6 +43,7 @@ export function rowsToProduct(
     promotionalPrice:
       row.promotional_price != null ? Number(row.promotional_price) : undefined,
     category: row.category,
+    categoryId: row.category_id ?? null,
     club: row.club ?? undefined,
     images: row.images ?? [],
     variations: variations.map((v) => ({
@@ -69,6 +71,7 @@ export function productToRow(product: Product): ProductRow {
     price: product.price,
     promotional_price: product.promotionalPrice ?? null,
     category: product.category,
+    category_id: product.categoryId ?? null,
     club: product.club ?? null,
     images: product.images,
     status: product.status,

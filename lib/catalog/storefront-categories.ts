@@ -1,6 +1,13 @@
 import { siteConfig } from '@/config/site'
 import { Category } from '@/types/category'
-import { generateCategorySlug, sortCategories } from './category-utils'
+import {
+  getCategoryBreadcrumb,
+  getStorefrontRoots,
+  getVisibleChildCategories,
+} from './category-tree'
+import { generateCategorySlug, resolveCategoryParam, sortCategories } from './category-utils'
+
+export { getCategoryBreadcrumb, getStorefrontRoots, getVisibleChildCategories }
 
 /** Categorias ocultas na vitrine (resíduos de teste/QA). */
 const HIDDEN_CATEGORY_PATTERN = /^qa$/i
@@ -44,7 +51,7 @@ export function resolveStorefrontCategoryList(categories: Category[]): Category[
   const visible = categories.filter(
     (c) => c.visible && isStorefrontCategory(c.name) && isStorefrontCategory(c.slug)
   )
-  if (visible.length > 0) return sortCategories(visible)
+  if (visible.length > 0) return getStorefrontRoots(visible)
 
   const fallback = siteConfig.categories.map((name, index) => ({
     id: `fallback-${generateCategorySlug(name)}`,
@@ -53,6 +60,9 @@ export function resolveStorefrontCategoryList(categories: Category[]): Category[
     description: '',
     sortOrder: (index + 1) * 10,
     visible: true,
+    parentId: null,
+    depth: 0,
+    path: generateCategorySlug(name),
     createdAt: '',
     updatedAt: '',
   }))
@@ -105,11 +115,35 @@ export function isCategoryFilterActive(
   )
 }
 
+export function resolveStorefrontNavCategories(
+  categories: Category[],
+  activeCategory?: string
+): Category[] {
+  const visible = categories.filter(
+    (c) => c.visible && isStorefrontCategory(c.name) && isStorefrontCategory(c.slug)
+  )
+  if (!activeCategory) return getStorefrontRoots(visible)
+
+  const active = resolveCategoryParam(activeCategory, visible)
+  if (!active) return getStorefrontRoots(visible)
+
+  const children = getVisibleChildCategories(visible, active.id)
+  if (children.length > 0) return children
+
+  if (active.parentId) {
+    return getVisibleChildCategories(visible, active.parentId)
+  }
+
+  return getStorefrontRoots(visible)
+}
+
 export function resolveCategoryHeading(
   filterParam: string | undefined,
   categories: Category[]
 ): string {
   if (!filterParam) return 'Todos os produtos'
+  const trail = getCategoryBreadcrumb(categories, filterParam)
+  if (trail.length) return trail[trail.length - 1].name
   const match = categories.find((c) => isCategoryFilterActive(filterParam, c))
   return match?.name ?? filterParam
 }

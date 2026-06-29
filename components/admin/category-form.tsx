@@ -7,6 +7,12 @@ import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { generateCategorySlug } from '@/lib/catalog/category-utils'
 import {
+  buildCategoryTree,
+  flattenCategoryTree,
+  getDescendantIds,
+  MAX_CATEGORY_DEPTH,
+} from '@/lib/catalog/category-tree'
+import {
   createCategoryAction,
   deleteCategoryAction,
   updateCategoryAction,
@@ -20,6 +26,7 @@ type CategoryFormProps = {
   mode: 'create' | 'edit'
   category?: Category
   productCount?: number
+  allCategories?: Category[]
 }
 
 function categoryToForm(category: Category) {
@@ -29,10 +36,16 @@ function categoryToForm(category: Category) {
     description: category.description,
     sortOrder: String(category.sortOrder),
     visible: category.visible,
+    parentId: category.parentId ?? '',
   }
 }
 
-export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormProps) {
+export function CategoryForm({
+  mode,
+  category,
+  productCount = 0,
+  allCategories = [],
+}: CategoryFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const initial = category
@@ -43,6 +56,7 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
         description: '',
         sortOrder: '0',
         visible: true,
+        parentId: '',
       }
 
   const [name, setName] = useState(initial.name)
@@ -51,6 +65,7 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
   const [description, setDescription] = useState(initial.description)
   const [sortOrder, setSortOrder] = useState(initial.sortOrder)
   const [visible, setVisible] = useState(initial.visible)
+  const [parentId, setParentId] = useState(initial.parentId)
   const [errors, setErrors] = useState<string[]>([])
   const [success, setSuccess] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(false)
@@ -80,8 +95,20 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
       description,
       sortOrder: parseInt(sortOrder, 10) || 0,
       visible,
+      parentId: parentId || null,
     }
   }
+
+  const excludeParentIds = new Set<string>()
+  if (mode === 'edit' && category) {
+    excludeParentIds.add(category.id)
+    for (const id of getDescendantIds(allCategories, category.id)) {
+      excludeParentIds.add(id)
+    }
+  }
+  const parentOptions = flattenCategoryTree(buildCategoryTree(allCategories)).filter(
+    (item) => !excludeParentIds.has(item.id) && item.depth < MAX_CATEGORY_DEPTH
+  )
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -216,6 +243,23 @@ export function CategoryForm({ mode, category, productCount = 0 }: CategoryFormP
               onChange={(e) => setSortOrder(e.target.value)}
               className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
             />
+          </label>
+          <label className="block space-y-1 sm:col-span-2">
+            <span className="text-sm font-medium text-ink">Categoria pai</span>
+            <select
+              value={parentId}
+              onChange={(e) => setParentId(e.target.value)}
+              className="w-full rounded-lg border border-hairline px-3 py-2 text-sm bg-white"
+            >
+              <option value="">Nenhuma (raiz)</option>
+              {parentOptions.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {'—'.repeat(item.depth)} {item.depth > 0 ? ' ' : ''}
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs text-mute">Máximo de 3 níveis (raiz → intermediário → folha).</span>
           </label>
           <label className="flex items-center gap-2 pt-7">
             <input

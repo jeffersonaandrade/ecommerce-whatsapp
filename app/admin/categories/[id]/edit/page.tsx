@@ -2,7 +2,7 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { CategoryForm } from '@/components/admin/category-form'
-import { getCategoryById } from '@/lib/categories'
+import { getCategoryById, getAllCategoriesAdmin } from '@/lib/categories'
 import { fetchProductCountForCategory } from '@/lib/catalog/product-aggregates'
 
 export const metadata: Metadata = {
@@ -16,7 +16,10 @@ type EditCategoryPageProps = {
 
 export default async function AdminEditCategoryPage({ params }: EditCategoryPageProps) {
   const { id } = await params
-  const category = await getCategoryById(id)
+  const [category, allCategories] = await Promise.all([
+    getCategoryById(id),
+    getAllCategoriesAdmin(),
+  ])
   if (!category) notFound()
 
   const { total: count } = await fetchProductCountForCategory(category.slug)
@@ -31,7 +34,12 @@ export default async function AdminEditCategoryPage({ params }: EditCategoryPage
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-canvas border border-hairline rounded-lg p-6 sm:p-8">
-          <CategoryForm mode="edit" category={category} productCount={count} />
+          <CategoryForm
+            mode="edit"
+            category={category}
+            productCount={count}
+            allCategories={allCategories}
+          />
         </div>
       </div>
     </div>

@@ -5,6 +5,8 @@ import { getButtonClassName } from '@/components/ui/button'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { ProductsCategoryFilter } from '@/components/commerce/products-category-filter'
 import { ProductsCategoryChips } from '@/components/commerce/products-category-chips'
+import { CategoryBreadcrumb } from '@/components/commerce/category-breadcrumb'
+import { CategoryTreeNav } from '@/components/commerce/category-tree-nav'
 import { queryStorefrontProducts } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
@@ -12,6 +14,7 @@ import {
   productsPageHref,
   resolveCategoryHeading,
   resolveStorefrontCategoryList,
+  resolveStorefrontNavCategories,
 } from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
@@ -37,8 +40,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const { category } = params
   const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
   const pageSize = 24
-  const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
-  const showVisualCategories = hasStorefrontCategoryImages(categories)
+  const allCategories = await getStorefrontCategories()
+  const categories = resolveStorefrontCategoryList(allCategories)
+  const navCategories = resolveStorefrontNavCategories(allCategories, category)
+  const showVisualCategories = hasStorefrontCategoryImages(allCategories)
 
   const result = category
     ? await queryStorefrontProducts({
@@ -52,7 +57,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       })
 
   const filteredProducts = result.products
-  const heading = resolveCategoryHeading(category, categories)
+  const heading = resolveCategoryHeading(category, allCategories)
   const currentParams = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v != null) as [string, string][]
   )
@@ -72,9 +77,21 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             {result.total === 1 ? 'produto' : 'produtos'} disponíveis
           </p>
 
+          <CategoryBreadcrumb
+            categories={allCategories}
+            activeCategory={category}
+            searchParams={params}
+          />
+
+          <CategoryTreeNav
+            categories={allCategories}
+            activeCategory={category}
+            searchParams={params}
+          />
+
           {!showVisualCategories && (
             <ProductsCategoryChips
-              categories={categories}
+              categories={navCategories}
               activeCategory={category}
               searchParams={params}
             />
@@ -84,7 +101,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       {showVisualCategories && (
         <ProductsCategoryFilter
-          categories={categories}
+          categories={navCategories}
           activeCategory={category}
           searchParams={params}
         />

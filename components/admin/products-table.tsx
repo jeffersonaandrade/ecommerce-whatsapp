@@ -7,10 +7,12 @@ import { DeleteProductButton } from '@/components/admin/delete-product-button'
 import { BulkActionsBar } from '@/components/admin/bulk-actions-bar'
 import { formatPrice } from '@/lib/formatters'
 import type { Product } from '@/types/product'
+import type { Category } from '@/types/category'
 
 type ProductsTableProps = {
   products: Product[]
   storePersonalizationEnabled?: boolean
+  categories?: Category[]
 }
 
 function statusLabel(status: string): string {
@@ -25,7 +27,11 @@ function statusVariant(status: string): 'success' | 'warning' | 'default' {
   return 'default'
 }
 
-export function ProductsTable({ products, storePersonalizationEnabled = false }: ProductsTableProps) {
+export function ProductsTable({
+  products,
+  storePersonalizationEnabled = false,
+  categories = [],
+}: ProductsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const allSelected = products.length > 0 && products.every((p) => selectedIds.has(p.id))
@@ -174,6 +180,7 @@ export function ProductsTable({ products, storePersonalizationEnabled = false }:
         selectedIds={[...selectedIds]}
         onClear={() => setSelectedIds(new Set())}
         storePersonalizationEnabled={storePersonalizationEnabled}
+        categories={categories}
       />
     </>
   )

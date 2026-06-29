@@ -18,6 +18,9 @@ function fallbackCategoriesFromSiteConfig(): Category[] {
     description: '',
     sortOrder: (index + 1) * 10,
     visible: true,
+    parentId: null,
+    depth: 0,
+    path: generateCategorySlug(name),
     createdAt: timestamp,
     updatedAt: timestamp,
   }))

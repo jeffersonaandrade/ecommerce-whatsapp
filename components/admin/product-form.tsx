@@ -7,11 +7,12 @@ import { Category } from '@/types/category'
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { ImageGalleryField } from '@/components/admin/image-gallery-field'
+import { CategoryTreePicker } from '@/components/admin/category-tree-picker'
 import { MoneyInput, type MoneyInputHandle } from '@/components/admin/money-input'
 import { isSupabaseAuthMode } from '@/lib/auth/mode'
+import { isLeafCategory } from '@/lib/catalog/category-tree'
 import {
   defaultCategorySlug,
-  isKnownCategoryValue,
   resolveProductCategorySelectValue,
 } from '@/lib/catalog/category-utils'
 import {
@@ -61,6 +62,18 @@ function visibilityBannerClass(tone: 'success' | 'warning' | 'info') {
 }
 
 function productToForm(product: Product, categories: Category[]) {
+  const categoryId =
+    product.categoryId ??
+    categories.find(
+      (c) =>
+        c.slug === product.category ||
+        c.name.trim().toLowerCase() === product.category.trim().toLowerCase()
+    )?.id ??
+    ''
+  const categorySlug = categoryId
+    ? (categories.find((c) => c.id === categoryId)?.slug ?? product.category)
+    : resolveProductCategorySelectValue(product.category, categories)
+
   return {
     name: product.name,
     slug: product.slug,
@@ -68,7 +81,8 @@ function productToForm(product: Product, categories: Category[]) {
     longDescription: product.longDescription,
     price: product.price,
     promotionalPrice: product.promotionalPrice ?? null,
-    category: resolveProductCategorySelectValue(product.category, categories),
+    category: categorySlug,
+    categoryId,
     club: product.club ?? '',
     status: product.status,
     personalizationEnabled: product.personalizationEnabled ?? false,
@@ -101,6 +115,8 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
         price: null as number | null,
         promotionalPrice: null as number | null,
         category: defaultCategorySlug(categories),
+        categoryId:
+          categories.find((c) => c.slug === defaultCategorySlug(categories))?.id ?? '',
         club: '',
         status: 'draft' as ProductStatus,
         personalizationEnabled: false,
@@ -118,6 +134,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
     initial.promotionalPrice
   )
   const [category, setCategory] = useState(initial.category)
+  const [categoryId, setCategoryId] = useState(initial.categoryId)
   const [club, setClub] = useState(initial.club)
   const [status, setStatus] = useState<ProductStatus>(initial.status)
   const [personalizationEnabled, setPersonalizationEnabled] = useState(
@@ -187,6 +204,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
       price: priceValue ?? 0,
       promotionalPrice: promoValue,
       category,
+      categoryId: categoryId || null,
       club: club.trim() || undefined,
       images,
       variations: variations.map((v) => ({
@@ -211,6 +229,7 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
       price: payload.price,
       promotionalPrice: payload.promotionalPrice ?? undefined,
       category: payload.category,
+      categoryId: payload.categoryId ?? null,
       club: payload.club,
       images: payload.images,
       variations: payload.variations,
@@ -335,32 +354,26 @@ export function ProductForm({ mode, product, categories }: ProductFormProps) {
             </label>
             <label className="block space-y-1">
               <span className="text-sm font-medium text-ink">Categoria *</span>
-              <select
+              <CategoryTreePicker
                 id="product-field-category"
+                categories={categories}
+                value={categoryId}
+                onChange={(id, slug) => {
+                  setCategoryId(id)
+                  setCategory(slug)
+                }}
                 required
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className={`${inputClass('category')} bg-white`}
-              >
-                {mode === 'edit' &&
-                  category &&
-                  !isKnownCategoryValue(category, categories) && (
-                    <option value={category}>{category} (legado)</option>
-                  )}
-                {categories.length === 0 ? (
-                  <option value="">Cadastre uma categoria no admin</option>
-                ) : (
-                  categories.map((c) => (
-                    <option key={c.id} value={c.slug}>
-                      {c.name}
-                      {!c.visible ? ' (oculta)' : ''}
-                    </option>
-                  ))
-                )}
-              </select>
+                allowAnyNode
+              />
               <p className="text-xs text-mute">
-                Tipo do produto na loja (ex.: Camisas). Clube/time vai em Clube / Marca.
+                Tipo do produto na loja (ex.: Camisas › Brasileiro › Santa Cruz). Clube/time vai em
+                Clube / Marca.
               </p>
+              {categoryId && !isLeafCategory(categories, categoryId) && (
+                <p className="text-xs text-amber-700">
+                  Recomendado: classificar em subcategoria folha quando possível.
+                </p>
+              )}
               <FieldError message={fieldErrors.category} />
             </label>
             <label className="block space-y-1">

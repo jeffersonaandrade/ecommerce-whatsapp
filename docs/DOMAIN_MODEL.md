@@ -90,13 +90,24 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 
 ## Category
 
-**Responsabilidade:** organização do catálogo.
+**Responsabilidade:** organização do catálogo em árvore (máx. 3 níveis).
 
-| V1 (atual) | Depois |
-|----|--------|
-| tabela `categories` + slug; CRUD em `/admin/categories`; `Product.category` armazena **slug** | hierarquia (`Camisas > Seleções`) |
+| Campo | Descrição |
+|-------|-----------|
+| `parentId` | FK opcional para categoria pai (`null` = raiz) |
+| `depth` | 0–2 (raiz → intermediário → folha) |
+| `path` | Caminho materializado (`camisas/brasileiro/santa-cruz`) |
+| `slug` | **Único global** no MVP (limitação documentada) |
 
-Admin: `/admin/categories` — criar, editar, ordenar, ocultar (`visible`). Select no formulário de produto lista categorias cadastradas. **Clube/time** (`Product.club`) é campo separado — não confundir com categoria.
+`Product.categoryId` referencia o nó escolhido; `Product.category` (slug) permanece sincronizado para compatibilidade com RPCs legados e import CSV.
+
+**Vitrine:** `/products?category={slug}` lista produtos do nó **e descendentes**. Nó oculto (`visible = false`) oculta subárvore.
+
+**Admin:** `/admin/categories` — CRUD em árvore (lista indentada, select de pai). Formulário de produto e ação em lote usam tree picker. **Clube/time** (`Product.club`) é campo separado.
+
+**Import CSV:** inalterado — hierarquia organizada pelo admin após import (mover em lote + publicar).
+
+**Rollout folha:** Fase 1 (MVP) permite produto em raiz/intermediário; Fase 2 aviso no admin; Fase 3 bloqueio de publicação em não-folha.
 
 ---
 

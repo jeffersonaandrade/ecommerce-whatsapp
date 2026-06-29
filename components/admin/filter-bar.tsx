@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import type { Category } from '@/types/category'
+import { buildCategoryTree, flattenCategoryTree } from '@/lib/catalog/category-tree'
 
 type FilterBarProps = {
   categories?: Category[]
@@ -34,8 +35,9 @@ export function FilterBar({ categories, showSort = true }: FilterBarProps) {
           aria-label="Filtrar por categoria"
         >
           <option value="">Todas as categorias</option>
-          {categories.map((c) => (
+          {flattenCategoryTree(buildCategoryTree(categories)).map((c) => (
             <option key={c.id} value={c.slug}>
+              {'—'.repeat(c.depth)} {c.depth > 0 ? ' ' : ''}
               {c.name}
             </option>
           ))}

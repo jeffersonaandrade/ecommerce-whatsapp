@@ -11,6 +11,7 @@ import {
   normalizeCategorySlug,
   generateCategorySlug,
 } from './category-utils'
+import { getChildren } from './category-tree'
 import { writeCategoryImage, deleteCategoryImage } from './category-image-storage'
 import {
   LOGO_IMAGE_MAX_BYTES,
@@ -23,6 +24,7 @@ export type CategoryFormPayload = {
   description?: string
   sortOrder?: number
   visible?: boolean
+  parentId?: string | null
 }
 
 function toCategoryInput(payload: CategoryFormPayload): CategoryInput {
@@ -32,6 +34,7 @@ function toCategoryInput(payload: CategoryFormPayload): CategoryInput {
     description: payload.description,
     sortOrder: payload.sortOrder,
     visible: payload.visible,
+    parentId: payload.parentId ?? null,
   }
 }
 
@@ -125,6 +128,13 @@ export async function deleteCategoryAction(
     if (!category) return { ok: false, error: 'Categoria não encontrada' }
 
     const { total: count } = await fetchProductCountForCategory(category.slug)
+    const children = getChildren(await repo.getAll(), id)
+    if (children.length > 0) {
+      return {
+        ok: false,
+        error: `Não é possível excluir: ${children.length} subcategoria(s) vinculada(s). Remova ou mova os filhos primeiro.`,
+      }
+    }
     if (count > 0) {
       return {
         ok: false,
@@ -170,6 +180,7 @@ export async function uploadCategoryImageAction(
       description: category.description,
       sortOrder: category.sortOrder,
       visible: category.visible,
+      parentId: category.parentId ?? null,
       imagePath,
     })
     revalidateCategories()
@@ -198,6 +209,7 @@ export async function removeCategoryImageAction(
       description: category.description,
       sortOrder: category.sortOrder,
       visible: category.visible,
+      parentId: category.parentId ?? null,
       imagePath: null,
     })
     revalidateCategories()
@@ -226,6 +238,7 @@ export async function toggleCategoryVisibleAction(
       description: category.description,
       sortOrder: category.sortOrder,
       visible,
+      parentId: category.parentId ?? null,
     })
     revalidateCategories()
     return { ok: true }

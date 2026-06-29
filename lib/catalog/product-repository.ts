@@ -34,6 +34,7 @@ export interface ProductRepository {
   getStorefrontFeatured(limit: number): Promise<Product[]>
   bulkSetStatus(ids: string[], status: ProductStatus): Promise<void>
   bulkSetCategory(ids: string[], category: string): Promise<void>
+  bulkSetCategoryId(ids: string[], categoryId: string): Promise<void>
   bulkSetPersonalization(ids: string[], enabled: boolean): Promise<void>
   deleteMany(ids: string[]): Promise<void>
   setProductImages(id: string, images: string[]): Promise<Product>

@@ -12,7 +12,9 @@ import { classifyProductImagesInitial } from '@/lib/catalog/media/classify-url'
 import type { MediaFilter } from '@/lib/catalog/media/types'
 import { isStorefrontTestResidue } from '@/lib/catalog/storefront-categories'
 import { getStorefrontCategories } from '@/lib/categories'
-import { productMatchesCategoryFilter } from './category-utils'
+import { getCategoryRepository } from './get-category-repository'
+import { productMatchesCategorySubtree, getSubtreeIds } from './category-tree'
+import { resolveCategoryParam } from './category-utils'
 import { loadCatalogFromDisk, persistCatalog } from './catalog-storage'
 import {
   assignVariationIds,
@@ -41,6 +43,7 @@ function buildProduct(input: ProductInput, existing: Product[]): Product {
     price: input.price,
     promotionalPrice: input.promotionalPrice || undefined,
     category: input.category.trim(),
+    categoryId: input.categoryId ?? null,
     club: input.club?.trim() || undefined,
     images: input.images.filter(Boolean).slice(0, 5),
     variations: assignVariationIds(input.variations),
@@ -103,6 +106,7 @@ export const jsonProductRepository: ProductRepository = {
       price: input.price,
       promotionalPrice: input.promotionalPrice || undefined,
       category: input.category.trim(),
+      categoryId: input.categoryId ?? products[index].categoryId ?? null,
       club: input.club?.trim() || undefined,
       images: input.images.filter(Boolean).slice(0, 5),
       variations: assignVariationIds(input.variations, products[index].variations),
@@ -156,8 +160,14 @@ export const jsonProductRepository: ProductRepository = {
       filtered = filtered.filter((p) => filters.status!.includes(p.status))
     }
     if (filters.category) {
-      const cat = filters.category.toLowerCase()
-      filtered = filtered.filter((p) => p.category.toLowerCase() === cat)
+      const categories = await getCategoryRepository().getAll()
+      filtered = filtered.filter((p) =>
+        productMatchesCategorySubtree(
+          { categoryId: p.categoryId, category: p.category },
+          filters.category!,
+          categories
+        )
+      )
     }
     if (filters.hasStock === true) {
       filtered = filtered.filter(
@@ -219,7 +229,23 @@ export const jsonProductRepository: ProductRepository = {
     const products = loadCatalogFromDisk()
     const idSet = new Set(ids)
     persistCatalog(
-      products.map((p) => (idSet.has(p.id) ? { ...p, category } : p))
+      products.map((p) => (idSet.has(p.id) ? { ...p, category, categoryId: null } : p))
+    )
+  },
+
+  async bulkSetCategoryId(ids: string[], categoryId: string): Promise<void> {
+    const categories = await getStorefrontCategories()
+    const category = categories.find((c) => c.id === categoryId)
+    if (!category) throw new Error('Categoria não encontrada')
+
+    const products = loadCatalogFromDisk()
+    const idSet = new Set(ids)
+    persistCatalog(
+      products.map((p) =>
+        idSet.has(p.id)
+          ? { ...p, categoryId, category: category.slug }
+          : p
+      )
     )
   },
 
@@ -277,7 +303,11 @@ export const jsonProductRepository: ProductRepository = {
     if (category) {
       const categories = await getStorefrontCategories()
       filtered = all.filter((p) =>
-        productMatchesCategoryFilter(p.category, category, categories)
+        productMatchesCategorySubtree(
+          { categoryId: p.categoryId, category: p.category },
+          category,
+          categories
+        )
       )
     }
 

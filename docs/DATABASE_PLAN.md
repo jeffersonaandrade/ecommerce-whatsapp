@@ -10,7 +10,9 @@
 ```text
 store_settings (singleton id = 'default')
 
-categories (V1.1 — CRUD admin; products.category ainda string/slug legado)
+categories (hierárquica: parent_id, depth, path — máx. 3 níveis)
+    │
+    └──< products.category_id (FK opcional; products.category = slug legado sincronizado)
 
 products ──< product_variations
    │
@@ -23,7 +25,9 @@ Storage buckets (não relacional):
 
 **Fora deste plano (Sprint 4+):** `banners`, `nav_items`
 
-**Aplicado em produção (2026-06-26):** tabela `categories` — migrations MCP `create_categories_table_v1_1`, `create_categories_rls_v1_1`. Seed: 5 categorias. **`products.category` ainda não normalizado para slug** (aguarda código + migration dedicada).
+**Aplicado em produção:** tabela `categories` com hierarquia (`parent_id`, `depth`, `path`); `products.category_id` FK opcional. `products.category` (slug) mantido para compatibilidade e import CSV.
+
+**Limitação MVP:** slug de categoria único globalmente (futuro: `UNIQUE(parent_id, slug)`).
 
 ---
 
@@ -74,6 +78,7 @@ Projeto Supabase isolado (`unitsports`). Outras lojas replicam o mesmo schema vi
 | `20260628230000` | `admin_query_optimizations` | RPC `get_media_issue_count()` — onboarding admin sem scan do catálogo |
 | `20260628240000` | `sprint_a2_media_filters` | Filtros mídia server-side, counts categorias, `query_admin_products_page` |
 | `20260629120000` | `sprint_c_storefront_category_query` | RPC `query_storefront_products_page` — PLP `?category=` paginada no SQL |
+| `20260702120000` | `category_hierarchy` | `categories.parent_id/depth/path`, `products.category_id`, RPCs subárvore |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
 

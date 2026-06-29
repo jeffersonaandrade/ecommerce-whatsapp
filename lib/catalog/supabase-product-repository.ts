@@ -22,6 +22,9 @@ import {
   type ProductRow,
   type ProductVariationRow,
 } from './supabase-mappers'
+import { getCategoryRepository } from './get-category-repository'
+import { getSubtreeIds } from './category-tree'
+import { resolveCategoryParam } from './category-utils'
 
 const PRODUCT_LIST_SELECT =
   'id, slug, name, short_description, price, promotional_price, category, club, images, status, import_batch_id, personalization_enabled, personalization_price, product_variations(id, sku, stock, size, color)'
@@ -229,6 +232,7 @@ function buildProduct(input: ProductInput, existing: Pick<Product, 'id' | 'slug'
     price: input.price,
     promotionalPrice: input.promotionalPrice || undefined,
     category: input.category.trim(),
+    categoryId: input.categoryId ?? null,
     club: input.club?.trim() || undefined,
     images: input.images.filter(Boolean).slice(0, 5),
     variations: assignVariationIds(input.variations),
@@ -359,6 +363,7 @@ export const supabaseProductRepository: ProductRepository = {
       price: input.price,
       promotionalPrice: input.promotionalPrice || undefined,
       category: input.category.trim(),
+      categoryId: input.categoryId ?? current.categoryId ?? null,
       club: input.club?.trim() || undefined,
       images: input.images.filter(Boolean).slice(0, 5),
       variations: assignVariationIds(input.variations, current.variations),
@@ -427,7 +432,21 @@ export const supabaseProductRepository: ProductRepository = {
       .select(selectClause, { count: 'exact' })
 
     if (filters.status?.length) qb = qb.in('status', filters.status)
-    if (filters.category) qb = qb.ilike('category', filters.category)
+    if (filters.category) {
+      const allCategories = await getCategoryRepository().getAll()
+      const match = resolveCategoryParam(filters.category, allCategories)
+      if (match) {
+        const subtreeIds = [...getSubtreeIds(allCategories, match.id)]
+        const subtreeSlugs = allCategories
+          .filter((c) => subtreeIds.includes(c.id))
+          .map((c) => c.slug)
+        const idList = subtreeIds.join(',')
+        const slugList = subtreeSlugs.map((s) => `"${s}"`).join(',')
+        qb = qb.or(`category_id.in.(${idList}),category.in.(${slugList})`)
+      } else {
+        qb = qb.ilike('category', `%${filters.category}%`)
+      }
+    }
     if (filters.hasDiscount) qb = qb.not('promotional_price', 'is', null)
     if (filters.batchId) qb = qb.eq('import_batch_id', filters.batchId)
     if (filters.search) {
@@ -492,8 +511,31 @@ export const supabaseProductRepository: ProductRepository = {
     if (!ids.length) return
     const supabase = createAdminClient()
     await runInChunks(ids, CHUNK_SIZE, async (chunk) => {
-      const { error } = await supabase.from('products').update({ category }).in('id', chunk)
+      const { error } = await supabase
+        .from('products')
+        .update({ category, category_id: null })
+        .in('id', chunk)
       if (error) throw new Error(`bulkSetCategory failed: ${error.message}`)
+    })
+  },
+
+  async bulkSetCategoryId(ids: string[], categoryId: string): Promise<void> {
+    if (!ids.length) return
+    const supabase = createAdminClient()
+    const { data: category, error: categoryError } = await supabase
+      .from('categories')
+      .select('slug')
+      .eq('id', categoryId)
+      .maybeSingle()
+    if (categoryError) throw new Error(`bulkSetCategoryId failed: ${categoryError.message}`)
+    if (!category) throw new Error('Categoria não encontrada')
+
+    await runInChunks(ids, CHUNK_SIZE, async (chunk) => {
+      const { error } = await supabase
+        .from('products')
+        .update({ category_id: categoryId, category: category.slug })
+        .in('id', chunk)
+      if (error) throw new Error(`bulkSetCategoryId failed: ${error.message}`)
     })
   },
 

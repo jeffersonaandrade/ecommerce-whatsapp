@@ -19,6 +19,7 @@ export type Product = {
   price: number
   promotionalPrice?: number
   category: string
+  categoryId?: string | null
   club?: string
   images: string[]
   variations: ProductVariation[]

@@ -32,6 +32,7 @@ export type ProductFormPayload = {
   price: number
   promotionalPrice?: number | null
   category: string
+  categoryId?: string | null
   club?: string
   images: string[]
   variations: Array<{
@@ -55,6 +56,7 @@ function toProductInput(payload: ProductFormPayload): ProductInput {
     price: payload.price,
     promotionalPrice: payload.promotionalPrice ?? undefined,
     category: payload.category,
+    categoryId: payload.categoryId ?? null,
     club: payload.club,
     images: payload.images,
     variations: payload.variations,
@@ -208,6 +210,22 @@ export async function bulkSetProductStatusAction(
   if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
   try {
     await getProductRepository().bulkSetStatus(ids, status)
+    revalidateCatalog()
+    return { ok: true, count: ids.length }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao atualizar.' }
+  }
+}
+
+export async function bulkSetProductCategoryIdAction(
+  ids: string[],
+  categoryId: string
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!ids.length) return { ok: false, error: 'Nenhum produto selecionado.' }
+  if (!categoryId.trim()) return { ok: false, error: 'Categoria inválida.' }
+  try {
+    await getProductRepository().bulkSetCategoryId(ids, categoryId.trim())
     revalidateCatalog()
     return { ok: true, count: ids.length }
   } catch (err) {

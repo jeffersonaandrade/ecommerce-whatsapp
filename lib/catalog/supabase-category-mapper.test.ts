@@ -12,6 +12,9 @@ describe('supabase-category-mapper', () => {
         sort_order: 10,
         visible: true,
         image_path: null,
+        parent_id: null,
+        depth: 0,
+        path: 'camisas',
         created_at: '2026-01-01T00:00:00.000Z',
         updated_at: '2026-01-02T00:00:00.000Z',
       })
@@ -22,6 +25,9 @@ describe('supabase-category-mapper', () => {
       description: 'Desc',
       sortOrder: 10,
       visible: true,
+      parentId: null,
+      depth: 0,
+      path: 'camisas',
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-02T00:00:00.000Z',
     })

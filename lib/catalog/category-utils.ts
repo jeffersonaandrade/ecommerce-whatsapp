@@ -1,5 +1,10 @@
 import { generateSlug } from '@/lib/formatters'
 import { Category, CategoryInput } from '@/types/category'
+import {
+  assertValidParent,
+  countProductsInSubtree,
+  productMatchesCategorySubtree,
+} from './category-tree'
 
 const CATEGORY_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const HIDDEN_CATEGORY_PATTERN = /^qa$/i
@@ -122,39 +127,15 @@ export function productMatchesCategoryFilter(
   filterParam: string,
   categories: Category[]
 ): boolean {
-  const productValue = productCategory.trim()
-  if (!productValue) return false
-
-  const resolved = resolveCategoryParam(filterParam, categories)
-  if (resolved) {
-    const slug = normalizeCategorySlug(resolved.slug)
-    return (
-      normalizeCategorySlug(productValue) === slug ||
-      productValue.toLowerCase() === resolved.name.trim().toLowerCase() ||
-      generateCategorySlug(productValue) === slug
-    )
-  }
-
-  const normalizedFilter = normalizeCategorySlug(filterParam)
-  return (
-    productValue.toLowerCase() === filterParam.trim().toLowerCase() ||
-    normalizeCategorySlug(productValue) === normalizedFilter ||
-    generateCategorySlug(productValue) === normalizedFilter
-  )
+  return productMatchesCategorySubtree({ category: productCategory }, filterParam, categories)
 }
 
 export function countProductsForCategory(
   category: Category,
-  products: Array<{ category: string; status: string }>
+  products: Array<{ category: string; categoryId?: string | null; status: string }>,
+  allCategories: Category[] = [category]
 ): { count: number; activeCount: number } {
-  let count = 0
-  let activeCount = 0
-  for (const product of products) {
-    if (!productMatchesCategoryFilter(product.category, category.slug, [category])) continue
-    count += 1
-    if (product.status === 'active') activeCount += 1
-  }
-  return { count, activeCount }
+  return countProductsInSubtree(category, allCategories, products)
 }
 
 export type CategoryValidationError = { field: string; message: string }
@@ -185,6 +166,17 @@ export function validateCategoryInput(
 
   if (input.sortOrder != null && !Number.isFinite(input.sortOrder)) {
     errors.push({ field: 'sortOrder', message: 'Ordem inválida' })
+  }
+
+  if (input.parentId) {
+    try {
+      assertValidParent(existing, input.parentId, excludeId)
+    } catch (err) {
+      errors.push({
+        field: 'parentId',
+        message: err instanceof Error ? err.message : 'Categoria pai inválida',
+      })
+    }
   }
 
   return errors

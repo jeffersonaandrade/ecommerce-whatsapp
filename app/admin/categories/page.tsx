@@ -8,10 +8,10 @@ import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { SearchBar } from '@/components/admin/search-bar'
 import { StatusTabs } from '@/components/admin/status-tabs'
-import { queryCategoriesAdmin, fetchCategoryVisibilityCounts } from '@/lib/categories'
+import { fetchCategoryVisibilityCounts, getAllCategoriesAdmin } from '@/lib/categories'
 import { fetchProductsByCategoryCounts } from '@/lib/catalog/product-aggregates'
 import { normalizeCategorySlug } from '@/lib/catalog/category-utils'
-import type { CategoryQuery } from '@/lib/query'
+import { buildCategoryTree, flattenCategoryTree } from '@/lib/catalog/category-tree'
 
 export const metadata: Metadata = {
   title: 'Categorias',
@@ -31,29 +31,45 @@ export default async function AdminCategoriesPage({
   const params = await searchParams
 
   const visibilityParam = params.status
-  const visible =
-    visibilityParam === 'visible' ? true
-    : visibilityParam === 'hidden' ? false
-    : undefined
 
-  const query: CategoryQuery = {
-    filters: {
-      visible,
-      search: params.q || undefined,
-    },
-    pagination: {
-      page: Math.max(1, parseInt(params.page ?? '1', 10) || 1),
-      pageSize: [25, 50, 100, 200].includes(Number(params.size))
-        ? Number(params.size)
-        : 25,
-    },
-  }
-
-  const [result, categoryCounts, visibilityCounts] = await Promise.all([
-    queryCategoriesAdmin(query),
+  const [allCategories, categoryCounts, visibilityCounts] = await Promise.all([
+    getAllCategoriesAdmin(),
     fetchProductsByCategoryCounts(),
     fetchCategoryVisibilityCounts(),
   ])
+
+  const search = params.q?.trim().toLowerCase()
+  let filtered = allCategories
+  if (visibilityParam === 'visible') {
+    filtered = filtered.filter((c) => c.visible)
+  } else if (visibilityParam === 'hidden') {
+    filtered = filtered.filter((c) => !c.visible)
+  }
+  if (search) {
+    filtered = filtered.filter(
+      (c) =>
+        c.name.toLowerCase().includes(search) ||
+        c.slug.toLowerCase().includes(search)
+    )
+  }
+
+  const treeOrdered = flattenCategoryTree(buildCategoryTree(filtered))
+  const pageSize = [25, 50, 100, 200].includes(Number(params.size))
+    ? Number(params.size)
+    : 25
+  const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
+  const total = treeOrdered.length
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const offset = (page - 1) * pageSize
+  const pagedCategories = treeOrdered.slice(offset, offset + pageSize)
+
+  const result = {
+    categories: pagedCategories,
+    total,
+    page,
+    pageSize,
+    totalPages,
+  }
 
   const currentParams = new URLSearchParams(
     Object.entries(params).filter(([, v]) => v != null) as [string, string][]
@@ -118,7 +134,16 @@ export default async function AdminCategoriesPage({
                       const activeCount = stats.active
                       return (
                         <tr key={category.id} className="border-b border-hairline last:border-0 hover:bg-soft-cloud/50">
-                          <td className="py-4 px-4 font-medium text-ink">{category.name}</td>
+                          <td className="py-4 px-4 font-medium text-ink">
+                            <span style={{ paddingLeft: `${category.depth * 1.25}rem` }}>
+                              {category.depth > 0 && (
+                                <span className="text-mute mr-1" aria-hidden>
+                                  └
+                                </span>
+                              )}
+                              {category.name}
+                            </span>
+                          </td>
                           <td className="py-4 px-4 font-mono text-sm text-mute">{category.slug}</td>
                           <td className="py-4 px-4 text-sm text-mute">{category.sortOrder}</td>
                           <td className="py-4 px-4 text-sm text-mute">

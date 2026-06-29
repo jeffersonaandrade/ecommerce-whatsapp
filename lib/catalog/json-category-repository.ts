@@ -10,6 +10,11 @@ import {
   normalizeCategorySlug,
   sortCategories,
 } from './category-utils'
+import {
+  assertValidParent,
+  computeCategoryPath,
+  getChildren,
+} from './category-tree'
 import { CategoryRepository } from './category-repository'
 import {
   loadCategoriesFromDisk,
@@ -25,35 +30,54 @@ function deriveCategoriesFromProductNames(names: string[]): Category[] {
     a.localeCompare(b, 'pt-BR')
   )
   const timestamp = nowIso()
-  return unique.map((name, index) => ({
-    id: `cat-${generateCategorySlug(name)}`,
-    name,
-    slug: generateCategorySlug(name),
-    description: '',
-    sortOrder: (index + 1) * 10,
-    visible: !/^qa$/i.test(name) && !/^qa$/i.test(generateCategorySlug(name)),
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  }))
+  return unique.map((name, index) => {
+    const slug = generateCategorySlug(name)
+    return {
+      id: `cat-${slug}`,
+      name,
+      slug,
+      description: '',
+      sortOrder: (index + 1) * 10,
+      visible: !/^qa$/i.test(name) && !/^qa$/i.test(slug),
+      parentId: null,
+      depth: 0,
+      path: slug,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }
+  })
 }
 
 function seedFromSiteConfig(): Category[] {
   const timestamp = nowIso()
-  return siteConfig.categories.map((name, index) => ({
-    id: `cat-${generateCategorySlug(name)}`,
-    name,
-    slug: generateCategorySlug(name),
-    description: '',
-    sortOrder: (index + 1) * 10,
-    visible: true,
-    createdAt: timestamp,
-    updatedAt: timestamp,
-  }))
+  return siteConfig.categories.map((name, index) => {
+    const slug = generateCategorySlug(name)
+    return {
+      id: `cat-${slug}`,
+      name,
+      slug,
+      description: '',
+      sortOrder: (index + 1) * 10,
+      visible: true,
+      parentId: null,
+      depth: 0,
+      path: slug,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }
+  })
 }
 
 function ensureCategoriesLoaded(): Category[] {
   const existing = loadCategoriesFromDisk()
-  if (existing.length > 0) return existing
+  if (existing.length > 0) {
+    return existing.map((category) => ({
+      ...category,
+      parentId: category.parentId ?? null,
+      depth: category.depth ?? 0,
+      path: category.path || category.slug,
+    }))
+  }
 
   const fromProducts = deriveCategoriesFromProductNames(
     loadCatalogFromDisk().map((p) => p.category)
@@ -68,9 +92,14 @@ function ensureCategoriesLoaded(): Category[] {
   return seeded
 }
 
-function buildCategory(input: CategoryInput, existing: Category[]): Category {
+function buildCategory(
+  input: CategoryInput,
+  existing: Category[],
+  parent: Category | null
+): Category {
   const name = input.name.trim()
   const slug = normalizeCategorySlug(input.slug?.trim() || generateCategorySlug(name))
+  const treeFields = computeCategoryPath(slug, parent)
   const timestamp = nowIso()
   return {
     id: `cat-${slug}`,
@@ -79,10 +108,30 @@ function buildCategory(input: CategoryInput, existing: Category[]): Category {
     description: input.description?.trim() ?? '',
     sortOrder: input.sortOrder ?? (existing.length + 1) * 10,
     visible: input.visible ?? true,
+    parentId: input.parentId ?? null,
+    depth: treeFields.depth,
+    path: treeFields.path,
     imagePath: input.imagePath ?? undefined,
     createdAt: timestamp,
     updatedAt: timestamp,
   }
+}
+
+function refreshDescendantPaths(categories: Category[], parentId: string): Category[] {
+  const parent = categories.find((c) => c.id === parentId)
+  if (!parent) return categories
+
+  return categories.map((category) => {
+    if (category.parentId !== parentId) return category
+    const treeFields = computeCategoryPath(category.slug, parent)
+    const updated = {
+      ...category,
+      depth: treeFields.depth,
+      path: treeFields.path,
+      updatedAt: nowIso(),
+    }
+    return updated
+  })
 }
 
 export const jsonCategoryRepository: CategoryRepository = {
@@ -109,18 +158,28 @@ export const jsonCategoryRepository: CategoryRepository = {
 
   async create(input: CategoryInput): Promise<Category> {
     const categories = ensureCategoriesLoaded()
-    const category = buildCategory(input, categories)
+    assertValidParent(categories, input.parentId ?? null)
+    const parent = input.parentId
+      ? categories.find((c) => c.id === input.parentId) ?? null
+      : null
+    const category = buildCategory(input, categories, parent)
     persistCategories([...categories, category])
     return category
   },
 
   async update(id: string, input: CategoryInput): Promise<Category> {
-    const categories = ensureCategoriesLoaded()
+    let categories = ensureCategoriesLoaded()
     const index = categories.findIndex((c) => c.id === id)
     if (index === -1) throw new Error('Categoria não encontrada')
 
+    const parentId =
+      input.parentId !== undefined ? input.parentId : categories[index].parentId ?? null
+    assertValidParent(categories, parentId, id)
+    const parent = parentId ? categories.find((c) => c.id === parentId) ?? null : null
+
     const name = input.name.trim()
     const slug = normalizeCategorySlug(input.slug?.trim() || generateCategorySlug(name))
+    const treeFields = computeCategoryPath(slug, parent)
     const updated: Category = {
       ...categories[index],
       name,
@@ -128,17 +187,28 @@ export const jsonCategoryRepository: CategoryRepository = {
       description: input.description?.trim() ?? '',
       sortOrder: input.sortOrder ?? categories[index].sortOrder,
       visible: input.visible ?? categories[index].visible,
-      imagePath: 'imagePath' in input ? (input.imagePath ?? undefined) : categories[index].imagePath,
+      parentId,
+      depth: treeFields.depth,
+      path: treeFields.path,
+      imagePath:
+        'imagePath' in input
+          ? (input.imagePath ?? undefined)
+          : categories[index].imagePath,
       updatedAt: nowIso(),
     }
+
     const next = [...categories]
     next[index] = updated
-    persistCategories(next)
+    const withChildren = refreshDescendantPaths(next, updated.id)
+    persistCategories(withChildren)
     return updated
   },
 
   async delete(id: string): Promise<void> {
     const categories = ensureCategoriesLoaded()
+    if (getChildren(categories, id).length > 0) {
+      throw new Error('Não é possível excluir categoria com subcategorias')
+    }
     persistCategories(categories.filter((c) => c.id !== id))
   },
 
