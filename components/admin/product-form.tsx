@@ -62,7 +62,7 @@ function visibilityBannerClass(tone: 'success' | 'warning' | 'info') {
 }
 
 function productToForm(product: Product, categories: Category[]) {
-  const categoryId =
+  const resolvedId =
     product.categoryId ??
     categories.find(
       (c) =>
@@ -70,6 +70,7 @@ function productToForm(product: Product, categories: Category[]) {
         c.name.trim().toLowerCase() === product.category.trim().toLowerCase()
     )?.id ??
     ''
+  const categoryId = categories.some((c) => c.id === resolvedId) ? resolvedId : ''
   const categorySlug = categoryId
     ? (categories.find((c) => c.id === categoryId)?.slug ?? product.category)
     : resolveProductCategorySelectValue(product.category, categories)
