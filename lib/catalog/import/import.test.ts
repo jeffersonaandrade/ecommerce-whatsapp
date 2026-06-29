@@ -22,6 +22,8 @@ const importCategories: Category[] = [
     description: '',
     sortOrder: 20,
     visible: true,
+    depth: 0,
+    path: 'camisas',
     createdAt: '',
     updatedAt: '',
   },

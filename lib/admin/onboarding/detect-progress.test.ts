@@ -28,6 +28,8 @@ function category(overrides: Partial<Category> = {}): Category {
     description: '',
     sortOrder: 0,
     visible: false,
+    depth: 0,
+    path: 'categoria',
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,

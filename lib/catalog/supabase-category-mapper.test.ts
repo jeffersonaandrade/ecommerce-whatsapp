@@ -34,7 +34,7 @@ describe('supabase-category-mapper', () => {
   })
 
   it('gera slug a partir do nome quando omitido', () => {
-    const row = categoryInputToRow({ name: 'Acessórios', sortOrder: 10, visible: true })
+    const row = categoryInputToRow({ name: 'Acessórios', sortOrder: 10, visible: true }, null)
     expect(row.slug).toBe('acessorios')
     expect(row.name).toBe('Acessórios')
     expect(row.sort_order).toBe(10)
