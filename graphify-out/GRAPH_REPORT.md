@@ -1,16 +1,16 @@
-# Graph Report - ecommerce-sports  (2026-06-27)
+# Graph Report - ecommerce-sports  (2026-06-29)
 
 ## Corpus Check
-- 353 files · ~109,328 words
+- 430 files · ~136,971 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1614 nodes · 4146 edges · 83 communities (72 shown, 11 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 38 edges (avg confidence: 0.8)
+- 1976 nodes · 5339 edges · 87 communities (77 shown, 10 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 48 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e22807db`
+- Built from commit: `fdff9534`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -95,127 +95,131 @@
 - [[_COMMUNITY_Community 80|Community 80]]
 - [[_COMMUNITY_Community 81|Community 81]]
 - [[_COMMUNITY_Community 82|Community 82]]
+- [[_COMMUNITY_Community 83|Community 83]]
+- [[_COMMUNITY_Community 84|Community 84]]
+- [[_COMMUNITY_Community 85|Community 85]]
+- [[_COMMUNITY_Community 86|Community 86]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `getButtonClassName()` - 58 edges
-2. `requireAdmin()` - 51 edges
-3. `getDataProvider()` - 46 edges
-4. `getStoreSettings()` - 45 edges
-5. `Product` - 36 edges
-6. `Category` - 27 edges
-7. `createAdminClient()` - 24 edges
-8. `getProductRepository()` - 23 edges
-9. `Button` - 21 edges
-10. `generateCategorySlug()` - 21 edges
+1. `getButtonClassName()` - 76 edges
+2. `requireAdmin()` - 61 edges
+3. `Product` - 55 edges
+4. `getStoreSettings()` - 51 edges
+5. `getDataProvider()` - 48 edges
+6. `createAdminClient()` - 41 edges
+7. `Category` - 36 edges
+8. `getProductRepository()` - 31 edges
+9. `AdminPageHeader()` - 27 edges
+10. `getAllProductsAdmin` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `NewBenefitPage()` --calls--> `getDataProvider()`  [INFERRED]
-  app/admin/content/benefits/new/page.tsx → lib/data/provider.ts
 - `generateMetadata()` --calls--> `getBannerRepository()`  [INFERRED]
   app/admin/banners/[id]/page.tsx → lib/banners/get-banner-repository.ts
-- `AdminEditCategoryPage()` --calls--> `getAllProductsAdmin()`  [INFERRED]
+- `AdminEditCategoryPage()` --calls--> `getAllCategoriesAdmin`  [INFERRED]
+  app/admin/categories/[id]/edit/page.tsx → lib/categories.ts
+- `AdminEditCategoryPage()` --calls--> `getAllProductsAdmin`  [INFERRED]
   app/admin/categories/[id]/edit/page.tsx → lib/products.ts
-- `generateMetadata()` --calls--> `getBenefitItemById()`  [INFERRED]
-  app/admin/content/benefits/[id]/page.tsx → lib/benefits/index.ts
-- `EditBenefitPage()` --calls--> `getDataProvider()`  [INFERRED]
-  app/admin/content/benefits/[id]/page.tsx → lib/data/provider.ts
+- `AdminNewCategoryPage()` --calls--> `getAllCategoriesAdmin`  [INFERRED]
+  app/admin/categories/new/page.tsx → lib/categories.ts
+- `AdminCampanhasPage()` --calls--> `getButtonClassName()`  [EXTRACTED]
+  app/admin/comercial/campanhas/page.tsx → components/ui/button.tsx
 
 ## Import Cycles
 - None detected.
 
-## Communities (83 total, 11 thin omitted)
+## Communities (87 total, 10 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+11 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.05
-Nodes (43): dependencies, clsx, driver.js, framer-motion, headroom-ai, lucide-react, next, react (+35 more)
+Cohesion: 0.04
+Nodes (45): dependencies, clsx, driver.js, framer-motion, headroom-ai, lucide-react, next, react (+37 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.20
-Nodes (15): Icon(), size, GET(), MIME, brandingFileExists(), readBrandingFile(), readBrandingFileBuffer(), resolveExistingBrandingPath() (+7 more)
+Cohesion: 0.15
+Nodes (21): Icon(), size, categoryImageFilename(), CONTENT_TYPES, deleteCategoryImage(), writeCategoryImage(), GET(), MIME (+13 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.13
-Nodes (13): BulkActionsBar(), DeleteProductButton(), DeleteProductButtonProps, FilterBar(), FilterBarProps, ProductsTable(), ProductsTableProps, metadata (+5 more)
+Cohesion: 0.12
+Nodes (16): AdminListPage(), AdminListPageProps, BulkActionsBar(), DeleteProductButton(), DeleteProductButtonProps, ProductsTable(), ProductsTableProps, AdminProductsPage() (+8 more)
 
 ### Community 4 - "Community 4"
-Cohesion: 0.06
-Nodes (54): confirmImportAction(), logImportParse(), parseImportCsvAction(), revalidateCatalog(), validateProductImageUrlsLocal(), CSV_COLUMNS, REQUIRED_HEADERS, Filter (+46 more)
+Cohesion: 0.15
+Nodes (20): CSV_COLUMNS, REQUIRED_HEADERS, importCategories, TEMPLATE_PATH, findConflictingProductRows(), groupRowsBySlug(), mapVariationAttributes(), parseCategory() (+12 more)
 
 ### Community 5 - "Community 5"
 Cohesion: 0.14
-Nodes (21): barlowCondensed, generateMetadata(), inter, RootLayout(), viewport, generateMetadata(), ContatoPage(), generateMetadata() (+13 more)
+Nodes (21): barlowCondensed, generateMetadata(), inter, RootLayout(), viewport, CartPage(), metadata, ContatoPage() (+13 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.15
-Nodes (19): CartTestClient(), getClientCatalogCache(), setCatalogCache(), CartContext, CartContextValue, sanitizeItems(), loadCartItems(), saveCartItems() (+11 more)
+Cohesion: 0.17
+Nodes (19): getClientCatalogCache(), buildPricing(), CartContext, CartContextValue, CartPricingConfig, defaultPersonalizationSettings, emptyPricing, sanitizeItems() (+11 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.33
 Nodes (5): nextConfig, supabaseProductsPattern, buildContentSecurityPolicy(), SECURITY_HEADERS, supabaseHost()
 
 ### Community 10 - "Community 10"
-Cohesion: 0.14
-Nodes (25): buildProduct(), jsonProductRepository, nextProductId(), ProductInput, ProductRepository, assignVariationIds(), deriveShortDescription(), slugifyUnique() (+17 more)
+Cohesion: 0.07
+Nodes (46): CATALOG_PATH, ensureStorage(), loadCatalogFromDisk(), persistCatalog(), readFromDisk(), SEED_PATH, STORAGE_DIR, writeToDisk() (+38 more)
 
 ### Community 11 - "Community 11"
 Cohesion: 0.18
 Nodes (13): AdminAccessButton(), AdminLoginForm(), DemoAdminToolbar(), clearDemoAdminFlag(), DEMO_ADMIN_CREDENTIALS, hasDemoAdminSession(), notifyDemoSessionChange(), setDemoAdminFlag() (+5 more)
 
 ### Community 12 - "Community 12"
-Cohesion: 0.20
-Nodes (15): classifyProductImagesInitial(), extractProductsStoragePath(), isProductsStorageUrl(), matchesMediaFilter(), normalizeSupabaseBaseUrl(), resolveMediaStatus(), MediaProductRow(), MediaProductRowProps (+7 more)
+Cohesion: 0.25
+Nodes (11): matchesMediaStatus(), classifyProductImagesInitial(), extractProductsStoragePath(), isProductsStorageUrl(), matchesMediaFilter(), normalizeSupabaseBaseUrl(), resolveMediaStatus(), loadOnboardingSnapshot() (+3 more)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.23
-Nodes (14): HEADER_BRAND_DISPLAY_VALUES, HeaderBrandRender, isValidHeaderBrandDisplay(), normalizeHeaderBrandDisplay(), jsonSettingsRepository, mergeStoreSettings(), normalizeColor(), StoreSettingsRepository (+6 more)
+Cohesion: 0.16
+Nodes (23): normalizeHeaderBrandDisplay(), jsonSettingsRepository, createDefaultStoreSettings(), isValidHexColor(), mergeStoreSettings(), normalizeColor(), StoreSettingsRepository, BRANDING_DIR (+15 more)
 
 ### Community 14 - "Community 14"
 Cohesion: 0.06
 Nodes (40): BM25, detect_domain(), _load_csv(), Lowercase, split, remove punctuation, filter short words, Build BM25 index from documents, Score all documents against query, Load CSV and return list of dicts, Core search function using BM25 (+32 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.19
-Nodes (13): BenefitRepository, DEFAULT_BENEFIT_ITEMS, getActiveBenefitItems(), resolveStorefrontBenefits(), StorefrontBenefitsSection, activeItem, benefitInputToRow(), BenefitItemRow (+5 more)
+Cohesion: 0.05
+Nodes (60): AdminReorderButtons(), AdminReorderButtonsProps, AdminToggleSwitch(), AdminToggleSwitchProps, BenefitForm(), BenefitFormProps, BenefitsSectionForm(), BenefitsSectionFormProps (+52 more)
 
 ### Community 20 - "Community 20"
-Cohesion: 0.05
-Nodes (64): AdminReorderButtons(), AdminReorderButtonsProps, AdminToggleSwitch(), AdminToggleSwitchProps, BannerSlideForm(), BannerSlideFormProps, ReorderBannerButtons(), ReorderBenefitButtons() (+56 more)
+Cohesion: 0.06
+Nodes (62): BannerSlideForm(), BannerSlideFormProps, generateMetadata(), createBannerSlideWithDesktopAction(), deleteBannerSlideAction(), parseBannerMetadata(), removeBannerDesktopAction(), removeBannerImageAction() (+54 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.31
-Nodes (3): StatusPage(), StatusPageProps, metadata
+Cohesion: 0.21
+Nodes (6): NotFound(), CartTestPage(), AdminImportPage(), StatusPage(), StatusPageProps, metadata
 
 ### Community 23 - "Community 23"
-Cohesion: 0.10
-Nodes (39): canonicalImportSlug(), csvToRecords(), generateSlug(), COLOR_ALIASES, COLOR_PATTERN, extractCanonicalColors(), hasColorConflict(), normalizeProductName() (+31 more)
+Cohesion: 0.11
+Nodes (37): canonicalImportSlug(), COLOR_ALIASES, COLOR_PATTERN, extractCanonicalColors(), hasColorConflict(), normalizeProductName(), normalizeRelativePath(), splitPipeList() (+29 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.16
-Nodes (21): AdminPage(), metadata, NavCard(), Home(), categories, clubs, mockProducts, getStorefrontCategories() (+13 more)
+Cohesion: 0.20
+Nodes (14): AdminPage(), metadata, NavCard(), CategoryProductCounts, fetchMediaStatusCounts(), fetchProductsByCategoryCounts(), fetchProductStatusCounts(), MediaStatusCounts (+6 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.22
-Nodes (14): VariationInput, deriveShortFromHtml(), stripHtml(), applyImport(), ApplyImportOptions, mergeVariations(), resolveStatus(), toProductInput() (+6 more)
+Cohesion: 0.15
+Nodes (20): VariationInput, deriveShortDescription(), deriveShortFromHtml(), stripHtml(), baseProduct, validInput, applyImport(), ApplyImportOptions (+12 more)
 
 ### Community 26 - "Community 26"
 Cohesion: 0.08
 Nodes (26): buildLegacyMeta(), byScrapedSlug, csv, getVariationSize(), HEADERS, IMAGES_ROOT, importLines, isPersonalizationValue() (+18 more)
 
 ### Community 28 - "Community 28"
-Cohesion: 0.12
-Nodes (17): AdminPageHeader(), AdminPageHeaderProps, BenefitForm(), BenefitFormProps, metadata, generateMetadata(), metadata, NotFound() (+9 more)
+Cohesion: 0.13
+Nodes (10): AdminPageHeader(), AdminPageHeaderProps, metadata, metadata, AdminCampanhasPage(), metadata, metadata, AdminCuponsPage() (+2 more)
 
 ### Community 29 - "Community 29"
-Cohesion: 0.06
-Nodes (74): AdminListPage(), AdminListPageProps, CategoryForm(), CategoryFormProps, categoryToForm(), SearchBar(), SearchBarProps, StatusTabs() (+66 more)
+Cohesion: 0.13
+Nodes (34): CategoryRepository, loadCategoriesFromDisk(), persistCategories(), assertValidParent(), computeCategoryPath(), legacyProductMatchesCategoryValue(), productMatchesCategorySubtree(), CategoryValidationError (+26 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.42
-Nodes (8): BRANDING_ALIASES, BRANDING_ICON_FILES, brandingAssetUrl(), brandingAssetUrlVersioned(), absoluteOgUrl(), buildPageMetadata(), buildRootMetadata(), versionedIcons()
+Cohesion: 0.33
+Nodes (10): generateMetadata(), generateMetadata(), BRANDING_ALIASES, BRANDING_ICON_FILES, brandingAssetUrl(), brandingAssetUrlVersioned(), absoluteOgUrl(), buildPageMetadata() (+2 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.09
@@ -226,12 +230,12 @@ Cohesion: 0.15
 Nodes (21): buildHeaderLogoWebp(), FAVICON_SIZES, generateBrandingAssets(), resizeContainedSquare(), brandingDir, copyDir(), copyFile(), deployDir (+13 more)
 
 ### Community 33 - "Community 33"
-Cohesion: 0.28
-Nodes (15): BulkActionsBarProps, requireAdmin(), { mockRequireAdmin }, bulkDeleteProductsAction(), bulkSetProductCategoryAction(), bulkSetProductStatusAction(), createProductAction(), deleteProductAction() (+7 more)
+Cohesion: 0.11
+Nodes (34): BulkActionsBarProps, BulkActivateDialog(), Props, BulkMoveCategoryDialog(), requireAdmin(), { mockRequireAdmin }, BulkActivateOptions, bulkActivateWithOptionsAction() (+26 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.12
-Nodes (21): AdminEmptyState(), AdminEmptyStateProps, AdminPagination(), AdminPaginationProps, CartNavLink(), CheckoutPage(), metadata, CategoryChips() (+13 more)
+Cohesion: 0.19
+Nodes (13): AdminPagination(), AdminPaginationProps, CartNavLink(), CheckoutPage(), metadata, AdminFretePage(), metadata, Header() (+5 more)
 
 ### Community 35 - "Community 35"
 Cohesion: 0.10
@@ -239,7 +243,7 @@ Nodes (15): candidates, excludedAfterVisualReview, firstUrlUsage, importBySlug, 
 
 ### Community 36 - "Community 36"
 Cohesion: 0.05
-Nodes (74): AdminLayout(), useAdminOnboarding(), ActionResult, completeOnboardingIfReadyAction(), completeTourAction(), markFirstSaleStepAction(), markStorefrontReviewedAction(), persist() (+66 more)
+Nodes (78): AdminLayout(), useAdminOnboarding(), ActionResult, completeOnboardingIfReadyAction(), completeTourAction(), markFirstSaleStepAction(), markOnboardingStepCompleteAction(), markStorefrontReviewedAction() (+70 more)
 
 ### Community 37 - "Community 37"
 Cohesion: 0.15
@@ -254,40 +258,40 @@ Cohesion: 0.16
 Nodes (16): args, argv, buildStoragePath(), dryRunPath, main(), mdReportPath, mimeFor(), publicUrl() (+8 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.26
-Nodes (13): StoreSettingsFormProps, getStoreSettingsAction(), restoreDefaultStorefrontAction(), revalidateStore(), updateStoreSettingsAction(), uploadHeroImageAction(), uploadStoreLogoAction(), readDefaultStorefrontHeroBuffer() (+5 more)
+Cohesion: 0.17
+Nodes (18): getActiveBannerSlides(), AdminSettingsPage(), metadata, StoreSettingsForm(), StoreSettingsFormProps, getStoreSettingsAction(), { mockRequireAdmin, mockGetStoreSettings, mockUpdateStoreSettings, mockSaveHero, mockGenerateBranding }, restoreDefaultStorefrontAction() (+10 more)
 
 ### Community 41 - "Community 41"
-Cohesion: 0.15
-Nodes (24): categoryProductsHref(), hasStorefrontCategoryImages(), isCategoryFilterActive(), isStorefrontCategory(), isStorefrontTestResidue(), PRODUCTS_HREF_PRESERVED_PARAMS, productsPageHref(), resolveCategoryHeading() (+16 more)
+Cohesion: 0.05
+Nodes (69): Home(), categoryImageUrl(), getStorefrontRoots(), getVisibleChildCategories(), resolveCategoryDisplayName(), isStorefrontProduct(), categoryProductsHref(), hasStorefrontCategoryImages() (+61 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.10
-Nodes (35): AdminTourDriver(), AdminTourDriverProps, buildDriverSteps(), clearTourResume(), createTourController(), DEFAULT_WAIT_FOR_TARGET, getNavigationContext(), hasNextOnSameRoute() (+27 more)
+Cohesion: 0.11
+Nodes (32): AdminTourDriverProps, buildDriverSteps(), clearTourResume(), createTourController(), DEFAULT_WAIT_FOR_TARGET, hasNextOnSameRoute(), isBrowser(), readTourResume() (+24 more)
 
 ### Community 43 - "Community 43"
-Cohesion: 0.18
-Nodes (8): BannerCarousel(), HomeHero(), HomeHeroProps, fallback, SportsHero(), SportsHeroContent, SportsHeroProps, useDeviceBreakpoint()
+Cohesion: 0.17
+Nodes (25): CategoryForm(), CategoryFormProps, categoryToForm(), CategoryFormPayload, createCategoryAction(), deleteCategoryAction(), removeCategoryImageAction(), revalidateCategories() (+17 more)
 
 ### Community 44 - "Community 44"
-Cohesion: 0.18
-Nodes (15): CartContent(), CartContentProps, CartLineItem(), CartLineItemProps, CartPage(), metadata, useCart(), CartLine (+7 more)
+Cohesion: 0.22
+Nodes (13): calculateSubtotal(), buildPurchaseIntentFromPricing(), createOrderReference(), buildPurchaseIntentFromCart(), enrichPricingWithCartItems(), personalizationSettings, personalizedProduct, samplePricing (+5 more)
 
 ### Community 45 - "Community 45"
-Cohesion: 0.14
-Nodes (14): BenefitsSectionForm(), BenefitsSectionFormProps, getAllBenefitItems(), AdminBenefitsPage(), metadata, cn(), Alert, AlertProps (+6 more)
+Cohesion: 0.13
+Nodes (24): buildLoteCsv(), buildSku(), createSkuRegistry(), filterImages(), findMaxBatch(), groupProducts(), HEADERS, loteFileName() (+16 more)
 
 ### Community 46 - "Community 46"
-Cohesion: 0.19
-Nodes (13): emptyVariation(), ProductForm(), ProductFormProps, productToForm(), VariationRow, visibilityBannerClass(), ProductFormPayload, defaultCategorySlug() (+5 more)
+Cohesion: 0.09
+Nodes (27): emptyVariation(), ProductForm(), ProductFormProps, productToForm(), categories, mockCreateProductAction, mockPush, mockRefresh (+19 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.21
-Nodes (12): resolveCategoryDisplayName(), calculateDiscount(), formatPrice(), getProductBySlug(), ProductCard(), ProductGallery(), ProductGalleryProps, ProductImage() (+4 more)
+Nodes (16): BulkMoveCategoryDialogProps, CategoryTreePicker(), CategoryTreePickerProps, FilterBar(), FilterBarProps, buildCategoryTree(), CategoryNode, flattenCategoryTree() (+8 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.29
-Nodes (9): RequireAdminResult, assertSupabaseEnv(), DataProvider, isSupabaseConfigured(), getSupabaseAnonKey(), getSupabaseUrl(), hasPublicSupabaseKey(), readPublicSupabaseKey() (+1 more)
+Cohesion: 0.26
+Nodes (7): RequireAdminResult, { mockGetUser, mockCreateClient, mockGetDataProvider }, getSupabaseAnonKey(), getSupabaseServiceRoleKey(), getSupabaseUrl(), readPublicSupabaseKey(), createServerSupabaseClient()
 
 ### Community 49 - "Community 49"
 Cohesion: 0.15
@@ -298,40 +302,40 @@ Cohesion: 0.17
 Nodes (11): BRANDING_LOGO_FILENAMES, BRANDING_SOURCE_DIR, readBrandingLogoSourceBuffer(), resolveBrandingLogoSourcePath(), root, DefaultStorefrontVisualPreset, getDefaultStorefrontVisualPreset(), presetDir (+3 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 0.16
-Nodes (13): MediaCenter(), MediaCenterProps, Tab, FILTERS, MediaFilters(), MediaFiltersProps, BulkImageItem, ImageProbeMap (+5 more)
+Cohesion: 0.10
+Nodes (27): SearchBar(), SearchBarProps, StatusTabs(), StatusTabsProps, MediaCenter(), MediaCenterProps, PRODUCT_STATUS_LABELS, Tab (+19 more)
 
 ### Community 52 - "Community 52"
-Cohesion: 0.20
-Nodes (13): ClientUploadResult, extFromFile(), uploadProductImageClient(), UploadQueueRunnerOptions, validateClientUploadFile(), ALLOWED_IMAGE_MIME_TYPES, AllowedImageMime, isAllowedImageExtension() (+5 more)
+Cohesion: 0.07
+Nodes (36): ImageGalleryField(), ImageGalleryFieldProps, moveImageToPosition(), uploadProductImageAction, UploadProgress, uploadProductImageAction(), buildProductImageFilename(), CONTENT_TYPES (+28 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.27
 Nodes (11): brandingDir, loadJson(), main(), mimeFor(), productToRow(), requireEnv(), root, storageDir (+3 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 0.17
-Nodes (14): { mockRequireAdmin, mockGetStoreSettings, mockUpdateStoreSettings, mockSaveHero, mockGenerateBranding }, getSettingsRepository(), createDefaultStoreSettings(), isValidHexColor(), BRANDING_DIR, DEFAULT_SETTINGS, ensureStorage(), loadStoreSettingsFromDisk() (+6 more)
+Cohesion: 0.24
+Nodes (10): PersonalizationSettingsForm(), PersonalizationSettingsFormProps, AdminPersonalizacaoPage(), metadata, revalidatePersonalization(), updatePersonalizationSettingsAction(), personalizationToStoreSettingsInput(), storeSettingsToPersonalization() (+2 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.18
 Nodes (5): csv, env, png, results, root
 
 ### Community 56 - "Community 56"
-Cohesion: 0.31
-Nodes (7): MoneyInput, MoneyInputHandle, MoneyInputProps, BRL_DISPLAY, formatBrlMoneyInput(), parseBrlMoney(), reaisToCentsDigits()
+Cohesion: 0.05
+Nodes (51): CACHE_HEADERS, GET(), digitsToDisplay(), MoneyInput, MoneyInputHandle, MoneyInputProps, metadata, archiveCommercialRuleAction() (+43 more)
 
 ### Community 57 - "Community 57"
-Cohesion: 0.22
-Nodes (11): AssociationError, AssociationResult, buildExpectedFilename(), buildMediaMapCsvRows(), findProductByKey(), matchFilesToProducts(), parseAssociationFilename(), ParsedAssociationFilename (+3 more)
+Cohesion: 0.19
+Nodes (15): CartLineItem(), CartLineItemProps, baseLine, mockGetProductById, personalizationSettings, product, buildPersonalizationPdpUrl(), canShowPersonalizationShortcut() (+7 more)
 
 ### Community 58 - "Community 58"
-Cohesion: 0.29
-Nodes (8): CATALOG_PATH, ensureStorage(), loadCatalogFromDisk(), persistCatalog(), readFromDisk(), SEED_PATH, STORAGE_DIR, writeToDisk()
+Cohesion: 0.16
+Nodes (15): args, buildRpcPayload(), createSupabase(), dryRun, fetchCatalog(), fetchImportedFilenames(), filterImportableProducts(), fromLote (+7 more)
 
 ### Community 59 - "Community 59"
-Cohesion: 0.29
-Nodes (7): errorsToFieldMap(), formatProductValidationError(), MESSAGE_FIELD_HINTS, normalizeProductErrors(), PRODUCT_FIELD_LABELS, productFieldLabel(), ProductValidationError
+Cohesion: 0.20
+Nodes (10): CartTestClient(), cartItemKey(), isValidAddons(), isValidCartItem(), loadCartItems(), parseLegacyItems(), parseStoredCart(), saveCartItems() (+2 more)
 
 ### Community 60 - "Community 60"
 Cohesion: 0.31
@@ -342,24 +346,24 @@ Cohesion: 0.31
 Nodes (7): checkSecurityHeaders(), env, record(), report, root, smokeAdmin(), smokePublic()
 
 ### Community 62 - "Community 62"
-Cohesion: 0.38
-Nodes (5): ImageGalleryField(), ImageGalleryFieldProps, moveImageToPosition(), uploadProductImageAction, UploadProgress
+Cohesion: 0.17
+Nodes (11): settings, validatePersonalizationAddon(), settings, baseProduct, mockAddItem, mockItems, mockRemoveItem, mockSearchParams (+3 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.37
-Nodes (10): createBenefitItemAction(), deleteBenefitItemAction(), ensureSupabase(), reorderBenefitItemAction(), revalidateBenefits(), updateBenefitItemAction(), updateBenefitsSectionAction(), validateBenefitCreateCount() (+2 more)
+Cohesion: 0.18
+Nodes (10): prepareImportBatch(), applySupabaseImport(), ApplySupabaseImportOptions, buildRpcPayload(), ImportRpcResult, CsvErrorCode, ImportProductInput, ImportStatusBreakdown (+2 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.21
-Nodes (16): bannerFilename(), deleteBannerImage(), writeBannerImage(), uploadProductImageAction(), categoryImageFilename(), CONTENT_TYPES, deleteCategoryImage(), writeCategoryImage() (+8 more)
+Cohesion: 0.31
+Nodes (10): fetchImportCatalogSnapshot(), confirmImportAction(), logImportParse(), parseImportCsvAction(), revalidateCatalog(), countUniqueImageUrls(), formatImportSizeLimit(), buildImportPreview() (+2 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.29
 Nodes (4): outPath, products, root, settings
 
 ### Community 66 - "Community 66"
-Cohesion: 0.33
-Nodes (5): categories, mockCreateProductAction, mockPush, mockRefresh, mockUpdateProductAction
+Cohesion: 0.22
+Nodes (10): Filter, ImportPreviewTable(), ImportPreviewTableProps, STATUS_LABEL, ImportWizard(), ImportWizardProps, WizardStep, ImportPreview (+2 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.33
@@ -374,52 +378,72 @@ Cohesion: 0.50
 Nodes (3): env, root, supabase
 
 ### Community 72 - "Community 72"
-Cohesion: 0.23
-Nodes (6): pickHomeProductSections(), mockRepository, ProductCardProps, Cart, Product, ProductVariation
+Cohesion: 0.17
+Nodes (18): mockRepository, applyPromotion(), evaluatePromotion(), evaluateQuantityDiscount(), PromotionEvaluation, computeTotals(), ComputeTotalsContext, baseProduct (+10 more)
 
 ### Community 73 - "Community 73"
-Cohesion: 0.36
-Nodes (9): bulkSetProductImagesAction(), revalidateMediaPaths(), setProductImagesAction(), { mockRequireAdmin, mockRepo }, isForbiddenImageUrl(), isValidProductStoragePath(), mergeImages(), normalizeImageInputs() (+1 more)
+Cohesion: 0.22
+Nodes (14): queryProductsAdmin(), bulkSetProductImagesAction(), fetchMediaUploadCatalogAction(), revalidateMediaPaths(), setProductImagesAction(), fetchMediaUploadCatalog(), { mockRequireAdmin, mockRepo }, BulkImageItem (+6 more)
 
 ### Community 74 - "Community 74"
-Cohesion: 0.31
-Nodes (8): metadata, EditProductPage(), EditProductPageProps, generateMetadata(), getAllCategoriesAdmin(), getCategoriesAdmin(), getProductByIdAdmin(), AdminNewProductPage()
+Cohesion: 0.17
+Nodes (17): metadata, countProductsByCategory(), AdminCategoriesPage(), metadata, VISIBILITY_LABELS, EditProductPage(), EditProductPageProps, generateMetadata() (+9 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.31
-Nodes (7): findDefaultVariation(), resolveVariationBySelection(), colorNameToHex(), colorSwatchBorderClass(), LIGHT_SWATCH_HEX, ProductPurchasePanel(), ProductPurchasePanelProps
+Cohesion: 0.12
+Nodes (21): CartContent(), CartContentProps, PromotionSimulator(), PromotionSimulatorProps, useCart(), useProductPersonalizationPrice(), colorNameToHex(), colorSwatchBorderClass() (+13 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.39
-Nodes (7): HeaderBrandMark(), HeaderBrandMarkProps, headerBrandPreviewClasses(), AppearancePreview(), AppearancePreviewProps, resolveHeaderBrandRender(), HeaderBrandDisplay
+Cohesion: 0.26
+Nodes (10): HeaderBrandMark(), HeaderBrandMarkProps, headerBrandPreviewClasses(), AppearancePreview(), AppearancePreviewProps, HEADER_BRAND_DISPLAY_VALUES, HeaderBrandRender, isValidHeaderBrandDisplay() (+2 more)
 
 ### Community 77 - "Community 77"
-Cohesion: 0.25
-Nodes (6): runUploadQueue(), AssociationMatch, MediaUploadWizard(), MediaUploadWizardProps, ProductUploadState, UploadReportRow
+Cohesion: 0.33
+Nodes (4): MediaUploadWizard(), MediaUploadWizardProps, ProductUploadState, UploadReportRow
 
 ### Community 78 - "Community 78"
-Cohesion: 0.50
-Nodes (4): getActiveBannerSlides(), AdminSettingsPage(), metadata, StoreSettingsForm()
+Cohesion: 0.27
+Nodes (8): cartLiteToProduct(), fetchCatalogProductsByIds(), mergeCatalogCache(), mergeCatalogCacheFromLite(), setCatalogCache(), ProductCartLite, CartCatalogSeeder(), CartCatalogSeederProps
+
+### Community 79 - "Community 79"
+Cohesion: 0.28
+Nodes (6): AdminEmptyState(), AdminEmptyStateProps, AdminOrdersPage(), metadata, AdminPromocoesPage(), metadata
+
+### Community 83 - "Community 83"
+Cohesion: 0.28
+Nodes (8): askYesNo(), backupPath, clientEnvPath, fail(), main(), root, rootEnvPath, slug
+
+### Community 84 - "Community 84"
+Cohesion: 0.32
+Nodes (5): CATEGORIES_PATH, ensureStorage(), readFromDisk(), STORAGE_DIR, writeToDisk()
+
+### Community 85 - "Community 85"
+Cohesion: 0.39
+Nodes (4): validateProductImageUrlsLocal(), ImportIssue, isAllowedImportImageUrl(), PRIVATE_HOST_PATTERNS
+
+### Community 86 - "Community 86"
+Cohesion: 0.40
+Nodes (3): getAllBannerSlides(), AdminBannersPage(), metadata
 
 ## Knowledge Gaps
-- **399 isolated node(s):** `mapRows`, `inventoryRows`, `importRows`, `importBySlug`, `importOrder` (+394 more)
+- **492 isolated node(s):** `mapRows`, `inventoryRows`, `importRows`, `importBySlug`, `importOrder` (+487 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **11 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **10 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `getButtonClassName()` connect `Community 34` to `Community 33`, `Community 3`, `Community 4`, `Community 36`, `Community 40`, `Community 41`, `Community 11`, `Community 44`, `Community 45`, `Community 43`, `Community 77`, `Community 78`, `Community 20`, `Community 21`, `Community 24`, `Community 29`?**
+- **Why does `getButtonClassName()` connect `Community 34` to `Community 3`, `Community 11`, `Community 15`, `Community 20`, `Community 21`, `Community 24`, `Community 28`, `Community 33`, `Community 36`, `Community 40`, `Community 41`, `Community 47`, `Community 51`, `Community 57`, `Community 66`, `Community 74`, `Community 75`, `Community 77`, `Community 79`, `Community 86`?**
+  _High betweenness centrality (0.066) - this node is a cross-community bridge._
+- **Why does `Product` connect `Community 72` to `Community 64`, `Community 33`, `Community 3`, `Community 4`, `Community 36`, `Community 7`, `Community 41`, `Community 10`, `Community 75`, `Community 44`, `Community 78`, `Community 46`, `Community 20`, `Community 62`, `Community 57`, `Community 25`, `Community 63`?**
   _High betweenness centrality (0.056) - this node is a cross-community bridge._
-- **Why does `getStoreSettings()` connect `Community 5` to `Community 2`, `Community 34`, `Community 4`, `Community 36`, `Community 40`, `Community 41`, `Community 44`, `Community 45`, `Community 78`, `Community 15`, `Community 47`, `Community 20`, `Community 54`, `Community 24`, `Community 28`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
-- **Why does `Product` connect `Community 72` to `Community 3`, `Community 4`, `Community 36`, `Community 7`, `Community 10`, `Community 43`, `Community 75`, `Community 46`, `Community 47`, `Community 24`, `Community 25`, `Community 58`?**
-  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `requireAdmin()` connect `Community 33` to `Community 64`, `Community 36`, `Community 40`, `Community 73`, `Community 43`, `Community 15`, `Community 48`, `Community 20`, `Community 52`, `Community 54`, `Community 56`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `getButtonClassName()` (e.g. with `AdminProductsPage()` and `ProductsPage()`) actually correct?**
   _`getButtonClassName()` has 2 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 2 inferred relationships involving `getStoreSettings()` (e.g. with `AdminProductsPage()` and `generateMetadata()`) actually correct?**
+  _`getStoreSettings()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 2 inferred relationships involving `getDataProvider()` (e.g. with `EditBenefitPage()` and `NewBenefitPage()`) actually correct?**
   _`getDataProvider()` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `mapRows`, `inventoryRows`, `importRows` to the rest of the system?**
-  _425 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.1 - nodes in this community are weakly interconnected._
+  _518 weakly-connected nodes found - possible documentation gaps or missing edges._

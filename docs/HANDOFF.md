@@ -164,9 +164,9 @@ Sem aprovação explícita, **não implementar**:
 |------|-------------|
 | Testes | **207 passed** / 47 files (`vitest run`) |
 | Build | OK (`npm run build:netlify`) |
-| Último commit | `0a00394` chore(graphify) · `99860e6` ordem fotos admin · `026dab8` PDP galeria · `97fdeab` SKU pós-upsert import |
+| Último commit | `fdff953` categorias hierárquicas · `3676f7d` bulk activate · `6be4d43` onboarding manual |
 | Branch | `master` — sincronizado com `origin/master` |
-| Graphify | **1410 nós · 3507 arestas · 72 comunidades** (`graphify-out/`, sync 2026-06-26, commit `99860e6`) |
+| Graphify | **1976 nós · 5339 arestas · 87 comunidades** (`graphify-out/`, sync 2026-06-29, commit `fdff953`) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
 
 ### Persistência atual (filesystem)
