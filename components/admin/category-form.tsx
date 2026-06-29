@@ -259,7 +259,9 @@ export function CategoryForm({
                 </option>
               ))}
             </select>
-            <span className="text-xs text-mute">Máximo de 3 níveis (raiz → intermediário → folha).</span>
+            <span className="text-xs text-mute">
+              Máximo de 4 níveis (tipo → liga → linha → time/clube).
+            </span>
           </label>
           <label className="flex items-center gap-2 pt-7">
             <input

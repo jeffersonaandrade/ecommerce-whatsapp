@@ -5,7 +5,9 @@ import {
   resolveCategoryParam,
 } from './category-utils'
 
-export const MAX_CATEGORY_DEPTH = 2
+export const MAX_CATEGORY_DEPTH = 3
+
+const MAX_DEPTH_ERROR = 'Profundidade máxima de 4 níveis atingida'
 
 export type CategoryNode = Category & { children: CategoryNode[] }
 
@@ -19,7 +21,7 @@ export function computeCategoryPath(
   }
   const depth = parent.depth + 1
   if (depth > MAX_CATEGORY_DEPTH) {
-    throw new Error('Profundidade máxima de 3 níveis atingida')
+    throw new Error(MAX_DEPTH_ERROR)
   }
   return { depth, path: `${parent.path}/${normalizedSlug}` }
 }
@@ -120,7 +122,7 @@ export function assertValidParent(
   const parent = categories.find((c) => c.id === parentId)
   if (!parent) throw new Error('Categoria pai não encontrada')
   if (parent.depth >= MAX_CATEGORY_DEPTH) {
-    throw new Error('Profundidade máxima de 3 níveis atingida')
+    throw new Error(MAX_DEPTH_ERROR)
   }
 
   if (categoryId) {
@@ -272,7 +274,7 @@ export function assertSubtreeFitsMaxDepth(
 ): void {
   const relative = getSubtreeRelativeMaxDepth(categories, nodeId)
   if (newDepth + relative > MAX_CATEGORY_DEPTH) {
-    throw new Error('Profundidade máxima de 3 níveis atingida')
+    throw new Error(MAX_DEPTH_ERROR)
   }
 }
 

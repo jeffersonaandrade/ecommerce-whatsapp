@@ -66,8 +66,39 @@ describe('category-tree', () => {
     })
   })
 
-  it('rejeita quarto nível', () => {
-    expect(() => computeCategoryPath('x', categories[2])).toThrow(/3 níveis/)
+  it('aceita quarto nível visual (depth 3)', () => {
+    const retro = cat({
+      id: '5',
+      name: 'Retrô',
+      slug: 'retro',
+      parentId: '2',
+      depth: 2,
+      path: 'camisas/brasileiro/retro',
+    })
+    expect(computeCategoryPath('santa-cruz', retro)).toEqual({
+      depth: 3,
+      path: 'camisas/brasileiro/retro/santa-cruz',
+    })
+  })
+
+  it('rejeita quinto nível', () => {
+    const retro = cat({
+      id: '5',
+      name: 'Retrô',
+      slug: 'retro',
+      parentId: '2',
+      depth: 2,
+      path: 'camisas/brasileiro/retro',
+    })
+    const santaCruzLeaf = cat({
+      id: '6',
+      name: 'Santa Cruz',
+      slug: 'santa-cruz',
+      parentId: '5',
+      depth: 3,
+      path: 'camisas/brasileiro/retro/santa-cruz',
+    })
+    expect(() => computeCategoryPath('x', santaCruzLeaf)).toThrow(/4 níveis/)
   })
 
   it('monta árvore', () => {
@@ -136,8 +167,61 @@ describe('category-tree', () => {
 
     it('rejeita mover subárvore que excede profundidade máxima', () => {
       const esportes = cat({ id: 'e', name: 'Esportes', slug: 'esportes' })
-      const deepTree = [...categories, esportes]
-      expect(() => assertSubtreeFitsMaxDepth(deepTree, '1', 1)).toThrow(/3 níveis/)
+      const retro = cat({
+        id: '5',
+        name: 'Retrô',
+        slug: 'retro',
+        parentId: '2',
+        depth: 2,
+        path: 'camisas/brasileiro/retro',
+      })
+      const deepSantaCruz = cat({
+        id: '6',
+        name: 'Santa Cruz',
+        slug: 'santa-cruz',
+        parentId: '5',
+        depth: 3,
+        path: 'camisas/brasileiro/retro/santa-cruz',
+      })
+      const deepTree = [
+        ...categories.filter((c) => c.id !== '3'),
+        retro,
+        deepSantaCruz,
+        esportes,
+      ]
+      expect(() => assertSubtreeFitsMaxDepth(deepTree, '1', 1)).toThrow(/4 níveis/)
+    })
+
+    it('permite árvore Camisas > Brasileiro > Retrô > Santa Cruz', () => {
+      const retro = cat({
+        id: '5',
+        name: 'Retrô',
+        slug: 'retro',
+        parentId: '2',
+        depth: 2,
+        path: 'camisas/brasileiro/retro',
+      })
+      const santaCruzLeaf = cat({
+        id: '6',
+        name: 'Santa Cruz',
+        slug: 'santa-cruz',
+        parentId: '5',
+        depth: 3,
+        path: 'camisas/brasileiro/retro/santa-cruz',
+      })
+      const tree = [
+        categories[0],
+        categories[1],
+        retro,
+        santaCruzLeaf,
+      ]
+      expect(() => assertSubtreeFitsMaxDepth(tree, '1', 0)).not.toThrow()
+      expect(getCategoryBreadcrumb(tree, 'santa-cruz').map((c) => c.slug)).toEqual([
+        'camisas',
+        'brasileiro',
+        'retro',
+        'santa-cruz',
+      ])
     })
 
     it('recalcula descendentes após renomear slug do pai', () => {
