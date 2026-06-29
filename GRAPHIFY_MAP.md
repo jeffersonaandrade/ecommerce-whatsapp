@@ -106,6 +106,14 @@ graphify update .
 graphify cluster-only .
 ```
 
+### Antes de commitar (agentes e devs)
+
+Após **mudanças estruturais** (novos módulos, rotas, tipos, repositórios, refactors de imports), rode `graphify update .` **antes do commit** e inclua `graphify-out/` no commit (mesmo commit ou `chore(graphify)` em seguida). Atualize a linha **Graphify** em `docs/HANDOFF.md`.
+
+**Freshness:** em `graphify-out/GRAPH_REPORT.md`, compare `Built from commit` com `git rev-parse HEAD`. Se divergir, o grafo está desatualizado.
+
+Regra Cursor para todos os agentes: [`.cursor/rules/graphify.mdc`](.cursor/rules/graphify.mdc) (`alwaysApply: true`).
+
 ### Consultar o grafo
 
 ```powershell
