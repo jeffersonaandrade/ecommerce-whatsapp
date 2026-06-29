@@ -3,7 +3,13 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-export function ProductsSearchInput({ initialValue = '' }: { initialValue?: string }) {
+export function ProductsSearchInput({
+  initialValue = '',
+  placeholder = 'Buscar por time, produto…',
+}: {
+  initialValue?: string
+  placeholder?: string
+}) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [value, setValue] = useState(initialValue)
@@ -37,7 +43,7 @@ export function ProductsSearchInput({ initialValue = '' }: { initialValue?: stri
       type="search"
       value={value}
       onChange={(e) => setValue(e.target.value)}
-      placeholder="Buscar por time, produto…"
+      placeholder={placeholder}
       className="w-full rounded-lg border border-hairline bg-canvas px-3 py-2 text-sm text-ink placeholder:text-mute focus:outline-none focus:ring-2 focus:ring-ink/20"
       aria-label="Buscar produtos"
     />

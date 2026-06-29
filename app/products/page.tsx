@@ -5,21 +5,18 @@ import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
 import { AdminPagination } from '@/components/admin/admin-pagination'
 import { ProductsCategoryFilter } from '@/components/commerce/products-category-filter'
-import { ProductsCategoryChips } from '@/components/commerce/products-category-chips'
 import { CategoryBreadcrumb } from '@/components/commerce/category-breadcrumb'
-import { CategoryTreeNav } from '@/components/commerce/category-tree-nav'
+import { CategoryNavigation } from '@/components/commerce/category-navigation'
 import { ProductsSearchInput } from '@/components/commerce/products-search-input'
 import { queryStorefrontProducts } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
   hasStorefrontCategoryImages,
-  isCategoryFilterActive,
   productsPageHref,
   resolveCategoryHeading,
-  resolveStorefrontCategoryList,
   resolveStorefrontNavCategories,
 } from '@/lib/catalog/storefront-categories'
-import { getVisibleChildCategories } from '@/lib/catalog/category-tree'
+import { getNavigationContext } from '@/lib/catalog/navigation-context'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 
@@ -45,19 +42,9 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
   const pageSize = 24
   const allCategories = await getStorefrontCategories()
-  const categories = resolveStorefrontCategoryList(allCategories)
   const navCategories = resolveStorefrontNavCategories(allCategories, category)
   const showVisualCategories = hasStorefrontCategoryImages(allCategories)
-  const activeNode = category
-    ? allCategories.find((c) => isCategoryFilterActive(category, c))
-    : undefined
-  const navSectionLabel = activeNode
-    ? getVisibleChildCategories(allCategories, activeNode.id).length > 0
-      ? `Dentro de ${activeNode.name}`
-      : activeNode.parentId
-        ? `Mais em ${allCategories.find((c) => c.id === activeNode.parentId)?.name ?? 'categoria'}`
-        : null
-    : null
+  const ctx = getNavigationContext(allCategories, category, params)
 
   const result = await queryStorefrontProducts({
     category,
@@ -95,23 +82,15 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
           <div className="mt-4 w-full max-w-lg">
             <Suspense fallback={<div className="h-9 rounded-lg border border-hairline bg-soft-cloud" />}>
-              <ProductsSearchInput initialValue={q ?? ''} />
+              <ProductsSearchInput
+                initialValue={q ?? ''}
+                placeholder={ctx.searchPlaceholder}
+              />
             </Suspense>
           </div>
 
-          <CategoryTreeNav
-            categories={allCategories}
-            activeCategory={category}
-            searchParams={params}
-          />
-
           {!showVisualCategories && (
-            <ProductsCategoryChips
-              categories={navCategories}
-              activeCategory={category}
-              searchParams={params}
-              sectionLabel={navSectionLabel}
-            />
+            <CategoryNavigation ctx={ctx} searchParams={params} />
           )}
         </div>
       </div>
