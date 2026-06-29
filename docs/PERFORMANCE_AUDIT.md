@@ -18,12 +18,28 @@ Catálogo de referência: **~3.438 produtos** (UnitSports, jun/2026).
 | `/products` | grid sem paginação | Paginação server-side (24/página) |
 | `/api/products` | JSON completo ~3400 produtos | Payload lite (`ProductCartLite`) |
 | `/products?category=` | 5000 lite + filtro memória | RPC `query_storefront_products_page` paginado |
+| `/products?q=` | — (novo) | `ilike` direto em `name/club/category`, paginado, `fields:'list'` |
+| `/products?category=&q=` | — (novo) | Bypassa RPC; subtree em JS + `ilike`; aceitável até ~5.000 produtos |
 | create/update produto (actions) | `repo.getAll()` FULL | `findConflictingSkus()` pontual |
 | Admin produtos listagem | `select('*')` com long_description | `fields: 'list'` |
 | Admin categorias tabs | `queryCategoriesAdmin({ pageSize: 999 })` | `fetchCategoryVisibilityCounts()` |
 | bulkSetStatus/Category | `.in()` sem chunk | Chunks de 150 IDs |
 | counts fallback query | `fetchAllProducts()` se RPC falhar | Erro explícito (sem full scan) |
 | Produtos por request (mídia inventário) | ~6800 (2× FULL) | ~25 + RPCs |
+
+## Dívida técnica de performance
+
+| Item | Quando agir | Solução |
+|------|-------------|---------|
+| Busca textual sem índice (`/products?q=`) | Catálogo > 5.000 produtos ou TTFB > 500ms em produção | Adicionar `pg_trgm` em `products.name` e `products.club`; opcional: `products.category`. Migration isolada, sem alteração de código. |
+| Bypass de RPC em `category + q` | Mesmo gatilho acima | Adicionar parâmetro `p_search text DEFAULT NULL` na função `query_storefront_products_page` e remover o bypass no repositório. |
+
+**Como medir:** `EXPLAIN ANALYZE SELECT ... WHERE name ILIKE '%term%'` no Supabase SQL Editor. Se `Seq Scan` com custo alto, criar o índice:
+```sql
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE INDEX products_name_trgm ON products USING gin (name gin_trgm_ops);
+CREATE INDEX products_club_trgm ON products USING gin (club gin_trgm_ops);
+```
 
 ## Diagrama — Central de Mídia (pós Sprint A + A2)
 
