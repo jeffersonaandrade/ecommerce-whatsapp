@@ -5,14 +5,23 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { DeleteProductButton } from '@/components/admin/delete-product-button'
 import { BulkActionsBar } from '@/components/admin/bulk-actions-bar'
+import {
+  BulkMoveCategoryDialog,
+  type BulkMoveMode,
+} from '@/components/admin/bulk-move-category-dialog'
+import { BulkFilterMoveBanner } from '@/components/admin/bulk-filter-move-banner'
 import { formatPrice } from '@/lib/formatters'
 import type { Product } from '@/types/product'
 import type { Category } from '@/types/category'
+import type { ProductFilters } from '@/lib/query'
 
 type ProductsTableProps = {
   products: Product[]
   storePersonalizationEnabled?: boolean
   categories?: Category[]
+  filters?: ProductFilters
+  total?: number
+  catalogTotal?: number
 }
 
 function statusLabel(status: string): string {
@@ -31,8 +40,12 @@ export function ProductsTable({
   products,
   storePersonalizationEnabled = false,
   categories = [],
+  filters = {},
+  total = products.length,
+  catalogTotal = total,
 }: ProductsTableProps) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [moveDialog, setMoveDialog] = useState<BulkMoveMode | null>(null)
 
   const allSelected = products.length > 0 && products.every((p) => selectedIds.has(p.id))
 
@@ -53,6 +66,11 @@ export function ProductsTable({
     })
   }
 
+  function closeMoveDialog() {
+    setMoveDialog(null)
+    setSelectedIds(new Set())
+  }
+
   if (products.length === 0) {
     return (
       <div className="rounded-lg border border-hairline bg-canvas p-12 text-center text-mute">
@@ -61,8 +79,33 @@ export function ProductsTable({
     )
   }
 
+  const selectedCount = selectedIds.size
+  const moveAffectedCount = moveDialog === 'selection' ? selectedCount : total
+
   return (
     <>
+      <BulkFilterMoveBanner
+        selectedCount={selectedCount}
+        total={total}
+        catalogTotal={catalogTotal}
+        filters={filters}
+        onMoveAll={() => setMoveDialog('allMatching')}
+        disabled={categories.length === 0}
+      />
+
+      {moveDialog && categories.length > 0 && (
+        <BulkMoveCategoryDialog
+          mode={moveDialog}
+          selectedIds={[...selectedIds]}
+          filters={filters}
+          affectedCount={moveAffectedCount}
+          catalogTotal={catalogTotal}
+          categories={categories}
+          onClose={closeMoveDialog}
+          onSuccess={() => setSelectedIds(new Set())}
+        />
+      )}
+
       <div className="overflow-x-auto rounded-lg border border-hairline">
         <table className="w-full">
           <thead className="border-b border-hairline bg-soft-cloud">
@@ -174,11 +217,10 @@ export function ProductsTable({
         </table>
       </div>
 
-      {/* BulkActionsBar — nota: router.refresh() é implementação inicial.
-          Se performance se tornar gargalo, migrar para revalidação parcial. */}
       <BulkActionsBar
         selectedIds={[...selectedIds]}
         onClear={() => setSelectedIds(new Set())}
+        onMoveCategory={() => setMoveDialog('selection')}
         storePersonalizationEnabled={storePersonalizationEnabled}
         categories={categories}
       />

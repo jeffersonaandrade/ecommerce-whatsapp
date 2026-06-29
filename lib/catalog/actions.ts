@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/auth/require-admin'
 import { getDataProvider } from '@/lib/data/provider'
 import { getProductsPublicUrl } from '@/lib/supabase/env'
 import { ProductStatus } from '@/types/product'
+import type { ProductFilters } from '@/lib/query'
 import {
   buildProductImageFilename,
   writeProductImage,
@@ -228,6 +229,27 @@ export async function bulkSetProductCategoryIdAction(
     await getProductRepository().bulkSetCategoryId(ids, categoryId.trim())
     revalidateCatalog()
     return { ok: true, count: ids.length }
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : 'Erro ao atualizar.' }
+  }
+}
+
+export async function bulkSetProductCategoryIdByFiltersAction(
+  filters: ProductFilters,
+  categoryId: string
+): Promise<{ ok: true; count: number } | { ok: false; error: string }> {
+  await requireAdmin()
+  if (!categoryId.trim()) return { ok: false, error: 'Categoria inválida.' }
+  try {
+    const count = await getProductRepository().bulkSetCategoryIdByFilters(
+      filters,
+      categoryId.trim()
+    )
+    if (count === 0) {
+      return { ok: false, error: 'Nenhum produto corresponde ao filtro atual.' }
+    }
+    revalidateCatalog()
+    return { ok: true, count }
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : 'Erro ao atualizar.' }
   }

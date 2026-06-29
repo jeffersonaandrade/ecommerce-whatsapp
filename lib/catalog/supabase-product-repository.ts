@@ -8,6 +8,7 @@ import type {
   ProductQueryResult,
   ProductStatusCounts,
 } from '@/lib/query'
+import type { ProductFilters } from '@/lib/query'
 import type { StorefrontProductQuery } from '@/lib/query/storefront-query'
 import { CHUNK_SIZE, runInChunks } from './supabase-chunk'
 import {
@@ -25,6 +26,7 @@ import {
 import { getCategoryRepository } from './get-category-repository'
 import { getSubtreeIds } from './category-tree'
 import { resolveCategoryParam } from './category-utils'
+import { listProductIdsByQuery } from './product-list-by-filters'
 
 const PRODUCT_LIST_SELECT =
   'id, slug, name, short_description, price, promotional_price, category, club, images, status, import_batch_id, personalization_enabled, personalization_price, product_variations(id, sku, stock, size, color)'
@@ -537,6 +539,20 @@ export const supabaseProductRepository: ProductRepository = {
         .in('id', chunk)
       if (error) throw new Error(`bulkSetCategoryId failed: ${error.message}`)
     })
+  },
+
+  async listIdsByFilters(filters: ProductFilters): Promise<string[]> {
+    return listProductIdsByQuery((q) => supabaseProductRepository.query(q), filters)
+  },
+
+  async bulkSetCategoryIdByFilters(
+    filters: ProductFilters,
+    categoryId: string
+  ): Promise<number> {
+    const ids = await supabaseProductRepository.listIdsByFilters(filters)
+    if (!ids.length) return 0
+    await supabaseProductRepository.bulkSetCategoryId(ids, categoryId)
+    return ids.length
   },
 
   async bulkSetPersonalization(ids: string[], enabled: boolean): Promise<void> {

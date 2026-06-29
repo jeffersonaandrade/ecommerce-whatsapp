@@ -1,5 +1,5 @@
 import { Product, ProductStatus } from '@/types/product'
-import type { ProductQuery, ProductQueryResult, StorefrontProductQuery } from '@/lib/query'
+import type { ProductFilters, ProductQuery, ProductQueryResult, StorefrontProductQuery } from '@/lib/query'
 
 export type VariationInput = {
   id?: string
@@ -35,6 +35,8 @@ export interface ProductRepository {
   bulkSetStatus(ids: string[], status: ProductStatus): Promise<void>
   bulkSetCategory(ids: string[], category: string): Promise<void>
   bulkSetCategoryId(ids: string[], categoryId: string): Promise<void>
+  listIdsByFilters(filters: ProductFilters): Promise<string[]>
+  bulkSetCategoryIdByFilters(filters: ProductFilters, categoryId: string): Promise<number>
   bulkSetPersonalization(ids: string[], enabled: boolean): Promise<void>
   deleteMany(ids: string[]): Promise<void>
   setProductImages(id: string, images: string[]): Promise<Product>

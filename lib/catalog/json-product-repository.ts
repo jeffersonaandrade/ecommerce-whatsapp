@@ -7,6 +7,7 @@ import type {
   ProductQueryResult,
   ProductStatusCounts,
 } from '@/lib/query'
+import type { ProductFilters } from '@/lib/query'
 import type { StorefrontProductQuery } from '@/lib/query/storefront-query'
 import { classifyProductImagesInitial } from '@/lib/catalog/media/classify-url'
 import type { MediaFilter } from '@/lib/catalog/media/types'
@@ -16,6 +17,7 @@ import { getCategoryRepository } from './get-category-repository'
 import { productMatchesCategorySubtree, getSubtreeIds } from './category-tree'
 import { resolveCategoryParam } from './category-utils'
 import { loadCatalogFromDisk, persistCatalog } from './catalog-storage'
+import { listProductIdsByQuery } from './product-list-by-filters'
 import {
   assignVariationIds,
   deriveShortDescription,
@@ -247,6 +249,20 @@ export const jsonProductRepository: ProductRepository = {
           : p
       )
     )
+  },
+
+  async listIdsByFilters(filters: ProductFilters): Promise<string[]> {
+    return listProductIdsByQuery((q) => jsonProductRepository.query(q), filters)
+  },
+
+  async bulkSetCategoryIdByFilters(
+    filters: ProductFilters,
+    categoryId: string
+  ): Promise<number> {
+    const ids = await jsonProductRepository.listIdsByFilters(filters)
+    if (!ids.length) return 0
+    await jsonProductRepository.bulkSetCategoryId(ids, categoryId)
+    return ids.length
   },
 
   async bulkSetPersonalization(ids: string[], enabled: boolean): Promise<void> {

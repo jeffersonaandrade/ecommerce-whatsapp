@@ -143,7 +143,16 @@ export default async function AdminProductsPage({
               />
             </div>
           }
-          content={<ProductsTable products={result.products} storePersonalizationEnabled={storeSettings.personalizationEnabled} categories={categories} />}
+          content={
+            <ProductsTable
+              products={result.products}
+              storePersonalizationEnabled={storeSettings.personalizationEnabled}
+              categories={categories}
+              filters={filters}
+              total={result.total}
+              catalogTotal={result.counts.all}
+            />
+          }
           footer={
             <AdminPagination
               page={result.page}

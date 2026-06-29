@@ -9,11 +9,11 @@ import {
   bulkDeleteProductsAction,
 } from '@/lib/catalog/actions'
 import { BulkActivateDialog } from './bulk-activate-dialog'
-import { BulkMoveCategoryDialog } from './bulk-move-category-dialog'
 
 type BulkActionsBarProps = {
   selectedIds: string[]
   onClear: () => void
+  onMoveCategory: () => void
   storePersonalizationEnabled?: boolean
   categories?: Category[]
 }
@@ -21,13 +21,13 @@ type BulkActionsBarProps = {
 export function BulkActionsBar({
   selectedIds,
   onClear,
+  onMoveCategory,
   storePersonalizationEnabled = false,
   categories = [],
 }: BulkActionsBarProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [showActivateDialog, setShowActivateDialog] = useState(false)
-  const [showMoveCategoryDialog, setShowMoveCategoryDialog] = useState(false)
   const count = selectedIds.length
 
   if (count === 0) return null
@@ -57,17 +57,6 @@ export function BulkActionsBar({
         />
       )}
 
-      {showMoveCategoryDialog && categories.length > 0 && (
-        <BulkMoveCategoryDialog
-          selectedIds={selectedIds}
-          categories={categories}
-          onClose={() => {
-            setShowMoveCategoryDialog(false)
-            onClear()
-          }}
-        />
-      )}
-
       <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-hairline bg-canvas shadow-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <span className="text-sm font-medium text-ink">
@@ -87,7 +76,7 @@ export function BulkActionsBar({
             <button
               type="button"
               disabled={isPending || categories.length === 0}
-              onClick={() => setShowMoveCategoryDialog(true)}
+              onClick={onMoveCategory}
               className={getButtonClassName('outline', 'sm')}
             >
               Mover para categoria
