@@ -80,6 +80,8 @@ O MCP usa o proxy em `http://127.0.0.1:8787` quando ele estiver ativo.
 
 ## Diretrizes de Desenvolvimento (Karpathy Guidelines) — OBRIGATÓRIO
 
+Fonte canônica (Cursor): [`.cursor/rules/karpathy-guidelines.mdc`](.cursor/rules/karpathy-guidelines.mdc) · skill: [`.cursor/skills/karpathy-guidelines/SKILL.md`](.cursor/skills/karpathy-guidelines/SKILL.md) · upstream: [andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills)
+
 Estas regras se aplicam a **todo desenvolvimento** neste projeto. Não são opcionais.
 
 ### 1. Pense Antes de Codificar
