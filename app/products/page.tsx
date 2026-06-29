@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { ProductCard } from '@/components/product/product-card'
 import { getButtonClassName } from '@/components/ui/button'
 import { AdminPagination } from '@/components/admin/admin-pagination'
@@ -7,6 +8,7 @@ import { ProductsCategoryFilter } from '@/components/commerce/products-category-
 import { ProductsCategoryChips } from '@/components/commerce/products-category-chips'
 import { CategoryBreadcrumb } from '@/components/commerce/category-breadcrumb'
 import { CategoryTreeNav } from '@/components/commerce/category-tree-nav'
+import { ProductsSearchInput } from '@/components/commerce/products-search-input'
 import { queryStorefrontProducts } from '@/lib/products'
 import { getStorefrontCategories } from '@/lib/categories'
 import {
@@ -37,7 +39,7 @@ interface ProductsPageProps {
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const params = await searchParams
-  const { category } = params
+  const { category, q } = params
   const page = Math.max(1, parseInt(params.page ?? '1', 10) || 1)
   const pageSize = 24
   const allCategories = await getStorefrontCategories()
@@ -45,16 +47,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const navCategories = resolveStorefrontNavCategories(allCategories, category)
   const showVisualCategories = hasStorefrontCategoryImages(allCategories)
 
-  const result = category
-    ? await queryStorefrontProducts({
-        category,
-        pagination: { page, pageSize },
-        fields: 'list',
-      })
-    : await queryStorefrontProducts({
-        pagination: { page, pageSize },
-        fields: 'list',
-      })
+  const result = await queryStorefrontProducts({
+    category,
+    q,
+    pagination: { page, pageSize },
+    fields: 'list',
+  })
 
   const filteredProducts = result.products
   const heading = resolveCategoryHeading(category, allCategories)
@@ -82,6 +80,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             activeCategory={category}
             searchParams={params}
           />
+
+          <div className="mt-4 max-w-md">
+            <Suspense fallback={<div className="h-9 rounded-lg border border-hairline bg-soft-cloud" />}>
+              <ProductsSearchInput initialValue={q ?? ''} />
+            </Suspense>
+          </div>
 
           <CategoryTreeNav
             categories={allCategories}
@@ -131,10 +135,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         ) : (
           <div className="border border-hairline bg-soft-cloud px-6 py-16 text-center">
             <p className="text-lg font-semibold text-ink">
-              Nenhum produto nesta categoria
+              {q ? `Nenhum resultado para "${q}"` : 'Nenhum produto nesta categoria'}
             </p>
             <p className="mt-2 text-sm text-mute">
-              Explore outras categorias ou volte ao catálogo completo.
+              {q
+                ? 'Tente outros termos ou limpe a busca para ver todos os produtos.'
+                : 'Explore outras categorias ou volte ao catálogo completo.'}
             </p>
             <Link
               href={productsPageHref({ preserve: params })}

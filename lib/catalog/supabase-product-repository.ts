@@ -600,11 +600,13 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
-    const { category, pagination = {}, fields = 'list' } = q
+    const { category, q: search, pagination = {}, fields = 'list' } = q
     const page = Math.max(1, pagination.page ?? 1)
     const pageSize = pagination.pageSize ?? 24
 
-    if (category) {
+    // Use RPC only when filtering by category without text search.
+    // The RPC doesn't accept a search param; bypassing avoids a migration this sprint.
+    if (category && !search) {
       return queryStorefrontViaRpc(category, page, pageSize, fields)
     }
 
@@ -616,6 +618,25 @@ export const supabaseProductRepository: ProductRepository = {
       .from('products')
       .select(selectClause, { count: 'exact' })
       .eq('status', 'active')
+
+    if (category) {
+      const allCategories = await getCategoryRepository().getAll()
+      const match = resolveCategoryParam(category, allCategories)
+      if (match) {
+        const subtreeIds = [...getSubtreeIds(allCategories, match.id)]
+        const subtreeSlugs = allCategories
+          .filter((c) => subtreeIds.includes(c.id))
+          .map((c) => c.slug)
+        const idList = subtreeIds.join(',')
+        const slugList = subtreeSlugs.map((s) => `"${s}"`).join(',')
+        qb = qb.or(`category_id.in.(${idList}),category.in.(${slugList})`)
+      }
+    }
+
+    if (search) {
+      const term = search.replace(/[%_\\]/g, (c) => `\\${c}`)
+      qb = qb.or(`name.ilike.%${term}%,club.ilike.%${term}%,category.ilike.%${term}%`)
+    }
 
     const { data, error, count } = await qb
       .order('name', { ascending: true })

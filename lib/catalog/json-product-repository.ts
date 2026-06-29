@@ -295,7 +295,7 @@ export const jsonProductRepository: ProductRepository = {
 
   async queryStorefront(q: StorefrontProductQuery): Promise<ProductQueryResult> {
     const all = loadCatalogFromDisk().filter(isStorefrontProduct)
-    const { category, pagination = {} } = q
+    const { category, q: search, pagination = {} } = q
     const page = Math.max(1, pagination.page ?? 1)
     const pageSize = pagination.pageSize ?? 24
 
@@ -308,6 +308,15 @@ export const jsonProductRepository: ProductRepository = {
           category,
           categories
         )
+      )
+    }
+    if (search) {
+      const term = search.toLowerCase()
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(term) ||
+          (p.club ?? '').toLowerCase().includes(term) ||
+          p.category.toLowerCase().includes(term)
       )
     }
 
