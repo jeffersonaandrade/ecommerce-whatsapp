@@ -1,6 +1,6 @@
 # Modelo de Domínio — Sports Store
 
-Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`MODULE_ROADMAP.md`](MODULE_ROADMAP.md), [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
+Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`COMMERCIAL_ENGINE.md`](COMMERCIAL_ENGINE.md), [`MODULE_ROADMAP.md`](MODULE_ROADMAP.md), [`CSV_IMPORT_SPEC.md`](CSV_IMPORT_SPEC.md).
 
 ## ADRs fixas
 
@@ -149,7 +149,7 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 | `productId`, `variationId`, `quantity` | Referência à variação |
 | `addons?` | Ex.: `personalization: { name, number, notes? }` |
 
-**Regras:** persistido em `localStorage` v2; totais via `lib/pricing/computeTotals()`; não é pedido.
+**Regras:** persistido em `localStorage` v2; totais via Motor Comercial ([`COMMERCIAL_ENGINE.md`](COMMERCIAL_ENGINE.md)) — hoje facade [`lib/pricing/computeTotals()`](../lib/pricing/compute-totals.ts); não é pedido.
 
 **Implementação:** [`context/cart-context.tsx`](../context/cart-context.tsx), [`lib/cart-storage.ts`](../lib/cart-storage.ts).
 
@@ -165,7 +165,7 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 | `size`, `color`, `sku` | Variação |
 | `quantity`, `lineMerchandiseTotal` | Quantidade e subtotal da linha |
 | `addons?` | Personalização por item |
-| `merchandiseSubtotal`, `commercialDiscount`, `cartTotal` | Totais com desconto comercial |
+| `merchandiseSubtotal`, `commercialDiscount`, `cartTotal` | Totais com desconto comercial (evoluirá para `CommercialResult` + trace — ver [`COMMERCIAL_ENGINE.md`](COMMERCIAL_ENGINE.md)) |
 
 **Relacionamentos:** derivado de `Cart` → consumido por `WhatsappStrategy` (Fase 6).
 

@@ -5,6 +5,7 @@ Produto reutilizável de e-commerce: **um código**, **várias implantações** 
 Documentos relacionados:
 
 - [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md) — fluxo deploy N lojas
+- [`COMMERCIAL_ENGINE.md`](COMMERCIAL_ENGINE.md) — motor de regras comerciais (contrato)
 - [`CORE_VERSION.md`](CORE_VERSION.md) — semver e rollout
 - [`COMPATIBILITY.md`](COMPATIBILITY.md) — migrations e compatibilidade
 - [`MULTI_CLIENT_AUDIT.md`](MULTI_CLIENT_AUDIT.md) — acoplamentos mapeados
@@ -116,6 +117,7 @@ Ver [`deploy/branding/README.md`](../deploy/branding/README.md) e [`MULTI_CLIENT
 | **Media Center** | Imagens onboarding | Flag `ENABLE_MIGRATION_TOOLS` |
 | **Onboarding** | Tour + Centro de Implantação | Funcional |
 | **Order Completion** | WhatsApp V1 | Funcional |
+| **Commercial** | Motor de regras (policies, rules, trace) | Documentado — [`COMMERCIAL_ENGINE.md`](COMMERCIAL_ENGINE.md); Fase 1 pendente |
 | **Admin** | Gestão da loja | Funcional |
 | **Settings** | Config da loja | `store_settings` |
 | **Orders / Checkout** | V2+ | Placeholder |

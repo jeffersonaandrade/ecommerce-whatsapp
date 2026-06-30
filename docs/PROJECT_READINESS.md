@@ -2,7 +2,7 @@
 
 Referência de maturidade do produto **ecommerce-sports**. Atualizar após cada sprint relevante.
 
-Documentação relacionada: [PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md), [ARCHITECTURE.md](./ARCHITECTURE.md), [MULTI_CLIENT_DEPLOYMENT.md](./MULTI_CLIENT_DEPLOYMENT.md), [DATABASE_PLAN.md](./DATABASE_PLAN.md), [HANDOFF.md](./HANDOFF.md).
+Documentos relacionados: [PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md), [ARCHITECTURE.md](./ARCHITECTURE.md), [COMMERCIAL_ENGINE.md](./COMMERCIAL_ENGINE.md), [MULTI_CLIENT_DEPLOYMENT.md](./MULTI_CLIENT_DEPLOYMENT.md), [DATABASE_PLAN.md](./DATABASE_PLAN.md), [HANDOFF.md](./HANDOFF.md).
 
 ## Matriz de módulos
 
@@ -17,7 +17,7 @@ Documentação relacionada: [PERFORMANCE_AUDIT.md](./PERFORMANCE_AUDIT.md), [ARC
 | Performance | 🟡 | Consultas globais reduzidas; TTFB produção pendente |
 | Carrinho | 🟡 | Addons personalização; pricing pipeline; promoções por prioridade |
 | Checkout | 🟡 | WhatsApp com desconto comercial + personalização |
-| Comercial | 🟡 | Promoções qty + personalização; cupons/frete futuro |
+| Comercial | 🟡 | Promoções qty + personalização; **Motor Comercial v2 documentado** — ver [COMMERCIAL_ENGINE.md](./COMMERCIAL_ENGINE.md); implementação Fase 1 pendente |
 | Pedidos | 🔴 | V2 |
 | Analytics | 🔴 | Não implementado |
 
