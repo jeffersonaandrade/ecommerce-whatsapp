@@ -2,6 +2,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { AdminPageHeader } from '@/components/admin/admin-page-header'
 import { DemoAdminToolbar } from '@/components/admin/demo-admin-toolbar'
+import { ReferralPromptCard } from '@/components/admin/referral-prompt-card'
 import { DeploymentCenterCard } from '@/components/admin/onboarding/deployment-center-card'
 import { OnboardingMenuActions } from '@/components/admin/onboarding/onboarding-menu-actions'
 import { getButtonClassName } from '@/components/ui/button'
@@ -99,6 +100,8 @@ export default async function AdminPage() {
         </div>
 
         <DeploymentCenterCard />
+
+        <ReferralPromptCard />
 
         <section className="mb-10" data-onboarding="nav-produtos">
           <h2 className="text-sm font-semibold text-mute uppercase tracking-wide mb-4">
