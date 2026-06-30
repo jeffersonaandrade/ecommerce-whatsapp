@@ -18,18 +18,13 @@ import {
 } from '@/lib/commercial/commercial-coupon-actions'
 import { COMMERCIAL_RULE_STATUS_LABELS } from '@/lib/commercial/commercial-rule-labels'
 import { normalizeCouponCode } from '@/lib/commercial/commercial-rule-mapper'
+import { CategoryMultiPicker } from '@/components/admin/commercial/category-multi-picker'
+import { ProductMultiPicker } from '@/components/admin/commercial/product-multi-picker'
 
 type CouponFormProps = {
   mode: 'create' | 'edit'
   rule?: CommercialRule
   categories: Category[]
-}
-
-function parseProductIds(value: string): string[] {
-  return value
-    .split(/[,\n]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
 }
 
 export function CouponForm({ mode, rule, categories }: CouponFormProps) {
@@ -55,8 +50,8 @@ export function CouponForm({ mode, rule, categories }: CouponFormProps) {
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(
     rule?.conditions.categoryIds ?? []
   )
-  const [productIdsText, setProductIdsText] = useState(
-    (rule?.conditions.productIds ?? []).join(', ')
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>(
+    rule?.conditions.productIds ?? []
   )
   const [usageLimit, setUsageLimit] = useState<number | null>(rule?.usageLimit ?? null)
   const [startsAt, setStartsAt] = useState(
@@ -65,12 +60,11 @@ export function CouponForm({ mode, rule, categories }: CouponFormProps) {
   const [endsAt, setEndsAt] = useState(rule?.endsAt ? rule.endsAt.slice(0, 16) : '')
 
   function buildConditions(): CommercialRuleConditions {
-    const productIds = parseProductIds(productIdsText)
     return {
       minSubtotal: minSubtotal != null && minSubtotal > 0 ? minSubtotal : undefined,
       minQty: minQty > 0 ? minQty : undefined,
       categoryIds: selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined,
-      productIds: productIds.length > 0 ? productIds : undefined,
+      productIds: selectedProductIds.length > 0 ? selectedProductIds : undefined,
     }
   }
 
@@ -81,12 +75,6 @@ export function CouponForm({ mode, rule, categories }: CouponFormProps) {
         value: discountValue ?? 0,
       },
     ]
-  }
-
-  function toggleCategory(id: string) {
-    setSelectedCategoryIds((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    )
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -229,34 +217,16 @@ export function CouponForm({ mode, rule, categories }: CouponFormProps) {
         </label>
       </div>
 
-      <fieldset className="space-y-2 rounded-lg border border-hairline p-4">
-        <legend className="px-1 text-sm font-medium text-ink">Categorias elegíveis</legend>
-        <p className="text-xs text-mute">Vazio = todas as categorias.</p>
-        <div className="max-h-40 space-y-1 overflow-y-auto">
-          {categories.map((cat) => (
-            <label key={cat.id} className="flex items-center gap-2 text-sm text-ink">
-              <input
-                type="checkbox"
-                checked={selectedCategoryIds.includes(cat.id)}
-                onChange={() => toggleCategory(cat.id)}
-              />
-              {cat.name}
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      <CategoryMultiPicker
+        categories={categories}
+        value={selectedCategoryIds}
+        onChange={setSelectedCategoryIds}
+      />
 
-      <label className="block space-y-1">
-        <span className="text-sm font-medium text-ink">Produtos elegíveis (IDs)</span>
-        <textarea
-          value={productIdsText}
-          onChange={(e) => setProductIdsText(e.target.value)}
-          rows={2}
-          className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
-          placeholder="uuid-produto-1, uuid-produto-2"
-        />
-        <p className="text-xs text-mute">Separados por vírgula. Vazio = todos os produtos.</p>
-      </label>
+      <ProductMultiPicker
+        value={selectedProductIds}
+        onChange={setSelectedProductIds}
+      />
 
       <label className="block space-y-1">
         <span className="text-sm font-medium text-ink">Limite total de uso</span>
