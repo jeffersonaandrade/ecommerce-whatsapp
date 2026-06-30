@@ -3,6 +3,7 @@ import { resolveCommercialPricing } from '@/lib/commercial/engine/resolve-commer
 import { COMMERCIAL_ENGINE_VERSION } from '@/lib/commercial/engine/types'
 import { computeTotals } from '@/lib/pricing/compute-totals'
 import { CommercialRule } from '@/types/commercial-rule'
+import { CommercialPolicy } from '@/types/commercial-policy'
 import { CartItem, Product } from '@/types/product'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 
@@ -189,6 +190,45 @@ describe('resolveCommercialPricing', () => {
     for (let i = 1; i < sequences.length; i++) {
       expect(sequences[i]).toBeGreaterThan(sequences[i - 1]!)
     }
+  })
+
+  it('aplica política retail e promo qty com trace de policy + rule', () => {
+    const productWithStock: Product = {
+      ...baseProduct,
+      variations: [{ id: 'v1', sku: 'SKU', stock: 20, size: 'M' }],
+    }
+    const items: CartItem[] = [{ productId: '1', variationId: 'v1', quantity: 12 }]
+    const policy: CommercialPolicy = {
+      id: 'pol-retail',
+      name: 'Varejo 10+',
+      channel: 'retail',
+      priority: 10,
+      enabled: true,
+      isDefault: false,
+      conditions: { minQty: 10 },
+      actions: [{ type: 'discount_percent', value: 10 }],
+      createdAt: '',
+      updatedAt: '',
+    }
+
+    const result = resolveCommercialPricing({
+      items,
+      getProductById: () => productWithStock,
+      personalizationSettings: settings,
+      commercialPolicies: [policy],
+      salesChannels: { retail: true, wholesale: false, distributor: false },
+      salesChannel: 'retail',
+      commercialRules: [makeRule(10, 3, 50)],
+    })
+
+    expect(result.subtotals.merchandiseBase).toBe(1200)
+    expect(result.subtotals.policyDiscount).toBe(120)
+    expect(result.subtotals.ruleDiscount).toBe(200)
+    expect(result.total).toBe(1200 - 120 - 200)
+
+    expect(result.trace.some((e) => e.stage === 'policy')).toBe(true)
+    expect(result.trace.some((e) => e.stage === 'rule')).toBe(true)
+    expect(result.applied.policyIds).toContain('pol-retail')
   })
 })
 

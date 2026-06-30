@@ -17,6 +17,11 @@ import { getProductById } from '@/lib/products-client'
 import { CartAddons } from '@/types/cart-addons'
 import { CartPricing } from '@/types/cart-pricing'
 import { CommercialRule } from '@/types/commercial-rule'
+import {
+  CommercialPolicy,
+  CommercialProductPolicyOverride,
+  CommercialSalesChannels,
+} from '@/types/commercial-policy'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 import { CartItem, Product } from '@/types/product'
 import {
@@ -27,6 +32,9 @@ import {
 export type CartPricingConfig = {
   personalizationSettings: PersonalizationSettings
   commercialRules: CommercialRule[]
+  commercialPolicies?: CommercialPolicy[]
+  policyOverrides?: CommercialProductPolicyOverride[]
+  salesChannels?: CommercialSalesChannels
 }
 
 type CartContextValue = {
@@ -83,6 +91,9 @@ function buildPricing(
     getProductById,
     personalizationSettings: config.personalizationSettings,
     commercialRules: config.commercialRules,
+    commercialPolicies: config.commercialPolicies,
+    policyOverrides: config.policyOverrides,
+    salesChannels: config.salesChannels,
   })
 }
 
@@ -121,13 +132,26 @@ export function CartProvider({
   const [commercialRules, setCommercialRules] = useState<CommercialRule[]>(
     pricingConfig?.commercialRules ?? []
   )
+  const [commercialPolicies, setCommercialPolicies] = useState<CommercialPolicy[]>(
+    pricingConfig?.commercialPolicies ?? []
+  )
+  const [policyOverrides] = useState<CommercialProductPolicyOverride[]>(
+    pricingConfig?.policyOverrides ?? []
+  )
+  const salesChannels = pricingConfig?.salesChannels
 
   const personalizationSettings =
     pricingConfig?.personalizationSettings ?? defaultPersonalizationSettings
 
   const config: CartPricingConfig = useMemo(
-    () => ({ personalizationSettings, commercialRules }),
-    [personalizationSettings, commercialRules]
+    () => ({
+      personalizationSettings,
+      commercialRules,
+      commercialPolicies,
+      policyOverrides,
+      salesChannels,
+    }),
+    [personalizationSettings, commercialRules, commercialPolicies, policyOverrides, salesChannels]
   )
 
   useEffect(() => {
@@ -137,6 +161,14 @@ export function CartProvider({
       .then((rules: CommercialRule[]) => setCommercialRules(rules))
       .catch(() => {})
   }, [pricingConfig?.commercialRules])
+
+  useEffect(() => {
+    if (pricingConfig?.commercialPolicies) return
+    fetch('/api/commercial-policies/active')
+      .then((res) => (res.ok ? res.json() : []))
+      .then((policies: CommercialPolicy[]) => setCommercialPolicies(policies))
+      .catch(() => {})
+  }, [pricingConfig?.commercialPolicies])
 
   useEffect(() => {
     let cancelled = false

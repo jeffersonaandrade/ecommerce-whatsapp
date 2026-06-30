@@ -1,5 +1,7 @@
 import type { AppliedCommercialRule, PricedCartLine } from '@/types/cart-pricing'
+import type { CommercialPolicy, CommercialProductPolicyOverride } from '@/types/commercial-policy'
 import type { CommercialRule } from '@/types/commercial-rule'
+import type { CommercialSalesChannels } from '@/types/commercial-policy'
 import type { PersonalizationSettings } from '@/types/personalization-settings'
 import type { CartItem, Product } from '@/types/product'
 
@@ -41,6 +43,9 @@ export type CommercialEngineInput = {
   getProductById: (id: string) => Product | undefined
   personalizationSettings: PersonalizationSettings
   commercialRules: CommercialRule[]
+  commercialPolicies?: CommercialPolicy[]
+  policyOverrides?: CommercialProductPolicyOverride[]
+  salesChannels?: CommercialSalesChannels
   salesChannel?: SalesChannel
   couponCode?: string
 }

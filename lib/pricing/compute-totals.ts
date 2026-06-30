@@ -1,6 +1,11 @@
 import { resolveCommercialPricing } from '@/lib/commercial/engine/resolve-commercial-pricing'
 import { CartItem } from '@/types/product'
 import { CommercialRule } from '@/types/commercial-rule'
+import {
+  CommercialPolicy,
+  CommercialProductPolicyOverride,
+  CommercialSalesChannels,
+} from '@/types/commercial-policy'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 import { Product } from '@/types/product'
 import { CartPricing } from '@/types/cart-pricing'
@@ -9,6 +14,9 @@ export type ComputeTotalsContext = {
   getProductById: (id: string) => Product | undefined
   personalizationSettings: PersonalizationSettings
   commercialRules: CommercialRule[]
+  commercialPolicies?: CommercialPolicy[]
+  policyOverrides?: CommercialProductPolicyOverride[]
+  salesChannels?: CommercialSalesChannels
 }
 
 export function computeTotals(
@@ -20,6 +28,9 @@ export function computeTotals(
     getProductById: context.getProductById,
     personalizationSettings: context.personalizationSettings,
     commercialRules: context.commercialRules,
+    commercialPolicies: context.commercialPolicies,
+    policyOverrides: context.policyOverrides,
+    salesChannels: context.salesChannels,
     salesChannel: 'retail',
   })
 

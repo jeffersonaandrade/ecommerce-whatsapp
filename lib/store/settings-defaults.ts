@@ -51,6 +51,8 @@ export function createDefaultStoreSettings(): StoreSettings {
     personalizationNumberMax: 99,
     personalizationNotesRequired: false,
     personalizationNotesMaxLength: 200,
+    commercialSalesChannels: { retail: true, wholesale: false, distributor: false },
+    commercialDefaultPolicyId: null,
     updatedAt: new Date(0).toISOString(),
   }
 }

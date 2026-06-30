@@ -53,6 +53,11 @@ export default function AdminComercialPage() {
           description="Desconto fixo por quantidade de produtos no carrinho."
         />
         <HubCard
+          href="/admin/comercial/politicas"
+          title="Políticas comerciais"
+          description="Descontos por canal (varejo, atacado) e quantidade mínima."
+        />
+        <HubCard
           href="/admin/comercial/personalizacao"
           title="Personalização"
           description="Preço padrão e limites para nome, número e observação."

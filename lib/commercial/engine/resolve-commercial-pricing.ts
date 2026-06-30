@@ -10,10 +10,18 @@ import {
   type CommercialResult,
 } from './types'
 
+const DEFAULT_SALES_CHANNELS = {
+  retail: true,
+  wholesale: false,
+  distributor: false,
+} as const
+
 export function resolveCommercialPricing(
   input: CommercialEngineInput
 ): CommercialResult {
   const traceBuilder = createTraceBuilder()
+  const salesChannel = input.salesChannel ?? 'retail'
+  const salesChannels = input.salesChannels ?? DEFAULT_SALES_CHANNELS
 
   if (input.items.length === 0) {
     return {
@@ -39,20 +47,31 @@ export function resolveCommercialPricing(
   }
 
   const base = resolveBasePrices(input, traceBuilder)
-  const policies = applyCommercialPolicies()
+  const policies = applyCommercialPolicies(
+    base,
+    {
+      salesChannel,
+      salesChannels,
+      policies: input.commercialPolicies ?? [],
+      overrides: input.policyOverrides ?? [],
+    },
+    traceBuilder
+  )
   buildAdjustmentTrace(base.adjustments, traceBuilder)
+
+  const subtotalAfterPolicy = Math.max(
+    0,
+    base.merchandiseSubtotal - policies.policyDiscount
+  )
 
   const autoRules = applyAutoRules(
     input.commercialRules,
     base.lines,
-    base.merchandiseSubtotal,
+    subtotalAfterPolicy,
     traceBuilder
   )
 
-  const subtotalAfterAuto = Math.max(
-    0,
-    base.merchandiseSubtotal - autoRules.ruleDiscount
-  )
+  const subtotalAfterAuto = Math.max(0, subtotalAfterPolicy - autoRules.ruleDiscount)
 
   const manualRules = applyManualRules(
     input.commercialRules,

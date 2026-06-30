@@ -1,4 +1,8 @@
+import type { CommercialSalesChannels } from '@/types/commercial-policy'
+
 export type HeaderBrandDisplay = 'both' | 'logo_only' | 'name_only'
+
+export type { CommercialSalesChannels }
 
 export type StoreSettings = {
   storeName: string
@@ -36,6 +40,8 @@ export type StoreSettings = {
   personalizationNumberMax: number
   personalizationNotesRequired: boolean
   personalizationNotesMaxLength: number
+  commercialSalesChannels: CommercialSalesChannels
+  commercialDefaultPolicyId: string | null
   updatedAt: string
 }
 

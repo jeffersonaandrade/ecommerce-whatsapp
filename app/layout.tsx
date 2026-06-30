@@ -6,6 +6,7 @@ import { CartProvider } from '@/context/cart-context'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildRootMetadata } from '@/lib/store/build-metadata'
 import { getStorefrontCommercialRules } from '@/lib/commercial/commercial-rules'
+import { getStorefrontCommercialPolicies } from '@/lib/commercial/commercial-policies'
 import { storeSettingsToPersonalization } from '@/lib/personalization/personalization-settings'
 import './globals.css'
 
@@ -39,9 +40,12 @@ export default async function RootLayout({
 }) {
   const settings = await getStoreSettings()
   const commercialRules = await getStorefrontCommercialRules()
+  const commercialPolicies = await getStorefrontCommercialPolicies('retail')
   const pricingConfig = {
     personalizationSettings: storeSettingsToPersonalization(settings),
     commercialRules,
+    commercialPolicies,
+    salesChannels: settings.commercialSalesChannels,
   }
 
   return (
