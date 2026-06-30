@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { CartLineItem } from './cart-line-item'
 import type { PricedCartLine } from '@/types/cart-pricing'
+import { mockPricedCartLine } from '@/lib/pricing/mock-priced-cart-line'
 import { Product } from '@/types/product'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 
@@ -52,20 +53,18 @@ const product: Product = {
   personalizationEnabled: true,
 }
 
-const baseLine: PricedCartLine = {
+const baseLine: PricedCartLine = mockPricedCartLine({
   productId: 'p1',
   variationId: 'v1',
   quantity: 1,
+  unitPrice: 159.9,
   name: 'Camisa X',
   slug: 'camisa-x',
   sku: 'SKU',
   image: 'https://example.com/img.jpg',
   size: 'P',
-  unitPrice: 159.9,
-  addonsUnitTotal: 0,
-  lineMerchandiseTotal: 159.9,
   maxStock: 5,
-}
+})
 
 describe('CartLineItem — atalho de personalização', () => {
   beforeEach(() => {

@@ -1,6 +1,7 @@
 import type {
   CommercialPolicy,
   CommercialProductPolicyOverride,
+  EligibilityStrategy,
   PolicyAction,
 } from '@/types/commercial-policy'
 import type { PricedLine } from './types'
@@ -16,10 +17,16 @@ export type PolicyEvaluationResult = {
   policyDiscount: number
   policyIds: string[]
   appliedPolicy?: CommercialPolicy
+  merchandiseDiscountBase: number
+  lines: PricedLine[]
 }
 
 function totalQuantity(lines: PricedLine[]): number {
   return lines.reduce((sum, line) => sum + line.quantity, 0)
+}
+
+function eligibilityStrategy(policy: CommercialPolicy): EligibilityStrategy {
+  return policy.conditions.eligibilityStrategy ?? 'cart_total'
 }
 
 function isProductExcluded(
@@ -35,6 +42,34 @@ function isProductExcluded(
   )
 }
 
+function isLineEligibleByQty(
+  line: PricedLine,
+  policy: CommercialPolicy,
+  lines: PricedLine[]
+): boolean {
+  const minQty = policy.conditions.minQty
+  if (minQty == null || minQty <= 0) return true
+
+  const strategy = eligibilityStrategy(policy)
+  if (strategy === 'per_product') {
+    return line.quantity >= minQty
+  }
+
+  return totalQuantity(lines) >= minQty
+}
+
+function isPolicyQtyEligible(policy: CommercialPolicy, lines: PricedLine[]): boolean {
+  const minQty = policy.conditions.minQty
+  if (minQty == null || minQty <= 0) return true
+
+  const strategy = eligibilityStrategy(policy)
+  if (strategy === 'per_product') {
+    return lines.some((line) => line.quantity >= minQty)
+  }
+
+  return totalQuantity(lines) >= minQty
+}
+
 function eligibleBaseForPolicy(
   lines: PricedLine[],
   policy: CommercialPolicy,
@@ -42,7 +77,8 @@ function eligibleBaseForPolicy(
 ): number {
   return lines.reduce((sum, line) => {
     if (isProductExcluded(line.productId, policy.id, overrides)) return sum
-    return sum + line.unitPrice * line.quantity
+    if (!isLineEligibleByQty(line, policy, lines)) return sum
+    return sum + line.lineProductSubtotal
   }, 0)
 }
 
@@ -64,6 +100,45 @@ function computeDiscountFromActions(
   return Math.min(discount, eligibleBase)
 }
 
+function allocatePolicyDiscountToLines(
+  lines: PricedLine[],
+  policy: CommercialPolicy,
+  overrides: CommercialProductPolicyOverride[],
+  policyDiscount: number,
+  eligibleBase: number
+): PricedLine[] {
+  if (policyDiscount <= 0 || eligibleBase <= 0) {
+    return lines.map((line) => ({
+      ...line,
+      lineDiscountEligibleBase: isProductExcluded(line.productId, policy.id, overrides)
+        ? 0
+        : isLineEligibleByQty(line, policy, lines)
+          ? line.lineProductSubtotal
+          : 0,
+      lineDiscountTotal: 0,
+      lineDisplayTotal: line.lineMerchandiseTotal,
+    }))
+  }
+
+  return lines.map((line) => {
+    const excluded = isProductExcluded(line.productId, policy.id, overrides)
+    const qtyEligible = isLineEligibleByQty(line, policy, lines)
+    const lineEligibleBase =
+      excluded || !qtyEligible ? 0 : line.lineProductSubtotal
+    const lineDiscountTotal =
+      lineEligibleBase > 0
+        ? Math.round((policyDiscount * lineEligibleBase) / eligibleBase * 100) / 100
+        : 0
+
+    return {
+      ...line,
+      lineDiscountEligibleBase: lineEligibleBase,
+      lineDiscountTotal,
+      lineDisplayTotal: line.lineMerchandiseTotal - lineDiscountTotal,
+    }
+  })
+}
+
 function isPolicyEligible(
   policy: CommercialPolicy,
   lines: PricedLine[],
@@ -71,11 +146,7 @@ function isPolicyEligible(
 ): boolean {
   if (!ctx.channelEnabled) return false
   if (policy.channel !== ctx.salesChannel) return false
-
-  const minQty = policy.conditions.minQty
-  if (minQty != null && minQty > 0 && totalQuantity(lines) < minQty) {
-    return false
-  }
+  if (!isPolicyQtyEligible(policy, lines)) return false
 
   const eligibleBase = eligibleBaseForPolicy(lines, policy, ctx.overrides)
   if (eligibleBase <= 0) return false
@@ -88,8 +159,18 @@ export function evaluateCommercialPolicies(
   lines: PricedLine[],
   ctx: PolicyEvaluationContext
 ): PolicyEvaluationResult {
+  const merchandiseDiscountBase = lines.reduce(
+    (sum, line) => sum + line.lineProductSubtotal,
+    0
+  )
+
   if (lines.length === 0 || ctx.policies.length === 0) {
-    return { policyDiscount: 0, policyIds: [] }
+    return {
+      policyDiscount: 0,
+      policyIds: [],
+      merchandiseDiscountBase,
+      lines,
+    }
   }
 
   for (const policy of [...ctx.policies].sort(
@@ -102,12 +183,27 @@ export function evaluateCommercialPolicies(
 
     if (policyDiscount <= 0) continue
 
+    const updatedLines = allocatePolicyDiscountToLines(
+      lines,
+      policy,
+      ctx.overrides,
+      policyDiscount,
+      eligibleBase
+    )
+
     return {
       policyDiscount,
       policyIds: [policy.id],
       appliedPolicy: policy,
+      merchandiseDiscountBase: eligibleBase,
+      lines: updatedLines,
     }
   }
 
-  return { policyDiscount: 0, policyIds: [] }
+  return {
+    policyDiscount: 0,
+    policyIds: [],
+    merchandiseDiscountBase,
+    lines,
+  }
 }

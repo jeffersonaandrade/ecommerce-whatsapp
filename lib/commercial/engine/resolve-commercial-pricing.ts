@@ -1,20 +1,24 @@
 import { applyCommercialPolicies } from './stages/apply-commercial-policies'
+import { appendSkippedStageTrace } from './stages/apply-accumulation-gate'
 import { applyAutoRules, applyManualRules } from './stages/apply-rules'
 import { buildAdjustmentTrace } from './stages/build-adjustment-trace'
 import { calculateFreight } from './stages/calculate-freight'
 import { resolveBasePrices } from './stages/resolve-base-prices'
+import { resolveAccumulationGates } from './resolve-accumulation'
 import { createTraceBuilder } from './trace-builder'
 import {
   COMMERCIAL_ENGINE_VERSION,
   type CommercialEngineInput,
   type CommercialResult,
+  type RulesStageResult,
 } from './types'
+import type { CommercialSalesChannels } from '@/types/commercial-policy'
 
-const DEFAULT_SALES_CHANNELS = {
+const DEFAULT_SALES_CHANNELS: CommercialSalesChannels = {
   retail: true,
   wholesale: false,
   distributor: false,
-} as const
+}
 
 export function resolveCommercialPricing(
   input: CommercialEngineInput
@@ -29,6 +33,9 @@ export function resolveCommercialPricing(
       lines: [],
       subtotals: {
         merchandiseBase: 0,
+        merchandiseDiscountBase: 0,
+        displaySubtotal: 0,
+        runningTotal: 0,
         policyDiscount: 0,
         ruleDiscount: 0,
         freight: null,
@@ -57,43 +64,99 @@ export function resolveCommercialPricing(
     },
     traceBuilder
   )
-  buildAdjustmentTrace(base.adjustments, traceBuilder)
 
-  const subtotalAfterPolicy = Math.max(
-    0,
-    base.merchandiseSubtotal - policies.policyDiscount
+  const accumulation = resolveAccumulationGates(
+    salesChannel,
+    salesChannels,
+    policies.appliedPolicy
   )
 
-  const autoRules = applyAutoRules(
-    input.commercialRules,
-    base.lines,
-    subtotalAfterPolicy,
-    traceBuilder
-  )
+  if (accumulation.stageGates.allowAdjustments) {
+    buildAdjustmentTrace(base.adjustments, traceBuilder)
+  } else if (base.adjustments > 0) {
+    appendSkippedStageTrace(
+      traceBuilder,
+      'adjustment',
+      'Personalização',
+      'Canal ou política bloqueia acumulação de ajustes',
+      { source: accumulation.source, policyId: accumulation.policyId }
+    )
+  }
+
+  let runningTotal = base.displaySubtotal - policies.policyDiscount
+
+  const subtotalAfterPolicy = Math.max(0, runningTotal)
+
+  let autoRules: RulesStageResult = { ruleDiscount: 0, ruleIds: [] }
+  if (accumulation.stageGates.allowAutoRules) {
+    autoRules = applyAutoRules(
+      input.commercialRules,
+      policies.lines,
+      subtotalAfterPolicy,
+      traceBuilder
+    )
+    runningTotal = Math.max(0, runningTotal - autoRules.ruleDiscount)
+  } else if (input.commercialRules.length > 0) {
+    appendSkippedStageTrace(
+      traceBuilder,
+      'rule',
+      'Promoções automáticas',
+      'Canal ou política bloqueia acumulação de promoções',
+      {
+        source: accumulation.source,
+        policyId: accumulation.policyId,
+        salesChannel,
+      }
+    )
+  }
 
   const subtotalAfterAuto = Math.max(0, subtotalAfterPolicy - autoRules.ruleDiscount)
 
-  const manualRules = applyManualRules(
-    input.commercialRules,
-    base.lines,
-    subtotalAfterAuto,
-    traceBuilder,
-    input.couponCode
-  )
+  let manualRules: RulesStageResult = { ruleDiscount: 0, ruleIds: [] }
+  if (accumulation.stageGates.allowManualRules) {
+    manualRules = applyManualRules(
+      input.commercialRules,
+      policies.lines,
+      subtotalAfterAuto,
+      traceBuilder,
+      input.couponCode
+    )
+    runningTotal = Math.max(0, runningTotal - manualRules.ruleDiscount)
+  } else if (input.couponCode) {
+    appendSkippedStageTrace(
+      traceBuilder,
+      'rule',
+      'Cupom',
+      'Canal ou política bloqueia acumulação de cupons',
+      {
+        source: accumulation.source,
+        policyId: accumulation.policyId,
+        couponCode: input.couponCode,
+      }
+    )
+  }
 
   const ruleDiscount = autoRules.ruleDiscount + manualRules.ruleDiscount
   const ruleIds = [...autoRules.ruleIds, ...manualRules.ruleIds]
   const totalDiscount = policies.policyDiscount + ruleDiscount
 
-  const freight = calculateFreight(traceBuilder, base.lines.length > 0)
+  const freight = calculateFreight(
+    traceBuilder,
+    policies.lines.length > 0,
+    accumulation.stageGates.allowFreight,
+    accumulation
+  )
 
   const total = Math.max(0, base.merchandiseSubtotal - totalDiscount)
 
   return {
     engineVersion: COMMERCIAL_ENGINE_VERSION,
-    lines: base.lines,
+    lines: policies.lines,
     subtotals: {
       merchandiseBase: base.merchandiseBase,
+      merchandiseDiscountBase: policies.merchandiseDiscountBase,
+      displaySubtotal: base.displaySubtotal,
+      runningTotal,
       policyDiscount: policies.policyDiscount,
       ruleDiscount,
       freight: freight.freight,

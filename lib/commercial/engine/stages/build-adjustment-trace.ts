@@ -10,5 +10,6 @@ export function buildAdjustmentTrace(
     stage: 'adjustment',
     label: 'Personalização',
     amount: adjustments,
+    status: 'applied',
   })
 }

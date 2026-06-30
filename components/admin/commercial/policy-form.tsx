@@ -5,8 +5,11 @@ import { useRouter } from 'next/navigation'
 import {
   CommercialPolicy,
   CommercialPolicyInput,
+  EligibilityStrategy,
   PolicyAction,
+  PolicyAccumulation,
   PolicySalesChannel,
+  PolicyStageGates,
 } from '@/types/commercial-policy'
 import { Button } from '@/components/ui/button'
 import { Alert } from '@/components/ui/alert'
@@ -15,7 +18,12 @@ import {
   createCommercialPolicyAction,
   updateCommercialPolicyAction,
 } from '@/lib/commercial/commercial-policy-actions'
-import { POLICY_CHANNEL_LABELS } from '@/lib/commercial/commercial-policy-labels'
+import {
+  ELIGIBILITY_STRATEGY_LABELS,
+  POLICY_CHANNEL_LABELS,
+  STAGE_GATE_LABELS,
+} from '@/lib/commercial/commercial-policy-labels'
+import { defaultStageGatesForChannel } from '@/lib/commercial/engine/sales-channel-defaults'
 
 type PolicyFormProps = {
   mode: 'create' | 'edit'
@@ -33,6 +41,16 @@ function getPrimaryDiscountAction(actions: PolicyAction[]): {
   return { type: 'discount_percent', value: 10 }
 }
 
+type GateKey = keyof PolicyStageGates
+
+const GATE_KEYS: GateKey[] = [
+  'allowAutoRules',
+  'allowManualRules',
+  'allowOtherPolicies',
+  'allowAdjustments',
+  'allowFreight',
+]
+
 export function PolicyForm({ mode, policy }: PolicyFormProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -47,6 +65,9 @@ export function PolicyForm({ mode, policy }: PolicyFormProps) {
   const [enabled, setEnabled] = useState(policy?.enabled ?? true)
   const [isDefault, setIsDefault] = useState(policy?.isDefault ?? false)
   const [minQty, setMinQty] = useState(policy?.conditions.minQty ?? 10)
+  const [eligibilityStrategy, setEligibilityStrategy] = useState<EligibilityStrategy>(
+    policy?.conditions.eligibilityStrategy ?? 'cart_total'
+  )
   const [discountType, setDiscountType] = useState<'discount_percent' | 'discount_fixed'>(
     initialDiscount.type
   )
@@ -56,6 +77,26 @@ export function PolicyForm({ mode, policy }: PolicyFormProps) {
   )
   const [endsAt, setEndsAt] = useState(policy?.endsAt ? policy.endsAt.slice(0, 16) : '')
 
+  const channelDefaults = defaultStageGatesForChannel(channel)
+  const [accumulation, setAccumulation] = useState<PolicyAccumulation>(() => {
+    if (policy?.accumulation && Object.keys(policy.accumulation).length > 0) {
+      return policy.accumulation
+    }
+    return {}
+  })
+  const [useCustomAccumulation, setUseCustomAccumulation] = useState(
+    Boolean(policy?.accumulation && Object.keys(policy.accumulation).length > 0)
+  )
+
+  function gateValue(key: GateKey): boolean {
+    if (!useCustomAccumulation) return channelDefaults[key]
+    return accumulation[key] ?? channelDefaults[key]
+  }
+
+  function setGateValue(key: GateKey, value: boolean) {
+    setAccumulation((prev) => ({ ...prev, [key]: value }))
+  }
+
   function buildInput(): CommercialPolicyInput {
     const actions: PolicyAction[] = [
       {
@@ -64,14 +105,22 @@ export function PolicyForm({ mode, policy }: PolicyFormProps) {
       },
     ]
 
+    const accumulationInput: PolicyAccumulation | undefined = useCustomAccumulation
+      ? accumulation
+      : undefined
+
     return {
       name: name.trim(),
       channel,
       priority,
       enabled,
       isDefault,
-      conditions: { minQty: minQty > 0 ? minQty : undefined },
+      conditions: {
+        minQty: minQty > 0 ? minQty : undefined,
+        eligibilityStrategy,
+      },
       actions,
+      accumulation: accumulationInput,
       startsAt: startsAt ? new Date(startsAt).toISOString() : null,
       endsAt: endsAt ? new Date(endsAt).toISOString() : null,
     }
@@ -173,6 +222,21 @@ export function PolicyForm({ mode, policy }: PolicyFormProps) {
       </div>
 
       <label className="block space-y-1">
+        <span className="text-sm font-medium text-ink">Critério de elegibilidade</span>
+        <select
+          value={eligibilityStrategy}
+          onChange={(e) => setEligibilityStrategy(e.target.value as EligibilityStrategy)}
+          className="w-full rounded-lg border border-hairline bg-white px-3 py-2 text-sm"
+        >
+          {(Object.keys(ELIGIBILITY_STRATEGY_LABELS) as EligibilityStrategy[]).map((s) => (
+            <option key={s} value={s}>
+              {ELIGIBILITY_STRATEGY_LABELS[s]}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="block space-y-1">
         <span className="text-sm font-medium text-ink">Tipo de desconto</span>
         <select
           value={discountType}
@@ -202,6 +266,39 @@ export function PolicyForm({ mode, policy }: PolicyFormProps) {
           />
         )}
       </label>
+
+      <fieldset className="space-y-3 rounded-lg border border-hairline p-4">
+        <legend className="px-1 text-sm font-medium text-ink">Acumulação (gates)</legend>
+        <label className="flex items-center gap-2 text-sm text-ink">
+          <input
+            type="checkbox"
+            checked={useCustomAccumulation}
+            onChange={(e) => setUseCustomAccumulation(e.target.checked)}
+          />
+          Sobrescrever defaults do canal
+        </label>
+        {!useCustomAccumulation && (
+          <p className="text-xs text-mute">
+            Usando defaults do canal ({POLICY_CHANNEL_LABELS[channel]}). Marque acima para customizar.
+          </p>
+        )}
+        <div className="space-y-2">
+          {GATE_KEYS.map((key) => (
+            <label
+              key={key}
+              className={`flex items-center gap-2 text-sm text-ink ${!useCustomAccumulation ? 'opacity-60' : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={gateValue(key)}
+                disabled={!useCustomAccumulation}
+                onChange={(e) => setGateValue(key, e.target.checked)}
+              />
+              {STAGE_GATE_LABELS[key]}
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <div className="flex flex-wrap gap-4">
         <label className="flex items-center gap-2 text-sm text-ink">

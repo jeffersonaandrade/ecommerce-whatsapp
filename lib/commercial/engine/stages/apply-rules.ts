@@ -32,6 +32,8 @@ export function applyAutoRules(
       ruleId: appliedRule.ruleId,
       label: appliedRule.ruleName,
       amount: -commercialDiscount,
+      status: 'applied',
+      source: 'rule',
       metadata: {
         ruleType: appliedRule.ruleType,
         eligibleQuantity: appliedRule.eligibleQuantity,

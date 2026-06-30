@@ -10,6 +10,33 @@ export type ResolveLinePriceContext = {
   personalizationSettings: PersonalizationSettings
 }
 
+function buildPricedLineFields(
+  unitPrice: number,
+  addonsUnitTotal: number,
+  quantity: number
+): Pick<
+  PricedCartLine,
+  | 'lineProductSubtotal'
+  | 'lineAdjustmentTotal'
+  | 'lineDiscountEligibleBase'
+  | 'lineDiscountTotal'
+  | 'lineDisplayTotal'
+  | 'lineMerchandiseTotal'
+> {
+  const lineProductSubtotal = unitPrice * quantity
+  const lineAdjustmentTotal = addonsUnitTotal * quantity
+  const lineMerchandiseTotal = lineProductSubtotal + lineAdjustmentTotal
+
+  return {
+    lineProductSubtotal,
+    lineAdjustmentTotal,
+    lineDiscountEligibleBase: lineProductSubtotal,
+    lineDiscountTotal: 0,
+    lineDisplayTotal: lineMerchandiseTotal,
+    lineMerchandiseTotal,
+  }
+}
+
 export function resolveLinePrice(
   item: CartItem,
   context: ResolveLinePriceContext
@@ -27,7 +54,7 @@ export function resolveLinePrice(
     product,
     context.personalizationSettings
   )
-  const lineMerchandiseTotal = (unitPrice + addonsUnitTotal) * quantity
+  const lineFields = buildPricedLineFields(unitPrice, addonsUnitTotal, quantity)
 
   return {
     productId: item.productId,
@@ -42,8 +69,8 @@ export function resolveLinePrice(
     unitPrice,
     addons: item.addons,
     addonsUnitTotal,
-    lineMerchandiseTotal,
     maxStock: variation.stock,
+    ...lineFields,
   }
 }
 

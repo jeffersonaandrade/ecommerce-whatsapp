@@ -11,6 +11,7 @@ function makeLine(
   unitPrice: number,
   quantity: number
 ): PricedLine {
+  const lineProductSubtotal = unitPrice * quantity
   return {
     productId,
     variationId: 'v1',
@@ -21,7 +22,12 @@ function makeLine(
     image: '',
     unitPrice,
     addonsUnitTotal: 0,
-    lineMerchandiseTotal: unitPrice * quantity,
+    lineMerchandiseTotal: lineProductSubtotal,
+    lineProductSubtotal,
+    lineAdjustmentTotal: 0,
+    lineDiscountEligibleBase: lineProductSubtotal,
+    lineDiscountTotal: 0,
+    lineDisplayTotal: lineProductSubtotal,
     maxStock: 10,
   }
 }
@@ -59,6 +65,7 @@ describe('evaluateCommercialPolicies', () => {
 
     expect(result.policyDiscount).toBe(160)
     expect(result.policyIds).toEqual(['pol-1'])
+    expect(result.merchandiseDiscountBase).toBe(1600)
   })
 
   it('não aplica quando quantidade mínima não é atingida', () => {
@@ -154,5 +161,50 @@ describe('evaluateCommercialPolicies', () => {
     })
 
     expect(result.policyDiscount).toBe(0)
+  })
+
+  it('per_product: aplica só em linhas que atingem minQty', () => {
+    const lines = [
+      makeLine('p1', 100, 12),
+      makeLine('p2', 200, 3),
+    ]
+    const policy = makePolicy({
+      id: 'pol-pp',
+      name: 'Por produto 5+',
+      conditions: { minQty: 5, eligibilityStrategy: 'per_product' },
+      actions: [{ type: 'discount_percent', value: 10 }],
+    })
+
+    const result = evaluateCommercialPolicies(lines, {
+      salesChannel: 'wholesale',
+      channelEnabled: true,
+      policies: [policy],
+      overrides: [],
+    })
+
+    expect(result.merchandiseDiscountBase).toBe(1200)
+    expect(result.policyDiscount).toBe(120)
+    expect(result.lines[0]?.lineDiscountTotal).toBe(120)
+    expect(result.lines[1]?.lineDiscountTotal).toBe(0)
+  })
+
+  it('discount_fixed não excede base elegível', () => {
+    const lines = [makeLine('p1', 100, 5)]
+    const policy = makePolicy({
+      id: 'pol-fixed',
+      name: 'Fixo alto',
+      conditions: { minQty: 5 },
+      actions: [{ type: 'discount_fixed', value: 9999 }],
+    })
+
+    const result = evaluateCommercialPolicies(lines, {
+      salesChannel: 'wholesale',
+      channelEnabled: true,
+      policies: [policy],
+      overrides: [],
+    })
+
+    expect(result.merchandiseDiscountBase).toBe(500)
+    expect(result.policyDiscount).toBe(500)
   })
 })

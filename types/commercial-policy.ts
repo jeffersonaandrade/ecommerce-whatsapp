@@ -1,8 +1,23 @@
 export type PolicySalesChannel = 'retail' | 'wholesale' | 'distributor'
 
+export type EligibilityStrategy = 'cart_total' | 'per_product'
+
 export type PolicyConditions = {
   minQty?: number
+  /** Padrão: cart_total (qty total do carrinho) */
+  eligibilityStrategy?: EligibilityStrategy
 }
+
+export type PolicyStageGates = {
+  allowAutoRules: boolean
+  allowManualRules: boolean
+  allowOtherPolicies: boolean
+  allowAdjustments: boolean
+  allowFreight: boolean
+}
+
+/** Override parcial de gates — policy vencedora sobrescreve defaults do canal */
+export type PolicyAccumulation = Partial<PolicyStageGates>
 
 export type PolicyActionType =
   | 'discount_percent'
@@ -23,6 +38,8 @@ export type CommercialPolicy = {
   isDefault: boolean
   conditions: PolicyConditions
   actions: PolicyAction[]
+  /** Gates de acumulação — sobrescreve defaults do canal quando policy vence */
+  accumulation?: PolicyAccumulation
   startsAt?: string | null
   endsAt?: string | null
   createdAt: string
@@ -39,10 +56,15 @@ export type CommercialProductPolicyOverride = {
   updatedAt: string
 }
 
+export type SalesChannelConfig = {
+  enabled: boolean
+  stageGates?: Partial<PolicyStageGates>
+}
+
 export type CommercialSalesChannels = {
-  retail: boolean
-  wholesale: boolean
-  distributor: boolean
+  retail: boolean | SalesChannelConfig
+  wholesale: boolean | SalesChannelConfig
+  distributor: boolean | SalesChannelConfig
 }
 
 export type CommercialPolicyInput = {
@@ -53,6 +75,7 @@ export type CommercialPolicyInput = {
   isDefault: boolean
   conditions: PolicyConditions
   actions: PolicyAction[]
+  accumulation?: PolicyAccumulation
   startsAt?: string | null
   endsAt?: string | null
 }

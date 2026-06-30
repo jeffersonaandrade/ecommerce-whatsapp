@@ -4,7 +4,9 @@ import {
   DEFAULT_BENEFITS_EYEBROW,
   DEFAULT_BENEFITS_TITLE,
 } from '@/lib/benefits/constants'
-import { parseSalesChannels } from '@/lib/commercial/commercial-policy-mapper'
+import { parseSalesChannels, serializeSalesChannels } from '@/lib/commercial/commercial-policy-mapper'
+import type { CommercialSalesChannels } from '@/types/commercial-policy'
+import type { SalesChannelConfig } from '@/types/commercial-policy'
 
 export type StoreSettingsRow = {
   id: string
@@ -43,7 +45,7 @@ export type StoreSettingsRow = {
   personalization_number_max?: number | null
   personalization_notes_required?: boolean | null
   personalization_notes_max_length?: number | null
-  commercial_sales_channels?: Record<string, boolean> | null
+  commercial_sales_channels?: Record<string, boolean | SalesChannelConfig> | null
   commercial_default_policy_id?: string | null
   updated_at: string
 }
@@ -129,7 +131,9 @@ export function storeSettingsToRow(settings: StoreSettings): StoreSettingsRow {
     personalization_number_max: settings.personalizationNumberMax,
     personalization_notes_required: settings.personalizationNotesRequired,
     personalization_notes_max_length: settings.personalizationNotesMaxLength,
-    commercial_sales_channels: settings.commercialSalesChannels,
+    commercial_sales_channels: serializeSalesChannels(
+      settings.commercialSalesChannels as CommercialSalesChannels
+    ),
     commercial_default_policy_id: settings.commercialDefaultPolicyId,
     updated_at: settings.updatedAt,
   }

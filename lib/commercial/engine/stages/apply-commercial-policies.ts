@@ -3,6 +3,7 @@ import type {
   CommercialProductPolicyOverride,
   CommercialSalesChannels,
 } from '@/types/commercial-policy'
+import { isChannelEnabled } from '../sales-channel-defaults'
 import {
   evaluateCommercialPolicies,
   type PolicyEvaluationContext,
@@ -22,7 +23,7 @@ export function applyCommercialPolicies(
   input: ApplyPoliciesInput,
   trace: TraceBuilder
 ): PoliciesStageResult {
-  const channelEnabled = input.salesChannels[input.salesChannel] ?? false
+  const channelEnabled = isChannelEnabled(input.salesChannels, input.salesChannel)
 
   const ctx: PolicyEvaluationContext = {
     salesChannel: input.salesChannel,
@@ -39,9 +40,14 @@ export function applyCommercialPolicies(
       policyId: result.appliedPolicy.id,
       label: result.appliedPolicy.name,
       amount: -result.policyDiscount,
+      status: 'applied',
+      source: 'policy',
       metadata: {
         channel: result.appliedPolicy.channel,
         minQty: result.appliedPolicy.conditions.minQty,
+        eligibilityStrategy:
+          result.appliedPolicy.conditions.eligibilityStrategy ?? 'cart_total',
+        merchandiseDiscountBase: result.merchandiseDiscountBase,
       },
     })
   }
@@ -49,5 +55,8 @@ export function applyCommercialPolicies(
   return {
     policyDiscount: result.policyDiscount,
     policyIds: result.policyIds,
+    appliedPolicy: result.appliedPolicy,
+    merchandiseDiscountBase: result.merchandiseDiscountBase,
+    lines: result.lines,
   }
 }

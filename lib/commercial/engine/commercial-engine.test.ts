@@ -76,7 +76,7 @@ describe('resolveCommercialPricing', () => {
       ...engineContext,
     })
 
-    expect(result.engineVersion).toBe(1)
+    expect(result.engineVersion).toBe(COMMERCIAL_ENGINE_VERSION)
     expect(result.subtotals.merchandiseBase).toBe(200)
     expect(result.subtotals.adjustments).toBe(0)
     expect(result.total).toBe(200)
@@ -264,5 +264,6 @@ describe('computeTotals facade', () => {
     expect(pricing.commercialDiscount).toBe(engine.discounts.total)
     expect(pricing.cartTotal).toBe(engine.total)
     expect(pricing.appliedRule?.ruleId).toBe(engine.applied.appliedRule?.ruleId)
+    expect(pricing.trace.length).toBeGreaterThan(0)
   })
 })

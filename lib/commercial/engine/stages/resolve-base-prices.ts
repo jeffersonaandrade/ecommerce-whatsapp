@@ -13,23 +13,30 @@ export function resolveBasePrices(
 
   const lines = resolveLinePrices(input.items, lineContext)
   const merchandiseBase = lines.reduce(
-    (sum, line) => sum + line.unitPrice * line.quantity,
+    (sum, line) => sum + line.lineProductSubtotal,
     0
   )
   const adjustments = lines.reduce(
-    (sum, line) => sum + line.addonsUnitTotal * line.quantity,
+    (sum, line) => sum + line.lineAdjustmentTotal,
     0
   )
   const merchandiseSubtotal = lines.reduce(
     (sum, line) => sum + line.lineMerchandiseTotal,
     0
   )
+  const displaySubtotal = merchandiseSubtotal
+  const merchandiseDiscountBase = merchandiseBase
 
   if (lines.length > 0) {
     trace.append({
       stage: 'base',
       label: 'Preço base',
       amount: merchandiseBase,
+      status: 'applied',
+      metadata: {
+        displaySubtotal,
+        adjustments,
+      },
     })
   }
 
@@ -38,5 +45,7 @@ export function resolveBasePrices(
     merchandiseBase,
     adjustments,
     merchandiseSubtotal,
+    displaySubtotal,
+    merchandiseDiscountBase,
   }
 }

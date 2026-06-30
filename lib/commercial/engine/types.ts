@@ -6,7 +6,7 @@ import type { PersonalizationSettings } from '@/types/personalization-settings'
 import type { CartItem, Product } from '@/types/product'
 
 /** Versão do algoritmo — incrementar quando pipeline ou ADRs mudarem */
-export const COMMERCIAL_ENGINE_VERSION = 1
+export const COMMERCIAL_ENGINE_VERSION = 2
 
 export type SalesChannel = 'retail' | 'wholesale' | 'distributor'
 
@@ -18,6 +18,10 @@ export type CommercialTraceStage =
   | 'adjustment'
   | 'error'
 
+export type CommercialTraceStatus = 'applied' | 'skipped'
+
+export type CommercialTraceSource = 'channel' | 'policy' | 'rule'
+
 export type CommercialTraceEntry = {
   stage: CommercialTraceStage
   sequence: number
@@ -25,6 +29,9 @@ export type CommercialTraceEntry = {
   policyId?: string
   label: string
   amount: number
+  status?: CommercialTraceStatus
+  skipReason?: string
+  source?: CommercialTraceSource
   metadata?: Record<string, unknown>
 }
 
@@ -55,6 +62,9 @@ export type CommercialResult = {
   lines: PricedLine[]
   subtotals: {
     merchandiseBase: number
+    merchandiseDiscountBase: number
+    displaySubtotal: number
+    runningTotal: number
     policyDiscount: number
     ruleDiscount: number
     freight: number | null
@@ -79,11 +89,16 @@ export type BasePricesStageResult = {
   merchandiseBase: number
   adjustments: number
   merchandiseSubtotal: number
+  displaySubtotal: number
+  merchandiseDiscountBase: number
 }
 
 export type PoliciesStageResult = {
   policyDiscount: number
   policyIds: string[]
+  appliedPolicy?: CommercialPolicy
+  merchandiseDiscountBase: number
+  lines: PricedLine[]
 }
 
 export type RulesStageResult = {

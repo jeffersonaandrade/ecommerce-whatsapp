@@ -6,6 +6,7 @@ import { CommercialRule } from '@/types/commercial-rule'
 import { CartItem, Product } from '@/types/product'
 import { PersonalizationSettings } from '@/types/personalization-settings'
 import type { PricedCartLine } from '@/types/cart-pricing'
+import { mockPricedCartLine } from '@/lib/pricing/mock-priced-cart-line'
 
 const baseProduct: Product = {
   id: '1',
@@ -51,19 +52,14 @@ function makeRule(priority: number, requiredQuantity: number, discountAmount: nu
 
 describe('evaluateQuantityDiscount', () => {
   const lines: PricedCartLine[] = [
-    {
+    mockPricedCartLine({
       productId: '1',
       variationId: 'v1',
       quantity: 5,
+      unitPrice: 100,
       name: 'Camisa',
       slug: 'camisa',
-      sku: 'SKU',
-      image: '',
-      unitPrice: 100,
-      addonsUnitTotal: 0,
-      lineMerchandiseTotal: 500,
-      maxStock: 10,
-    },
+    }),
   ]
 
   it('aplica 1 grupo para 5 produtos com regra de 3', () => {
@@ -73,7 +69,13 @@ describe('evaluateQuantityDiscount', () => {
   })
 
   it('aplica 2 grupos para 6 produtos com regra de 3', () => {
-    const six = [{ ...lines[0], quantity: 6, lineMerchandiseTotal: 600 }]
+    const six = [
+      mockPricedCartLine({
+        ...lines[0],
+        quantity: 6,
+        unitPrice: 100,
+      }),
+    ]
     const result = evaluateQuantityDiscount(makeRule(10, 3, 159.9), six)
     expect(result.discountGroups).toBe(2)
     expect(result.discountAmount).toBeCloseTo(319.8)
@@ -82,19 +84,14 @@ describe('evaluateQuantityDiscount', () => {
 
 describe('applyPromotion', () => {
   const lines: PricedCartLine[] = [
-    {
+    mockPricedCartLine({
       productId: '1',
       variationId: 'v1',
       quantity: 6,
+      unitPrice: 100,
       name: 'Camisa',
       slug: 'camisa',
-      sku: 'SKU',
-      image: '',
-      unitPrice: 100,
-      addonsUnitTotal: 0,
-      lineMerchandiseTotal: 600,
-      maxStock: 10,
-    },
+    }),
   ]
 
   it('usa prioridade — primeira elegível vence', () => {

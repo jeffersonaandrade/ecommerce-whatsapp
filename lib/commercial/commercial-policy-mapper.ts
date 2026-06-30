@@ -4,9 +4,16 @@ import type {
   CommercialProductPolicyOverride,
   CommercialProductPolicyOverrideInput,
   CommercialSalesChannels,
+  PolicyAccumulation,
   PolicyAction,
   PolicyConditions,
+  PolicyStageGates,
+  SalesChannelConfig,
 } from '@/types/commercial-policy'
+import {
+  defaultStageGatesForChannel,
+  mergeStageGates,
+} from '@/lib/commercial/engine/sales-channel-defaults'
 
 export type CommercialPolicyRow = {
   id: string
@@ -17,6 +24,7 @@ export type CommercialPolicyRow = {
   is_default: boolean
   conditions: PolicyConditions
   actions: PolicyAction[]
+  accumulation?: PolicyAccumulation
   starts_at: string | null
   ends_at: string | null
   created_at: string
@@ -33,13 +41,46 @@ export type CommercialProductPolicyOverrideRow = {
   updated_at: string
 }
 
-function parseSalesChannels(value: unknown): CommercialSalesChannels {
-  const raw = value as Partial<CommercialSalesChannels> | null | undefined
-  return {
-    retail: raw?.retail ?? true,
-    wholesale: raw?.wholesale ?? false,
-    distributor: raw?.distributor ?? false,
+function parseChannelConfig(
+  value: unknown,
+  channel: keyof CommercialSalesChannels
+): boolean | SalesChannelConfig {
+  if (typeof value === 'boolean') return value
+  if (value && typeof value === 'object') {
+    const raw = value as Partial<SalesChannelConfig>
+    return {
+      enabled: raw.enabled ?? channel === 'retail',
+      stageGates: raw.stageGates,
+    }
   }
+  return channel === 'retail'
+}
+
+function parseSalesChannels(value: unknown): CommercialSalesChannels {
+  const raw = value as Record<string, unknown> | null | undefined
+  return {
+    retail: parseChannelConfig(raw?.retail, 'retail'),
+    wholesale: parseChannelConfig(raw?.wholesale, 'wholesale'),
+    distributor: parseChannelConfig(raw?.distributor, 'distributor'),
+  }
+}
+
+export function serializeSalesChannels(
+  channels: CommercialSalesChannels
+): Record<string, boolean | SalesChannelConfig> {
+  return { ...channels }
+}
+
+export function resolveSalesChannelStageGates(
+  channels: CommercialSalesChannels,
+  channel: keyof CommercialSalesChannels
+): PolicyStageGates {
+  const config = channels[channel]
+  const defaults = defaultStageGatesForChannel(channel)
+  if (typeof config === 'boolean') {
+    return config ? defaults : { ...defaults, allowAutoRules: false, allowManualRules: false }
+  }
+  return mergeStageGates(defaults, config.stageGates)
 }
 
 export function rowToCommercialPolicy(row: CommercialPolicyRow): CommercialPolicy {
@@ -52,6 +93,7 @@ export function rowToCommercialPolicy(row: CommercialPolicyRow): CommercialPolic
     isDefault: row.is_default,
     conditions: row.conditions ?? {},
     actions: Array.isArray(row.actions) ? row.actions : [],
+    accumulation: row.accumulation ?? undefined,
     startsAt: row.starts_at,
     endsAt: row.ends_at,
     createdAt: row.created_at,
@@ -73,6 +115,7 @@ export function inputToCommercialPolicyRow(
     is_default: input.isDefault,
     conditions: input.conditions ?? {},
     actions: input.actions ?? [],
+    accumulation: input.accumulation ?? {},
     starts_at: input.startsAt ?? null,
     ends_at: input.endsAt ?? null,
     created_at: now,
@@ -90,6 +133,7 @@ export function commercialPolicyToRow(policy: CommercialPolicy): CommercialPolic
     is_default: policy.isDefault,
     conditions: policy.conditions,
     actions: policy.actions,
+    accumulation: policy.accumulation ?? {},
     starts_at: policy.startsAt ?? null,
     ends_at: policy.endsAt ?? null,
     created_at: policy.createdAt,

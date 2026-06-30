@@ -1,5 +1,6 @@
 import type { CartAddons } from '@/types/cart-addons'
 import type { CommercialRuleType } from '@/types/commercial-rule'
+import type { CommercialTrace } from '@/lib/commercial/engine/types'
 
 export type AppliedCommercialRule = {
   ruleId: string
@@ -24,6 +25,16 @@ export type PricedCartLine = {
   addons?: CartAddons
   addonsUnitTotal: number
   lineMerchandiseTotal: number
+  /** Preço do produto × qty (sem personalização) */
+  lineProductSubtotal: number
+  /** Personalização/acréscimos × qty */
+  lineAdjustmentTotal: number
+  /** Base elegível para desconto de policy (produto) */
+  lineDiscountEligibleBase: number
+  /** Desconto de policy alocado na linha */
+  lineDiscountTotal: number
+  /** Total exibido da linha após descontos de policy */
+  lineDisplayTotal: number
   maxStock: number
 }
 
@@ -34,4 +45,5 @@ export type CartPricing = {
   commercialDiscount: number
   appliedRule?: AppliedCommercialRule
   cartTotal: number
+  trace: CommercialTrace
 }

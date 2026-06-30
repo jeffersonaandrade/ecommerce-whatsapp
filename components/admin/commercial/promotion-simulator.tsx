@@ -5,6 +5,7 @@ import { QuantityDiscountConfig } from '@/types/commercial-rule'
 import { applyPromotion } from '@/lib/pricing/apply-promotion'
 import { formatPrice } from '@/lib/formatters'
 import type { PricedCartLine } from '@/types/cart-pricing'
+import { mockPricedCartLine } from '@/lib/pricing/mock-priced-cart-line'
 
 type PromotionSimulatorProps = {
   requiredQuantity: number
@@ -16,19 +17,16 @@ type PromotionSimulatorProps = {
 function buildMockLines(quantity: number, unitPrice: number): PricedCartLine[] {
   if (quantity <= 0) return []
   return [
-    {
+    mockPricedCartLine({
       productId: 'mock',
       variationId: 'mock-v',
       quantity,
+      unitPrice,
       name: 'Produto simulado',
       slug: 'mock',
       sku: 'MOCK',
-      image: '',
-      unitPrice,
-      addonsUnitTotal: 0,
-      lineMerchandiseTotal: unitPrice * quantity,
       maxStock: quantity,
-    },
+    }),
   ]
 }
 

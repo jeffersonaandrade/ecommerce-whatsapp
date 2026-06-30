@@ -159,13 +159,16 @@ Estrutura canônica retornada por `CommercialEngine.resolve()`:
 
 ```typescript
 /** Versão do algoritmo — incrementar quando pipeline ou ADRs mudarem */
-export const COMMERCIAL_ENGINE_VERSION = 1
+export const COMMERCIAL_ENGINE_VERSION = 2
 
 export type CommercialResult = {
   engineVersion: typeof COMMERCIAL_ENGINE_VERSION
   lines: PricedLine[]
   subtotals: {
     merchandiseBase: number      // soma preços base × qty
+    merchandiseDiscountBase: number // base elegível para desconto (produto)
+    displaySubtotal: number      // subtotal vitrine (produto + ajustes)
+    runningTotal: number         // total intermediário após pipeline
     policyDiscount: number       // efeito líquido das policies
     ruleDiscount: number         // promoções + cupom
     freight: number | null       // null = V1 negociado
@@ -213,6 +216,9 @@ export type CommercialTraceEntry = {
   policyId?: string
   label: string                 // human-readable: "Política Atacado", "Cupom BEMVINDO10"
   amount: number                // negativo = desconto; positivo = acréscimo
+  status?: 'applied' | 'skipped'
+  skipReason?: string
+  source?: 'channel' | 'policy' | 'rule'
   metadata?: Record<string, unknown>
 }
 
@@ -265,8 +271,28 @@ Total                    R$ 500,00
 | ADR-8 | **Frete V1 stub** | Sem cálculo; trace documenta negociação WhatsApp |
 | ADR-9 | **Cupom = rule manual** | Sem módulo/tabela `coupons` separada |
 | ADR-10 | **Trace obrigatório** | Todo `resolve()` popula `CommercialTrace`; testes assertam entradas |
+| ADR-11 | **Sales Channel ≠ Policy** | Canal = origem da venda; policy = condições + desconto + override de gates |
+| ADR-12 | **Gates na policy, defaults no canal** | `store_settings.commercial_sales_channels` define defaults; policy vencedora sobrescreve via `accumulation` |
+| ADR-13 | **CommercialProfile adiado (V3)** | Tabela/CRUD de Profile só se reutilização real justificar — Fase 2.5 usa `accumulation` em `CommercialPolicy` |
+| ADR-14 | **eligibility_strategy extensível** | Fase 2.5: `cart_total` \| `per_product`; schema pronto para `per_category` etc. |
+| ADR-15 | **Bases de cálculo separadas** | `merchandiseDiscountBase` (produto elegível), `displaySubtotal` (vitrine), `runningTotal` (pipeline) |
+| ADR-16 | **Trace applied/skipped** | Stages bloqueados por gate registram `status: skipped` + `skipReason` |
 
 ---
+
+## 7.1 Fase 2.5 — Accumulation gates (implementado)
+
+Sem `commercial_profiles` nesta fase. Comportamento:
+
+1. **Defaults por canal** em `store_settings.commercial_sales_channels` — boolean legado ou `{ enabled, stageGates }`.
+2. **Policy vencedora** pode sobrescrever gates via coluna `accumulation` (jsonb parcial).
+3. **Pipeline** consulta gates antes de rules auto/manual, frete trace e adjustment trace.
+4. **Retail V1** permanece aberto (promo + personalização) — regressão zero.
+5. **Wholesale** default bloqueia `allowAutoRules` — promo varejo não acumula.
+
+`PricedCartLine` evoluído: `lineProductSubtotal`, `lineAdjustmentTotal`, `lineDiscountEligibleBase`, `lineDiscountTotal`, `lineDisplayTotal`.
+
+`COMMERCIAL_ENGINE_VERSION = 2`.
 
 ## 8. Regras de venda (canais)
 
@@ -371,12 +397,15 @@ commercial_default_policy_id  text REFERENCES commercial_policies(id)
 ## 10. Ordem de implementação
 
 ```text
-Fase 0  → COMMERCIAL_ENGINE.md (este documento)     ← concluir revisão
+Fase 0  → COMMERCIAL_ENGINE.md (este documento)     ← concluída
 Fase 1  → Skeleton motor + trace + engine_version + testes regressão
 Fase 2  → Migrations policies + stage policies
-Fase 3  → Rules unificadas + cupom manual + carrinho
+Fase 2.5→ Accumulation gates + eligibility_strategy + bases de cálculo (engine v2)
+Fase 3  → Rules unificadas + cupom manual + carrinho  [BLOQUEADA até gate 2.5]
+Fase 3.5→ Actions Engine (gift, cashback…) — futuro
 Fase 4  → Adjustments + frete stub
-Fase 5  → Admin CRUD mínimo (políticas, regras, cupons)
+Fase 5  → Admin CRUD polish
+Fase 6  → Trace UI
 ```
 
 **Exigência:** nenhuma UI admin completa antes do motor e testes de pipeline estarem verdes.
