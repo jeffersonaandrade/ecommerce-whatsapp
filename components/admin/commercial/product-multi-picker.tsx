@@ -19,6 +19,9 @@ const STATUS_LABEL: Record<ProductPickerItem['status'], string> = {
   unavailable: 'Indisponível',
 }
 
+const PICKER_FIELDSET_CLASS =
+  'w-full max-w-full min-w-0 space-y-3 overflow-hidden rounded-lg border border-hairline p-4'
+
 function formatProductLabel(item: ProductPickerItem): string {
   return item.sku ? `${item.name} · ${item.sku}` : item.name
 }
@@ -79,16 +82,19 @@ export function ProductMultiPicker({ value, onChange }: ProductMultiPickerProps)
   }
 
   return (
-    <fieldset className="space-y-3 rounded-lg border border-hairline p-4">
+    <fieldset
+      data-testid="product-multi-picker"
+      className={PICKER_FIELDSET_CLASS}
+    >
       <legend className="px-1 text-sm font-medium text-ink">Produtos elegíveis</legend>
       <p className="text-xs text-mute">Vazio = todos os produtos.</p>
 
       {selectedItems.length > 0 && (
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex w-full max-w-full flex-wrap gap-2">
           {selectedItems.map((item) => (
-            <li key={item.id}>
-              <span className="inline-flex max-w-full items-center gap-1 rounded-full border border-hairline bg-soft-cloud px-3 py-1 text-xs text-ink">
-                <span className="truncate">{formatProductLabel(item)}</span>
+            <li key={item.id} className="max-w-full min-w-0">
+              <span className="flex max-w-full min-w-0 items-center gap-1 rounded-full border border-hairline bg-soft-cloud px-3 py-1 text-xs text-ink">
+                <span className="min-w-0 truncate">{formatProductLabel(item)}</span>
                 <button
                   type="button"
                   onClick={() => removeProduct(item.id)}
@@ -108,7 +114,7 @@ export function ProductMultiPicker({ value, onChange }: ProductMultiPickerProps)
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Buscar por nome ou SKU..."
-        className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+        className="w-full max-w-full min-w-0 rounded-lg border border-hairline px-3 py-2 text-sm"
       />
 
       {search.trim().length > 0 && search.trim().length < 2 && (
@@ -120,18 +126,22 @@ export function ProductMultiPicker({ value, onChange }: ProductMultiPickerProps)
       )}
 
       {isSearching && <p className="text-xs text-mute">Buscando...</p>}
-      {searchError && <p className="text-xs text-red-600">{searchError}</p>}
+      {searchError && <p className="truncate text-xs text-red-600">{searchError}</p>}
 
       {results.length > 0 && (
-        <ul className="max-h-48 space-y-1 overflow-y-auto rounded-lg border border-hairline">
+        <ul
+          data-testid="product-multi-picker-results"
+          className="max-h-48 w-full max-w-full overflow-x-hidden overflow-y-auto rounded-lg border border-hairline"
+        >
           {results.map((item) => {
             const isSelected = value.includes(item.id)
             return (
               <li
                 key={item.id}
-                className="flex items-center justify-between gap-3 border-b border-hairline px-3 py-2 text-sm last:border-b-0"
+                data-testid="product-multi-picker-result-item"
+                className="flex min-w-0 flex-col gap-2 border-b border-hairline px-3 py-2 text-sm last:border-b-0 sm:flex-row sm:items-center sm:justify-between"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-ink">{item.name}</p>
                   <p className="truncate text-xs text-mute">
                     {item.sku ? `SKU ${item.sku}` : 'Sem SKU'}
@@ -146,7 +156,7 @@ export function ProductMultiPicker({ value, onChange }: ProductMultiPickerProps)
                   className={getButtonClassName(
                     'outline',
                     'sm',
-                    isSelected ? 'opacity-50' : ''
+                    `w-full shrink-0 sm:w-auto ${isSelected ? 'opacity-50' : ''}`
                   )}
                 >
                   {isSelected ? 'Adicionado' : 'Adicionar'}

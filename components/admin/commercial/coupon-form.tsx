@@ -124,7 +124,7 @@ export function CouponForm({ mode, rule, categories }: CouponFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-auto max-w-2xl space-y-4 rounded-lg border border-hairline bg-canvas p-6"
+      className="mx-auto w-full min-w-0 max-w-2xl space-y-4 overflow-x-hidden rounded-lg border border-hairline bg-canvas p-6"
     >
       {error && <Alert type="error" message={error} />}
       {success && <Alert type="success" message="Cupom salvo com sucesso." />}

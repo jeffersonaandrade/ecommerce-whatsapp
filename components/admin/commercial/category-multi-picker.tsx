@@ -14,6 +14,9 @@ type CategoryMultiPickerProps = {
   onChange: (ids: string[]) => void
 }
 
+const PICKER_FIELDSET_CLASS =
+  'w-full max-w-full min-w-0 space-y-3 overflow-hidden rounded-lg border border-hairline p-4'
+
 export function CategoryMultiPicker({
   categories,
   value,
@@ -52,20 +55,25 @@ export function CategoryMultiPicker({
   }
 
   return (
-    <fieldset className="space-y-3 rounded-lg border border-hairline p-4">
+    <fieldset
+      data-testid="category-multi-picker"
+      className={PICKER_FIELDSET_CLASS}
+    >
       <legend className="px-1 text-sm font-medium text-ink">Categorias elegíveis</legend>
       <p className="text-xs text-mute">Vazio = todas as categorias.</p>
 
       {selectedCategories.length > 0 && (
-        <ul className="flex flex-wrap gap-2">
+        <ul className="flex w-full max-w-full flex-wrap gap-2">
           {selectedCategories.map((category) => (
-            <li key={category.id}>
-              <span className="inline-flex items-center gap-1 rounded-full border border-hairline bg-soft-cloud px-3 py-1 text-xs text-ink">
-                {formatCategoryOptionLabel(category)}
+            <li key={category.id} className="max-w-full min-w-0">
+              <span className="flex max-w-full min-w-0 items-center gap-1 rounded-full border border-hairline bg-soft-cloud px-3 py-1 text-xs text-ink">
+                <span className="min-w-0 truncate">
+                  {formatCategoryOptionLabel(category)}
+                </span>
                 <button
                   type="button"
                   onClick={() => removeCategory(category.id)}
-                  className="rounded-full px-1 text-mute hover:text-ink"
+                  className="shrink-0 rounded-full px-1 text-mute hover:text-ink"
                   aria-label={`Remover ${category.name}`}
                 >
                   ×
@@ -81,24 +89,25 @@ export function CategoryMultiPicker({
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Buscar categoria..."
-        className="w-full rounded-lg border border-hairline px-3 py-2 text-sm"
+        className="w-full max-w-full min-w-0 rounded-lg border border-hairline px-3 py-2 text-sm"
       />
 
-      <div className="max-h-48 space-y-1 overflow-y-auto">
+      <div className="max-h-48 w-full max-w-full space-y-1 overflow-x-hidden overflow-y-auto">
         {filteredOptions.length === 0 ? (
           <p className="text-xs text-mute">Nenhuma categoria encontrada.</p>
         ) : (
           filteredOptions.map((category) => (
             <label
               key={category.id}
-              className="flex cursor-pointer items-center gap-2 rounded-md px-1 py-1 text-sm text-ink hover:bg-soft-cloud"
+              className="flex min-w-0 cursor-pointer items-start gap-2 rounded-md px-1 py-1 text-sm text-ink hover:bg-soft-cloud"
             >
               <input
                 type="checkbox"
+                className="mt-0.5 shrink-0"
                 checked={value.includes(category.id)}
                 onChange={() => toggleCategory(category.id)}
               />
-              <span>{formatCategoryOptionLabel(category)}</span>
+              <span className="min-w-0 truncate">{formatCategoryOptionLabel(category)}</span>
             </label>
           ))
         )}

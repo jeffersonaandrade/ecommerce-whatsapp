@@ -82,4 +82,21 @@ describe('CategoryMultiPicker', () => {
 
     expect(screen.getByLabelText('Remover Camisetas')).toBeTruthy()
   })
+
+  it('aplica classes de contenção para nomes longos', () => {
+    render(
+      <CategoryMultiPicker
+        categories={categories}
+        value={['cat-shirts']}
+        onChange={vi.fn()}
+      />
+    )
+
+    const fieldset = screen.getByTestId('category-multi-picker')
+    expect(fieldset.className).toContain('min-w-0')
+    expect(fieldset.className).toContain('overflow-hidden')
+
+    const chipLabel = fieldset.querySelector('ul li span .truncate')
+    expect(chipLabel).toBeTruthy()
+  })
 })
