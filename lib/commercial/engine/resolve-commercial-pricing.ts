@@ -6,9 +6,11 @@ import { calculateFreight } from './stages/calculate-freight'
 import { resolveBasePrices } from './stages/resolve-base-prices'
 import { resolveAccumulationGates } from './resolve-accumulation'
 import { createTraceBuilder } from './trace-builder'
+import { normalizeCouponCode } from '@/lib/commercial/commercial-rule-mapper'
 import {
   COMMERCIAL_ENGINE_VERSION,
   type CommercialEngineInput,
+  type CommercialError,
   type CommercialResult,
   type RulesStageResult,
 } from './types'
@@ -20,12 +22,35 @@ const DEFAULT_SALES_CHANNELS: CommercialSalesChannels = {
   distributor: false,
 }
 
+function merchandiseAfterPolicyFromLines(
+  lines: { lineProductSubtotal: number; lineDiscountTotal: number }[]
+): number {
+  return lines.reduce(
+    (sum, line) => sum + line.lineProductSubtotal - line.lineDiscountTotal,
+    0
+  )
+}
+
+function merchandiseAfterAuto(
+  merchandiseAfterPolicy: number,
+  subtotalAfterPolicy: number,
+  autoRuleDiscount: number
+): number {
+  if (autoRuleDiscount <= 0 || subtotalAfterPolicy <= 0) {
+    return merchandiseAfterPolicy
+  }
+  const autoOnProduct =
+    autoRuleDiscount * (merchandiseAfterPolicy / subtotalAfterPolicy)
+  return Math.max(0, merchandiseAfterPolicy - autoOnProduct)
+}
+
 export function resolveCommercialPricing(
   input: CommercialEngineInput
 ): CommercialResult {
   const traceBuilder = createTraceBuilder()
   const salesChannel = input.salesChannel ?? 'retail'
   const salesChannels = input.salesChannels ?? DEFAULT_SALES_CHANNELS
+  const errors: CommercialError[] = []
 
   if (input.items.length === 0) {
     return {
@@ -46,7 +71,6 @@ export function resolveCommercialPricing(
       applied: {
         policyIds: [],
         ruleIds: [],
-        couponCode: input.couponCode,
       },
       trace: [],
       errors: [],
@@ -84,8 +108,8 @@ export function resolveCommercialPricing(
   }
 
   let runningTotal = base.displaySubtotal - policies.policyDiscount
-
   const subtotalAfterPolicy = Math.max(0, runningTotal)
+  const merchandiseAfterPolicy = merchandiseAfterPolicyFromLines(policies.lines)
 
   let autoRules: RulesStageResult = { ruleDiscount: 0, ruleIds: [] }
   if (accumulation.stageGates.allowAutoRules) {
@@ -96,7 +120,7 @@ export function resolveCommercialPricing(
       traceBuilder
     )
     runningTotal = Math.max(0, runningTotal - autoRules.ruleDiscount)
-  } else if (input.commercialRules.length > 0) {
+  } else if (input.commercialRules.some((r) => (r.trigger ?? 'auto') === 'auto')) {
     appendSkippedStageTrace(
       traceBuilder,
       'rule',
@@ -110,30 +134,49 @@ export function resolveCommercialPricing(
     )
   }
 
-  const subtotalAfterAuto = Math.max(0, subtotalAfterPolicy - autoRules.ruleDiscount)
+  const merchandiseAfterAutoValue = merchandiseAfterAuto(
+    merchandiseAfterPolicy,
+    subtotalAfterPolicy,
+    autoRules.ruleDiscount
+  )
 
-  let manualRules: RulesStageResult = { ruleDiscount: 0, ruleIds: [] }
+  let manualRules: RulesStageResult = { ruleDiscount: 0, ruleIds: [], errors: [] }
+  const normalizedCoupon = input.couponCode?.trim()
+    ? normalizeCouponCode(input.couponCode)
+    : undefined
+
   if (accumulation.stageGates.allowManualRules) {
     manualRules = applyManualRules(
       input.commercialRules,
       policies.lines,
-      subtotalAfterAuto,
+      merchandiseAfterAutoValue,
       traceBuilder,
-      input.couponCode
-    )
-    runningTotal = Math.max(0, runningTotal - manualRules.ruleDiscount)
-  } else if (input.couponCode) {
-    appendSkippedStageTrace(
-      traceBuilder,
-      'rule',
-      'Cupom',
-      'Canal ou política bloqueia acumulação de cupons',
+      normalizedCoupon,
       {
-        source: accumulation.source,
-        policyId: accumulation.policyId,
-        couponCode: input.couponCode,
+        getProductById: input.getProductById,
+        subtotalAfterPolicy,
+        merchandiseAfterPolicy,
+        autoRuleDiscount: autoRules.ruleDiscount,
       }
     )
+    if (manualRules.errors?.length) {
+      errors.push(...manualRules.errors)
+    }
+    runningTotal = Math.max(0, runningTotal - manualRules.ruleDiscount)
+  } else if (normalizedCoupon) {
+    traceBuilder.append({
+      stage: 'rule',
+      label: `Cupom ${normalizedCoupon}`,
+      amount: 0,
+      status: 'skipped',
+      source: 'coupon',
+      skipReason: 'Manual rules disabled by winning policy',
+      metadata: {
+        source: accumulation.source,
+        policyId: accumulation.policyId,
+        couponCode: normalizedCoupon,
+      },
+    })
   }
 
   const ruleDiscount = autoRules.ruleDiscount + manualRules.ruleDiscount
@@ -169,10 +212,10 @@ export function resolveCommercialPricing(
     applied: {
       policyIds: policies.policyIds,
       ruleIds,
-      couponCode: input.couponCode,
+      couponCode: manualRules.appliedCouponCode,
       appliedRule: autoRules.appliedRule,
     },
     trace: traceBuilder.trace,
-    errors: [],
+    errors,
   }
 }

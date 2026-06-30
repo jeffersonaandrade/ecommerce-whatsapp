@@ -65,8 +65,7 @@ export default function AdminComercialPage() {
         <HubCard
           href="/admin/comercial/cupons"
           title="Cupons"
-          description="Em breve."
-          badge="Em breve"
+          description="Códigos manuais com desconto percentual ou fixo."
         />
         <HubCard
           href="/admin/comercial/frete"

@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { useCart } from '@/context/cart-context'
+import { getCartDiscountDisplay } from '@/lib/commercial/engine/discount-trace-display'
 import { formatPrice } from '@/lib/formatters'
 import { Button, getButtonClassName } from '@/components/ui/button'
 import { CartLineItem } from '@/components/cart/cart-line-item'
@@ -24,7 +26,19 @@ export function CartContent({
   whatsappPhone,
   whatsappMessagePrefix = '',
 }: CartContentProps) {
-  const { pricing, itemCount, clearCart, isHydrated, items } = useCart()
+  const {
+    pricing,
+    itemCount,
+    clearCart,
+    isHydrated,
+    items,
+    couponInput,
+    appliedCouponCode,
+    applyCoupon,
+    removeCoupon,
+  } = useCart()
+  const [couponDraft, setCouponDraft] = useState(couponInput)
+  const discountDisplay = getCartDiscountDisplay(pricing.trace)
 
   function handleWhatsAppCheckout() {
     const enrichedPricing = enrichPricingWithCartItems(pricing, items)
@@ -88,6 +102,49 @@ export function CartContent({
           </div>
 
           <div className="space-y-2 border-t border-hairline pt-4 text-sm">
+            <div className="space-y-2">
+              <label className="block text-xs font-medium uppercase tracking-wide text-mute">
+                Cupom de desconto
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={couponDraft}
+                  onChange={(e) => setCouponDraft(e.target.value.toUpperCase())}
+                  placeholder="Código do cupom"
+                  className="min-w-0 flex-1 rounded-lg border border-hairline px-3 py-2 text-sm uppercase"
+                />
+                {appliedCouponCode ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      removeCoupon()
+                      setCouponDraft('')
+                    }}
+                    className="shrink-0 rounded-lg border border-hairline px-3 py-2 text-xs font-medium text-mute hover:text-ink"
+                  >
+                    Remover
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => applyCoupon(couponDraft)}
+                    className="shrink-0 rounded-lg border border-hairline bg-soft-cloud px-3 py-2 text-xs font-medium text-ink hover:bg-canvas"
+                  >
+                    Aplicar
+                  </button>
+                )}
+              </div>
+              {pricing.pricingErrors?.map((err) => (
+                <p key={err.code} className="text-xs text-error">
+                  {err.message}
+                </p>
+              ))}
+              {appliedCouponCode && !pricing.pricingErrors?.length ? (
+                <p className="text-xs text-success">Cupom {appliedCouponCode} aplicado.</p>
+              ) : null}
+            </div>
+
             <div className="flex justify-between">
               <span className="text-mute">Subtotal produtos</span>
               <span className="text-ink">{formatPrice(pricing.merchandiseSubtotal)}</span>
@@ -98,16 +155,33 @@ export function CartContent({
                 <span className="text-ink">{formatPrice(pricing.addonsSubtotal)}</span>
               </div>
             )}
-            {pricing.commercialDiscount > 0 && (
-              <div className="flex justify-between text-success">
-                <span>
-                  Desconto
-                  {pricing.appliedRule?.ruleName
-                    ? ` (${pricing.appliedRule.ruleName})`
-                    : ''}
-                </span>
-                <span>-{formatPrice(pricing.commercialDiscount)}</span>
-              </div>
+            {discountDisplay.lines.length > 0 ? (
+              <>
+                {discountDisplay.lines.map((line) => (
+                  <div key={line.label} className="flex justify-between text-success">
+                    <span>{line.label}</span>
+                    <span>-{formatPrice(line.amount)}</span>
+                  </div>
+                ))}
+                {discountDisplay.lines.length > 1 && (
+                  <div className="flex justify-between font-medium text-success">
+                    <span>Total de descontos</span>
+                    <span>-{formatPrice(discountDisplay.total)}</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              pricing.commercialDiscount > 0 && (
+                <div className="flex justify-between text-success">
+                  <span>
+                    Desconto
+                    {pricing.appliedRule?.ruleName
+                      ? ` (${pricing.appliedRule.ruleName})`
+                      : ''}
+                  </span>
+                  <span>-{formatPrice(pricing.commercialDiscount)}</span>
+                </div>
+              )
             )}
           </div>
 

@@ -6,7 +6,7 @@ import type { PersonalizationSettings } from '@/types/personalization-settings'
 import type { CartItem, Product } from '@/types/product'
 
 /** Versão do algoritmo — incrementar quando pipeline ou ADRs mudarem */
-export const COMMERCIAL_ENGINE_VERSION = 2
+export const COMMERCIAL_ENGINE_VERSION = 3
 
 export type SalesChannel = 'retail' | 'wholesale' | 'distributor'
 
@@ -20,7 +20,7 @@ export type CommercialTraceStage =
 
 export type CommercialTraceStatus = 'applied' | 'skipped'
 
-export type CommercialTraceSource = 'channel' | 'policy' | 'rule'
+export type CommercialTraceSource = 'channel' | 'policy' | 'rule' | 'coupon'
 
 export type CommercialTraceEntry = {
   stage: CommercialTraceStage
@@ -105,6 +105,8 @@ export type RulesStageResult = {
   ruleDiscount: number
   ruleIds: string[]
   appliedRule?: AppliedCommercialRule
+  appliedCouponCode?: string
+  errors?: CommercialError[]
 }
 
 export type FreightStageResult = {

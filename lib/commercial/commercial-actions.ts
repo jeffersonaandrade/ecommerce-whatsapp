@@ -19,10 +19,12 @@ function revalidateCommercial() {
 
 function validateRuleInput(input: CommercialRuleInput): string | null {
   if (!input.name.trim()) return 'Informe o nome da promoção.'
-  if (input.config.requiredQuantity < 2) {
+  const config = input.config
+  if (!config) return 'Configuração da promoção inválida.'
+  if (config.requiredQuantity < 2) {
     return 'Quantidade necessária deve ser no mínimo 2.'
   }
-  if (input.config.discountAmount <= 0) {
+  if (config.discountAmount <= 0) {
     return 'Valor do desconto deve ser maior que zero.'
   }
   if (input.startsAt && input.endsAt) {
@@ -46,7 +48,12 @@ export async function createCommercialRuleAction(
     const repo = getCommercialRuleRepository()
     const rule = await repo.create({
       ...input,
+      trigger: 'auto',
       appliesTo: input.appliesTo ?? 'all_products',
+      type: input.type ?? 'quantity_discount',
+      config: input.config!,
+      conditions: {},
+      actions: [],
     })
     revalidateCommercial()
     return { ok: true, id: rule.id }

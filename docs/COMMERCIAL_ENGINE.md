@@ -292,7 +292,7 @@ Sem `commercial_profiles` nesta fase. Comportamento:
 
 `PricedCartLine` evoluído: `lineProductSubtotal`, `lineAdjustmentTotal`, `lineDiscountEligibleBase`, `lineDiscountTotal`, `lineDisplayTotal`.
 
-`COMMERCIAL_ENGINE_VERSION = 2`.
+`COMMERCIAL_ENGINE_VERSION = 3` (Fase 3: cupons manuais).
 
 ## 8. Regras de venda (canais)
 
@@ -401,7 +401,7 @@ Fase 0  → COMMERCIAL_ENGINE.md (este documento)     ← concluída
 Fase 1  → Skeleton motor + trace + engine_version + testes regressão
 Fase 2  → Migrations policies + stage policies
 Fase 2.5→ Accumulation gates + eligibility_strategy + bases de cálculo (engine v2)
-Fase 3  → Rules unificadas + cupom manual + carrinho  [BLOQUEADA até gate 2.5]
+Fase 3  → Cupons manuais (trigger=manual) em commercial_rules (engine v3)
 Fase 3.5→ Actions Engine (gift, cashback…) — futuro
 Fase 4  → Adjustments + frete stub
 Fase 5  → Admin CRUD polish

@@ -17,6 +17,7 @@ export type ComputeTotalsContext = {
   commercialPolicies?: CommercialPolicy[]
   policyOverrides?: CommercialProductPolicyOverride[]
   salesChannels?: CommercialSalesChannels
+  couponCode?: string
 }
 
 export function computeTotals(
@@ -32,6 +33,7 @@ export function computeTotals(
     policyOverrides: context.policyOverrides,
     salesChannels: context.salesChannels,
     salesChannel: 'retail',
+    couponCode: context.couponCode,
   })
 
   const merchandiseSubtotal =
@@ -43,6 +45,9 @@ export function computeTotals(
     addonsSubtotal: result.subtotals.adjustments,
     commercialDiscount: result.discounts.total,
     appliedRule: result.applied.appliedRule,
+    appliedCouponCode: result.applied.couponCode,
+    pricingErrors: result.errors.length > 0 ? result.errors : undefined,
     cartTotal: result.total,
+    trace: result.trace,
   }
 }

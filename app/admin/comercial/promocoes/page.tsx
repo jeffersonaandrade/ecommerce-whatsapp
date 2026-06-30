@@ -16,7 +16,9 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminPromocoesPage() {
-  const rules = await getAllCommercialRulesAdmin()
+  const rules = (await getAllCommercialRulesAdmin()).filter(
+    (r) => (r.trigger ?? 'auto') === 'auto'
+  )
 
   return (
     <div className="w-full">

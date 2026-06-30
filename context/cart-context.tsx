@@ -29,12 +29,15 @@ import {
   validatePersonalizationAddon,
 } from '@/lib/personalization/validate-personalization'
 
+import { normalizeCouponCode } from '@/lib/commercial/commercial-rule-mapper'
+
 export type CartPricingConfig = {
   personalizationSettings: PersonalizationSettings
   commercialRules: CommercialRule[]
   commercialPolicies?: CommercialPolicy[]
   policyOverrides?: CommercialProductPolicyOverride[]
   salesChannels?: CommercialSalesChannels
+  couponCode?: string
 }
 
 type CartContextValue = {
@@ -45,6 +48,10 @@ type CartContextValue = {
   cartTotal: number
   isHydrated: boolean
   personalizationSettings: PersonalizationSettings
+  couponInput: string
+  appliedCouponCode?: string
+  applyCoupon: (code: string) => void
+  removeCoupon: () => void
   addItem: (
     productId: string,
     variationId: string,
@@ -67,6 +74,7 @@ const emptyPricing: CartPricing = {
   addonsSubtotal: 0,
   commercialDiscount: 0,
   cartTotal: 0,
+  trace: [],
 }
 
 const defaultPersonalizationSettings: PersonalizationSettings = {
@@ -94,6 +102,7 @@ function buildPricing(
     commercialPolicies: config.commercialPolicies,
     policyOverrides: config.policyOverrides,
     salesChannels: config.salesChannels,
+    couponCode: config.couponCode,
   })
 }
 
@@ -129,6 +138,8 @@ export function CartProvider({
 }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isHydrated, setIsHydrated] = useState(false)
+  const [couponInput, setCouponInput] = useState('')
+  const [appliedCouponCode, setAppliedCouponCode] = useState<string | undefined>()
   const [commercialRules, setCommercialRules] = useState<CommercialRule[]>(
     pricingConfig?.commercialRules ?? []
   )
@@ -150,8 +161,16 @@ export function CartProvider({
       commercialPolicies,
       policyOverrides,
       salesChannels,
+      couponCode: appliedCouponCode,
     }),
-    [personalizationSettings, commercialRules, commercialPolicies, policyOverrides, salesChannels]
+    [
+      personalizationSettings,
+      commercialRules,
+      commercialPolicies,
+      policyOverrides,
+      salesChannels,
+      appliedCouponCode,
+    ]
   )
 
   useEffect(() => {
@@ -320,7 +339,20 @@ export function CartProvider({
 
   const clearCart = useCallback(() => {
     persist([])
+    setAppliedCouponCode(undefined)
+    setCouponInput('')
   }, [persist])
+
+  const applyCoupon = useCallback((code: string) => {
+    const normalized = normalizeCouponCode(code)
+    setCouponInput(normalized)
+    setAppliedCouponCode(normalized || undefined)
+  }, [])
+
+  const removeCoupon = useCallback(() => {
+    setAppliedCouponCode(undefined)
+    setCouponInput('')
+  }, [])
 
   const pricing = useMemo(() => buildPricing(items, config), [items, config])
   const itemCount = useMemo(() => calculateItemCount(items), [items])
@@ -334,6 +366,10 @@ export function CartProvider({
       cartTotal: pricing.cartTotal,
       isHydrated,
       personalizationSettings,
+      couponInput,
+      appliedCouponCode: pricing.appliedCouponCode,
+      applyCoupon,
+      removeCoupon,
       addItem,
       removeItem,
       updateQuantity,
@@ -345,6 +381,9 @@ export function CartProvider({
       pricing,
       isHydrated,
       personalizationSettings,
+      couponInput,
+      applyCoupon,
+      removeCoupon,
       addItem,
       removeItem,
       updateQuantity,

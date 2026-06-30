@@ -44,6 +44,8 @@ export type CartPricing = {
   addonsSubtotal: number
   commercialDiscount: number
   appliedRule?: AppliedCommercialRule
+  appliedCouponCode?: string
+  pricingErrors?: { code: string; message: string }[]
   cartTotal: number
   trace: CommercialTrace
 }

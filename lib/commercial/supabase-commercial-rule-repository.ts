@@ -109,6 +109,9 @@ export const supabaseCommercialRuleRepository: CommercialRuleRepository = {
       ...existing,
       ...input,
       config: input.config ?? existing.config,
+      conditions: input.conditions ?? existing.conditions,
+      actions: input.actions ?? existing.actions,
+      usageCount: input.usageCount ?? existing.usageCount,
       updatedAt: nowIso(),
     }
 
