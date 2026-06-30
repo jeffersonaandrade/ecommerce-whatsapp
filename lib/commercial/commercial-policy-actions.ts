@@ -134,10 +134,3 @@ export async function deleteCommercialPolicyAction(
     }
   }
 }
-
-export function buildDefaultPolicyActions(
-  discountType: 'discount_percent' | 'discount_fixed',
-  value: number
-): PolicyAction[] {
-  return [{ type: discountType, value }]
-}
