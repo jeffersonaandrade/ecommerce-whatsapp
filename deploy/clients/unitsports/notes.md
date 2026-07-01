@@ -110,6 +110,8 @@ Casos ampliados: hero/banner, footer categorias, header branding, admin settings
 
 **MCP (pré-smoke):** `store_settings` com `logo.webp` + `hero.webp`; 5 categorias raiz visíveis; 5 banners ativos.
 
+**Gate 2026-07-01:** build local `:3001` + smoke 18/18 PASS (hero carousel, footer 5 categorias, admin settings/comercial). `coreVersionInstalled` → `1.1.0` após deploy produção.
+
 ---
 
 ## Pendências

@@ -19,6 +19,7 @@ Versão do core: [`CORE_VERSION.md`](../CORE_VERSION.md) · Compatibilidade: [`C
 
 | Versão | Data | Notas | Clientes atualizados |
 |--------|------|-------|----------------------|
+| v1.1.0 | 2026-07-01 | [v1.1.0.md](v1.1.0.md) | unitsports (validado local; deploy pendente) |
 | v1.0.0 | 2026-06-27 | [v1.0.0.md](v1.0.0.md) | unitsports (baseline produção) |
 
 ---
@@ -65,4 +66,6 @@ Ao publicar versão `vX.Y.Z`, criar `docs/releases/vX.Y.Z.md`:
 
 ## Baseline atual
 
-**v1.0.0** = estado do core com implantação UnitSports em produção (`loja-whats.netlify.app`) em 2026-06-27, incluindo onboarding tour Fase 3, import CSV, Central de Mídia, banners, Supabase.
+**v1.1.0** = hardening multi-client (core neutro, footer DB, create-client, anti-slug). Validado localmente com UnitSports em 2026-07-01.
+
+**v1.0.0** = estado do core com implantação UnitSports em produção (`loja-whats.netlify.app`) em 2026-06-27.

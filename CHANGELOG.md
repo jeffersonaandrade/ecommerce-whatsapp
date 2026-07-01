@@ -6,6 +6,20 @@ Formato baseado em entradas por fase/sessão. Não remover decisões ou versões
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-07-01
+
+### Multi-client hardening (core neutro + SportWear scaffold)
+
+- Defaults neutros: `settings-defaults`, `default-storefront-preset.json`, seeds
+- Footer/categorias: somente banco; removido `siteConfig.categories`
+- `create-client`, `branding:sync --client`, `qa:check-no-client-branching`
+- Scaffold `deploy/clients/sportwear/`
+- Smoke Playwright ampliado (hero, footer, admin comercial)
+- Release note: [`docs/releases/v1.1.0.md`](docs/releases/v1.1.0.md)
+- UnitSports validada localmente (18/18 smoke) — deploy produção pendente
+
+## [Unreleased] (histórico)
+
 ### Import transacional, PDP galeria e migração de imagens — 2026-06-26
 
 #### fix(db): revalidação SKU pós-upsert na RPC de import
