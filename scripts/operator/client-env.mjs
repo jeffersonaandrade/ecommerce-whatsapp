@@ -46,6 +46,18 @@ function parseEnvLines(content) {
   return entries
 }
 
+/** @returns {{ path: string, values: Record<string, string> } | null} */
+export function readClientEnvFile(slug) {
+  assertValidSlug(slug)
+  const envPath = getClientEnvPath(slug)
+  if (!fs.existsSync(envPath)) return null
+  const values = {}
+  for (const [key, value] of parseEnvLines(fs.readFileSync(envPath, 'utf8'))) {
+    values[key] = value
+  }
+  return { path: envPath, values }
+}
+
 /**
  * @param {string} slug
  * @param {{ override?: boolean }} options

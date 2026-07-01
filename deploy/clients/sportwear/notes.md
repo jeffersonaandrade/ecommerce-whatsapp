@@ -118,7 +118,10 @@ Base: `http://localhost:3000` via `dev:client`.
 2. Aplicar [`storefront-preset.json`](storefront-preset.json) em `store_settings`
 3. Preencher `deploy/clients/sportwear/.env.local` com credenciais reais (`DATA_PROVIDER=supabase`)
 4. Substituir logo por arte válida → `npm run branding:sync -- sportwear`
-5. Netlify + `npm run test:e2e:smoke:client -- sportwear` com `QA_BASE_URL` de produção
+5. `npm run deploy:check -- sportwear` (preflight — deve PASS antes do Netlify)
+6. Netlify + `npm run test:e2e:smoke:client -- sportwear` com `QA_BASE_URL` de produção
+
+`deploy:check` valida scaffold/env/branding/Supabase read-only; **não** cria Supabase, **não** aplica preset, **não** faz upload.
 
 ---
 

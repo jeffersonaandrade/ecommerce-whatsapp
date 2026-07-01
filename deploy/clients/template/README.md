@@ -39,6 +39,8 @@ npm run test:e2e:smoke:client -- <slug>
 
 `env:use` é **legado** — não usar no fluxo normal. **Nunca** versionar `.env.local` nem `.env.production`.
 
+**Preflight deploy:** antes do Netlify, `npm run deploy:check -- <slug>` — valida scaffold/env/branding/Supabase read-only; não substitui smoke pós-deploy.
+
 **Branding:** cada loja cria `deploy/clients/<slug>/branding/logo.jpeg` após onboarding — **não** incluído no template genérico. Ver exemplo em [`../unitsports/branding/`](../unitsports/branding/).
 
 ---

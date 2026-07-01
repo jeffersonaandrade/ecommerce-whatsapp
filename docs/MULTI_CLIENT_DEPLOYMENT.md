@@ -84,6 +84,30 @@ npm run test:e2e:smoke:client -- unitsports
 
 `branding:sync` com slug (`npm run branding:sync -- unitsports`) também carrega env do slug, não da raiz.
 
+### Preflight — `deploy:check`
+
+Antes de criar site Netlify ou disparar deploy, validar readiness **read-only**:
+
+```bash
+npm run deploy:check -- sportwear
+npm run deploy:check -- unitsports
+```
+
+Script: [`scripts/operator/deploy-check.mjs`](../scripts/operator/deploy-check.mjs)
+
+| Valida | Não faz |
+|--------|---------|
+| Scaffold (`env.example`, `.env.local`, preset, branding, notes) | Criar Supabase |
+| Env Supabase + URLs (sem imprimir secrets) | Rodar migrations |
+| Preset JSON + anti-vazamento entre clientes | Aplicar preset no banco |
+| Logo válida (sharp) | Upload de branding |
+| Supabase read-only (`store_settings`, categorias, produtos, banners) | Alterar dados |
+| Versão core vs `notes.md` | Substituir smoke pós-deploy |
+
+Exit codes: `0` deploy-ready · `1` blockers · `2` erro de uso (slug ausente/inválido).
+
+Após deploy Netlify, rodar `test:e2e:smoke:client` — preflight **não** substitui smoke.
+
 ### Legado — `env:use` (não usar no fluxo normal)
 
 ```bash

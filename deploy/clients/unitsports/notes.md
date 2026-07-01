@@ -102,13 +102,14 @@ Validação com **código novo** + env UnitSports + dados reais (não usar produ
 Fluxo oficial (env em `deploy/clients/unitsports/.env.local`, sem copiar para raiz):
 
 ```bash
+npm run deploy:check -- unitsports
 npm run build:client -- unitsports
 npm run start:client -- unitsports
 # outro terminal:
 npm run test:e2e:smoke:client -- unitsports
 ```
 
-`env:use` é legado — não usar no fluxo normal.
+`deploy:check` é preflight read-only (não substitui smoke). `env:use` é legado — não usar no fluxo normal.
 
 Casos ampliados: hero/banner, footer categorias, header branding, admin settings/comercial. Resultado em `test-data/e2e/smoke-regression-results.json`.
 

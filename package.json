@@ -22,6 +22,7 @@
     "build:client": "node scripts/operator/run-with-client-env.mjs build",
     "start:client": "node scripts/operator/run-with-client-env.mjs start",
     "test:e2e:smoke:client": "node scripts/operator/run-with-client-env.mjs smoke",
+    "deploy:check": "node scripts/operator/deploy-check.mjs",
     "qa:check-no-client-branching": "node scripts/qa/check-no-client-branching.mjs",
     "import:pstoom": "npx tsx scripts/qa/import-pstoom-batches.mjs",
     "headroom:cursor": "headroom wrap cursor"

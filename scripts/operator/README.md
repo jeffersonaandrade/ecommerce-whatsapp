@@ -41,7 +41,15 @@ npm run start:client -- unitsports
 npm run test:e2e:smoke:client -- unitsports
 ```
 
-Scripts: [`client-env.mjs`](client-env.mjs), [`run-with-client-env.mjs`](run-with-client-env.mjs)
+### Preflight deploy
+
+```bash
+npm run deploy:check -- unitsports
+```
+
+Valida readiness read-only antes do Netlify. Não substitui smoke pós-deploy.
+
+Scripts: [`client-env.mjs`](client-env.mjs), [`run-with-client-env.mjs`](run-with-client-env.mjs), [`deploy-check.mjs`](deploy-check.mjs)
 
 ### Legado — `env:use` (evitar)
 
