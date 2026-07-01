@@ -146,8 +146,8 @@ async function checkSecurityHeaders(page) {
 }
 
 const env = loadEnv()
-const email = env.ADMIN_EMAIL
-const password = env.ADMIN_PASSWORD
+const email = process.env.ADMIN_EMAIL ?? env.ADMIN_EMAIL
+const password = process.env.ADMIN_PASSWORD ?? env.ADMIN_PASSWORD
 
 const browser = await chromium.launch({ headless })
 const page = await browser.newPage()

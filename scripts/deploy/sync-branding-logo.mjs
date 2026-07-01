@@ -14,6 +14,7 @@ import {
   OG_IMAGE_FILENAME,
 } from './generate-branding-assets.mjs'
 import { readBrandingLogoSourceBuffer, resolveBrandingLogoSourcePath } from './resolve-branding-logo.mjs'
+import { loadClientEnv } from '../operator/client-env.mjs'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -21,8 +22,12 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 function parseArgs(argv) {
   let client = null
   for (let i = 0; i < argv.length; i++) {
-    if (argv[i] === '--client' && argv[i + 1]) {
+    const arg = argv[i]?.trim()
+    if (arg === '--client' && argv[i + 1]) {
       client = argv[++i].trim()
+    } else if (!client && arg && slugPattern.test(arg)) {
+      // npm run branding:sync -- sportwear (Windows/npm pode omitir --client)
+      client = arg
     }
   }
   return { client }
@@ -57,12 +62,17 @@ function mimeFor(filename) {
 }
 
 async function main() {
-  loadEnvLocal()
   const { client } = parseArgs(process.argv.slice(2))
 
   if (client && !slugPattern.test(client)) {
     console.error(`Slug inválido: ${client}`)
     process.exit(1)
+  }
+
+  if (client) {
+    loadClientEnv(client)
+  } else {
+    loadEnvLocal()
   }
 
   const options = client ? { clientSlug: client } : {}

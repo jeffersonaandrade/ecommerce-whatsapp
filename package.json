@@ -18,6 +18,10 @@
     "branding:sync": "node scripts/deploy/sync-branding-logo.mjs",
     "create-client": "node scripts/operator/create-client.mjs",
     "env:use": "node scripts/operator/use-client-env.mjs",
+    "dev:client": "node scripts/operator/run-with-client-env.mjs dev",
+    "build:client": "node scripts/operator/run-with-client-env.mjs build",
+    "start:client": "node scripts/operator/run-with-client-env.mjs start",
+    "test:e2e:smoke:client": "node scripts/operator/run-with-client-env.mjs smoke",
     "qa:check-no-client-branching": "node scripts/qa/check-no-client-branching.mjs",
     "import:pstoom": "npx tsx scripts/qa/import-pstoom-batches.mjs",
     "headroom:cursor": "headroom wrap cursor"

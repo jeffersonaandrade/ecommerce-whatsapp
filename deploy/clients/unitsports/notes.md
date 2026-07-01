@@ -99,6 +99,15 @@ Script **preview-only** para reparent da árvore e bulk move por heurística de 
 
 Validação com **código novo** + env UnitSports + dados reais (não usar produção atual como prova do refactor).
 
+Fluxo preferido (env em `deploy/clients/unitsports/.env.local`, sem copiar para raiz):
+
+```bash
+npm run build:client -- unitsports
+npm run test:e2e:smoke:client -- unitsports
+```
+
+Compatibilidade:
+
 ```bash
 npm run env:use -- unitsports
 npm run build && npm start

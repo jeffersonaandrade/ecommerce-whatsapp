@@ -52,41 +52,53 @@ main (core)
 
 ## Env local por cliente
 
-Cada implantação guarda credenciais em `deploy/clients/<slug>/.env.local` (**gitignored**). A `.env.local` na **raiz** é apenas a env **ativa** do cliente em que você está trabalhando.
+Cada implantação guarda credenciais em `deploy/clients/<slug>/.env.local` (**gitignored**).
 
 | Arquivo | Versionado | Papel |
 |---------|------------|-------|
 | `deploy/clients/<slug>/env.example` | Sim | Modelo seguro (placeholders) |
 | `deploy/clients/<slug>/.env.local` | **Não** | Env real da implantação |
-| `.env.local` (raiz) | **Não** | Env ativa — lida por Next.js e scripts |
-| `.env.local.backup` | **Não** | Backup ao trocar de cliente |
+| `.env.local` (raiz) | **Não** | Legacy — env ativa quando se usa `env:use` |
+| `.env.local.backup` | **Não** | Backup ao trocar de cliente via `env:use` |
 
-### Trocar de cliente
+### Fluxo preferido — client-aware (sem copiar secrets para raiz)
 
 ```bash
-# UnitSports
-npm run env:use -- unitsports
-
-# Outro cliente
-npm run env:use -- cliente-2
+npm run dev:client -- sportwear
+npm run build:client -- unitsports
+npm run start:client -- sportwear
+npm run test:e2e:smoke:client -- unitsports
 ```
 
-Manual: `cp deploy/clients/<slug>/.env.local .env.local`
+Implementação: [`scripts/operator/run-with-client-env.mjs`](../scripts/operator/run-with-client-env.mjs) carrega `deploy/clients/<slug>/.env.local` e executa o comando. Falha clara se o arquivo não existir. **Sem fallback** para outro cliente.
+
+### Compatibilidade — `env:use`
+
+```bash
+npm run env:use -- unitsports
+```
+
+Copia `deploy/clients/<slug>/.env.local` → `.env.local` na raiz. Mantido para compatibilidade; preferir `*:client` no dia a dia.
+
+**Risco conhecido:** se o env do slug não existir, `env:use` pergunta se deseja inicializar a partir da `.env.local` da raiz (`[y/N]`) — pode propagar credenciais do cliente errado. **Nunca** responder `y` sem confirmar o slug. Correção futura planejada.
+
+Manual legacy: `cp deploy/clients/<slug>/.env.local .env.local`
 
 ### Primeira vez (inicializar env do slug)
 
 1. Copiar `env.example` → `deploy/clients/<slug>/.env.local` e preencher
-2. Ou `npm run env:use -- <slug>` — se existir `.env.local` na raiz, o script pergunta: inicializar pasta do cliente com esse conteúdo? `[y/N]`
+2. Rodar com `npm run dev:client -- <slug>` — **não** depende de copiar para raiz
 
 ### Riscos
 
 | Risco | Mitigação |
 |-------|-----------|
-| Misturar Supabase de clientes | Uma `.env.local` por slug; `env:use` antes de scripts |
-| Perder env ao trocar cliente | Backup automático em `.env.local.backup` |
+| Misturar Supabase de clientes | Env por slug; `*:client` ou `env:use` consciente |
+| Perder env ao trocar cliente | Backup automático em `.env.local.backup` (só `env:use`) |
 | Commitar secrets | `.gitignore` explícito; só `env.example` versionado |
+| Fallback silencioso | Scripts client-aware falham se env do slug ausente |
 
-Runtime **inalterado** — a aplicação continua lendo `.env.local` na raiz.
+Next.js ainda lê `.env.local` na raiz quando o processo é iniciado **sem** wrapper — por isso `build:client`/`dev:client` injetam env no processo filho.
 
 ---
 
@@ -109,15 +121,16 @@ deploy/clients/<slug>/branding/logo.jpeg
 ### Sync por slug (implementado)
 
 ```bash
-npm run env:use -- unitsports
-npm run branding:sync -- --client unitsports
+npm run branding:sync -- unitsports
+# ou: node scripts/deploy/sync-branding-logo.mjs --client unitsports
 ```
 
 Comportamento:
 
 - Lê `deploy/clients/<slug>/branding/logo.*` (fallback legacy: `deploy/branding/`)
+- Com slug informado, carrega env de `deploy/clients/<slug>/.env.local` (**não** usa raiz)
 - Gera favicon, OG e derivados
-- Publica no Supabase Storage da env **ativa** (confirme `env:use` antes)
+- Publica no Supabase Storage da env **desse** cliente
 
 **Nunca** copiar logo da UnitSports para outras lojas.
 
