@@ -47,12 +47,61 @@ async function smokePublic(page) {
 
   try {
     await page.goto(`${base}/products`, { waitUntil: 'networkidle', timeout: 20000 })
+    const productCards = await page.locator('a[href^="/products/"]').count()
+    record('plp-products', productCards > 0, `cards=${productCards}`)
     const href = await page.locator('a[href^="/products/"]').first().getAttribute('href')
     if (!href) throw new Error('PLP sem produtos')
     const resp = await page.goto(`${base}${href}`, { waitUntil: 'domcontentloaded' })
     record('pdp', Boolean(resp && resp.status() < 500), href)
   } catch (e) {
     record('pdp', false, e.message)
+    if (!report.cases['plp-products']) record('plp-products', false, e.message)
+  }
+}
+
+/** Regressão multi-client: hero, footer categorias, branding — client-agnostic. */
+async function smokeHomeRegression(page) {
+  try {
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded', timeout: 20000 })
+
+    const header = page.locator('header')
+    const headerImg = await header.locator('img[alt]').count()
+    const headerText = await header.locator('span').filter({ hasText: /\S/ }).count()
+    const hasHeaderBrand = headerImg > 0 || headerText > 0
+    record(
+      'home-store-name',
+      hasHeaderBrand,
+      hasHeaderBrand ? `img=${headerImg} text=${headerText}` : 'sem marca no header'
+    )
+    record('header-branding', hasHeaderBrand, hasHeaderBrand ? 'ok' : 'sem logo/nome')
+
+    const hasCarousel = (await page.locator('[data-testid="banner-carousel"]').count()) > 0
+    const hasHeroImg = (await page.locator('main section img, section img').count()) > 0
+    const hasHeadline = (await page.locator('h1').filter({ hasText: /\S/ }).count()) > 0
+    const heroOk = hasCarousel || hasHeroImg || hasHeadline
+    record(
+      'home-hero-visual',
+      heroOk,
+      JSON.stringify({ carousel: hasCarousel, img: hasHeroImg, h1: hasHeadline })
+    )
+
+    const homeCategoryLinks = await page.locator('a[href*="category="]').count()
+    record('home-categories', homeCategoryLinks > 0, `links=${homeCategoryLinks}`)
+
+    const footerCatLinks = await page
+      .locator('footer a[href^="/products?category="]')
+      .count()
+    record('footer-categories', footerCatLinks > 0, `links=${footerCatLinks}`)
+  } catch (e) {
+    for (const id of [
+      'home-store-name',
+      'header-branding',
+      'home-hero-visual',
+      'home-categories',
+      'footer-categories',
+    ]) {
+      if (!report.cases[id]) record(id, false, e.message)
+    }
   }
 }
 
@@ -68,6 +117,8 @@ async function smokeAdmin(page, email, password) {
     ['admin-import', '/admin/import'],
     ['admin-banners', '/admin/banners'],
     ['admin-benefits', '/admin/content/benefits'],
+    ['admin-settings', '/admin/settings'],
+    ['admin-commercial', '/admin/comercial'],
   ]
 
   for (const [id, route] of adminRoutes) {
@@ -103,6 +154,7 @@ const page = await browser.newPage()
 
 try {
   await smokePublic(page)
+  await smokeHomeRegression(page)
   await checkSecurityHeaders(page)
 
   if (email && password) {

@@ -56,8 +56,7 @@ Schema inicial + categorias, import transacional, banners e onboarding guiado j�
 | Campo | Valor |
 |-------|-------|
 | Logo canônica | [`branding/logo.jpeg`](branding/logo.jpeg) |
-| Sync | `npm run branding:sync` (hoje: copiar logo para `deploy/branding/` antes — ver [`deploy/branding/README.md`](../../../branding/README.md)) |
-| Futuro | `npm run branding:sync -- --client unitsports` |
+| Sync | `npm run branding:sync -- --client unitsports` |
 
 **Não** copiar esta logo para outras implantações.
 
@@ -81,6 +80,35 @@ Links internos — não copiar conteúdo para esta ficha:
 - [`test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_DRY_RUN.md)
 - [`test-data/reports/LOCAL_IMAGE_MIGRATION_PILOT_UPLOAD.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_PILOT_UPLOAD.md)
 - [`test-data/reports/LOCAL_IMAGE_MIGRATION_REMAINING_UPLOAD.md`](../../../test-data/reports/LOCAL_IMAGE_MIGRATION_REMAINING_UPLOAD.md)
+
+---
+
+## Organização de categorias (SQL operacional)
+
+Script **preview-only** para reparent da árvore e bulk move por heurística de nome:
+
+- [`sql/category-organisation-initial.sql`](sql/category-organisation-initial.sql) — fase 1 (reparent + sneakers/NBA/inverno)
+- [`sql/category-organisation-phase2.sql`](sql/category-organisation-phase2.sql) — fase 2 (feminina/jogador/retrô/BR/EU + resíduos → sapatos)
+- [`sql/category-organisation-phase3.sql`](sql/category-organisation-phase3.sql) — fase 3 (169 restantes → subs finais)
+
+**Execução 2026-06-24 (MCP):** Fases 1–3 aplicadas. Raiz `camisas` com **0 produtos**; subs criadas: `internacionais`, `selecao-brasileira`, `resto-do-mundo`, `arabia-saudita`, `edicoes-especiais`, `camisa-treino`.
+
+---
+
+## Smoke (gate v1.1.0)
+
+Validação com **código novo** + env UnitSports + dados reais (não usar produção atual como prova do refactor).
+
+```bash
+npm run env:use -- unitsports
+npm run build && npm start
+# outro terminal:
+PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run test:e2e:smoke
+```
+
+Casos ampliados: hero/banner, footer categorias, header branding, admin settings/comercial. Resultado em `test-data/e2e/smoke-regression-results.json`.
+
+**MCP (pré-smoke):** `store_settings` com `logo.webp` + `hero.webp`; 5 categorias raiz visíveis; 5 banners ativos.
 
 ---
 
