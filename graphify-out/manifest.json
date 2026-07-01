@@ -1525,8 +1525,8 @@
     "semantic_hash": ""
   },
   "test-data/reports/local-image-migration-dry-run.json": {
-    "mtime": 1782828167.5907738,
-    "ast_hash": "6f7aaafa936de384d77fca3639d0b3e2",
+    "mtime": 1782829278.365632,
+    "ast_hash": "6a79be5416b3de28ba7325ac149a4cd5",
     "semantic_hash": ""
   },
   "test-data/reports/local-image-migration-pilot-upload.json": {
@@ -2305,13 +2305,13 @@
     "semantic_hash": ""
   },
   "components/admin/commercial/category-multi-picker.test.tsx": {
-    "mtime": 1782828018.6576233,
-    "ast_hash": "5de72263cc004cfb210267fc14b4c230",
+    "mtime": 1782828857.7796113,
+    "ast_hash": "0630e4db114b19b39786bc9f888903d8",
     "semantic_hash": ""
   },
   "components/admin/commercial/category-multi-picker.tsx": {
-    "mtime": 1782827894.2881885,
-    "ast_hash": "7037b62b12ed0d58119b76998c6db5f2",
+    "mtime": 1782828848.1856349,
+    "ast_hash": "b50e16aaec0cc19b9237ce89b3e29f1b",
     "semantic_hash": ""
   },
   "components/admin/commercial/coupon-form.test.tsx": {
@@ -2320,8 +2320,8 @@
     "semantic_hash": ""
   },
   "components/admin/commercial/coupon-form.tsx": {
-    "mtime": 1782827957.097362,
-    "ast_hash": "fbe3fef6f94877a8570db7dfc4ec2c60",
+    "mtime": 1782828848.3004968,
+    "ast_hash": "85ac723b86b9c8fcef6016295a9a5f63",
     "semantic_hash": ""
   },
   "components/admin/commercial/policy-form.tsx": {
@@ -2330,8 +2330,8 @@
     "semantic_hash": ""
   },
   "components/admin/commercial/product-multi-picker.tsx": {
-    "mtime": 1782827901.0858479,
-    "ast_hash": "5c14279a0f8c244703d95d11429e76b7",
+    "mtime": 1782828836.1712198,
+    "ast_hash": "d4fd4c260a258e7f84faeaa921940773",
     "semantic_hash": ""
   },
   "components/admin/referral-prompt-card.tsx": {
@@ -2602,6 +2602,11 @@
   "types/commercial-policy.ts": {
     "mtime": 1782796518.8697302,
     "ast_hash": "8ab61593067218f6feccadbfca107e7f",
+    "semantic_hash": ""
+  },
+  "components/admin/commercial/product-multi-picker.test.tsx": {
+    "mtime": 1782828876.261076,
+    "ast_hash": "237ee2c81b54aa2916777e3b24eaa2ce",
     "semantic_hash": ""
   }
 }
