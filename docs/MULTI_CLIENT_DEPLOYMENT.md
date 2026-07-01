@@ -252,7 +252,7 @@ Ver [`deploy/registry/README.md`](../deploy/registry/README.md).
 ```text
 Core (main)
   ↓ deploy Netlify
-  ├─ UnitSports — Supabase A — loja-whats.netlify.app
+  ├─ UnitSports — Supabase A — unitsports.netlify.app
   ├─ Cliente B   — Supabase B — dominio-b.com.br
   └─ Cliente C   — Supabase C — dominio-c.com.br
 ```

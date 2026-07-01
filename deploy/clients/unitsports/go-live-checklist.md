@@ -10,9 +10,10 @@ Template genérico: [`../template/go-live-checklist.md`](../template/go-live-che
 
 - [x] Projeto Supabase criado (isolado — ref em `clients.local.json`, não versionado)
 - [x] Migrations core aplicadas (lista completa: [`DATABASE_PLAN.md`](../../../docs/DATABASE_PLAN.md) § implantação UnitSports)
-- [x] Site Netlify `loja-whats` configurado
+- [x] Site Netlify `unitsports` configurado
 - [x] `DATA_PROVIDER=supabase` em produção
-- [ ] Domínio customizado (futuro — hoje https://loja-whats.netlify.app)
+- [x] URL pública https://unitsports.netlify.app
+- [ ] Domínio customizado (futuro)
 
 ## Branding
 

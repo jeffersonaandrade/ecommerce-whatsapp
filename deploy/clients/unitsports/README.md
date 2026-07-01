@@ -49,8 +49,8 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 |-------|-------|
 | slug | `unitsports` |
 | Nome comercial | UnitSports |
-| Domínio | https://loja-whats.netlify.app |
-| Netlify site | `loja-whats` |
+| Domínio | https://unitsports.netlify.app |
+| Netlify site | `unitsports` |
 | Status | production |
 | coreVersionInstalled | 1.0.0 |
 
@@ -112,7 +112,7 @@ Ao trocar de cliente, a env anterior da raiz é salva em `.env.local.backup` (gi
 
 **Nunca** commitar keys Supabase, service role ou `.env` com valores reais.
 
-Env de produção: exclusivamente no **painel Netlify** do site `loja-whats`. Desenvolvimento local: `deploy/clients/unitsports/.env.local` (gitignored) — ativar na raiz com `npm run env:use -- unitsports`.
+Env de produção: exclusivamente no **painel Netlify** do site `unitsports`. Desenvolvimento local: `deploy/clients/unitsports/.env.local` (gitignored) — ativar na raiz com `npm run env:use -- unitsports`.
 
 Supabase project ref: registrar em `clients.local.json` — não versionar nesta pasta.
 

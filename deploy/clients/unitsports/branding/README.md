@@ -14,7 +14,7 @@ Logo **desta implantação**. Não reutilizar em outras lojas.
 2. Confirmar env apontando para Supabase **UnitSports** (`.env.local` ou Netlify)
 3. **Hoje:** copiar para [`deploy/branding/logo.jpeg`](../../../branding/logo.jpeg) e rodar `npm run branding:sync`
 4. **Futuro:** `npm run branding:sync -- --client unitsports` (lerá esta pasta diretamente)
-5. Validar header, favicon e OG em https://loja-whats.netlify.app
+5. Validar header, favicon e OG em https://unitsports.netlify.app
 
 ---
 

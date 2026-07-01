@@ -2,7 +2,7 @@
 
 Plataforma **white-label**: um core Next.js + Supabase compartilhado, com **um deploy Netlify e um projeto Supabase por loja** (não multi-tenant no mesmo banco).
 
-**Primeira implantação de referência:** [UnitSports](deploy/clients/unitsports/) (`loja-whats.netlify.app`).
+**Primeira implantação de referência:** [UnitSports](deploy/clients/unitsports/) (`unitsports.netlify.app`).
 
 ## Arquitetura multi-cliente
 

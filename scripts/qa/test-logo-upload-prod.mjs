@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url'
 import { chromium } from 'playwright'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const base = process.env.QA_BASE_URL ?? 'https://loja-whats.netlify.app'
+const base = process.env.QA_BASE_URL ?? 'https://unitsports.netlify.app'
 const logoPath = path.join(root, 'deploy/branding/logo.jpeg')
 
 function loadEnv() {
