@@ -40,9 +40,11 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   assertProductionSupabaseRuntime('root-layout')
-  const settings = await getStoreSettings()
-  const commercialRules = await getStorefrontCommercialRules()
-  const commercialPolicies = await getStorefrontCommercialPolicies('retail')
+  const [settings, commercialRules, commercialPolicies] = await Promise.all([
+    getStoreSettings(),
+    getStorefrontCommercialRules(),
+    getStorefrontCommercialPolicies('retail'),
+  ])
   const pricingConfig = {
     personalizationSettings: storeSettingsToPersonalization(settings),
     commercialRules,

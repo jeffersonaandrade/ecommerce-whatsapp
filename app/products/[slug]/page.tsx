@@ -20,8 +20,10 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
-  const product = await getProductBySlug(slug)
-  const settings = await getStoreSettings()
+  const [product, settings] = await Promise.all([
+    getProductBySlug(slug),
+    getStoreSettings(),
+  ])
   const canonical = `${settings.siteUrl}/products/${slug}`
   const ogFallback = brandingAssetUrl(settings.ogImagePath, settings.updatedAt)
   const productImage = product?.images[0]

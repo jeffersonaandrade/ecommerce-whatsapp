@@ -1,11 +1,13 @@
 import 'server-only'
 
+import { cache } from 'react'
 import { StoreSettings, StoreSettingsInput } from '@/types/store-settings'
 import { getSettingsRepository } from './get-settings-repository'
 
-export async function getStoreSettings(): Promise<StoreSettings> {
+/** Dedup por request (layout + generateMetadata); não persiste entre requests. */
+export const getStoreSettings = cache(async (): Promise<StoreSettings> => {
   return getSettingsRepository().get()
-}
+})
 
 export async function updateStoreSettings(
   input: StoreSettingsInput
