@@ -70,6 +70,9 @@ skills-lock.json
 # catalog dev storage (seed committed separately)
 /storage/catalog.json
 /storage/store-settings.json
+/storage/categories.json
+/storage/store-onboarding.json
+/storage/commercial-rules.json
 /storage/branding/
 
 # QA smoke auxiliares locais (não versionados)
