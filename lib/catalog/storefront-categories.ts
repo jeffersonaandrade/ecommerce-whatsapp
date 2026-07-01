@@ -1,11 +1,10 @@
-import { siteConfig } from '@/config/site'
 import { Category } from '@/types/category'
 import {
   getCategoryBreadcrumb,
   getStorefrontRoots,
   getVisibleChildCategories,
 } from './category-tree'
-import { generateCategorySlug, resolveCategoryParam, sortCategories } from './category-utils'
+import { generateCategorySlug, resolveCategoryParam } from './category-utils'
 
 export { getCategoryBreadcrumb, getStorefrontRoots, getVisibleChildCategories }
 
@@ -44,7 +43,7 @@ export function resolveStorefrontCategories(catalogCategories: string[]): string
     return [...fromCatalog].sort((a, b) => a.localeCompare(b, 'pt-BR'))
   }
 
-  return [...siteConfig.categories]
+  return []
 }
 
 export function resolveStorefrontCategoryList(categories: Category[]): Category[] {
@@ -53,20 +52,7 @@ export function resolveStorefrontCategoryList(categories: Category[]): Category[
   )
   if (visible.length > 0) return getStorefrontRoots(visible)
 
-  const fallback = siteConfig.categories.map((name, index) => ({
-    id: `fallback-${generateCategorySlug(name)}`,
-    name,
-    slug: generateCategorySlug(name),
-    description: '',
-    sortOrder: (index + 1) * 10,
-    visible: true,
-    parentId: null,
-    depth: 0,
-    path: generateCategorySlug(name),
-    createdAt: '',
-    updatedAt: '',
-  }))
-  return sortCategories(fallback)
+  return []
 }
 
 export function categoryProductsHref(slug: string): string {

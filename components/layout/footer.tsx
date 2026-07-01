@@ -1,5 +1,9 @@
 import Link from 'next/link'
-import { siteConfig } from '@/config/site'
+import { getStorefrontCategories } from '@/lib/categories'
+import {
+  categoryProductsHref,
+  resolveStorefrontCategoryList,
+} from '@/lib/catalog/storefront-categories'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 
 function socialHref(platform: 'instagram' | 'facebook', value: string): string | null {
@@ -16,6 +20,7 @@ export async function Footer() {
   const settings = await getStoreSettings()
   const instagramUrl = socialHref('instagram', settings.instagram)
   const facebookUrl = socialHref('facebook', settings.facebook)
+  const categories = resolveStorefrontCategoryList(await getStorefrontCategories())
 
   return (
     <footer className="border-t border-hairline-dark bg-ink text-canvas">
@@ -23,7 +28,9 @@ export async function Footer() {
         <div className="mb-12 grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <h3 className="mb-4 text-lg font-bold text-canvas">{settings.storeName}</h3>
-            <p className="text-sm leading-relaxed text-mute">{settings.description}</p>
+            {settings.description && (
+              <p className="text-sm leading-relaxed text-mute">{settings.description}</p>
+            )}
             {settings.email && (
               <p className="mt-3 text-sm text-mute">
                 <a href={`mailto:${settings.email}`} className="hover:text-canvas">
@@ -33,23 +40,25 @@ export async function Footer() {
             )}
           </div>
 
-          <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-canvas">
-              Produtos
-            </h4>
-            <ul className="space-y-2 text-sm">
-              {siteConfig.categories.map((category) => (
-                <li key={category}>
-                  <Link
-                    href={`/products?category=${encodeURIComponent(category)}`}
-                    className="text-mute transition-colors hover:text-canvas"
-                  >
-                    {category}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {categories.length > 0 && (
+            <div>
+              <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-canvas">
+                Produtos
+              </h4>
+              <ul className="space-y-2 text-sm">
+                {categories.map((category) => (
+                  <li key={category.id}>
+                    <Link
+                      href={categoryProductsHref(category.slug)}
+                      className="text-mute transition-colors hover:text-canvas"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div>
             <h4 className="mb-4 text-xs font-semibold uppercase tracking-wide text-canvas">

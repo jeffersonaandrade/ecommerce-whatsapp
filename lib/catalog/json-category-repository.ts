@@ -1,6 +1,5 @@
 import 'server-only'
 
-import { siteConfig } from '@/config/site'
 import { Category, CategoryInput } from '@/types/category'
 import type { CategoryQuery, CategoryQueryResult } from '@/lib/query'
 import { loadCatalogFromDisk } from './catalog-storage'
@@ -50,26 +49,6 @@ function deriveCategoriesFromProductNames(names: string[]): Category[] {
   })
 }
 
-function seedFromSiteConfig(): Category[] {
-  const timestamp = nowIso()
-  return siteConfig.categories.map((name, index) => {
-    const slug = generateCategorySlug(name)
-    return {
-      id: `cat-${slug}`,
-      name,
-      slug,
-      description: '',
-      sortOrder: (index + 1) * 10,
-      visible: true,
-      parentId: null,
-      depth: 0,
-      path: slug,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    }
-  })
-}
-
 function ensureCategoriesLoaded(): Category[] {
   const existing = loadCategoriesFromDisk()
   if (existing.length > 0) {
@@ -89,9 +68,7 @@ function ensureCategoriesLoaded(): Category[] {
     return fromProducts
   }
 
-  const seeded = seedFromSiteConfig()
-  persistCategories(seeded)
-  return seeded
+  return []
 }
 
 function buildCategory(

@@ -19,12 +19,5 @@ export const siteConfig = {
       href: '/politica-de-trocas',
     },
   ],
-  categories: [
-    'Camisas',
-    'Shorts',
-    'Meias',
-    'Jaquetas',
-    'Acessórios',
-  ],
   productPageSize: 12,
 }

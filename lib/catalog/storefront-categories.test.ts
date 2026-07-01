@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { siteConfig } from '@/config/site'
 import {
   categoryProductsHref,
   hasStorefrontCategoryImages,
@@ -60,8 +59,8 @@ describe('resolveStorefrontCategories (legacy strings)', () => {
     ])
   })
 
-  it('usa fallback do siteConfig quando catálogo vazio', () => {
-    expect(resolveStorefrontCategories([])).toEqual(siteConfig.categories)
+  it('retorna vazio quando catálogo vazio', () => {
+    expect(resolveStorefrontCategories([])).toEqual([])
   })
 })
 
@@ -73,8 +72,8 @@ describe('resolveStorefrontCategoryList', () => {
     ])
   })
 
-  it('usa fallback siteConfig quando lista vazia', () => {
-    expect(resolveStorefrontCategoryList([]).length).toBe(siteConfig.categories.length)
+  it('retorna vazio quando lista vazia', () => {
+    expect(resolveStorefrontCategoryList([])).toEqual([])
   })
 })
 
