@@ -4,7 +4,7 @@ Auditoria **read-only** das políticas RLS definidas em `supabase/migrations/` e
 
 **Escopo:** análise estática do repositório + queries de verificação para executar no Supabase (UnitSports ou projeto de teste).
 
-**Status geral:** estrutura RLS consistente com modelo `is_store_admin()`; **1 achado P1** em `commercial_product_policy_overrides`.
+**Status geral:** estrutura RLS consistente com modelo `is_store_admin()`; **1 achado LATENTE** (backlog Security Hardening — módulo Commercial).
 
 ---
 
@@ -21,7 +21,7 @@ Auditoria **read-only** das políticas RLS definidas em `supabase/migrations/` e
 | `benefit_items` | Sim | Ativos | Admin only | OK |
 | `store_onboarding` | Sim | Nenhuma | Admin only | OK |
 | `commercial_policies` | Sim | `enabled = true` | Admin only | OK |
-| `commercial_product_policy_overrides` | Sim | **`USING (true)` — leitura total** | Admin only | **Revisar P1** |
+| `commercial_product_policy_overrides` | Sim | **`USING (true)` — leitura total** | Admin only | **LATENTE** — backlog Security Hardening |
 | Storage `branding` / `products` | Sim | Read público | Write admin | OK |
 
 ---
@@ -38,9 +38,13 @@ Todas as policies admin dependem desta claim. Usuários anon/authenticated sem r
 
 ---
 
-## Achado P1 — `commercial_product_policy_overrides_public_read`
+## Achado LATENTE — `commercial_product_policy_overrides_public_read`
 
-**Arquivo:** `supabase/migrations/20260801120000_commercial_policies.sql`
+**Classificação:** LATENTE — **não corrigir nesta sprint.** Backlog **Security Hardening** (módulo Commercial).
+
+**Origem no repo:** tabela criada em `d891d78` (2026-06-30) — `feat(commercial): policies de canal no motor e admin CRUD`, migration [`20260801120000_commercial_policies.sql`](../../supabase/migrations/20260801120000_commercial_policies.sql). **Não** foi criada durante P0/P1 recente.
+
+**Arquivo da policy:**
 
 ```sql
 CREATE POLICY "commercial_product_policy_overrides_public_read"
@@ -49,11 +53,39 @@ CREATE POLICY "commercial_product_policy_overrides_public_read"
   USING (true);
 ```
 
-**Risco:** qualquer visitante (anon) pode ler **todos** os overrides comerciais por produto, incluindo condições/ações em JSONB que podem antecipar regras de preço/canal ainda não visíveis no storefront.
+**O que realmente aconteceu:**
 
-**Mitigação sugerida (P1, pós-P0):** restringir leitura pública a overrides de produtos ativos e policies habilitadas, ou mover resolução comercial para RPC `SECURITY DEFINER` sem exposição direta da tabela.
+```text
+Tabela existente (desde motor comercial v1)
+  → policy RLS permissiva
+  → 0 linhas em UnitSports hoje
+  → nenhum caller / endpoint / frontend usa leitura anon
+```
 
-**Prioridade:** P1 segurança — escalar para P0 se teste anon confirmar vazamento de dados sensíveis.
+**Risco teórico:** visitante anon poderia ler overrides (JSONB condições/ações) **se** existirem linhas — vazamento de regras comerciais não expostas no storefront.
+
+**Impacto em produção hoje:** nenhum — achado de segurança **válido**, não erro de arquitetura; ganho imediato de migration seria pequeno.
+
+**Decisão (2026-07-01):** adiar correção. Remover policy pública **antes da primeira funcionalidade de produção** que utilize `commercial_product_policy_overrides` (Policy Overrides: RLS + CRUD admin + API + frontend no mesmo contexto).
+
+**Não gerar migration nesta etapa.**
+
+---
+
+## Backlog — Security Hardening (Commercial)
+
+| Item | Quando | Ação |
+|------|--------|------|
+| `commercial_product_policy_overrides` RLS | Ativação da feature Policy Overrides | `DROP POLICY commercial_product_policy_overrides_public_read`; validar GRANT/REVOKE; storefront via service role ou RPC `SECURITY DEFINER` |
+| Referência | [`COMMERCIAL_ENGINE.md`](../COMMERCIAL_ENGINE.md) § Security Hardening | |
+
+**Rascunho futuro (referência only — não versionar como migration até go-live da feature):**
+
+```sql
+-- Executar junto do go-live Policy Overrides, após teste em Supabase vazio
+DROP POLICY IF EXISTS "commercial_product_policy_overrides_public_read"
+  ON public.commercial_product_policy_overrides;
+```
 
 ---
 
@@ -99,7 +131,7 @@ const { data, error } = await supabase
   .limit(5)
 ```
 
-Se retornar linhas sem autenticação admin → confirmar achado P1.
+Se retornar linhas sem autenticação admin → risco **ativo** (escalar de LATENTE para correção imediata). Com 0 linhas → permanece LATENTE.
 
 ### 4. Draft products não expostos
 
@@ -121,16 +153,36 @@ Verificar buckets existem e são públicos conforme [`supabase/migrations/README
 
 ---
 
-## Limitações desta auditoria
+## Verificação live — UnitSports (2026-07-01)
 
-- Verificação **estática** no repositório; execução live depende de credenciais Supabase do cliente.
-- UnitSports **não foi alterado** nesta remediação.
-- MCP Supabase não executado nesta sessão — operador deve rodar queries acima em projeto de referência.
+Teste com **anon key** de produção (read-only, sem INSERT):
+
+```javascript
+// Resultado observado
+{ error: null, count: 0, rowsReturned: 0 }
+```
+
+| Conclusão | Detalhe |
+|-----------|---------|
+| **Policy permissiva confirmada** | `SELECT` anon **não é bloqueado** — a policy `USING (true)` está ativa |
+| **Impacto atual** | Tabela **vazia** (0 linhas) — risco **latente**, não exploração ativa hoje |
+| **Impacto futuro** | Qualquer override criado no admin ficará legível via PostgREST anon |
+
+**Origem:** migration `d891d78` / `20260801120000` — anterior ao P0; UnitSports **não alterado** nesta sprint.
 
 ---
 
-## Próximos passos (P1)
+## Limitações desta auditoria
 
-1. Executar teste anon em `commercial_product_policy_overrides`.
-2. Se confirmado vazamento: migration para restringir policy ou RPC server-side.
-3. Repetir verificação após fix em projeto de teste antes de aplicar em produção.
+- Verificação live UnitSports: **2026-07-01** (anon SELECT permitido; tabela vazia).
+- Nenhuma migration de correção aplicada — item em backlog Security Hardening.
+- MCP Supabase não executado — teste via `@supabase/supabase-js` + anon key local.
+
+---
+
+## Próximos passos
+
+1. ~~Executar teste anon em `commercial_product_policy_overrides`.~~ **Feito 2026-07-01**
+2. ~~Reclassificar achado.~~ **LATENTE — backlog Commercial Security Hardening**
+3. Corrigir RLS **junto** do go-live Policy Overrides (RLS + CRUD + API + frontend).
+4. Re-testar anon após correção em projeto de teste antes de UnitSports.

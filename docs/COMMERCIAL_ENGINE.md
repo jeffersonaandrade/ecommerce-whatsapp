@@ -354,6 +354,16 @@ commercial_product_policy_overrides (
 )
 ```
 
+**Status produção (2026-07-01):** tabela existe em UnitSports, **0 linhas**; feature Policy Overrides **sem UI/callers** ainda. RLS `commercial_product_policy_overrides_public_read` (`USING (true)`) classificado como **LATENTE** — ver backlog Security Hardening abaixo e [`audits/RLS_VERIFICATION_2026-06-24.md`](audits/RLS_VERIFICATION_2026-06-24.md).
+
+### 9.2.1 Security Hardening (backlog)
+
+| Item | Gatilho | Ação |
+|------|---------|------|
+| Remover policy pública em overrides | Go-live **Policy Overrides** (CRUD admin + API + frontend) | `DROP POLICY commercial_product_policy_overrides_public_read` + validar GRANT; storefront via service role ou RPC |
+
+**Nota:** não aplicar migration de RLS antes da feature — corrigir no mesmo contexto de ativação.
+
 ### 9.3 `commercial_rules` (evolução da tabela existente)
 
 Tabela **já existe** (`kind = promotion`, `type = quantity_discount`). Evolução proposta:
