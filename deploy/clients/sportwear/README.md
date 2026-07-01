@@ -30,7 +30,7 @@ A primeira loja implantada tem ficha completa em [`../unitsports/`](../unitsport
 | `go-live-checklist.md` | Passos até produção |
 | `notes.md` | Observações operacionais + `coreVersionInstalled` |
 
-**Env local:** após copiar o template, criar `deploy/clients/sportwear/.env.local` a partir de `env.example`. Ativar na raiz: `npm run env:use -- sportwear`. **Nunca** versionar `.env.local` nem `.env.production`.
+**Env local:** criar `deploy/clients/sportwear/.env.local` a partir de `env.example`. Comandos oficiais: `npm run dev:client -- sportwear` (e `build/start/test:e2e:smoke:client`). `env:use` é legado — não usar no fluxo normal. **Nunca** versionar `.env.local`.
 
 **Branding:** cada loja cria `deploy/clients/sportwear/branding/logo.jpeg` após onboarding — **não** incluído no template genérico. Ver exemplo em [`../unitsports/branding/`](../unitsports/branding/).
 

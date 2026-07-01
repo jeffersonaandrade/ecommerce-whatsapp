@@ -28,25 +28,39 @@ Registry de lojas: [`deploy/registry/README.md`](../../deploy/registry/README.md
 
 ## Env por cliente
 
-Cada loja: `deploy/clients/<slug>/.env.local` (gitignored). Ativar na raiz:
+Fonte canônica: `deploy/clients/<slug>/.env.local` (gitignored).
+
+### Comandos oficiais
+
+Carregam **exclusivamente** o env do slug — sem copiar para a raiz:
 
 ```bash
-npm run env:use -- unitsports
+npm run dev:client -- unitsports
+npm run build:client -- unitsports
+npm run start:client -- unitsports
+npm run test:e2e:smoke:client -- unitsports
 ```
 
-| Comportamento | Detalhe |
-|---------------|---------|
-| Ativar | Copia `deploy/clients/<slug>/.env.local` → `.env.local` raiz |
-| Backup | Sobrescreve raiz → salva `.env.local.backup` antes |
-| Init | Se env do slug não existe e raiz existe → prompt `[y/N]` |
-| Segurança | Nunca imprime valores de env |
+Scripts: [`client-env.mjs`](client-env.mjs), [`run-with-client-env.mjs`](run-with-client-env.mjs)
+
+### Legado — `env:use` (evitar)
+
+```bash
+npm run env:use -- unitsports   # legado — copia slug → raiz
+```
+
+| Regra | Detalhe |
+|-------|---------|
+| Não usar no fluxo normal | Preferir `*:client` |
+| Não inicializa a partir da raiz | Falha se env do slug não existir |
+| Nunca raiz → cliente | Proibido copiar `.env.local` da raiz para `deploy/clients/<slug>/` |
 
 Script: [`use-client-env.mjs`](use-client-env.mjs)
 
 ## Branding por cliente
 
 - **Canônico:** `deploy/clients/<slug>/branding/logo.jpeg`
-- **Sync:** `npm run branding:sync -- --client <slug>` (lê logo do slug; fallback legacy `deploy/branding/`)
+- **Sync:** `npm run branding:sync -- <slug>` (env + logo do slug; fallback legacy `deploy/branding/`)
 - Ver [`deploy/branding/README.md`](../../deploy/branding/README.md)
 
 ## Scaffold nova loja

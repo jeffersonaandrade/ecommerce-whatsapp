@@ -86,14 +86,11 @@ QA_BASE_URL=http://localhost:3000
 
 | Comando | Exit | Resultado |
 |---------|------|-----------|
-| `npm run env:use -- sportwear` | 0 | Env SportWear ativada na raiz; `.env.local` raiz contém só `DATA_PROVIDER=json` (sem Supabase) |
-| `npm run branding:sync -- sportwear` | 1 | Lê `deploy/clients/sportwear/branding/logo.jpeg`; falha em `sharp` (`unsupported image format`) — placeholder inválido; **não** faz upload |
-| `node scripts/deploy/sync-branding-logo.mjs --client sportwear` | 1 | Mesmo comportamento (logo resolvida pelo slug) |
-| `rg -i "UnitSports\|unitsports\|loja-whats\|unitsports.netlify" deploy/clients/sportwear` | — | Hits apenas em [`README.md`](README.md) (links de template para exemplo UnitSports); **zero** em `branding/` após correção |
+| `npm run branding:sync -- sportwear` | 1 | Lê `deploy/clients/sportwear/branding/logo.jpeg`; falha segura (`sharp` / sem Supabase) |
+| `rg -i "UnitSports\|unitsports\|loja-whats\|unitsports.netlify" deploy/clients/sportwear` | — | Hits só em [`README.md`](README.md) (links template); `branding/` limpo |
 | `npm run qa:check-no-client-branching` | 0 | OK |
 | `npm test` | 0 | 450/450 |
 | `npm run build:client -- sportwear` | 0 | Build JSON mode verde |
-| `npm run build` (após `env:use`) | 0 | Build JSON mode verde |
 | `npm run dev:client -- sportwear` + `npm run test:e2e:smoke:client -- sportwear` | 1 | Smoke parcial — ver limites |
 
 ### Smoke local (JSON mode)
@@ -110,7 +107,7 @@ Base: `http://localhost:3000` via `dev:client`.
 ### Limites documentados
 
 1. **Sem Supabase = teste de scaffold**, não de loja real
-2. **`env:use` com prompt `[y/N]`** para copiar raiz→cliente é risco operacional — usar `*:client` como fluxo principal; corrigir `env:use` depois
+2. **`env:use` é legado** — fluxo oficial: `dev/build/start/test:e2e:smoke:client`; nunca copiar raiz → cliente
 3. **`storage/*.json` local** pode conter dados de sessões anteriores (UnitSports) — limpar ou ignorar ao validar isolamento de env
 4. **Logo placeholder** do template não é JPEG válido — substituir antes do go-live
 5. **`branding:sync`** exige Supabase real no go-live; falha segura sem credenciais

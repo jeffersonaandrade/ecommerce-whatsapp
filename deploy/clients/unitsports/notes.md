@@ -99,21 +99,16 @@ Script **preview-only** para reparent da árvore e bulk move por heurística de 
 
 Validação com **código novo** + env UnitSports + dados reais (não usar produção atual como prova do refactor).
 
-Fluxo preferido (env em `deploy/clients/unitsports/.env.local`, sem copiar para raiz):
+Fluxo oficial (env em `deploy/clients/unitsports/.env.local`, sem copiar para raiz):
 
 ```bash
 npm run build:client -- unitsports
+npm run start:client -- unitsports
+# outro terminal:
 npm run test:e2e:smoke:client -- unitsports
 ```
 
-Compatibilidade:
-
-```bash
-npm run env:use -- unitsports
-npm run build && npm start
-# outro terminal:
-PLAYWRIGHT_BASE_URL=https://unitsports.netlify.app npm run test:e2e:smoke
-```
+`env:use` é legado — não usar no fluxo normal.
 
 Casos ampliados: hero/banner, footer categorias, header branding, admin settings/comercial. Resultado em `test-data/e2e/smoke-regression-results.json`.
 

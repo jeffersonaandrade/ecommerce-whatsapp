@@ -1,11 +1,17 @@
 /**
- * Ativa env de um cliente: deploy/clients/<slug>/.env.local → .env.local (raiz).
- * Uso: npm run env:use -- <slug>
+ * LEGADO — copia deploy/clients/<slug>/.env.local → .env.local (raiz).
+ *
+ * Não usar no fluxo normal. Comandos oficiais:
+ *   npm run dev:client -- <slug>
+ *   npm run build:client -- <slug>
+ *   npm run start:client -- <slug>
+ *   npm run test:e2e:smoke:client -- <slug>
+ *
+ * Uso residual: npm run env:use -- <slug>
  * Nunca imprime valores de env.
  */
 import fs from 'node:fs'
 import path from 'node:path'
-import readline from 'node:readline'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -16,19 +22,9 @@ function fail(message) {
   process.exit(1)
 }
 
-function askYesNo(question) {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stderr })
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => {
-      rl.close()
-      resolve(answer.trim().toLowerCase() === 'y')
-    })
-  })
-}
-
 const slug = process.argv[2]?.trim()
 if (!slug) {
-  fail('Uso: npm run env:use -- <slug>')
+  fail('Uso: npm run env:use -- <slug>\nFluxo normal: npm run dev:client -- <slug>')
 }
 if (!slugPattern.test(slug) || slug.includes('..')) {
   fail(`Slug inválido: ${slug}`)
@@ -38,21 +34,19 @@ const clientEnvPath = path.join(root, 'deploy/clients', slug, '.env.local')
 const rootEnvPath = path.join(root, '.env.local')
 const backupPath = path.join(root, '.env.local.backup')
 
-async function main() {
+function main() {
+  console.error(
+    '[env:use] AVISO: comando legado. Prefira npm run dev:client -- ' +
+      slug +
+      ' (ou build/start/smoke:client).'
+  )
+
   if (!fs.existsSync(clientEnvPath)) {
-    if (fs.existsSync(rootEnvPath)) {
-      const ok = await askYesNo(
-        `Foi encontrada uma .env.local na raiz.\nDeseja inicializar deploy/clients/${slug}/.env.local com esse conteúdo? [y/N] `
-      )
-      if (ok) {
-        fs.mkdirSync(path.dirname(clientEnvPath), { recursive: true })
-        fs.copyFileSync(rootEnvPath, clientEnvPath)
-      } else {
-        fail(`Arquivo deploy/clients/${slug}/.env.local não encontrado.`)
-      }
-    } else {
-      fail(`Arquivo deploy/clients/${slug}/.env.local não encontrado.`)
-    }
+    fail(
+      `Arquivo deploy/clients/${slug}/.env.local não encontrado.\n` +
+        `Copie env.example → deploy/clients/${slug}/.env.local e preencha.\n` +
+        `Não copie .env.local da raiz para a pasta do cliente.`
+    )
   }
 
   if (fs.existsSync(rootEnvPath)) {
@@ -60,10 +54,12 @@ async function main() {
   }
 
   fs.copyFileSync(clientEnvPath, rootEnvPath)
-  console.log(`Env do cliente ${slug} ativada.`)
+  console.log(`Env do cliente ${slug} copiada para .env.local na raiz (legado).`)
 }
 
-main().catch((err) => {
+try {
+  main()
+} catch (err) {
   console.error(err.message ?? 'Erro ao ativar env do cliente.')
   process.exit(1)
-})
+}

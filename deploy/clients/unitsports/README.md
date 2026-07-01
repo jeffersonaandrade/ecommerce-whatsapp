@@ -73,29 +73,31 @@ Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo 
 | Arquivo | Versionado | Uso |
 |---------|------------|-----|
 | [`env.example`](env.example) | Sim | Modelo seguro — copiar e preencher |
-| `.env.local` | **Não** (gitignore) | Credenciais reais desta implantação |
-| `.env.local` (raiz do repo) | **Não** | Env **ativa** — a que `npm run dev` e scripts leem |
+| `.env.local` | **Não** (gitignore) | Credenciais reais desta implantação — fonte dos comandos `*:client` |
 
-### Trabalhar na UnitSports
+### Trabalhar na UnitSports (fluxo oficial)
 
-**Script (recomendado):**
-
-```bash
-npm run env:use -- unitsports
-```
-
-**Manual:**
+Comandos carregam **exclusivamente** `deploy/clients/unitsports/.env.local`:
 
 ```bash
-cp deploy/clients/unitsports/.env.local .env.local
+npm run dev:client -- unitsports
+npm run build:client -- unitsports
+npm run start:client -- unitsports
+npm run test:e2e:smoke:client -- unitsports
 ```
+
+### Legado — `env:use` (não usar no fluxo normal)
+
+```bash
+npm run env:use -- unitsports   # legado — copia slug → raiz; evitar
+```
+
+Nunca copiar `.env.local` da raiz para `deploy/clients/unitsports/`. Se o env do slug não existir, crie manualmente a partir de `env.example`.
 
 ### Primeira vez
 
 1. Copiar `env.example` → `deploy/clients/unitsports/.env.local` e preencher valores reais
-2. Ou rodar `npm run env:use -- unitsports` — se a raiz já tiver `.env.local`, o script pergunta se deseja inicializar a pasta do cliente `[y/N]`
-
-Ao trocar de cliente, a env anterior da raiz é salva em `.env.local.backup` (gitignored).
+2. Rodar `npm run dev:client -- unitsports`
 
 ---
 
@@ -112,7 +114,7 @@ Ao trocar de cliente, a env anterior da raiz é salva em `.env.local.backup` (gi
 
 **Nunca** commitar keys Supabase, service role ou `.env` com valores reais.
 
-Env de produção: exclusivamente no **painel Netlify** do site `unitsports`. Desenvolvimento local: `deploy/clients/unitsports/.env.local` (gitignored) — ativar na raiz com `npm run env:use -- unitsports`.
+Env de produção: exclusivamente no **painel Netlify** do site `unitsports`. Desenvolvimento local: `deploy/clients/unitsports/.env.local` (gitignored) — use `npm run dev:client -- unitsports`.
 
 Supabase project ref: registrar em `clients.local.json` — não versionar nesta pasta.
 

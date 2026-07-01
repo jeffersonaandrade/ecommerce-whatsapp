@@ -76,7 +76,40 @@ export function envForChildProcess(slug) {
     throw new Error(`Env do cliente não encontrada: deploy/clients/${slug}/.env.local`)
   }
 
-  const merged = { ...process.env }
+  // Apenas vars de sistema do processo pai + env do slug (sem vazar .env.local da raiz).
+  const SYSTEM_KEYS = new Set([
+    'PATH',
+    'PATHEXT',
+    'SystemRoot',
+    'TEMP',
+    'TMP',
+    'USERPROFILE',
+    'APPDATA',
+    'LOCALAPPDATA',
+    'ComSpec',
+    'WINDIR',
+    'HOMEDRIVE',
+    'HOMEPATH',
+    'OS',
+    'PROCESSOR_ARCHITECTURE',
+    'NUMBER_OF_PROCESSORS',
+    'PROGRAMFILES',
+    'PROGRAMW6432',
+    'PUBLIC',
+    'SYSTEMDRIVE',
+    'NODE',
+    'NODE_PATH',
+    'NODE_OPTIONS',
+    'PLAYWRIGHT_BROWSERS_PATH',
+  ])
+
+  const merged = {}
+  for (const [key, value] of Object.entries(process.env)) {
+    if (SYSTEM_KEYS.has(key) || key.startsWith('npm_')) {
+      merged[key] = value
+    }
+  }
+
   for (const [key, value] of parseEnvLines(fs.readFileSync(envPath, 'utf8'))) {
     merged[key] = value
   }

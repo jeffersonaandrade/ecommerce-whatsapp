@@ -52,53 +52,66 @@ main (core)
 
 ## Env local por cliente
 
-Cada implantação guarda credenciais em `deploy/clients/<slug>/.env.local` (**gitignored**).
+Cada implantação guarda credenciais em `deploy/clients/<slug>/.env.local` (**gitignored**). Esse arquivo é a **única** fonte de env nos comandos oficiais.
 
 | Arquivo | Versionado | Papel |
 |---------|------------|-------|
 | `deploy/clients/<slug>/env.example` | Sim | Modelo seguro (placeholders) |
-| `deploy/clients/<slug>/.env.local` | **Não** | Env real da implantação |
-| `.env.local` (raiz) | **Não** | Legacy — env ativa quando se usa `env:use` |
-| `.env.local.backup` | **Não** | Backup ao trocar de cliente via `env:use` |
+| `deploy/clients/<slug>/.env.local` | **Não** | Env real da implantação — fonte dos comandos `*:client` |
+| `.env.local` (raiz) | **Não** | **Legado** — só relevante se usar `env:use` manualmente |
 
-### Fluxo preferido — client-aware (sem copiar secrets para raiz)
+### Comandos oficiais (fluxo normal)
+
+Carregam **exclusivamente** `deploy/clients/<slug>/.env.local`. Não copiam secrets para a raiz. Sem fallback para outro cliente.
 
 ```bash
 npm run dev:client -- sportwear
 npm run build:client -- unitsports
-npm run start:client -- sportwear
+npm run start:client -- unitsports
 npm run test:e2e:smoke:client -- unitsports
 ```
 
-Implementação: [`scripts/operator/run-with-client-env.mjs`](../scripts/operator/run-with-client-env.mjs) carrega `deploy/clients/<slug>/.env.local` e executa o comando. Falha clara se o arquivo não existir. **Sem fallback** para outro cliente.
+Implementação: [`scripts/operator/client-env.mjs`](../scripts/operator/client-env.mjs) + [`run-with-client-env.mjs`](../scripts/operator/run-with-client-env.mjs).
 
-### Compatibilidade — `env:use`
+Smoke local típico (UnitSports):
 
 ```bash
-npm run env:use -- unitsports
+npm run build:client -- unitsports
+npm run start:client -- unitsports
+# outro terminal:
+npm run test:e2e:smoke:client -- unitsports
 ```
 
-Copia `deploy/clients/<slug>/.env.local` → `.env.local` na raiz. Mantido para compatibilidade; preferir `*:client` no dia a dia.
+`branding:sync` com slug (`npm run branding:sync -- unitsports`) também carrega env do slug, não da raiz.
 
-**Risco conhecido:** se o env do slug não existir, `env:use` pergunta se deseja inicializar a partir da `.env.local` da raiz (`[y/N]`) — pode propagar credenciais do cliente errado. **Nunca** responder `y` sem confirmar o slug. Correção futura planejada.
+### Legado — `env:use` (não usar no fluxo normal)
 
-Manual legacy: `cp deploy/clients/<slug>/.env.local .env.local`
+```bash
+npm run env:use -- unitsports   # legado — evitar
+```
+
+Copia `deploy/clients/<slug>/.env.local` → `.env.local` na raiz para ferramentas que ainda leem só a raiz.
+
+| Regra | Detalhe |
+|-------|---------|
+| **Não** é fluxo principal | Use sempre `dev/build/start/test:e2e:smoke:client` |
+| **Não** inicializa slug a partir da raiz | Se `deploy/clients/<slug>/.env.local` não existir, falha — copie de `env.example` manualmente |
+| **Nunca** copiar raiz → cliente | Proibido propagar credenciais de um slug para outro |
+| Backup | Sobrescreve raiz → salva `.env.local.backup` antes |
 
 ### Primeira vez (inicializar env do slug)
 
 1. Copiar `env.example` → `deploy/clients/<slug>/.env.local` e preencher
-2. Rodar com `npm run dev:client -- <slug>` — **não** depende de copiar para raiz
+2. Rodar `npm run dev:client -- <slug>` — **não** depende de `.env.local` na raiz
 
 ### Riscos
 
 | Risco | Mitigação |
 |-------|-----------|
-| Misturar Supabase de clientes | Env por slug; `*:client` ou `env:use` consciente |
-| Perder env ao trocar cliente | Backup automático em `.env.local.backup` (só `env:use`) |
+| Misturar Supabase de clientes | Comandos `*:client`; env por slug |
 | Commitar secrets | `.gitignore` explícito; só `env.example` versionado |
 | Fallback silencioso | Scripts client-aware falham se env do slug ausente |
-
-Next.js ainda lê `.env.local` na raiz quando o processo é iniciado **sem** wrapper — por isso `build:client`/`dev:client` injetam env no processo filho.
+| Contaminação JSON local | `storage/*.json` gitignored — reset por cliente no dev JSON mode |
 
 ---
 
