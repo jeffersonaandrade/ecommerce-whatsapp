@@ -1,6 +1,6 @@
 {
   "name": "ecommerce-sports",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,7 +16,9 @@
     "migrate:images:remaining": "node scripts/migration/upload-local-images-pilot.mjs --remaining",
     "migrate:images:all-safe": "node scripts/migration/upload-local-images-pilot.mjs --all-safe",
     "branding:sync": "node scripts/deploy/sync-branding-logo.mjs",
+    "create-client": "node scripts/operator/create-client.mjs",
     "env:use": "node scripts/operator/use-client-env.mjs",
+    "qa:check-no-client-branching": "node scripts/qa/check-no-client-branching.mjs",
     "import:pstoom": "npx tsx scripts/qa/import-pstoom-batches.mjs",
     "headroom:cursor": "headroom wrap cursor"
   },
