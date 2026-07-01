@@ -57,6 +57,8 @@ Sem otimização adicional nesta fase — baseline para regressão futura.
 
 ## Migrations Supabase
 
+**Pasta versionada (onboarding):** [`supabase/migrations/`](../supabase/migrations/) — baseline `20260625190000_baseline_sports_store.sql` **somente para Supabase vazio** (ver README da pasta).
+
 **Arquivo canônico (DDL):** [`scripts/migration/supabase-migrations.sql`](../scripts/migration/supabase-migrations.sql)
 
 Aplicar novas migrations via **MCP Supabase** (`apply_migration`) **em cada projeto Supabase** do cliente. Após aplicar, adicionar o bloco SQL no arquivo acima com o nome/version da migration. Política de compatibilidade: [`COMPATIBILITY.md`](COMPATIBILITY.md).
