@@ -17,7 +17,7 @@ Use na **criação** da implantação. Não re-aplicar seeds em loja existente (
 ## Branding e conteúdo
 
 - [ ] Colocar logo do cliente em `deploy/clients/<slug>/branding/logo.jpeg` (criar pasta `branding/`)
-- [ ] Sincronizar favicon/OG/logo no Storage — hoje: copiar para `deploy/branding/` + `npm run branding:sync`; futuro: `npm run branding:sync -- --client <slug>`
+- [ ] Sincronizar favicon/OG/logo: `npm run branding:sync -- --client <slug>`
 - [ ] Validar header, favicon e OG na URL pública
 - [ ] Configurar nome, WhatsApp, e-mail em `/admin/settings`
 - [ ] Revisar textos institucionais (sobre, política de trocas)

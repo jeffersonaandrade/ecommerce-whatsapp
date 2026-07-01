@@ -8,7 +8,7 @@ Substituir `<slug>` pelo identificador da loja.
 
 | Campo | Valor |
 |-------|-------|
-| coreVersionInstalled | — |
+| coreVersionInstalled | 1.1.0 (alinhar com package.json ao go-live) |
 | lastDeployAt | — |
 | lastMigrationApplied | — |
 

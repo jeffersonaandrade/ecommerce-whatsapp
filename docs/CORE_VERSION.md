@@ -1,6 +1,6 @@
 # Versão do Core (CORE_VERSION)
 
-Conceito documentado — **sem implementação runtime nesta fase**.
+Conceito formalizado — **fonte semver:** [`package.json`](../package.json) (`1.1.0` nesta release multi-client).
 
 ---
 
@@ -24,7 +24,7 @@ GitHub main (core)
 
 ## Alinhamento com package.json
 
-Hoje [`package.json`](../package.json) declara `"version": "1.0.0"`. Recomendação:
+Hoje [`package.json`](../package.json) declara `"version": "1.1.0"` (**CORE_VERSION**). Recomendação:
 
 - Bump de **minor** quando houver feature + migrations aditivas
 - Bump de **patch** para bugfix
