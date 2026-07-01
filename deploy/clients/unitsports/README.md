@@ -27,7 +27,7 @@ Use esta pasta para ver **como preencher** checklist, notes e env.example com st
 
 Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo repositório.
 
-**CI:** [`.github/workflows/qa.yml`](../../../.github/workflows/qa.yml) roda anti-slug guard e testes unitários **sem secrets** (ver § GitHub Actions abaixo). Build real e envs de produção ficam no **Netlify**.
+**CI:** [`.github/workflows/qa.yml`](../../../.github/workflows/qa.yml) roda anti-slug guard e testes unitários **sem secrets** (ver § GitHub Actions abaixo). Build real e envs de produção ficam no **Netlify** (validar pelo dashboard + smoke + checkout E2E — não por commit status no GitHub).
 
 ---
 
@@ -131,8 +131,9 @@ Workflow: [`.github/workflows/qa.yml`](../../../.github/workflows/qa.yml)
 | Anti-slug guard | `npm run qa:check-no-client-branching` |
 | Testes unitários | `npm test` |
 
-- **Build real:** Netlify — envs de produção já estão no painel do site `unitsports`.
-- **Smoke pós-deploy:** obrigatório — `npm run test:e2e:smoke:client -- unitsports` (local ou operador, com env do slug).
+- **Build real:** Netlify — envs de produção já estão no painel do site `unitsports`. Confirmar deploy verde no dashboard (não há commit status do Netlify no GitHub).
+- **Smoke pós-deploy:** `npm run test:e2e:smoke:client -- unitsports` (com `PLAYWRIGHT_BASE_URL` apontando para produção se necessário).
+- **Checkout E2E (carrinho → WhatsApp):** `npm run test:e2e:checkout:client -- unitsports` — protege o fluxo principal de venda.
 
 Não duplicamos secrets Netlify → GitHub nesta fase.
 

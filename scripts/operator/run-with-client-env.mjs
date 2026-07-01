@@ -5,6 +5,7 @@
  * npm run build:client -- unitsports
  * npm run start:client -- sportwear
  * npm run test:e2e:smoke:client -- unitsports
+ * npm run test:e2e:checkout:client -- unitsports
  */
 import { spawn } from 'node:child_process'
 import path from 'node:path'
@@ -21,6 +22,10 @@ const COMMANDS = {
     cmd: process.platform === 'win32' ? 'node.exe' : 'node',
     args: ['scripts/qa/smoke-regression-playwright.mjs'],
   },
+  checkout: {
+    cmd: process.platform === 'win32' ? 'node.exe' : 'node',
+    args: ['scripts/qa/checkout-whatsapp-playwright.mjs'],
+  },
 }
 
 function fail(message) {
@@ -32,11 +37,11 @@ const mode = process.argv[2]?.trim()
 const slug = process.argv[3]?.trim()
 
 if (!mode || !slug) {
-  fail('Uso: node scripts/operator/run-with-client-env.mjs <dev|build|start|smoke> <slug>')
+  fail('Uso: node scripts/operator/run-with-client-env.mjs <dev|build|start|smoke|checkout> <slug>')
 }
 
 if (!COMMANDS[mode]) {
-  fail(`Modo inválido: ${mode}. Use: dev, build, start ou smoke.`)
+  fail(`Modo inválido: ${mode}. Use: dev, build, start, smoke ou checkout.`)
 }
 
 try {
@@ -60,7 +65,7 @@ const baseUrl =
   childEnv.NEXT_PUBLIC_SITE_URL?.trim() ||
   'http://localhost:3000'
 
-if (mode === 'smoke') {
+if (mode === 'smoke' || mode === 'checkout') {
   childEnv.PLAYWRIGHT_BASE_URL = baseUrl
 }
 

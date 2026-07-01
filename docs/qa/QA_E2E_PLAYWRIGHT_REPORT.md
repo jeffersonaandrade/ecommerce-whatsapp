@@ -22,6 +22,33 @@ Artefato: `test-data/e2e/smoke-regression-results.json`
 
 ---
 
+## Checkout E2E — carrinho → WhatsApp (P1)
+
+Fluxo principal de venda V1. Client-agnostic: usa catálogo real do ambiente.
+
+```bash
+# Produção UnitSports
+PLAYWRIGHT_BASE_URL=https://unitsports.netlify.app npm run test:e2e:checkout:client -- unitsports
+
+# Local (servidor rodando)
+npm run test:e2e:checkout
+```
+
+| Caso | Descrição |
+|------|-----------|
+| `pdp-addable` | Encontra produto com estoque na PLP |
+| `pdp-add-to-cart` | Adiciona ao carrinho |
+| `cart-line-visible` | Linha aparece em `/cart` |
+| `whatsapp-url` | Stub `window.open`; valida `wa.me`, pedido `#TEMP-`, nome, SKU/tamanho, totais, link PDP |
+
+Artefato: `test-data/e2e/checkout-whatsapp-results.json`
+
+Script: [`scripts/qa/checkout-whatsapp-playwright.mjs`](../../scripts/qa/checkout-whatsapp-playwright.mjs)
+
+Relacionado: E2E-7 (suíte admin local legada em `e2e-qa-playwright.mjs`).
+
+---
+
 ## Central de Mídia (2026-06)
 
 Comando: `node scripts/qa/media-center-playwright.mjs` (headed por padrão; `PLAYWRIGHT_HEADLESS=true` para CI)

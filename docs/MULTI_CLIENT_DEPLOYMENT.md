@@ -31,9 +31,17 @@ Workflow: [`.github/workflows/qa.yml`](../.github/workflows/qa.yml)
 |-------------|--------------|
 | **GitHub Actions** | `qa:check-no-client-branching` + `npm test` |
 | **Netlify** | Build/deploy real com envs de produção (já no painel) |
-| **Operador** | Smoke pós-deploy (`test:e2e:smoke:client`) |
+| **Operador** | Smoke pós-deploy + checkout E2E (carrinho → WhatsApp) |
+
+**Netlify:** o rebuild **não** reporta via GitHub Commit Status neste repositório. Validar pelo **Netlify Dashboard** (deploy verde) + **smoke** + **checkout E2E** em produção — não pelo status do commit no GitHub.
 
 Não duplicamos secrets Netlify → GitHub nesta fase. Sem `npm run build` no Actions; sem placeholders Supabase; sem gerar `.env.local` no runner.
+
+```bash
+# Pós-deploy (UnitSports)
+PLAYWRIGHT_BASE_URL=https://unitsports.netlify.app npm run test:e2e:smoke:client -- unitsports
+PLAYWRIGHT_BASE_URL=https://unitsports.netlify.app npm run test:e2e:checkout:client -- unitsports
+```
 
 ### Futuro — CI completo (opcional)
 
