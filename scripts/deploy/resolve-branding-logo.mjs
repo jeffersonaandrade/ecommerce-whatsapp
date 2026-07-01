@@ -7,12 +7,12 @@ export const LEGACY_BRANDING_SOURCE_DIR = path.join(root, 'deploy/branding')
 
 export const BRANDING_LOGO_FILENAMES = ['logo.jpeg', 'logo.jpg', 'logo.png', 'logo.webp']
 
-export function resolveClientBrandingDir(clientSlug: string): string {
+export function resolveClientBrandingDir(clientSlug) {
   return path.join(root, 'deploy/clients', clientSlug, 'branding')
 }
 
-export function resolveBrandingLogoSourcePath(options: { clientSlug?: string } = {}): string | null {
-  const dirs: string[] = []
+export function resolveBrandingLogoSourcePath(options = {}) {
+  const dirs = []
   if (options.clientSlug?.trim()) {
     dirs.push(resolveClientBrandingDir(options.clientSlug.trim()))
   }
@@ -29,7 +29,7 @@ export function resolveBrandingLogoSourcePath(options: { clientSlug?: string } =
   return null
 }
 
-export function readBrandingLogoSourceBuffer(options: { clientSlug?: string } = {}): Buffer | null {
+export function readBrandingLogoSourceBuffer(options = {}) {
   const logoPath = resolveBrandingLogoSourcePath(options)
   if (!logoPath) return null
   return fs.readFileSync(logoPath)
