@@ -26,6 +26,25 @@ scripts/operator/
 
 Registry de lojas: [`deploy/registry/README.md`](../../deploy/registry/README.md). Manifesto operacional: `deploy/clients/clients.local.json` (gitignored).
 
+## Saúde do projeto — `health:check`
+
+Orquestrador read-only que encadeia anti-slug, testes, build/deploy preflight e E2E opcional:
+
+```bash
+npm run health:check -- --client unitsports --skip-smoke --skip-checkout
+```
+
+Implementação: [`health-check.mjs`](health-check.mjs) · Documentação: [`docs/MULTI_CLIENT_DEPLOYMENT.md`](../../docs/MULTI_CLIENT_DEPLOYMENT.md)
+
+| Flag | Efeito |
+|------|--------|
+| `--client <slug>` | Inclui `build:client` e `deploy:check` |
+| `--skip-build` | Pula build |
+| `--skip-smoke` | Pula smoke Playwright |
+| `--skip-checkout` | Pula checkout E2E |
+
+Smoke/checkout só rodam se `PLAYWRIGHT_BASE_URL` ou `QA_BASE_URL` estiver definido.
+
 ## Env por cliente
 
 Fonte canônica: `deploy/clients/<slug>/.env.local` (gitignored).

@@ -25,6 +25,7 @@
     "test:e2e:smoke:client": "node scripts/operator/run-with-client-env.mjs smoke",
     "test:e2e:checkout:client": "node scripts/operator/run-with-client-env.mjs checkout",
     "deploy:check": "node scripts/operator/deploy-check.mjs",
+    "health:check": "node scripts/operator/health-check.mjs",
     "qa:check-no-client-branching": "node scripts/qa/check-no-client-branching.mjs",
     "import:pstoom": "npx tsx scripts/qa/import-pstoom-batches.mjs",
     "headroom:cursor": "headroom wrap cursor"

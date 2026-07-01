@@ -137,6 +137,33 @@ Exit codes: `0` deploy-ready · `1` blockers · `2` erro de uso (slug ausente/in
 
 Após deploy Netlify, rodar `test:e2e:smoke:client` — preflight **não** substitui smoke.
 
+### Saúde do projeto — `health:check`
+
+Orquestra checks existentes (read-only, sem secrets, sem deploy):
+
+```bash
+npm run health:check
+npm run health:check -- --client unitsports --skip-smoke --skip-checkout
+# PowerShell: flags após `npm --` podem ser omitidos — use env ou node direto:
+# $env:HEALTH_CLIENT='unitsports'; $env:HEALTH_SKIP_SMOKE='1'; $env:HEALTH_SKIP_CHECKOUT='1'; npm run health:check
+# node scripts/operator/health-check.mjs --client unitsports --skip-smoke --skip-checkout
+```
+
+Script: [`scripts/operator/health-check.mjs`](../scripts/operator/health-check.mjs)
+
+| Executa | Opcional / flags |
+|---------|------------------|
+| `qa:check-no-client-branching` | sempre |
+| `npm test` | sempre |
+| `build:client -- <slug>` | se `--client`; omitir com `--skip-build` |
+| `deploy:check -- <slug>` | se `--client` |
+| `test:e2e:smoke` | se `PLAYWRIGHT_BASE_URL` ou `QA_BASE_URL`; omitir com `--skip-smoke` |
+| `test:e2e:checkout` | mesma regra; omitir com `--skip-checkout` |
+
+Exit codes: `0` saudável · `1` blockers · `2` uso inválido.
+
+Saída: resumo **Project Health** com checks, warnings, blockers e próximos passos.
+
 ### Legado — `env:use` (não usar no fluxo normal)
 
 ```bash
