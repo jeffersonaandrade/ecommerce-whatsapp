@@ -11,7 +11,7 @@ Ferramenta de **desenvolvimento** ([Graphify](https://github.com/safishamsi/grap
 | [graphify-out/graph.json](graphify-out/graph.json) | Grafo completo para consultas CLI |
 | [.cursor/rules/graphify.mdc](.cursor/rules/graphify.mdc) | Regra Cursor (`alwaysApply`) para consultar o grafo antes de explorar código |
 
-**Última geração:** 2026-06-27 (pós arquitetura multi-cliente + branding por slug) · **1614 nós · 4146 arestas · 83 comunidades** · extração AST (sem API)
+**Última geração:** 2026-07-01 (pós P1 perf + health-check) · **2406 nós · 6461 arestas · 120 comunidades** · `graphify update .` (AST, sem API)
 
 God nodes: `getButtonClassName`, `requireAdmin`, `getDataProvider`, `getStoreSettings`, `Product`, `Category`.
 
