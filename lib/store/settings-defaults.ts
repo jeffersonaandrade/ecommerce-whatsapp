@@ -8,13 +8,13 @@ import {
 export const DEFAULT_PRIMARY_COLOR = '#111111'
 export const DEFAULT_SECONDARY_COLOR = '#f5f5f5'
 
-export const DEFAULT_HERO_IMAGE =
-  'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1600&h=2000&fit=crop'
+/** Sem imagem padrão no core — hero vem do preset do deploy ou do admin. */
+export const DEFAULT_HERO_IMAGE: string | null = null
 
 export function createDefaultStoreSettings(): StoreSettings {
   return {
-    storeName: 'Sports Store',
-    description: 'Sua loja esportiva de confiança',
+    storeName: 'Store',
+    description: '',
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
     whatsappPhone: '5511999999999',
     whatsappMessagePrefix: '',
@@ -27,14 +27,12 @@ export function createDefaultStoreSettings(): StoreSettings {
     primaryColor: DEFAULT_PRIMARY_COLOR,
     secondaryColor: DEFAULT_SECONDARY_COLOR,
     heroImagePath: null,
-    heroHeadline: 'Vista o jogo',
-    heroHeadlineLine2: 'Com autenticidade',
-    heroSubheadline:
-      'Equipamento esportivo premium selecionado para quem leva performance a sério.',
-    heroCtaLabel: 'Explorar produtos',
+    heroHeadline: '',
+    heroHeadlineLine2: '',
+    heroSubheadline: '',
+    heroCtaLabel: 'Ver produtos',
     heroCtaHref: '/products',
-    aboutText:
-      'Somos uma loja especializada em artigos esportivos, focada em qualidade, autenticidade e atendimento próximo ao cliente.',
+    aboutText: '',
     address: '',
     cityState: '',
     businessHours: 'Seg–Sex, 9h–18h',

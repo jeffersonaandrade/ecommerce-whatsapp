@@ -20,34 +20,39 @@ interface SportsHeroProps {
 }
 
 export function SportsHero({ content }: SportsHeroProps) {
-  const heroSrc =
-    brandingAssetUrl(content.heroImagePath, content.updatedAt) ?? DEFAULT_HERO_IMAGE
-  const isExternal = heroSrc.startsWith('http')
+  const heroSrc = brandingAssetUrl(content.heroImagePath, content.updatedAt) ?? DEFAULT_HERO_IMAGE
 
   return (
     <section className="w-full">
       <div className="relative flex min-h-[75vh] flex-col justify-end lg:min-h-[88vh]">
-        {isExternal ? (
-          <Image
-            src={heroSrc}
-            alt={content.heroHeadline}
-            fill
-            className="object-cover object-center"
-            sizes="100vw"
-            priority
-          />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={heroSrc}
-            alt={content.heroHeadline}
-            className="absolute inset-0 h-full w-full object-cover object-center"
-          />
+        {heroSrc && (
+          <>
+            {heroSrc.startsWith('http') ? (
+              <Image
+                src={heroSrc}
+                alt={content.heroHeadline || content.storeName}
+                fill
+                className="object-cover object-center"
+                sizes="100vw"
+                priority
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={heroSrc}
+                alt={content.heroHeadline || content.storeName}
+                className="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            )}
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/45 to-ink/25"
+              aria-hidden
+            />
+          </>
         )}
-        <div
-          className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/45 to-ink/25"
-          aria-hidden
-        />
+        {!heroSrc && (
+          <div className="absolute inset-0 bg-ink" aria-hidden />
+        )}
 
         <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-10 pt-24 sm:px-6 sm:pb-14 lg:px-8 lg:pb-16">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.25em] text-canvas/80 sm:text-sm">
