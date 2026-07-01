@@ -46,9 +46,24 @@ Script: [`use-client-env.mjs`](use-client-env.mjs)
 ## Branding por cliente
 
 - **Canônico:** `deploy/clients/<slug>/branding/logo.jpeg`
-- **Hoje:** `npm run branding:sync` lê `deploy/branding/` (legacy — copiar logo do slug antes)
-- **Futuro:** `npm run branding:sync -- --client unitsports`
+- **Sync:** `npm run branding:sync -- --client <slug>` (lê logo do slug; fallback legacy `deploy/branding/`)
 - Ver [`deploy/branding/README.md`](../../deploy/branding/README.md)
+
+## Scaffold nova loja
+
+```bash
+npm run create-client -- sportwear
+```
+
+Gera `deploy/clients/<slug>/` (env.example, notes, preset, branding placeholder). Ver [`create-client.mjs`](create-client.mjs).
+
+## Anti-slug (CI)
+
+```bash
+npm run qa:check-no-client-branching
+```
+
+Proíbe `if (slug === "cliente")` no core. Regra em [`AGENTS.md`](../../AGENTS.md).
 
 ## Quando usar
 

@@ -41,9 +41,16 @@ dados + branding + domínio próprios
 Cliente muda por DADOS e ENV — nunca por código específico.
 ```
 
-- **Nunca** `if (storeName === 'UnitSports') { ... }`
-- **Nunca** branch permanente por cliente
-- **Nunca** copiar o repositório por loja
+**É proibido** qualquer lógica baseada em slug ou nome do cliente no core (`app/`, `components/`, `lib/`).
+
+| Permitido | Proibido |
+|-----------|----------|
+| `store_settings` | `if (slug === "unitsports")` |
+| Preset `deploy/clients/<slug>/storefront-preset.json` | `if (storeName === "UnitSports")` |
+| Feature flags genéricas (não por slug) | Branch permanente por cliente |
+| Dados do Supabase do deploy ativo | Fork ou cópia do repositório |
+
+CI local: `npm run qa:check-no-client-branching`. Auditoria lexical: [`MULTI_CLIENT_LEXICAL_AUDIT.md`](MULTI_CLIENT_LEXICAL_AUDIT.md).
 
 ---
 

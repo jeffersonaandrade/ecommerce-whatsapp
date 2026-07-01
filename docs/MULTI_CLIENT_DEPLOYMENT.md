@@ -106,40 +106,48 @@ deploy/clients/<slug>/branding/logo.jpeg
 4. Sincronizar derivados (favicon, OG) para o Storage da implantação
 5. Validar header, favicon e OG na URL pública
 
-### Hoje (scripts legacy)
-
-Os scripts leem [`deploy/branding/logo.*`](../deploy/branding/) — **bancada temporária**, não branding permanente:
-
-```text
-deploy/clients/unitsports/branding/logo.jpeg
-  → copiar manualmente para deploy/branding/logo.jpeg
-  → npm run branding:sync
-  → Supabase Storage (env do cliente ativo)
-```
-
-**Riscos:** logo errada no path global; sync no Supabase de outro cliente; favicon/OG cruzados.
-
-Ver [`deploy/branding/README.md`](../deploy/branding/README.md).
-
-### Futuro (documentado, não implementado)
+### Sync por slug (implementado)
 
 ```bash
+npm run env:use -- unitsports
 npm run branding:sync -- --client unitsports
 ```
 
-Comportamento esperado:
+Comportamento:
 
-- Ler `deploy/clients/<slug>/branding/logo.jpeg`
-- Validar arquivo (formato, tamanho)
-- Gerar favicon, OG e derivados
-- Publicar **somente** no Supabase Storage da implantação `<slug>`
-- Não depender de `deploy/branding/` como fonte global
+- Lê `deploy/clients/<slug>/branding/logo.*` (fallback legacy: `deploy/branding/`)
+- Gera favicon, OG e derivados
+- Publica no Supabase Storage da env **ativa** (confirme `env:use` antes)
 
-**Nunca** copiar logo da UnitSports para outras lojas. O template genérico **não** inclui pasta `branding/`.
+**Nunca** copiar logo da UnitSports para outras lojas.
+
+### Scaffold nova loja
+
+```bash
+npm run create-client -- sportwear
+```
+
+Gera `deploy/clients/<slug>/` com preset, env.example, notes e branding placeholder.
+
+### Legacy (`deploy/branding/`)
+
+Ainda suportado como fallback quando `--client` não é passado. Preferir sempre `--client <slug>`.
+
+Ver [`deploy/branding/README.md`](../deploy/branding/README.md).
 
 ---
 
-## Feature flags vs Store Settings
+## Regra anti-slug
+
+É **proibido** branching por slug ou nome de cliente no core. Enforcement:
+
+```bash
+npm run qa:check-no-client-branching
+```
+
+Ver [`AGENTS.md`](../AGENTS.md) e [`MULTI_CLIENT_LEXICAL_AUDIT.md`](MULTI_CLIENT_LEXICAL_AUDIT.md).
+
+---
 
 ```text
 Feature flag  → habilita MÓDULO

@@ -6,7 +6,18 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Core multi-cliente
 
-Um **único código** (core) alimenta várias lojas: cada implantação tem seu Supabase e seu deploy Netlify. **UnitSports** é a primeira implantação de referência — não é o nome do produto. Não adicionar `if (storeName === 'UnitSports')` nem lógica por cliente no código. Configuração por loja via `store_settings` e env por deploy. Ver [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/CORE_VERSION.md`](docs/CORE_VERSION.md) e [`docs/MULTI_CLIENT_AUDIT.md`](docs/MULTI_CLIENT_AUDIT.md).
+Um **único código** (core) alimenta várias lojas: cada implantação tem seu Supabase e seu deploy Netlify. **UnitSports** é a primeira implantação de referência — não é o nome do produto.
+
+### Regra anti-slug (obrigatória)
+
+```
+É PROIBIDO qualquer lógica baseada em slug ou nome do cliente no core.
+
+Permitido: feature flags genéricas, store_settings, preset por deploy, dados do banco ativo.
+Proibido: if (slug === "sportwear"), if (storeName === "UnitSports"), etc.
+```
+
+Enforcement: `npm run qa:check-no-client-branching`. Ver [`docs/MULTI_CLIENT_DEPLOYMENT.md`](docs/MULTI_CLIENT_DEPLOYMENT.md), [`docs/MULTI_CLIENT_LEXICAL_AUDIT.md`](docs/MULTI_CLIENT_LEXICAL_AUDIT.md).
 
 ## Supabase (banco de dados)
 

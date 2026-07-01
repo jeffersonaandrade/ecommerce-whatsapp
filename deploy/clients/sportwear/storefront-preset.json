@@ -1,0 +1,18 @@
+{
+  "storeName": "SportWear",
+  "description": "Moda esportiva e performance.",
+  "primaryColor": "#0f172a",
+  "secondaryColor": "#f8fafc",
+  "heroHeadline": "Vista sua performance",
+  "heroHeadlineLine2": "",
+  "heroSubheadline": "Seleção curada para quem leva o treino a sério.",
+  "heroCtaLabel": "Ver coleção",
+  "heroCtaHref": "/products",
+  "heroImagePath": null,
+  "aboutText": "SportWear — sua loja de artigos esportivos.",
+  "address": "",
+  "cityState": "",
+  "businessHours": "Seg–Sex, 9h–18h",
+  "exchangePolicyText": "Trocas em até 7 dias para produtos sem uso, com etiqueta. Contato via WhatsApp ou e-mail da loja.",
+  "_comment": "Preset de implantação — sportwear. Aplicar em store_settings na criação do Supabase."
+}

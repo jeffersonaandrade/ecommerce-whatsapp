@@ -14,6 +14,19 @@
       "status": "production",
       "features": ["catalog", "import_csv", "media_center", "banners", "onboarding"],
       "notes": "Primeira implantação de referência"
+    },
+    {
+      "slug": "sportwear",
+      "name": "SportWear",
+      "netlifySite": "",
+      "domain": "",
+      "supabaseProjectRef": "PREENCHER",
+      "coreVersionInstalled": "1.1.0",
+      "lastDeployAt": "",
+      "lastMigrationApplied": "",
+      "status": "draft",
+      "features": ["catalog", "import_csv", "media_center", "banners", "onboarding"],
+      "notes": "Segunda implantação — validação multi-client"
     }
   ]
 }
