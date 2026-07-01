@@ -14,6 +14,7 @@ import {
   getClientEnvPath,
   readClientEnvFile,
 } from './client-env.mjs'
+import { isProductionNonSupabaseRuntime, productionNonSupabaseMessage } from '../env/assert-runtime-env.mjs'
 import { BRANDING_LOGO_FILENAMES } from '../deploy/resolve-branding-logo.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -145,7 +146,7 @@ function checkEnvLocal(slug, report, otherSlugs) {
   if (provider !== 'supabase') {
     report.block(
       'env',
-      'client is not deploy-ready: missing Supabase env (DATA_PROVIDER deve ser supabase para deploy Netlify)'
+      `client is not deploy-ready: ${productionNonSupabaseMessage('deploy-check')} — configure DATA_PROVIDER=supabase no Netlify e .env.local`
     )
     return env
   }
@@ -503,6 +504,9 @@ async function main() {
   checkRequiredFiles(slug, report)
   checkEnvExample(slug, report)
   const env = checkEnvLocal(slug, report, otherSlugs)
+  if (env && isProductionNonSupabaseRuntime({ ...process.env, ...env, NODE_ENV: 'production' })) {
+    report.block('env', productionNonSupabaseMessage('deploy-check'))
+  }
   checkPreset(slug, report, otherSlugs)
   await checkBranding(slug, report)
   checkCoreVersion(slug, report)

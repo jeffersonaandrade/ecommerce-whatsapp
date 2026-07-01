@@ -54,6 +54,7 @@ try {
 }
 
 const baseUrl =
+  process.env.PLAYWRIGHT_BASE_URL?.trim() ||
   childEnv.PLAYWRIGHT_BASE_URL?.trim() ||
   childEnv.QA_BASE_URL?.trim() ||
   childEnv.NEXT_PUBLIC_SITE_URL?.trim() ||

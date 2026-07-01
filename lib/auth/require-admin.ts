@@ -2,6 +2,10 @@ import 'server-only'
 
 import type { User } from '@supabase/supabase-js'
 import { getDataProvider } from '@/lib/data/provider'
+import {
+  isProductionNonSupabaseRuntime,
+  productionNonSupabaseMessage,
+} from '@/lib/env/assert-runtime-env'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export type RequireAdminResult =
@@ -9,6 +13,10 @@ export type RequireAdminResult =
   | { ok: false; error: string }
 
 export async function requireAdmin(): Promise<RequireAdminResult> {
+  if (isProductionNonSupabaseRuntime()) {
+    return { ok: false, error: productionNonSupabaseMessage('requireAdmin') }
+  }
+
   if (getDataProvider() !== 'supabase') {
     return { ok: true }
   }

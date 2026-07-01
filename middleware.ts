@@ -1,7 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import {
+  isProductionNonSupabaseRuntime,
+  productionNonSupabaseMessage,
+} from '@/lib/env/assert-runtime-env'
 
 export async function middleware(request: NextRequest) {
+  if (isProductionNonSupabaseRuntime()) {
+    return new NextResponse(productionNonSupabaseMessage('middleware'), { status: 503 })
+  }
+
   if (process.env.DATA_PROVIDER !== 'supabase') {
     return NextResponse.next()
   }
