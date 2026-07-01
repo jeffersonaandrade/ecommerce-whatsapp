@@ -1,6 +1,8 @@
 /**
- * Publica a logo de deploy/branding/logo.* no Supabase Storage e atualiza store_settings.
- * Uso: npm run branding:sync (requer NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)
+ * Publica logo do cliente no Supabase Storage e atualiza store_settings.
+ * Uso:
+ *   npm run branding:sync
+ *   npm run branding:sync -- --client sportwear
  */
 import fs from 'fs'
 import path from 'path'
@@ -14,6 +16,17 @@ import {
 import { readBrandingLogoSourceBuffer, resolveBrandingLogoSourcePath } from './resolve-branding-logo.mjs'
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
+const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
+
+function parseArgs(argv) {
+  let client = null
+  for (let i = 0; i < argv.length; i++) {
+    if (argv[i] === '--client' && argv[i + 1]) {
+      client = argv[++i].trim()
+    }
+  }
+  return { client }
+}
 
 function requireEnv(name) {
   const value = process.env[name]
@@ -45,14 +58,24 @@ function mimeFor(filename) {
 
 async function main() {
   loadEnvLocal()
+  const { client } = parseArgs(process.argv.slice(2))
 
-  const logoPath = resolveBrandingLogoSourcePath()
-  if (!logoPath) {
-    console.error('Nenhuma logo em deploy/branding/ (esperado: logo.jpeg, logo.jpg, logo.png ou logo.webp)')
+  if (client && !slugPattern.test(client)) {
+    console.error(`Slug inválido: ${client}`)
     process.exit(1)
   }
 
-  const sourceBuffer = readBrandingLogoSourceBuffer()
+  const options = client ? { clientSlug: client } : {}
+  const logoPath = resolveBrandingLogoSourcePath(options)
+  if (!logoPath) {
+    const hint = client
+      ? `deploy/clients/${client}/branding/logo.*`
+      : 'deploy/clients/<slug>/branding/ (use --client) ou deploy/branding/ (legacy)'
+    console.error(`Nenhuma logo encontrada. Esperado: ${hint}`)
+    process.exit(1)
+  }
+
+  const sourceBuffer = readBrandingLogoSourceBuffer(options)
   const files = await generateBrandingAssets(sourceBuffer)
 
   const url = requireEnv('NEXT_PUBLIC_SUPABASE_URL')
