@@ -27,6 +27,8 @@ Use esta pasta para ver **como preencher** checklist, notes e env.example com st
 
 Todas as lojas recebem o **mesmo código** via deploy Netlify a partir do mesmo repositório.
 
+**CI:** [`.github/workflows/qa.yml`](../../../.github/workflows/qa.yml) roda anti-slug guard e testes unitários **sem secrets** (ver § GitHub Actions abaixo). Build real e envs de produção ficam no **Netlify**.
+
 ---
 
 ## O que muda por cliente
@@ -117,6 +119,36 @@ Nunca copiar `.env.local` da raiz para `deploy/clients/unitsports/`. Se o env do
 Env de produção: exclusivamente no **painel Netlify** do site `unitsports`. Desenvolvimento local: `deploy/clients/unitsports/.env.local` (gitignored) — use `npm run dev:client -- unitsports`.
 
 Supabase project ref: registrar em `clients.local.json` — não versionar nesta pasta.
+
+### GitHub Actions (CI)
+
+Workflow: [`.github/workflows/qa.yml`](../../../.github/workflows/qa.yml)
+
+**Estado atual (sem secrets no GitHub):**
+
+| Step | Comando |
+|------|---------|
+| Anti-slug guard | `npm run qa:check-no-client-branching` |
+| Testes unitários | `npm test` |
+
+- **Build real:** Netlify — envs de produção já estão no painel do site `unitsports`.
+- **Smoke pós-deploy:** obrigatório — `npm run test:e2e:smoke:client -- unitsports` (local ou operador, com env do slug).
+
+Não duplicamos secrets Netlify → GitHub nesta fase.
+
+**Futuro — CI completo com GitHub Secrets**
+
+Quando cadastradas em **Settings → Secrets and variables → Actions**:
+
+| Secret GitHub | Campo em `.env.local` |
+|---------------|------------------------|
+| `UNITSPORTS_NEXT_PUBLIC_SUPABASE_URL` | `NEXT_PUBLIC_SUPABASE_URL` |
+| `UNITSPORTS_NEXT_PUBLIC_SUPABASE_ANON_KEY` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| `UNITSPORTS_SUPABASE_SERVICE_ROLE_KEY` | `SUPABASE_SERVICE_ROLE_KEY` |
+| `UNITSPORTS_NEXT_PUBLIC_SITE_URL` | `NEXT_PUBLIC_SITE_URL` |
+| `UNITSPORTS_QA_BASE_URL` | `QA_BASE_URL` |
+
+Poderemos reativar no workflow: `npm run build:client -- unitsports` (gerando `.env.local` temporário no runner, gitignored).
 
 ---
 

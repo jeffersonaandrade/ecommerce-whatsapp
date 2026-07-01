@@ -10,13 +10,34 @@ Arquitetura: [`ARCHITECTURE.md`](ARCHITECTURE.md) · Versão: [`CORE_VERSION.md`
 
 ```text
 main (core)
-  ↓ CI / testes
+  ↓ GitHub Actions (CI leve: anti-slug + testes)
   ↓ migrate (cada Supabase)
-  ↓ deploy (cada Netlify)
+  ↓ deploy + build real (cada Netlify, envs no painel)
+  ↓ smoke pós-deploy (obrigatório)
   Cliente A, B, C…
 ```
 
 **Não** multi-tenant no mesmo banco. **Não** fork por cliente.
+
+---
+
+## CI e validação
+
+Workflow: [`.github/workflows/qa.yml`](../.github/workflows/qa.yml)
+
+### Estado atual — GitHub Actions secretless
+
+| Responsável | O que valida |
+|-------------|--------------|
+| **GitHub Actions** | `qa:check-no-client-branching` + `npm test` |
+| **Netlify** | Build/deploy real com envs de produção (já no painel) |
+| **Operador** | Smoke pós-deploy (`test:e2e:smoke:client`) |
+
+Não duplicamos secrets Netlify → GitHub nesta fase. Sem `npm run build` no Actions; sem placeholders Supabase; sem gerar `.env.local` no runner.
+
+### Futuro — CI completo (opcional)
+
+Com secrets UnitSports no GitHub (`UNITSPORTS_*`), reativar `npm run build:client -- unitsports` no workflow. Detalhes: [`deploy/clients/unitsports/README.md`](../deploy/clients/unitsports/README.md) § GitHub Actions.
 
 ---
 

@@ -58,7 +58,7 @@ Futuro (opcional): env Netlify `CORE_VERSION=1.0.0` para smoke automatizado.
 
 ## Fluxo de atualização
 
-1. Desenvolver no `main`; testes + build verdes
+1. Desenvolver no `main`; GitHub Actions (anti-slug + testes) verdes; build Netlify verde; smoke pós-deploy
 2. Atualizar [`CHANGELOG.md`](../CHANGELOG.md) e criar nota em [`docs/releases/`](releases/)
 3. Decidir **quais clientes** recebem a versão (rollout seletivo)
 4. Por cliente escolhido:

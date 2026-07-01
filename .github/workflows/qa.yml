@@ -1,3 +1,20 @@
+# CI leve — protege o core sem secrets.
+#
+# Estado atual:
+#   - anti-slug guard (qa:check-no-client-branching)
+#   - testes unitários (npm test)
+#
+# Build real: Netlify (envs de produção já configuradas no painel).
+# Smoke pós-deploy: obrigatório (test:e2e:smoke:client).
+#
+# Futuro — CI completo com GitHub Secrets (UnitSports):
+#   UNITSPORTS_NEXT_PUBLIC_SUPABASE_URL
+#   UNITSPORTS_NEXT_PUBLIC_SUPABASE_ANON_KEY
+#   UNITSPORTS_SUPABASE_SERVICE_ROLE_KEY
+#   UNITSPORTS_NEXT_PUBLIC_SITE_URL
+#   UNITSPORTS_QA_BASE_URL
+# → reativar npm run build:client -- unitsports no workflow.
+
 name: QA
 
 on:
@@ -24,12 +41,3 @@ jobs:
 
       - name: Unit tests
         run: npm test
-
-      - name: Production build
-        run: npm run build
-        env:
-          DATA_PROVIDER: supabase
-          NEXT_PUBLIC_DATA_PROVIDER: supabase
-          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder
-          SUPABASE_SERVICE_ROLE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder
