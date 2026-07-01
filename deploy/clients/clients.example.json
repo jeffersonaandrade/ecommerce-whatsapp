@@ -4,10 +4,10 @@
     {
       "slug": "unitsports",
       "name": "UnitSports",
-      "netlifySite": "loja-whats",
-      "domain": "https://loja-whats.netlify.app",
+      "netlifySite": "unitsports",
+      "domain": "https://unitsports.netlify.app",
       "supabaseProjectRef": "your-project-ref-here",
-      "coreVersionInstalled": "1.0.0",
+      "coreVersionInstalled": "1.1.0",
       "status": "production",
       "features": ["catalog", "import_csv", "media_center", "banners", "onboarding", "whatsapp_cart"]
     },

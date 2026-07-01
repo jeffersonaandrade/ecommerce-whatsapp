@@ -10,8 +10,8 @@ Ficha operacional da primeira implantação de referência. **Sem secrets** — 
 |-------|-------|
 | slug | `unitsports` |
 | Nome comercial | UnitSports |
-| Domínio público | https://loja-whats.netlify.app |
-| Netlify site | `loja-whats` |
+| Domínio público | https://unitsports.netlify.app |
+| Netlify site | `unitsports` |
 | Status | production |
 
 ---
@@ -29,11 +29,11 @@ Ficha operacional da primeira implantação de referência. **Sem secrets** — 
 
 | Campo | Valor |
 |-------|-------|
-| coreVersionInstalled | 1.0.0 |
-| lastDeployAt | 2026-06-27 |
+| coreVersionInstalled | 1.1.0 |
+| lastDeployAt | 2026-07-01 |
 | lastMigrationApplied | 20260627210000_store_onboarding |
 
-Release baseline: [`docs/releases/v1.0.0.md`](../../../docs/releases/v1.0.0.md)
+Release baseline: [`docs/releases/v1.1.0.md`](../../../docs/releases/v1.1.0.md)
 
 ---
 
@@ -103,14 +103,14 @@ Validação com **código novo** + env UnitSports + dados reais (não usar produ
 npm run env:use -- unitsports
 npm run build && npm start
 # outro terminal:
-PLAYWRIGHT_BASE_URL=http://localhost:3000 npm run test:e2e:smoke
+PLAYWRIGHT_BASE_URL=https://unitsports.netlify.app npm run test:e2e:smoke
 ```
 
 Casos ampliados: hero/banner, footer categorias, header branding, admin settings/comercial. Resultado em `test-data/e2e/smoke-regression-results.json`.
 
 **MCP (pré-smoke):** `store_settings` com `logo.webp` + `hero.webp`; 5 categorias raiz visíveis; 5 banners ativos.
 
-**Gate 2026-07-01:** build local `:3001` + smoke 18/18 PASS (hero carousel, footer 5 categorias, admin settings/comercial). `coreVersionInstalled` → `1.1.0` após deploy produção.
+**Gate 2026-07-01:** build local `:3001` + smoke 18/18 PASS. **Produção** https://unitsports.netlify.app — smoke 18/18 PASS (2026-07-01).
 
 ---
 

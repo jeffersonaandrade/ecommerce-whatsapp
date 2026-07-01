@@ -19,7 +19,7 @@ Versão do core: [`CORE_VERSION.md`](../CORE_VERSION.md) · Compatibilidade: [`C
 
 | Versão | Data | Notas | Clientes atualizados |
 |--------|------|-------|----------------------|
-| v1.1.0 | 2026-07-01 | [v1.1.0.md](v1.1.0.md) | unitsports (validado local; deploy pendente) |
+| v1.1.0 | 2026-07-01 | [v1.1.0.md](v1.1.0.md) | unitsports (produção — https://unitsports.netlify.app) |
 | v1.0.0 | 2026-06-27 | [v1.0.0.md](v1.0.0.md) | unitsports (baseline produção) |
 
 ---
