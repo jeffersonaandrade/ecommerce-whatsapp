@@ -2,8 +2,8 @@
 
 Relatório consolidado antes do hardening P0 e onboard SportWear. **Fonte da verdade:** código-fonte. Graphify usado como mapa de dependências (confirmado com `Read`).
 
-**Grafo:** `graphify update .` em HEAD desta entrega.  
-**Runtime `if (slug)`:** nenhum em `app/`, `lib/`, `components/` (apenas comparações de slug de produto/categoria — OK).
+**Grafo:** `graphify .` após entregas relevantes.  
+**P0 hardening:** concluído — ver [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md) § P0 pós-auditoria.
 
 ---
 

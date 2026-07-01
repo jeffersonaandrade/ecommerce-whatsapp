@@ -12,7 +12,7 @@
 |----------|---------|
 | Runtime | **Limpo** — sem `if (storeName === 'UnitSports')` em `app/` ou `lib/` |
 | Persistência | **Alinhado** — `store_settings` + env por deploy; 1 Supabase por cliente ([`DATABASE_PLAN.md`](DATABASE_PLAN.md)) |
-| Documentação | **Acoplada** — HANDOFF/ROADMAP tratam UnitSports como “o produto” |
+| Documentação | **Em atualização P1** — HANDOFF/ROADMAP alinhados a `unitsports.netlify.app`; histórico `loja-whats` preservado em releases |
 | Operador | **Esperado** — scripts QA com fallback `loja-whats`; dados test-data da implantação |
 | Legado | **`config/site.ts`** — categorias hardcoded como fallback JSON/footer |
 
@@ -22,7 +22,7 @@
 
 | # | Item | Localização | Class. | Recomendação |
 |---|------|-------------|--------|--------------|
-| 1 | URL produção `loja-whats.netlify.app` | `docs/HANDOFF.md`, `ROADMAP.md`, QA reports | 3 + 4 | Manter como URL pública da implantação `unitsports` em [`deploy/clients/unitsports/`](../deploy/clients/unitsports/); generalizar framing em HANDOFF |
+| 1 | URL produção `loja-whats.netlify.app` (legado) | `docs/HANDOFF.md`, `ROADMAP.md`, QA reports | 3 + 4 | **Resolvido (P1):** URL canônica `unitsports.netlify.app` em docs principais; legado citado só em releases/histórico |
 | 2 | “MVP UnitSports” / §1.1 logo | `docs/HANDOFF.md` | 3 + 4 | Renomear para “implantação de referência”; procedimento genérico em template |
 | 3 | Registro migrations “produção UnitSports” | `docs/DATABASE_PLAN.md`, `scripts/migration/supabase-migrations.sql` | 3 + 6 | Rotular “implantação unitsports”; migrations são do **core** |
 | 4 | Estado migração imagens UnitSports | `docs/IMPORT_PIPELINE.md`, `scripts/operator/README.md`, `CHANGELOG.md` | 3 + 6 | Mover status operacional para `deploy/clients/unitsports/notes.md` |

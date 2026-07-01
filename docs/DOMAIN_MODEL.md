@@ -8,7 +8,7 @@ Documento núcleo do domínio. Referências: [`ARCHITECTURE.md`](ARCHITECTURE.md
 2. **V1 não coleta no site:** endereço, CEP, CPF, pagamento, frete — negociados no WhatsApp.
 3. **Catálogo manual + CSV** são entradas complementares e ambos fazem parte do MVP operacional.
 4. **`ProductImage.origin`:** `UPLOAD` (admin) | `URL` (CSV).
-5. Loja **single-client**, não SaaS, não multi-tenant.
+5. Loja **single-tenant por implantação** (1 Supabase + 1 Netlify por cliente). Core compartilhado; **N lojas** via N deploys. Não SaaS multi-tenant no mesmo banco.
 
 ---
 

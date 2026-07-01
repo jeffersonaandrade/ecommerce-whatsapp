@@ -6,6 +6,21 @@ Checklist executável para colocar a loja em operação com cliente real — **s
 
 ---
 
+## P0 pós-auditoria (2026-06-24) — resolvido
+
+Itens de remediação imediata concluídos no core (sem alterar UnitSports em produção além de deploys já publicados):
+
+- [x] CI secretless: anti-slug guard + `npm test` (`.github/workflows/qa.yml`)
+- [x] Fail-closed: `DATA_PROVIDER` não-Supabase bloqueado em produção
+- [x] Baseline migrations versionadas (apenas Supabase **novo** — nunca UnitSports)
+- [x] Relatório RLS + achado `commercial_product_policy_overrides` reclassificado como **latente**
+- [x] Smoke produção `https://unitsports.netlify.app` (18/18)
+- [x] Checkout E2E WhatsApp produção (4/4)
+
+Pendências P2+: CSP/HSTS, sitemap/robots, hardening RLS commercial overrides (com feature Policy Overrides).
+
+---
+
 ## Sprint 1 — Identidade (obrigatório)
 
 - [ ] `StoreSettings` em `storage/store-settings.json`

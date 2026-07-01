@@ -2,7 +2,7 @@
 
 Plataforma **white-label**: um core Next.js + Supabase compartilhado, com **um deploy Netlify e um projeto Supabase por loja** (não multi-tenant no mesmo banco).
 
-**Primeira implantação de referência:** [UnitSports](deploy/clients/unitsports/) (`unitsports.netlify.app`).
+**Primeira implantação de referência:** [UnitSports](deploy/clients/unitsports/) (`https://unitsports.netlify.app`).
 
 ## Arquitetura multi-cliente
 
@@ -15,58 +15,74 @@ Plataforma **white-label**: um core Next.js + Supabase compartilhado, com **um d
 | [`docs/MULTI_CLIENT_AUDIT.md`](docs/MULTI_CLIENT_AUDIT.md) | Acoplamentos classificados |
 | [`deploy/registry/README.md`](deploy/registry/README.md) | Cadastro de implantações |
 
-## 🎯 Objetivo
+**Single-client** neste repo significa: **sem multi-tenant no mesmo banco** — não “apenas uma loja”. O core suporta **N implantações** (N sites Netlify + N Supabase isolados).
+
+## Objetivo
 
 Base de e-commerce esportivo **reutilizável** entre clientes:
-- ✅ Estrutura limpa e reaproveitável
-- ✅ Mobile-first design
-- ✅ Dados mockados inicialmente
-- ✅ Preparado para expansão futura
 
-## 🚀 Stack
+- Estrutura limpa e reaproveitável
+- Mobile-first design
+- Catálogo admin + importação CSV + carrinho + WhatsApp
+- Supabase em produção; JSON local para dev
 
-- **Next.js 16** - Framework React moderno
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Estilização utilitária
-- **App Router** - Roteamento moderno
-- **Node.js 18+** - Runtime
+## Stack
 
-## 📦 Instalação
+- **Next.js 16** — App Router
+- **TypeScript**
+- **Tailwind CSS**
+- **Supabase** — persistência, auth admin, storage
+- **Node.js 18+**
 
-\\\ash
+## Instalação
+
+```bash
 npm install
 npm run dev
-\\\
+```
 
-## 📁 Estrutura do Projeto
+Dev com env de um cliente (recomendado):
 
-- \pp/\ - Páginas e rotas
-- \components/\ - Componentes React
-- \data/\ - Dados mockados
-- \	ypes/\ - Tipos TypeScript
-- \lib/\ - Funções utilitárias
-- \config/\ - Configuração do site
+```bash
+npm run dev:client -- unitsports
+```
 
-## 🎨 Features
+## Estrutura do Projeto
 
-- ✅ Home com hero section
-- ✅ Listagem de produtos
-- ✅ Página de detalhe
-- ✅ Dashboard admin
-- ✅ Mobile-first design
+- `app/` — páginas e rotas
+- `components/` — componentes React
+- `lib/` — domínio, repositórios, utilitários
+- `types/` — tipos TypeScript
+- `config/` — configuração legada (fallback JSON)
+- `deploy/clients/` — ficha operacional por loja
+- `supabase/migrations/` — schema compartilhado do core
 
-## 🛑 O que NÃO está no MVP
+## Features (V1 operacional)
 
-- ❌ Pagamento real
-- ❌ Banco de dados
-- ❌ Autenticação
-- ❌ Carrinho persistente
-- ❌ Checkout funcional
+- Home, PLP, PDP com variações
+- Carrinho (localStorage) + finalização via WhatsApp
+- Admin: produtos, categorias, import CSV, settings, central de mídia
+- Branding (logo/favicon/OG) via implantação ou operador
+- SEO: metadata layout + PDP/PLP
+
+## Fora do escopo V1
+
+- Checkout online / gateway de pagamento
+- Pedidos persistidos (`Order`)
+- Multi-tenant SaaS (várias lojas no mesmo Supabase)
 
 ## Ferramentas de desenvolvimento
 
-O projeto usa [Graphify](https://github.com/safishamsi/graphify) para mapear a estrutura do código e reduzir leitura repetida de arquivos no assistente de IA.
+O projeto usa [Graphify](https://github.com/safishamsi/graphify) para mapear a estrutura do código.
 
-- **Guia completo:** [GRAPHIFY_MAP.md](GRAPHIFY_MAP.md)
-- **Regenerar mapa:** `graphify .` (na raiz do repositório; requer `uv tool install graphifyy`)
+- **Guia:** [GRAPHIFY_MAP.md](GRAPHIFY_MAP.md)
+- **Regenerar:** `graphify .` (na raiz; requer `uv tool install graphifyy`)
 - **Relatório:** [graphify-out/GRAPH_REPORT.md](graphify-out/GRAPH_REPORT.md)
+
+## Saúde do projeto (operador)
+
+```bash
+npm run health:check -- --client unitsports --skip-smoke --skip-checkout
+```
+
+Ver [`scripts/operator/README.md`](scripts/operator/README.md) e [`docs/MULTI_CLIENT_DEPLOYMENT.md`](docs/MULTI_CLIENT_DEPLOYMENT.md).

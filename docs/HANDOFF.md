@@ -3,7 +3,7 @@
 **Auditoria:** 2026-06-27  
 **Fonte da verdade:** código + testes executados + Graphify  
 **Repo:** https://github.com/jeffersonaandrade/ecommerce-whatsapp.git  
-**Produção:** https://loja-whats.netlify.app  
+**Produção:** https://unitsports.netlify.app  
 **Posicionamento:** MVP funcional (não “demo”)
 
 **UnitSports** = primeira **implantação** de referência (`deploy/clients/unitsports/`), não o nome do produto.
@@ -20,6 +20,18 @@
 - Config por loja: `store_settings` + env Netlify · Versão do core: [`CORE_VERSION.md`](CORE_VERSION.md)
 - Novo cliente: [`MULTI_CLIENT_DEPLOYMENT.md`](MULTI_CLIENT_DEPLOYMENT.md) + [`deploy/clients/template/go-live-checklist.md`](../deploy/clients/template/go-live-checklist.md)
 - Auditoria de acoplamentos: [`MULTI_CLIENT_AUDIT.md`](MULTI_CLIENT_AUDIT.md)
+
+### P0 pós-auditoria — resolvido (2026-06-24)
+
+| Item | Status |
+|------|--------|
+| CI anti-slug + testes (secretless) | ✅ |
+| Fail-closed produção (`DATA_PROVIDER`) | ✅ |
+| Baseline migrations (novos Supabase) | ✅ |
+| RLS report + overrides latente | ✅ |
+| Smoke + checkout E2E produção | ✅ |
+
+Detalhes: [`GO_LIVE_CHECKLIST.md`](GO_LIVE_CHECKLIST.md) · RLS: [`audits/RLS_VERIFICATION_2026-06-24.md`](audits/RLS_VERIFICATION_2026-06-24.md)
 
 ---
 
@@ -45,7 +57,7 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **Persistência admin** | ✅ | Supabase em produção Netlify; JSON local para dev |
 | **SEO** | ✅ | `buildPageMetadata`, canonical PLP/Home/PDP, OG, robots PDP |
 | **Deploy Netlify** | ✅ | Produção Supabase integrada; smoke §9.4 + Fase 0 §9.7 PASS (2026-06-26) |
-| **Testes** | ✅ | **207 passed** (47 arquivos) — executado 2026-06-27 |
+| **Testes** | ✅ | Ver `npm test` — suite unitária Vitest (atualizar contagem após cada release) |
 | **Build** | ✅ | `npm run build` OK — 23 rotas |
 
 ### Itens explicitamente ❌ não implementados
@@ -217,7 +229,7 @@ Sem aprovação explícita, **não implementar**:
 
 ## 4. Produção (Netlify)
 
-**URL:** https://loja-whats.netlify.app (HTTP 200 — verificado 2026-06-26)  
+**URL:** https://unitsports.netlify.app (HTTP 200 — verificado 2026-06-26)  
 **Provider:** `DATA_PROVIDER=supabase` · **Último deploy validado:** commit `026dab8` (PDP galeria + strip HTML) — commits posteriores incluem ordem fotos admin (`99860e6`) e graphify (`0a00394`)
 
 ### Funciona normalmente
@@ -300,7 +312,7 @@ Sem aprovação explícita, **não implementar**:
 - [x] 60 testes verdes
 
 **Aceite (produção — operador):**
-- [ ] Salvar settings funciona em https://loja-whats.netlify.app
+- [ ] Salvar settings funciona em https://unitsports.netlify.app
 - [ ] CSV import persiste e aparece na vitrine
 - [ ] Upload logo/hero persiste após redeploy
 - [ ] CRUD produtos persiste
@@ -419,7 +431,7 @@ npm run migrate:images:remaining  # restante dos seguros
 
 ## 9. Validação de pendências
 
-**Atualizado:** 2026-06-27 · Fontes: commits `97fdeab`…`0a00394`, [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://loja-whats.netlify.app
+**Atualizado:** 2026-06-27 · Fontes: commits `97fdeab`…`0a00394`, [`docs/qa/QA_E2E_PLAYWRIGHT_REPORT.md`](qa/QA_E2E_PLAYWRIGHT_REPORT.md), smoke produção https://unitsports.netlify.app
 
 ### Resumo
 
@@ -473,7 +485,7 @@ Substitui o QA parcial em [`docs/archive/QA_SUPABASE_ADMIN_BROWSER_REPORT.md`](a
 
 ### 9.4 Produção Netlify
 
-**URL:** https://loja-whats.netlify.app · **Smoke:** 2026-06-26 (Playwright headless)
+**URL:** https://unitsports.netlify.app · **Smoke:** 2026-06-26 (Playwright headless)
 
 | Variável | Status |
 |----------|--------|
@@ -511,7 +523,7 @@ Evidência: `test-data/e2e/prod-persistence-report.json`
 
 **Commit:** `25ef567d1bd4b5c64f90f10615c72b509ed7a18e`  
 **Repo:** https://github.com/jeffersonaandrade/ecommerce-whatsapp.git  
-**Produção:** https://loja-whats.netlify.app  
+**Produção:** https://unitsports.netlify.app  
 **Deploy Netlify:** ✅ PASS (automático pós-push)
 
 #### Entregas Fase 0
@@ -555,7 +567,7 @@ Ordem objetiva (sem novas features):
 1. [x] Signup OFF no Supabase Dashboard
 2. [x] Rotacionar `service_role` (local + Netlify)
 3. [x] Configurar envs Supabase na Netlify + redeploy
-4. [x] Smoke §9.4 em https://loja-whats.netlify.app
+4. [x] Smoke §9.4 em https://unitsports.netlify.app
 5. [x] Validar em produção: login, toggle senha, CRUD, CSV, uploads, WhatsApp
 6. [ ] Onboarding 1º cliente (Sprint 3)
 7. [x] Restaurar aparência padrão (admin `/admin/settings`) — preset versionado, preserva storeName/contatos, sem reset de catálogo
@@ -643,23 +655,25 @@ Não bloqueiam go-live MVP — **adiar até 1º cliente em produção**:
 | `brasileiro` | `camisas` | 1 |
 | `europeu` | `camisas` | 1 |
 | `nba` | `camisas` | 1 |
-| `selecao-brasileira` | `camisas` | 1 |
 | `retro` | `camisas/brasileiro` (ou sob região adequada) | 2 |
 | `versao-jogador` | `camisas` → região | 2 |
 | `feminina` | `camisas` → região | 2 |
 | `kit-infantil` | `camisas` ou `conjuntos` | 2 |
 | `colecao-de-inverno` | `camisas` (sub: manga longa) | 1–2 |
 
-Raízes que permanecem: `camisas`, `chuteiras`, `conjuntos`, `shorts`.
+Raízes que permanecem: `camisas`, `chuteiras`, `sapatos`, `conjuntos`, `shorts`.
 
-**SQL de reparent (copiar no Supabase — ajustar IDs reais):**
+**Script SQL operacional (preview-only por padrão):**
 
-```sql
--- Exemplo: mover brasileiro sob camisas
-UPDATE categories SET parent_id = (SELECT id FROM categories WHERE slug = 'camisas')
-WHERE slug = 'brasileiro';
--- Triggers recalculam path/depth automaticamente
-```
+[`deploy/clients/unitsports/sql/category-organisation-initial.sql`](../deploy/clients/unitsports/sql/category-organisation-initial.sql)
+
+- Blocos 0–2: SELECT preview (baseline, reparent simulado, contagens por heurística)
+- Bloco 3: UPDATEs dentro de `/* ... */` — seção **EXECUÇÃO MANUAL — DESCOMENTE SOMENTE APÓS VALIDAR OS PREVIEWS**
+- Bloco 4: pós-validação após `COMMIT`
+
+Grupos iniciais de produtos (origem `camisas`): sneakers → `sapatos`; NBA → `nba`; manga longa → `colecao-de-inverno`. Triggers recalculam `path`/`depth` no reparent.
+
+**Execução 2026-06-24 (MCP):** reparent aplicado; sneakers em `sapatos` (~1.173); fase 2 classificou subs (`feminina`, `versao-jogador`, `retro`, `brasileiro`, `europeu`, `kit-infantil`). Scripts: [`category-organisation-initial.sql`](../deploy/clients/unitsports/sql/category-organisation-initial.sql), [`category-organisation-phase2.sql`](../deploy/clients/unitsports/sql/category-organisation-phase2.sql).
 
 #### Bulk move por filtro (admin)
 

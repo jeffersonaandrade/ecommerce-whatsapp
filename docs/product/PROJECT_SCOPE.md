@@ -5,7 +5,7 @@
 
 ## Posicionamento
 
-Loja esportiva **single-client** (template reutilizável). V1 operacional:
+Loja esportiva **reutilizável** (core único, N deploys). **Single-client** = **sem multi-tenant no mesmo banco** — não significa “apenas uma loja”. V1 operacional:
 
 - Cadastro manual de produtos + importação CSV
 - Vitrine + carrinho

@@ -4,7 +4,7 @@ Roadmap comercial: **cadastrar → importar → vender**. Detalhes por módulo: 
 
 ## Visão geral
 
-Template single-client: catálogo + carrinho + WhatsApp na V1. Checkout online na V2.
+Core **single-tenant por implantação** (1 Supabase por loja; N lojas via N deploys). V1: catálogo + carrinho + WhatsApp. Checkout online na V2.
 
 ## Fases
 
@@ -47,7 +47,7 @@ Template single-client: catálogo + carrinho + WhatsApp na V1. Checkout online n
 - ✅ Persistência + [`DATABASE_PLAN.md`](docs/DATABASE_PLAN.md)
 - ✅ Storage de imagens (branding + products)
 - ✅ Auth admin + middleware
-- ✅ `DATA_PROVIDER=supabase` na Netlify — https://loja-whats.netlify.app
+- ✅ `DATA_PROVIDER=supabase` na Netlify — https://unitsports.netlify.app (implantação `unitsports`)
 - 🟡 Onboarding 1º cliente (validação catálogo/imagens)
 
 ### Fase 8: Pedidos
