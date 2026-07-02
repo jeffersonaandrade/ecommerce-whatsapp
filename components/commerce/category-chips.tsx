@@ -16,7 +16,7 @@ export function CategoryChips({ categories }: CategoryChipsProps) {
       aria-label="Comprar por categoria"
     >
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6">
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:thin]">
+        <div className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 [scrollbar-width:thin]">
           {categories.map((category) => (
             <Link
               key={category.id}

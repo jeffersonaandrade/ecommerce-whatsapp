@@ -53,14 +53,14 @@ export function ProductCard({ product }: ProductCardProps) {
           </h3>
         </Link>
 
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-0.5">
+        <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5 pt-0.5">
           {hasPromotion ? (
             <>
-              <span className="text-2xl font-bold text-sale">
-                {formatPrice(displayPrice!)}
-              </span>
               <span className="text-sm text-mute line-through">
                 {formatPrice(product.price)}
+              </span>
+              <span className="text-2xl font-bold text-sale">
+                {formatPrice(displayPrice!)}
               </span>
             </>
           ) : (
