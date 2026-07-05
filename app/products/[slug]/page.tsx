@@ -110,12 +110,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Price — DS §4 price-xl; promo in sale red, no decorative badge */}
             <div>
               {hasPromotion ? (
-                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                  <span className="text-4xl font-bold text-sale">
-                    {formatPrice(displayPrice!)}
-                  </span>
+                <div className="flex flex-wrap items-baseline gap-x-1 gap-y-1">
                   <span className="text-lg text-mute line-through">
                     {formatPrice(product.price)}
+                  </span>
+                  <span className="text-4xl font-bold text-sale">
+                    {formatPrice(displayPrice!)}
                   </span>
                 </div>
               ) : (
