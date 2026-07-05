@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export function ProductsSearchInput({
   initialValue = '',
@@ -14,29 +14,38 @@ export function ProductsSearchInput({
   const searchParams = useSearchParams()
   const [value, setValue] = useState(initialValue)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const skipNextCommitRef = useRef(true)
 
-  const commit = useCallback(
-    (term: string) => {
+  useEffect(() => {
+    setValue(initialValue)
+    skipNextCommitRef.current = true
+  }, [initialValue])
+
+  useEffect(() => {
+    if (skipNextCommitRef.current) {
+      skipNextCommitRef.current = false
+      return
+    }
+
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString())
       params.delete('page')
-      if (term.trim()) {
-        params.set('q', term.trim())
+      if (value.trim()) {
+        params.set('q', value.trim())
       } else {
         params.delete('q')
       }
       const qs = params.toString()
       router.push(qs ? `/products?${qs}` : '/products')
-    },
-    [router, searchParams]
-  )
+    }, 300)
 
-  useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => commit(value), 300)
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [value, commit])
+    // Só reagir à digitação — mudanças em ?page= ou ?category= não devem resetar paginação.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value])
 
   return (
     <input
