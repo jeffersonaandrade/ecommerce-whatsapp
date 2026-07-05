@@ -24,7 +24,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <article className="group flex flex-col">
       <Link
         href={`/products/${product.slug}`}
-        className="relative mb-4 block aspect-square overflow-hidden bg-soft-cloud"
+        className="relative mb-3 block aspect-square overflow-hidden bg-soft-cloud sm:mb-4"
       >
         <ProductImage
           src={product.images[0] ?? ''}
@@ -42,29 +42,30 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
       </Link>
 
-      <div className="flex flex-col gap-1.5">
-        <p className="text-xs font-medium uppercase tracking-wide text-mute">
+      <div className="flex min-w-0 flex-col gap-1 sm:gap-1.5">
+        <p className="text-[11px] font-medium uppercase tracking-wide text-mute sm:text-xs">
           {brandLabel}
         </p>
 
         <Link href={`/products/${product.slug}`}>
-          <h3 className="line-clamp-2 text-base font-semibold leading-snug text-ink transition-colors hover:text-charcoal">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors hover:text-charcoal sm:text-base">
             {product.name}
           </h3>
         </Link>
 
-        <div className="flex flex-wrap items-baseline gap-x-1 gap-y-0.5 pt-0.5">
+        {/* DS §9.2 price-md; coluna no mobile evita quebra horizontal em grid-cols-2 (~171px) */}
+        <div className="flex flex-col items-start gap-0.5 pt-0.5">
           {hasPromotion ? (
             <>
-              <span className="text-sm text-mute line-through">
+              <span className="text-xs text-mute line-through">
                 {formatPrice(product.price)}
               </span>
-              <span className="text-2xl font-bold text-sale">
+              <span className="text-lg font-bold leading-tight text-sale sm:text-xl">
                 {formatPrice(displayPrice!)}
               </span>
             </>
           ) : (
-            <span className="text-2xl font-bold text-ink">
+            <span className="text-lg font-bold leading-tight text-ink sm:text-xl">
               {formatPrice(product.price)}
             </span>
           )}
@@ -85,7 +86,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <Link
           href={`/products/${product.slug}`}
-          className="mt-2 inline-flex text-sm font-medium text-ink underline-offset-4 transition-colors hover:text-charcoal hover:underline"
+          className="mt-1 inline-flex text-xs font-medium text-ink underline-offset-4 transition-colors hover:text-charcoal hover:underline sm:mt-2 sm:text-sm"
         >
           {hasStock ? 'Ver produto' : 'Indisponível'}
         </Link>

@@ -10,6 +10,7 @@ type AdminPaginationProps = {
   totalPages: number
   basePath: string
   currentParams: URLSearchParams
+  showPageSizeSelector?: boolean
 }
 
 export function AdminPagination({
@@ -19,6 +20,7 @@ export function AdminPagination({
   totalPages,
   basePath,
   currentParams,
+  showPageSizeSelector = true,
 }: AdminPaginationProps) {
   if (totalPages <= 1 && total <= 25) return null
 
@@ -33,12 +35,12 @@ export function AdminPagination({
   const to = Math.min(page * pageSize, total)
 
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-mute">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-center text-sm text-mute sm:text-left">
         {from}–{to} de {total} resultado{total !== 1 ? 's' : ''}
       </p>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
         {page > 1 ? (
           <Link
             href={pageUrl(page - 1)}
@@ -69,20 +71,22 @@ export function AdminPagination({
           </span>
         )}
 
-        <select
-          defaultValue={pageSize}
-          onChange={(e) => {
-            window.location.href = pageUrl(1, Number(e.target.value))
-          }}
-          className="ml-2 rounded-lg border border-hairline px-2 py-1.5 text-sm text-ink"
-          aria-label="Itens por página"
-        >
-          {[25, 50, 100, 200].map((s) => (
-            <option key={s} value={s}>
-              {s} por página
-            </option>
-          ))}
-        </select>
+        {showPageSizeSelector && (
+          <select
+            defaultValue={pageSize}
+            onChange={(e) => {
+              window.location.href = pageUrl(1, Number(e.target.value))
+            }}
+            className="ml-2 rounded-lg border border-hairline px-2 py-1.5 text-sm text-ink"
+            aria-label="Itens por página"
+          >
+            {[25, 50, 100, 200].map((s) => (
+              <option key={s} value={s}>
+                {s} por página
+              </option>
+            ))}
+          </select>
+        )}
       </div>
     </div>
   )

@@ -20,7 +20,7 @@ import { getNavigationContext } from '@/lib/catalog/navigation-context'
 import { getStoreSettings } from '@/lib/store/settings-repository'
 import { buildPageMetadata } from '@/lib/store/build-metadata'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getStoreSettings()
@@ -106,7 +106,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         {filteredProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-6 sm:gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -120,6 +120,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   totalPages={result.totalPages}
                   basePath="/products"
                   currentParams={currentParams}
+                  showPageSizeSelector={false}
                 />
               </div>
             )}
