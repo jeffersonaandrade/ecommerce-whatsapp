@@ -262,27 +262,42 @@ async function persistProduct(product: Product): Promise<void> {
   }
 }
 
-/** Insert-only: falha se o id já existir (nunca sobrescreve produto alheio). */
+/** Insert-only atômico via RPC (produto + variações na mesma transação). */
 async function insertNewProduct(product: Product): Promise<void> {
   const supabase = createAdminClient()
-  const { error: productError } = await supabase
-    .from('products')
-    .insert(productToRow(product))
-
-  if (productError) throw new Error(`product insert failed: ${productError.message}`)
-
+  const row = productToRow(product)
   const variationRows = variationsToRows(product.id, product)
-  if (variationRows.length) {
-    const { error: variationError } = await supabase
-      .from('product_variations')
-      .insert(variationRows)
 
-    if (variationError) {
-      // Compensa o insert do produto para não deixar órfão sem variação.
-      await supabase.from('products').delete().eq('id', product.id)
-      throw new Error(`product_variations insert failed: ${variationError.message}`)
-    }
-  }
+  const { error } = await supabase.rpc('create_product_with_variations', {
+    payload: {
+      product: {
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        short_description: row.short_description,
+        long_description: row.long_description ?? '',
+        price: row.price,
+        promotional_price: row.promotional_price,
+        category: row.category,
+        category_id: row.category_id,
+        club: row.club,
+        images: row.images,
+        status: row.status,
+        import_batch_id: row.import_batch_id,
+        personalization_enabled: row.personalization_enabled ?? false,
+        personalization_price: row.personalization_price ?? null,
+      },
+      variations: variationRows.map((v) => ({
+        id: v.id,
+        size: v.size,
+        color: v.color,
+        sku: v.sku,
+        stock: v.stock,
+      })),
+    },
+  })
+
+  if (error) throw new Error(`create_product_with_variations failed: ${error.message}`)
 }
 
 export const supabaseProductRepository: ProductRepository = {
