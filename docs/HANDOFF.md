@@ -34,7 +34,7 @@ Legenda: ✅ Implementado · 🟡 Parcial · ❌ Não implementado
 | **PDP** | ✅ | `app/products/[slug]/page.tsx` — variações, metadata, canonical; `ProductGallery` (miniaturas + setas); textos sem HTML cru (`stripHtml`) |
 | **Carrinho** | ✅ | `context/cart-context.tsx` + localStorage + testes |
 | **WhatsApp** | ✅ | `buildWhatsAppMessage` + `#TEMP-YYYYMMDD-NNNN` + testes |
-| **CRUD Produtos** | ✅ | Admin create/edit/delete; `MoneyInput` BRL; validação por campo; ordem fotos (posição 1 = destaque); redirect pós-create → edit `?created=1`; banner visibilidade na loja |
+| **CRUD Produtos** | ✅ | Admin create/edit/delete; create com UUID + RPC `create_product_with_variations` (INSERT atômico; mitiga risco de sobrescrita do create sequencial+upsert); redirect `?created=1` com instrução de publicar; banner de visibilidade |
 | **Categorias** | ✅ | CRUD v1.1 (`/admin/categories`); PLP/home com slugs; select no produto; CSV `CSV_E008` |
 | **Importação CSV** | ✅ | Wizard (`/admin/import`); RPC transacional `apply_product_import_batch`; revalidação SKU pós-upsert; **sem** histórico (CSV-5). Sempre disponível no admin |
 | **Central de Mídia** | ✅ | `/admin/products/media` — filtros mídia server-side (`?media=`), inventário paginado, wizard upload lazy (`?tab=upload`). Migração local→Storage: **56** OK · **35** ambíguos pendentes validação cliente |

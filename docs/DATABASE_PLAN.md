@@ -96,8 +96,47 @@ Projeto Supabase isolado (`unitsports`). Outras lojas replicam o mesmo schema vi
 | `20260702120000` | `category_hierarchy` | `categories.parent_id/depth/path`, `products.category_id`, RPCs subárvore |
 | `20260730120000` | `category_path_cascade` | Cascade `path`/`depth` em descendentes ao mover/renomear pai |
 | `20260731120000` | `category_depth_four_levels` | Limite `depth` 0–3 (4 níveis visuais); ex.: Camisas › Brasileiro › Retrô › Santa Cruz |
+| `20260714170000` | `create_product_with_variations` | RPC atômica create manual (INSERT produto + variações; colisão = erro; `service_role`) |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
+>
+> **Nota incidente UnitSports (2026-07-14):** contar ~202 produtos na vitrine é evidência **parcial** (estado atual público). Não prova ausência de perda histórica. Auditoria exige `execute_sql` no projeto Supabase da loja (queries abaixo).
+
+### Auditoria pós-incidente (colar no SQL Editor / MCP `execute_sql`)
+
+```sql
+-- Contagem por status
+SELECT status, COUNT(*) FROM public.products GROUP BY status ORDER BY status;
+
+-- Totais + skus
+SELECT
+  (SELECT COUNT(*) FROM public.products) AS products,
+  (SELECT COUNT(*) FROM public.product_variations) AS variations;
+
+-- IDs numéricos curtos (legado do create sequencial)
+SELECT id, name, status, created_at, updated_at
+FROM public.products
+WHERE id ~ '^[0-9]+$'
+ORDER BY (id)::bigint;
+
+-- Possíveis sobrescritas: updated_at bem depois de created_at
+SELECT id, name, status, created_at, updated_at,
+       EXTRACT(EPOCH FROM (updated_at - created_at)) / 3600 AS hours_delta
+FROM public.products
+WHERE updated_at > created_at + interval '1 hour'
+ORDER BY updated_at DESC
+LIMIT 50;
+
+-- Slugs / SKUs duplicados (devem retornar 0 linhas)
+SELECT slug, COUNT(*) FROM public.products GROUP BY slug HAVING COUNT(*) > 1;
+SELECT sku, COUNT(*) FROM public.product_variations GROUP BY sku HAVING COUNT(*) > 1;
+
+-- Recentes
+SELECT id, name, status, created_at, updated_at
+FROM public.products
+ORDER BY updated_at DESC
+LIMIT 30;
+```
 
 ---
 
@@ -118,6 +157,7 @@ Além do schema base em `store_settings`:
 Além do schema base em `products`:
 
 - `import_batch_id` — UUID do lote CSV (nullable, indexado)
+- **Create manual:** ID via `crypto.randomUUID()` + RPC `create_product_with_variations` (INSERT atômico produto+variações). Mitiga risco de sobrescrita do antigo padrão `max(id)+1` + upsert — **hipótese tecnicamente forte, não prova automática de cada produto reclamado sem auditoria no banco.**
 
 Tabela admin:
 

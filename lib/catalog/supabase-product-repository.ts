@@ -121,15 +121,10 @@ async function fetchSlugIndex(): Promise<Pick<Product, 'id' | 'slug'>[]> {
   return (data ?? []) as Pick<Product, 'id' | 'slug'>[]
 }
 
-async function nextProductIdFromDb(): Promise<string> {
-  const supabase = createAdminClient()
-  const { data, error } = await supabase.from('products').select('id').order('id', { ascending: false }).limit(500)
-  if (error) throw new Error(`products id scan failed: ${error.message}`)
-  const numeric = (data ?? [])
-    .map((row) => parseInt(row.id, 10))
-    .filter((n) => !Number.isNaN(n))
-  const max = numeric.length ? Math.max(...numeric) : 0
-  return String(max + 1)
+/** Novo produto: UUID (igual ao import CSV). IDs numéricos sequenciais + upsert
+ * sobrescreviam silenciosamente em condição de corrida ou misturando UUID/numérico. */
+function newProductId(): string {
+  return crypto.randomUUID()
 }
 
 async function fetchProductStatusCounts(): Promise<ProductStatusCounts> {
@@ -267,6 +262,44 @@ async function persistProduct(product: Product): Promise<void> {
   }
 }
 
+/** Insert-only atômico via RPC (produto + variações na mesma transação). */
+async function insertNewProduct(product: Product): Promise<void> {
+  const supabase = createAdminClient()
+  const row = productToRow(product)
+  const variationRows = variationsToRows(product.id, product)
+
+  const { error } = await supabase.rpc('create_product_with_variations', {
+    payload: {
+      product: {
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        short_description: row.short_description,
+        long_description: row.long_description ?? '',
+        price: row.price,
+        promotional_price: row.promotional_price,
+        category: row.category,
+        category_id: row.category_id,
+        club: row.club,
+        images: row.images,
+        status: row.status,
+        import_batch_id: row.import_batch_id,
+        personalization_enabled: row.personalization_enabled ?? false,
+        personalization_price: row.personalization_price ?? null,
+      },
+      variations: variationRows.map((v) => ({
+        id: v.id,
+        size: v.size,
+        color: v.color,
+        sku: v.sku,
+        stock: v.stock,
+      })),
+    },
+  })
+
+  if (error) throw new Error(`create_product_with_variations failed: ${error.message}`)
+}
+
 export const supabaseProductRepository: ProductRepository = {
   async getAll(): Promise<Product[]> {
     return fetchAllProducts()
@@ -342,9 +375,9 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async create(input: ProductInput): Promise<Product> {
-    const [existing, id] = await Promise.all([fetchSlugIndex(), nextProductIdFromDb()])
-    const product = buildProduct(input, existing, id)
-    await persistProduct(product)
+    const existing = await fetchSlugIndex()
+    const product = buildProduct(input, existing, newProductId())
+    await insertNewProduct(product)
     return product
   },
 

@@ -24,12 +24,8 @@ import {
   slugifyUnique,
 } from './product-utils'
 
-function nextProductId(products: Product[]): string {
-  const numeric = products
-    .map((p) => parseInt(p.id, 10))
-    .filter((n) => !Number.isNaN(n))
-  const max = numeric.length ? Math.max(...numeric) : 0
-  return String(max + 1)
+function nextProductId(_products: Product[]): string {
+  return crypto.randomUUID()
 }
 
 function buildProduct(input: ProductInput, existing: Product[]): Product {

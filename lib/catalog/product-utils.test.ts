@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { Product } from '@/types/product'
 import {
+  assignVariationIds,
   deriveShortDescription,
   deriveShortFromHtml,
   slugifyUnique,
@@ -121,5 +122,27 @@ describe('validateProductInput', () => {
     expect(errors.some((e) => e.field === 'images' && e.message.includes('base64'))).toBe(
       true
     )
+  })
+})
+
+describe('assignVariationIds', () => {
+  it('gera UUID estável por variação quando não há id prévio', () => {
+    const uuidRe =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    const [a, b] = assignVariationIds([
+      { sku: 'A-1', stock: 1 },
+      { sku: 'B-1', stock: 2 },
+    ])
+    expect(a.id).toMatch(uuidRe)
+    expect(b.id).toMatch(uuidRe)
+    expect(a.id).not.toBe(b.id)
+  })
+
+  it('preserva ids existentes em edição', () => {
+    const result = assignVariationIds(
+      [{ sku: 'A-1', stock: 3 }],
+      [{ id: 'keep-me', sku: 'A-1', stock: 1 }]
+    )
+    expect(result[0].id).toBe('keep-me')
   })
 })
