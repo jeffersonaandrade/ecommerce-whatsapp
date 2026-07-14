@@ -118,6 +118,7 @@ Além do schema base em `store_settings`:
 Além do schema base em `products`:
 
 - `import_batch_id` — UUID do lote CSV (nullable, indexado)
+- **IDs de produto (create manual + import):** `crypto.randomUUID()`; insert-only no create (não usa mais `max(id)+1` + upsert — risco de sobrescrita silenciosa em corrida ou catálogo misto UUID/numérico)
 
 Tabela admin:
 

@@ -121,15 +121,10 @@ async function fetchSlugIndex(): Promise<Pick<Product, 'id' | 'slug'>[]> {
   return (data ?? []) as Pick<Product, 'id' | 'slug'>[]
 }
 
-async function nextProductIdFromDb(): Promise<string> {
-  const supabase = createAdminClient()
-  const { data, error } = await supabase.from('products').select('id').order('id', { ascending: false }).limit(500)
-  if (error) throw new Error(`products id scan failed: ${error.message}`)
-  const numeric = (data ?? [])
-    .map((row) => parseInt(row.id, 10))
-    .filter((n) => !Number.isNaN(n))
-  const max = numeric.length ? Math.max(...numeric) : 0
-  return String(max + 1)
+/** Novo produto: UUID (igual ao import CSV). IDs numéricos sequenciais + upsert
+ * sobrescreviam silenciosamente em condição de corrida ou misturando UUID/numérico. */
+function newProductId(): string {
+  return crypto.randomUUID()
 }
 
 async function fetchProductStatusCounts(): Promise<ProductStatusCounts> {
@@ -267,6 +262,29 @@ async function persistProduct(product: Product): Promise<void> {
   }
 }
 
+/** Insert-only: falha se o id já existir (nunca sobrescreve produto alheio). */
+async function insertNewProduct(product: Product): Promise<void> {
+  const supabase = createAdminClient()
+  const { error: productError } = await supabase
+    .from('products')
+    .insert(productToRow(product))
+
+  if (productError) throw new Error(`product insert failed: ${productError.message}`)
+
+  const variationRows = variationsToRows(product.id, product)
+  if (variationRows.length) {
+    const { error: variationError } = await supabase
+      .from('product_variations')
+      .insert(variationRows)
+
+    if (variationError) {
+      // Compensa o insert do produto para não deixar órfão sem variação.
+      await supabase.from('products').delete().eq('id', product.id)
+      throw new Error(`product_variations insert failed: ${variationError.message}`)
+    }
+  }
+}
+
 export const supabaseProductRepository: ProductRepository = {
   async getAll(): Promise<Product[]> {
     return fetchAllProducts()
@@ -342,9 +360,9 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async create(input: ProductInput): Promise<Product> {
-    const [existing, id] = await Promise.all([fetchSlugIndex(), nextProductIdFromDb()])
-    const product = buildProduct(input, existing, id)
-    await persistProduct(product)
+    const existing = await fetchSlugIndex()
+    const product = buildProduct(input, existing, newProductId())
+    await insertNewProduct(product)
     return product
   },
 
