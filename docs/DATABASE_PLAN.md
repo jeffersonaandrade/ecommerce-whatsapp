@@ -96,8 +96,40 @@ Projeto Supabase isolado (`unitsports`). Outras lojas replicam o mesmo schema vi
 | `20260702120000` | `category_hierarchy` | `categories.parent_id/depth/path`, `products.category_id`, RPCs subárvore |
 | `20260730120000` | `category_path_cascade` | Cascade `path`/`depth` em descendentes ao mover/renomear pai |
 | `20260731120000` | `category_depth_four_levels` | Limite `depth` 0–3 (4 níveis visuais); ex.: Camisas › Brasileiro › Retrô › Santa Cruz |
+| `20260714170000` | `create_product_with_variations` | RPC `create_product_with_variations(jsonb)` — create manual atômico (INSERT estrito, sem upsert) |
 
 > **Operacional:** DDL via MCP `apply_migration`; dados via `npm run migrate:supabase`. Consultas de verificação via MCP `execute_sql`.
+
+### Create manual — auditoria de overwrite (UnitSports / pós-incidente)
+
+Aplicar em **cada** projeto Supabase do cliente (arquivo: [`supabase/migrations/20260714170000_create_product_with_variations.sql`](../supabase/migrations/20260714170000_create_product_with_variations.sql)).
+
+Hipótese (risco técnico, não prova caso a caso): create antigo (`max(id)+1` + `upsert onConflict id`) podia sobrescrever produto em race ou catálogo misto UUID/numérico.
+
+```sql
+-- Contagem por status
+SELECT status, COUNT(*) FROM public.products GROUP BY status ORDER BY status;
+
+-- IDs que parecem numéricos (legado create manual)
+SELECT id, slug, name, status, created_at, updated_at
+FROM public.products
+WHERE id ~ '^[0-9]+$'
+ORDER BY (id::bigint);
+
+-- Candidatos a overwrite: updated_at bem depois de created_at
+SELECT id, slug, name, created_at, updated_at,
+       (updated_at - created_at) AS lag
+FROM public.products
+WHERE updated_at > created_at + interval '1 minute'
+ORDER BY lag DESC
+LIMIT 50;
+
+-- Slugs duplicados (não deveria existir — UNIQUE)
+SELECT slug, COUNT(*) FROM public.products GROUP BY slug HAVING COUNT(*) > 1;
+
+-- SKUs duplicados (não deveria existir — UNIQUE)
+SELECT sku, COUNT(*) FROM public.product_variations GROUP BY sku HAVING COUNT(*) > 1;
+```
 
 ---
 
@@ -412,7 +444,9 @@ Copie [`.env.local.example`](../.env.local.example) para `.env.local`.
 3. Criar buckets `branding` e `products` (public read)
 4. Auth → Email provider habilitado; **desabilitar sign ups públicos**
 5. Criar usuário admin (Authentication → Users → Add user)
-6. Editar admin → Raw App Meta Data: `{ "role": "admin" }`
+6. Conceder role admin:
+   - **UI:** editar usuário → Raw App Meta Data: `{ "role": "admin" }`
+   - **SQL (reutilizável):** [`scripts/migration/grant-store-admin.sql`](../scripts/migration/grant-store-admin.sql) — substituir o e-mail, rodar no SQL Editor do projeto da loja. Após aplicar, o usuário deve **logout/login** para o JWT incluir `role=admin`.
 7. Copiar URL + anon key + service role key para `.env.local`
 8. Teste: upload manual em `branding`, login admin no Dashboard
 
@@ -472,4 +506,4 @@ Detalhes: [`IMPORT_PIPELINE.md`](IMPORT_PIPELINE.md) § Migração de imagens.
 
 ---
 
-*Última atualização: 2026-06-27 — migrations + migração imagens UnitSports*
+*Última atualização: 2026-07-15 — RPC `create_product_with_variations` (create atômico)*

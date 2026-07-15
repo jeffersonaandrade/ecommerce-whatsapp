@@ -121,15 +121,41 @@ async function fetchSlugIndex(): Promise<Pick<Product, 'id' | 'slug'>[]> {
   return (data ?? []) as Pick<Product, 'id' | 'slug'>[]
 }
 
-async function nextProductIdFromDb(): Promise<string> {
+async function createProductViaRpc(product: Product): Promise<void> {
   const supabase = createAdminClient()
-  const { data, error } = await supabase.from('products').select('id').order('id', { ascending: false }).limit(500)
-  if (error) throw new Error(`products id scan failed: ${error.message}`)
-  const numeric = (data ?? [])
-    .map((row) => parseInt(row.id, 10))
-    .filter((n) => !Number.isNaN(n))
-  const max = numeric.length ? Math.max(...numeric) : 0
-  return String(max + 1)
+  const row = productToRow(product)
+  const { error } = await supabase.rpc('create_product_with_variations', {
+    payload: {
+      product: {
+        id: row.id,
+        slug: row.slug,
+        name: row.name,
+        short_description: row.short_description,
+        long_description: row.long_description ?? '',
+        price: row.price,
+        promotional_price: row.promotional_price,
+        category: row.category,
+        category_id: row.category_id,
+        club: row.club,
+        images: row.images,
+        status: row.status,
+        import_batch_id: row.import_batch_id,
+        personalization_enabled: row.personalization_enabled ?? false,
+        personalization_price: row.personalization_price ?? null,
+      },
+      variations: variationsToRows(product.id, product).map((v) => ({
+        id: v.id,
+        sku: v.sku,
+        size: v.size,
+        color: v.color,
+        stock: v.stock,
+      })),
+    },
+  })
+
+  if (error) {
+    throw new Error(`create_product_with_variations failed: ${error.message}`)
+  }
 }
 
 async function fetchProductStatusCounts(): Promise<ProductStatusCounts> {
@@ -342,9 +368,9 @@ export const supabaseProductRepository: ProductRepository = {
   },
 
   async create(input: ProductInput): Promise<Product> {
-    const [existing, id] = await Promise.all([fetchSlugIndex(), nextProductIdFromDb()])
-    const product = buildProduct(input, existing, id)
-    await persistProduct(product)
+    const existing = await fetchSlugIndex()
+    const product = buildProduct(input, existing, crypto.randomUUID())
+    await createProductViaRpc(product)
     return product
   },
 

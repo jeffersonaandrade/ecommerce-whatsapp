@@ -20,6 +20,8 @@
     "create-client": "node scripts/operator/create-client.mjs",
     "env:use": "node scripts/operator/use-client-env.mjs",
     "dev:client": "node scripts/operator/run-with-client-env.mjs dev",
+    "dev:essenza": "node scripts/operator/run-with-client-env.mjs dev essenza",
+    "essenza:sync-media": "node scripts/deploy/sync-essenza-media.mjs",
     "build:client": "node scripts/operator/run-with-client-env.mjs build",
     "start:client": "node scripts/operator/run-with-client-env.mjs start",
     "test:e2e:smoke:client": "node scripts/operator/run-with-client-env.mjs smoke",

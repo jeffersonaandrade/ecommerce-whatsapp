@@ -52,7 +52,7 @@ export function assignVariationIds(
   previous?: ProductVariation[]
 ): ProductVariation[] {
   return variations.map((v, i) => ({
-    id: v.id ?? previous?.[i]?.id ?? `v-${Date.now()}-${i}`,
+    id: v.id ?? previous?.[i]?.id ?? crypto.randomUUID(),
     size: v.size?.trim() || undefined,
     color: v.color?.trim() || undefined,
     sku: v.sku.trim(),

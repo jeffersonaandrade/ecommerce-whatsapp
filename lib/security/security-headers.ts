@@ -10,7 +10,9 @@ function supabaseHost(): string | null {
 
 export function buildContentSecurityPolicy(): string {
   const supabase = supabaseHost()
-  const imgHosts = ["'self'", 'data:', 'blob:', 'https://images.unsplash.com']
+  // CSV/import pode apontar products.images para qualquer CDN https (ex.: Shopify).
+  // Sem https: em img-src, <img>/next/image unoptimized quebram no admin (CSP).
+  const imgHosts = ["'self'", 'data:', 'blob:', 'https:']
   const connectHosts = ["'self'"]
   if (supabase) {
     imgHosts.push(`https://${supabase}`)

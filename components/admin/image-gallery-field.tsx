@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import { useRef, useState } from 'react'
+import { ProductImage } from '@/components/product/product-image'
 import { Button } from '@/components/ui/button'
 import { uploadProductImageAction } from '@/lib/catalog/actions'
 import { validateImageFile } from '@/lib/media/validate-image-file'
@@ -203,12 +203,11 @@ export function ImageGalleryField({
               className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3 sm:flex-row sm:items-center"
             >
               <div className="relative aspect-square w-full shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-white sm:h-24 sm:w-24">
-                <Image
+                <ProductImage
                   src={src}
                   alt={`Imagem ${index + 1}`}
                   fill
                   className="object-cover"
-                  unoptimized
                   sizes="96px"
                 />
                 {index === 0 && (

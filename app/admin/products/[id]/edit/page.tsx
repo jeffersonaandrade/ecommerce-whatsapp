@@ -45,7 +45,10 @@ export default async function EditProductPage({
         {created === '1' && (
           <Alert type="success" className="space-y-2">
             <p className="font-semibold">Produto criado com sucesso.</p>
-            <p>Revise os dados abaixo. Para publicar na loja:</p>
+            <p>
+              O cadastro ficou em <strong>rascunho</strong> (não aparece na vitrine até você
+              publicar). Isso não é perda do produto — revise e ative:
+            </p>
             <ol className="list-inside list-decimal space-y-1">
               <li>Confira imagem, preço e estoque da variação.</li>
               <li>
