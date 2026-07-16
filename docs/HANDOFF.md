@@ -178,7 +178,7 @@ Sem aprovação explícita, **não implementar**:
 | Build | OK (`npm run build:netlify`) |
 | Último commit | `fdff953` categorias hierárquicas · `3676f7d` bulk activate · `6be4d43` onboarding manual |
 | Branch | `master` — sincronizado com `origin/master` |
-| Graphify | **2435 nós · 6506 arestas · 115 comunidades** (`graphify-out/`, sync 2026-07-15, commit `0ca8c95`) |
+| Graphify | **2428 nós · 6513 arestas · 134 comunidades** (`graphify-out/`, sync 2026-07-16, pós size-order) |
 | Versão `package.json` | `1.0.0` (CHANGELOG cita `1.0.1-demo` — **desalinhado**) |
 
 ### Persistência atual (filesystem)

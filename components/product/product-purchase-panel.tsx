@@ -13,6 +13,7 @@ import {
   findVariation,
   resolveVariationBySelection,
 } from '@/lib/cart-utils'
+import { sortSizes } from '@/lib/catalog/size-order'
 import { colorNameToHex, colorSwatchBorderClass } from '@/lib/colors'
 import { Product } from '@/types/product'
 import { Button } from '@/components/ui/button'
@@ -79,9 +80,9 @@ export function ProductPurchasePanel({ product }: ProductPurchasePanelProps) {
     personalizationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }, [openPersonalizationOnLoad])
 
-  const sizes = Array.from(
-    new Set(product.variations.map((v) => v.size).filter(Boolean))
-  ) as string[]
+  const sizes = sortSizes(
+    Array.from(new Set(product.variations.map((v) => v.size).filter(Boolean))) as string[]
+  )
   const colors = Array.from(
     new Set(product.variations.map((v) => v.color).filter(Boolean))
   ) as string[]

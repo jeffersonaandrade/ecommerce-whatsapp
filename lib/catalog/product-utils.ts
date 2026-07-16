@@ -124,6 +124,19 @@ export function validateProductInput(
     })
   }
 
+  const sizeKeys = input.variations
+    .map((v) => (v.size ?? '').trim().toUpperCase())
+    .filter(Boolean)
+  const duplicateSizes = [
+    ...new Set(sizeKeys.filter((size, index) => sizeKeys.indexOf(size) !== index)),
+  ]
+  for (const size of duplicateSizes) {
+    errors.push({
+      field: 'variations',
+      message: `Tamanho "${size}" já existe neste produto — remova o duplicado`,
+    })
+  }
+
   for (const variation of input.variations) {
     if (!variation.sku.trim()) {
       errors.push({ field: 'variations', message: 'SKU obrigatório em cada variação' })

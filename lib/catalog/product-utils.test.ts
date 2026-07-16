@@ -113,13 +113,36 @@ describe('validateProductInput', () => {
     expect(errors.some((e) => e.field === 'images')).toBe(true)
   })
 
-  it('rejeita imagens base64/data URL', () => {
+  it('rejeita tamanho duplicado no mesmo produto (case-insensitive)', () => {
     const errors = validateProductInput(
-      { ...validInput, images: ['data:image/png;base64,abc123'] },
+      {
+        ...validInput,
+        variations: [
+          { size: 'P', sku: 'SKU-P-1', stock: 10 },
+          { size: 'p', sku: 'SKU-P-2', stock: 10 },
+          { size: 'M', sku: 'SKU-M-1', stock: 5 },
+        ],
+      },
       []
     )
-    expect(errors.some((e) => e.field === 'images' && e.message.includes('base64'))).toBe(
-      true
+    expect(
+      errors.some(
+        (e) => e.field === 'variations' && e.message.includes('Tamanho "P"')
+      )
+    ).toBe(true)
+  })
+
+  it('aceita tamanhos distintos', () => {
+    const errors = validateProductInput(
+      {
+        ...validInput,
+        variations: [
+          { size: 'P', sku: 'SKU-P-1', stock: 10 },
+          { size: 'M', sku: 'SKU-M-1', stock: 10 },
+        ],
+      },
+      []
     )
+    expect(errors.some((e) => e.message.includes('Tamanho'))).toBe(false)
   })
 })

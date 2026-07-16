@@ -1,4 +1,5 @@
 import { Product, ProductStatus } from '@/types/product'
+import { sortVariationsBySize } from '@/lib/catalog/size-order'
 
 export type ProductRow = {
   id: string
@@ -46,13 +47,15 @@ export function rowsToProduct(
     categoryId: row.category_id ?? null,
     club: row.club ?? undefined,
     images: row.images ?? [],
-    variations: variations.map((v) => ({
-      id: v.id,
-      size: v.size ?? undefined,
-      color: v.color ?? undefined,
-      sku: v.sku,
-      stock: v.stock,
-    })),
+    variations: sortVariationsBySize(
+      variations.map((v) => ({
+        id: v.id,
+        size: v.size ?? undefined,
+        color: v.color ?? undefined,
+        sku: v.sku,
+        stock: v.stock,
+      }))
+    ),
     status: row.status,
     importBatchId: row.import_batch_id ?? undefined,
     personalizationEnabled: row.personalization_enabled ?? false,
